@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h2>Scan this with Google Authenticator</h2>
+  <img id="qr" />
+  <script>
+    // PASTE THE BASE64 STRING HERE INSIDE THE QUOTES
+    const base64 = "PASTE_THE_LONG_STRING_HERE";
+    document.getElementById('qr').src = base64;
+  </script>
+</body>
+</html>

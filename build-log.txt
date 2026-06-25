@@ -1,0 +1,31 @@
+
+> vinculum-os@0.1.0 build
+> next build
+
+   ▲ Next.js 15.5.18
+   - Environments: .env
+
+   Creating an optimized production build ...
+ ⚠ Compiled with warnings in 2.4s
+
+./app/api/auth/totp/verify/route.ts
+Attempted import error: 'authenticator' is not exported from 'otplib' (imported as 'authenticator').
+
+Import trace for requested module:
+./app/api/auth/totp/verify/route.ts
+
+ ✓ Compiled successfully in 4.2s
+   Linting and checking validity of types ...
+Failed to compile.
+
+./app/(auth)/create/page.tsx:57:39
+Type error: Cannot find namespace 'JSX'.
+
+[0m [90m 55 |[39m ][33m;[39m
+ [90m 56 |[39m
+[31m[1m>[22m[39m[90m 57 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mCreatePage[39m()[33m:[39m [33mJSX[39m[33m.[39m[33mElement[39m {
+ [90m    |[39m                                       [31m[1m^[22m[39m
+ [90m 58 |[39m   [36mconst[39m router [33m=[39m useRouter()[33m;[39m
+ [90m 59 |[39m   [36mconst[39m { mutate } [33m=[39m useAuth()[33m;[39m
+ [90m 60 |[39m   [36mconst[39m [step[33m,[39m setStep] [33m=[39m useState[33m<[39m[35m1[39m [33m|[39m [35m2[39m[33m>[39m([35m1[39m)[33m;[39m[0m
+Next.js build worker exited with code: 1 and signal: null

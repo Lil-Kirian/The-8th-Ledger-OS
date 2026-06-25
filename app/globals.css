@@ -1,0 +1,325 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   BASE
+   ============================================================ */
+@layer base {
+  :root {
+    --background: 0 0% 3%;
+    --foreground: 210 20% 98%;
+    --card: 240 10% 4%;
+    --card-foreground: 210 20% 98%;
+    --popover: 240 10% 4%;
+    --popover-foreground: 210 20% 98%;
+    --primary: 187 94% 43%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 210 20% 98%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 215 16% 57%;
+    --accent: 45 93% 47%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 4% 16%;
+    --input: 240 4% 16%;
+    --ring: 187 94% 43%;
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-white/10;
+  }
+
+  body {
+    @apply bg-void text-surgical antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  ::selection {
+    @apply bg-cyan-500/30 text-cyan-200;
+  }
+}
+
+/* ============================================================
+   CUSTOM ANIMATIONS
+   ============================================================ */
+@layer utilities {
+  /* Orb ambient pulse — renamed to avoid tailwind.config collision */
+  .animate-orb {
+    animation: orb-pulse 6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  @keyframes orb-pulse {
+    0%, 100% {
+      opacity: 0.4;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+  }
+
+  /* Staggered delays */
+  .delay-100 { animation-delay: 100ms; }
+  .delay-200 { animation-delay: 200ms; }
+  .delay-300 { animation-delay: 300ms; }
+  .delay-500 { animation-delay: 500ms; }
+  .delay-700 { animation-delay: 700ms; }
+  .delay-1000 { animation-delay: 1000ms; }
+  .delay-1500 { animation-delay: 1500ms; }
+
+  /* Ping animation for live indicators */
+  .animate-ping-slow {
+    animation: ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+  }
+
+  /* Vinculum cyan gradient text */
+  .text-gradient-cyan {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-cyan-200;
+  }
+
+  /* Vinculum amber gradient text */
+  .text-gradient-amber {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200;
+  }
+
+  /* Glass morphism utility */
+  .glass {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10;
+  }
+
+  /* Glass morphism with cyan tint */
+  .glass-cyan {
+    @apply bg-cyan-500/5 backdrop-blur-xl border border-cyan-500/20;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Thin scrollbar */
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.1) transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.1);
+    border-radius: 999px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.2);
+  }
+
+  /* Line clamp utilities */
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Font space utility */
+  .font-space {
+    font-family: var(--font-space), ui-sans-serif, system-ui, sans-serif;
+  }
+
+  /* Number input hide arrows */
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"] {
+    -moz-appearance: textfield;
+  }
+
+  /* Focus ring override — cyan for Vinculum */
+  .focus-ring {
+    @apply outline-none ring-2 ring-cyan-500/30 ring-offset-2 ring-offset-void;
+  }
+
+  /* ARCs credit glow badge */
+  .arcs-glow {
+    @apply rounded-full border border-amber-500/20 bg-amber-950/20 px-3 py-1 text-xs font-mono text-amber-300;
+    box-shadow: 0 0 12px rgba(229, 165, 0, 0.1);
+  }
+
+  /* VIN flame pulse badge */
+  .vin-flame {
+    @apply rounded-full border border-amber-500/20 bg-amber-950/20 px-3 py-1 text-xs font-mono text-amber-300;
+    box-shadow: 0 0 12px rgba(255, 184, 0, 0.15);
+  }
+
+  /* Cyan glow for active states */
+  .cyan-glow {
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.15), 0 0 40px rgba(6, 182, 212, 0.05);
+  }
+
+  /* Amber glow for VIN/ARCs */
+  .amber-glow {
+    box-shadow: 0 0 20px rgba(229, 165, 0, 0.15), 0 0 40px rgba(229, 165, 0, 0.05);
+  }
+}
+
+/* ============================================================
+   COMPONENT-SPECIFIC STYLES
+   ============================================================ */
+@layer components {
+  /* Sidebar active indicator */
+  .sidebar-active-indicator {
+    @apply absolute left-0 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-full bg-cyan-400;
+  }
+
+  /* Pool card hover glow — cyan for Vinculum */
+  .pool-card-glow {
+    @apply transition-all duration-300;
+  }
+  .pool-card-glow:hover {
+    box-shadow: 0 0 40px -10px rgba(6, 182, 212, 0.2);
+  }
+
+  /* Stat card shimmer */
+  .stat-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(6, 182, 212, 0.04) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Bonding curve area gradient */
+  .bonding-area {
+    fill: url(#curveGradient);
+    opacity: 0.3;
+  }
+
+  /* Tier ring colors */
+  .tier-ring-1 { @apply ring-slate-500/30; }
+  .tier-ring-2 { @apply ring-sky-500/30; }
+  .tier-ring-3 { @apply ring-cyan-500/30; }
+  .tier-ring-4 { @apply ring-violet-500/30; }
+  .tier-ring-5 { @apply ring-amber-500/30; }
+
+  /* Toast slide in */
+  .toast-enter {
+    animation: toast-slide-in 0.3s ease-out;
+  }
+  @keyframes toast-slide-in {
+    from {
+      transform: translateX(-50%) translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  }
+
+  /* Modal backdrop blur */
+  .modal-backdrop {
+    @apply bg-black/70 backdrop-blur-sm;
+  }
+
+  /* Input focus states — cyan for Vinculum */
+  .input-sovereign {
+    @apply w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition-all;
+  }
+  .input-sovereign:focus {
+    @apply border-cyan-500/50 bg-white/[0.07] ring-1 ring-cyan-500/30;
+  }
+
+  /* Button press effect */
+  .btn-press {
+    @apply active:scale-[0.98] transition-transform;
+  }
+
+  /* Gradient borders — cyan/amber for Vinculum */
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(to right, rgba(6, 182, 212, 0.3), rgba(229, 165, 0, 0.3));
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
+
+/* ============================================================
+   SVG GRADIENT DEFINITIONS (for bonding curve, surplus rings)
+   ============================================================ */
+@layer base {
+  svg {
+    overflow: visible;
+  }
+}
+
+/* ============================================================
+   RESPONSIVE UTILITIES
+   ============================================================
+   Mobile touch improvements */
+@layer utilities {
+  @media (hover: none) {
+    .hover\:bg-white\/10:active {
+      @apply bg-white/10;
+    }
+  }
+
+  /* Safe area for mobile */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* ============================================================
+   PRINT STYLES (for audit exports)
+   ============================================================ */
+@media print {
+  body {
+    @apply bg-white text-black;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
