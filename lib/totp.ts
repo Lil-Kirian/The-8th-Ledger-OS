@@ -1,8 +1,13 @@
 import crypto from "crypto";
 
-const TEMP_SECRET = Buffer.from(
-  process.env.NEXTAUTH_SECRET || "8th-ledger-totp-fallback-key-change-in-prod"
-);
+function getTempSecret() {
+  const tempSecretValue =
+    process.env.TOTP_ENCRYPTION_KEY || process.env.SESSION_SECRET;
+  if (!tempSecretValue) {
+    throw new Error("TOTP_ENCRYPTION_KEY or SESSION_SECRET is required");
+  }
+  return Buffer.from(tempSecretValue);
+}
 
 /* ============================================================
    BASE32 HELPERS (RFC 4648)
@@ -34,23 +39,40 @@ function base32Decode(secret: string): Buffer {
    TEMP TOKEN — Issued after correct password, before TOTP
    ============================================================ */
 export async function createTempToken(ledgerId: string): Promise<string> {
-  const header = Buffer.from(JSON.stringify({ alg: "HS256", typ: "JWT" })).toString("base64url");
+  const header = Buffer.from(
+    JSON.stringify({ alg: "HS256", typ: "JWT" }),
+  ).toString("base64url");
   const now = Math.floor(Date.now() / 1000);
   const payload = Buffer.from(
-    JSON.stringify({ ledgerId, step: "totp_pending", iat: now, exp: now + 300 })
+    JSON.stringify({
+      ledgerId,
+      step: "totp_pending",
+      iat: now,
+      exp: now + 300,
+    }),
   ).toString("base64url");
-  const sig = crypto.createHmac("sha256", TEMP_SECRET).update(`${header}.${payload}`).digest("base64url");
+  const sig = crypto
+    .createHmac("sha256", getTempSecret())
+    .update(`${header}.${payload}`)
+    .digest("base64url");
   return `${header}.${payload}.${sig}`;
 }
 
-export async function verifyTempToken(token: string): Promise<{ ledgerId: string }> {
+export async function verifyTempToken(
+  token: string,
+): Promise<{ ledgerId: string }> {
   const [header, payload, signature] = token.split(".");
-  if (!header || !payload || !signature) throw new Error("Invalid token format");
-  const sig = crypto.createHmac("sha256", TEMP_SECRET).update(`${header}.${payload}`).digest("base64url");
+  if (!header || !payload || !signature)
+    throw new Error("Invalid token format");
+  const sig = crypto
+    .createHmac("sha256", getTempSecret())
+    .update(`${header}.${payload}`)
+    .digest("base64url");
   if (sig !== signature) throw new Error("Invalid token signature");
   const body = JSON.parse(Buffer.from(payload, "base64url").toString());
   if (body.step !== "totp_pending") throw new Error("Invalid token step");
-  if (body.exp < Math.floor(Date.now() / 1000)) throw new Error("Token expired");
+  if (body.exp < Math.floor(Date.now() / 1000))
+    throw new Error("Token expired");
   return { ledgerId: body.ledgerId as string };
 }
 
@@ -69,14 +91,18 @@ export function generateTOTPSecret(): string {
 export async function generateQRCode(
   secret: string,
   _ledgerId: string,
-  email: string
+  email: string,
 ): Promise<string> {
   const label = encodeURIComponent(email);
   const issuer = encodeURIComponent("8th Ledger");
   return `otpauth://totp/${label}?secret=${secret}&issuer=${issuer}&algorithm=SHA1&digits=6&period=30`;
 }
 
-export function verifyTOTP(secret: string, code: string, window: number = 1): boolean {
+export function verifyTOTP(
+  secret: string,
+  code: string,
+  window: number = 1,
+): boolean {
   const key = base32Decode(secret);
   const timeStep = 30;
   const now = Math.floor(Date.now() / 1000);
@@ -89,9 +115,9 @@ export function verifyTOTP(secret: string, code: string, window: number = 1): bo
     const hmac = crypto.createHmac("sha1", key).update(c).digest();
     const offset = hmac[hmac.length - 1] & 0x0f;
     const codeNum =
-      ((hmac[offset] & 0x7f) << 24 |
-        (hmac[offset + 1] & 0xff) << 16 |
-        (hmac[offset + 2] & 0xff) << 8 |
+      (((hmac[offset] & 0x7f) << 24) |
+        ((hmac[offset + 1] & 0xff) << 16) |
+        ((hmac[offset + 2] & 0xff) << 8) |
         (hmac[offset + 3] & 0xff)) %
       1000000;
     if (codeNum.toString().padStart(6, "0") === code) return true;
@@ -107,21 +133,23 @@ export function generateRecoveryCodes(): {
   hashedJson: string;
 } {
   const plain = Array.from({ length: 10 }, () =>
-    crypto.randomBytes(4).toString("hex").toUpperCase()
+    crypto.randomBytes(4).toString("hex").toUpperCase(),
   );
   const hashed = plain.map((c) =>
-    crypto.pbkdf2Sync(c, TEMP_SECRET, 100000, 32, "sha256").toString("base64url")
+    crypto
+      .pbkdf2Sync(c, getTempSecret(), 100000, 32, "sha256")
+      .toString("base64url"),
   );
   return { plain, hashedJson: JSON.stringify(hashed) };
 }
 
 export function verifyRecoveryCode(
   hashedJson: string,
-  plainCode: string
+  plainCode: string,
 ): { valid: boolean; updatedCodes?: string } {
   const hashes: string[] = JSON.parse(hashedJson);
   const target = crypto
-    .pbkdf2Sync(plainCode, TEMP_SECRET, 100000, 32, "sha256")
+    .pbkdf2Sync(plainCode, getTempSecret(), 100000, 32, "sha256")
     .toString("base64url");
   const index = hashes.findIndex((h) => h === target);
   if (index === -1) return { valid: false };

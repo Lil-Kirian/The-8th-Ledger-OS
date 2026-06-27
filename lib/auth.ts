@@ -8,6 +8,7 @@ import { SignJWT, jwtVerify } from "jose";
 import { randomBytes, randomUUID } from "crypto";
 import { cookies } from "next/headers";
 import { prisma } from "./prisma";
+import { getSessionSecret } from "./env";
 
 /* ============================================================
    TYPES
@@ -67,13 +68,18 @@ export interface SessionClaims {
    Safe for API routes only.
    ============================================================ */
 
-const secret = new TextEncoder().encode(process.env.JWT_SECRET || process.env.SESSION_SECRET || "8th-ledger-dev-secret-change-in-production");
+function getJwtKey() {
+  return new TextEncoder().encode(getSessionSecret());
+}
 
 export async function hashPassword(password: string): Promise<string> {
   return bcrypt.hash(password, 12);
 }
 
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+export async function verifyPassword(
+  password: string,
+  hash: string,
+): Promise<boolean> {
   return bcrypt.compare(password, hash);
 }
 
@@ -82,11 +88,13 @@ export async function createToken(payload: object): Promise<string> {
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime("7d")
-    .sign(secret);
+    .sign(getJwtKey());
 }
 
 export async function verifyToken(token: string) {
-  const { payload } = await jwtVerify(token, secret, { clockTolerance: 60 });
+  const { payload } = await jwtVerify(token, getJwtKey(), {
+    clockTolerance: 60,
+  });
   return payload;
 }
 
@@ -103,7 +111,7 @@ export async function getSessionUser() {
   /* ── Fast path: JWT token (no DB hit) ── */
   if (token.includes(".")) {
     try {
-      const claims = await verifyToken(token) as unknown as SessionClaims;
+      const claims = (await verifyToken(token)) as unknown as SessionClaims;
       const user = await prisma.user.findUnique({
         where: { ledgerId: claims.ledgerId },
         include: { kycRecord: true, wallet: true },
@@ -122,7 +130,8 @@ export async function getSessionUser() {
     select: { ledgerId: true, expiresAt: true, isRevoked: true },
   });
 
-  if (!session || session.isRevoked || session.expiresAt < new Date()) return null;
+  if (!session || session.isRevoked || session.expiresAt < new Date())
+    return null;
 
   return prisma.user.findUnique({
     where: { ledgerId: session.ledgerId },
@@ -136,7 +145,7 @@ export async function getSessionClaims(): Promise<SessionClaims | null> {
   if (!token || !token.includes(".")) return null;
 
   try {
-    const claims = await verifyToken(token) as unknown as SessionClaims;
+    const claims = (await verifyToken(token)) as unknown as SessionClaims;
     return claims;
   } catch {
     return null;
@@ -151,7 +160,9 @@ export async function getCurrentUser(req: Request | any) {
    V3.2 SOVEREIGN GATES — DEFENSIVE (accepts string or object)
    ============================================================ */
 
-export async function isPrimaryAdmin(ledgerId: string | { ledgerId?: string } | any): Promise<boolean> {
+export async function isPrimaryAdmin(
+  ledgerId: string | { ledgerId?: string } | any,
+): Promise<boolean> {
   const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
   if (!id || typeof id !== "string") return false;
   const user = await prisma.user.findUnique({
@@ -161,7 +172,9 @@ export async function isPrimaryAdmin(ledgerId: string | { ledgerId?: string } | 
   return user?.role === "admin" && user?.isPrimaryAdmin === true;
 }
 
-export async function isAdmin(ledgerId: string | { ledgerId?: string } | any): Promise<boolean> {
+export async function isAdmin(
+  ledgerId: string | { ledgerId?: string } | any,
+): Promise<boolean> {
   const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
   if (!id || typeof id !== "string") return false;
   const user = await prisma.user.findUnique({
@@ -171,7 +184,9 @@ export async function isAdmin(ledgerId: string | { ledgerId?: string } | any): P
   return user?.role === "admin";
 }
 
-export async function isFounder(ledgerId: string | { ledgerId?: string } | any): Promise<boolean> {
+export async function isFounder(
+  ledgerId: string | { ledgerId?: string } | any,
+): Promise<boolean> {
   const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
   if (!id || typeof id !== "string") return false;
   const user = await prisma.user.findUnique({
@@ -181,7 +196,11 @@ export async function isFounder(ledgerId: string | { ledgerId?: string } | any):
   return user?.role === "founder";
 }
 
-export function isPrimaryAdminSync(ledgerId: string, userRole?: string, isPrimaryAdmin?: boolean): boolean {
+export function isPrimaryAdminSync(
+  ledgerId: string,
+  userRole?: string,
+  isPrimaryAdmin?: boolean,
+): boolean {
   if (userRole === "admin" && isPrimaryAdmin === true) return true;
   return false;
 }
@@ -194,7 +213,9 @@ export function isFounderSync(userRole?: string): boolean {
   return userRole === "founder";
 }
 
-export async function requirePrimaryAdmin(ledgerId: string | { ledgerId?: string } | any): Promise<void> {
+export async function requirePrimaryAdmin(
+  ledgerId: string | { ledgerId?: string } | any,
+): Promise<void> {
   const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
   if (!id || typeof id !== "string") {
     throw new Error("Architect authority required. Primary admin access only.");
@@ -205,7 +226,9 @@ export async function requirePrimaryAdmin(ledgerId: string | { ledgerId?: string
   }
 }
 
-export async function requireAdmin(ledgerId: string | { ledgerId?: string } | any): Promise<void> {
+export async function requireAdmin(
+  ledgerId: string | { ledgerId?: string } | any,
+): Promise<void> {
   const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
   if (!id || typeof id !== "string") {
     throw new Error("Administrative authority required");
@@ -216,7 +239,9 @@ export async function requireAdmin(ledgerId: string | { ledgerId?: string } | an
   }
 }
 
-export async function requireFounder(ledgerId: string | { ledgerId?: string } | any): Promise<void> {
+export async function requireFounder(
+  ledgerId: string | { ledgerId?: string } | any,
+): Promise<void> {
   const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
   if (!id || typeof id !== "string") {
     throw new Error("Founder authority required");
@@ -227,7 +252,9 @@ export async function requireFounder(ledgerId: string | { ledgerId?: string } | 
   }
 }
 
-export async function requireAuth(): Promise<NonNullable<Awaited<ReturnType<typeof getSessionUser>>>> {
+export async function requireAuth(): Promise<
+  NonNullable<Awaited<ReturnType<typeof getSessionUser>>>
+> {
   const user = await getSessionUser();
   if (!user) throw new Error("Authentication required");
   if (user.isBanned) throw new Error("Account suspended");
@@ -238,7 +265,10 @@ export async function requireHallAccess(hallId: string, userId: string) {
   const ownership = await prisma.ownership.findFirst({
     where: { hallId, userId, status: { not: "forfeited" } },
   });
-  if (!ownership) throw new Error("Sovereign access denied. Commit to earn ownership in this Hall.");
+  if (!ownership)
+    throw new Error(
+      "Sovereign access denied. Commit to earn ownership in this Hall.",
+    );
   return ownership;
 }
 
@@ -258,14 +288,17 @@ export async function requireLiaisonRole(hallId: string, userId: string) {
   return ownership;
 }
 
-export function requireKycTier(user: { kycTier?: string | null; tier?: string | null }, minTier: string) {
+export function requireKycTier(
+  user: { kycTier?: string | null; tier?: string | null },
+  minTier: string,
+) {
   const tiers = ["visitor", "sovereign", "verified", "whale"];
   const userTier = user?.kycTier || user?.tier || "visitor";
   const userTierIndex = tiers.indexOf(userTier);
   const minTierIndex = tiers.indexOf(minTier);
   if (userTierIndex < minTierIndex) {
     throw new Error(
-      `Sovereign Identity Verification required. Minimum tier: ${minTier}. Current: ${userTier}.`
+      `Sovereign Identity Verification required. Minimum tier: ${minTier}. Current: ${userTier}.`,
     );
   }
   return true;
@@ -278,7 +311,7 @@ export function requireKycTier(user: { kycTier?: string | null; tier?: string | 
 export async function verifyOwnership(
   userId: string,
   poolId?: string,
-  hallId?: string
+  hallId?: string,
 ): Promise<boolean> {
   if (hallId) {
     const ownership = await prisma.ownership.findFirst({
@@ -302,7 +335,10 @@ export async function verifyOwnership(
   return false;
 }
 
-export async function getUserHallRole(hallId: string, userId: string): Promise<string | null> {
+export async function getUserHallRole(
+  hallId: string,
+  userId: string,
+): Promise<string | null> {
   const ownership = await prisma.ownership.findFirst({
     where: { hallId, userId, status: "active" },
     select: { role: true },
@@ -336,12 +372,15 @@ export interface ConsensusResult {
 
 export function quantumMeritConsensus(
   candidates: ConsensusCandidate[],
-  poolClosesAt: Date
+  poolClosesAt: Date,
 ): ConsensusResult {
   const now = new Date();
 
   const scored = candidates.map((c) => {
-    const hoursInPool = Math.max(0, (now.getTime() - new Date(c.joinedAt).getTime()) / 36e5);
+    const hoursInPool = Math.max(
+      0,
+      (now.getTime() - new Date(c.joinedAt).getTime()) / 36e5,
+    );
     const timeWeight = Math.min(hoursInPool / 24, 1) * 0.1;
     const tierMultiplier = c.tier * c.tier;
     const trustFactor = c.trustScore / 100;
@@ -406,21 +445,25 @@ export interface PirAllocationResult {
     vanguard: number;
     sanctuary: number;
   };
-  perUserReturns: Array<{ ledgerId: string; commitment: number; returned: number }>;
+  perUserReturns: Array<{
+    ledgerId: string;
+    commitment: number;
+    returned: number;
+  }>;
 }
 
 export function calculatePirAllocation(
   poolId: string,
   totalCommitted: number,
   assetValue: number,
-  commitments: Array<{ ledgerId: string; amount: number }>
+  commitments: Array<{ ledgerId: string; amount: number }>,
 ): PirAllocationResult {
   const pirAmount = totalCommitted - assetValue;
 
   const pillars = {
     shield: Math.floor(pirAmount * 0.25),
-    seal: Math.floor(pirAmount * 0.20),
-    forge: Math.floor(pirAmount * 0.20),
+    seal: Math.floor(pirAmount * 0.2),
+    forge: Math.floor(pirAmount * 0.2),
     spire: Math.floor(pirAmount * 0.15),
     vanguard: Math.floor(pirAmount * 0.12),
     sanctuary: Math.floor(pirAmount * 0.08),
@@ -429,7 +472,7 @@ export function calculatePirAllocation(
   const perUserReturns = commitments.map((c) => ({
     ledgerId: c.ledgerId,
     commitment: c.amount,
-    returned: Math.floor(c.amount * 0.50),
+    returned: Math.floor(c.amount * 0.5),
   }));
 
   return {
@@ -486,11 +529,15 @@ async function patch<T>(path: string, body: unknown): Promise<T> {
 }
 
 /* === Auth === */
-export async function initiateIdentity(payload: InitiatePayload): Promise<AuthResponse> {
+export async function initiateIdentity(
+  payload: InitiatePayload,
+): Promise<AuthResponse> {
   return post<AuthResponse>("/api/auth", { mode: "initiate", ...payload });
 }
 
-export async function accessIdentity(payload: AccessPayload): Promise<AuthResponse> {
+export async function accessIdentity(
+  payload: AccessPayload,
+): Promise<AuthResponse> {
   return post<AuthResponse>("/api/auth", { mode: "access", ...payload });
 }
 
@@ -508,57 +555,98 @@ export async function getKycStatus() {
 }
 
 export async function submitKycStep(step: string, data: any) {
-  return post<{ success: boolean; kyc?: any; error?: string }>("/api/kyc", { step, ...data });
+  return post<{ success: boolean; kyc?: any; error?: string }>("/api/kyc", {
+    step,
+    ...data,
+  });
 }
 
 /* === V3.2 Hall Client Wrappers === */
 export async function getHall(hallId: string) {
-  return get<{ success: boolean; hall?: any; error?: string }>(`/api/halls/${hallId}`);
+  return get<{ success: boolean; hall?: any; error?: string }>(
+    `/api/halls/${hallId}`,
+  );
 }
 
-export async function sendHallMessage(hallId: string, content: string, type = "text", isEphemeral = false) {
-  return post<{ success: boolean; message?: any; error?: string }>(`/api/halls/${hallId}/messages`, {
-    content,
-    type,
-    isEphemeral,
-  });
+export async function sendHallMessage(
+  hallId: string,
+  content: string,
+  type = "text",
+  isEphemeral = false,
+) {
+  return post<{ success: boolean; message?: any; error?: string }>(
+    `/api/halls/${hallId}/messages`,
+    {
+      content,
+      type,
+      isEphemeral,
+    },
+  );
 }
 
 export async function createProposal(hallId: string, proposal: any) {
-  return post<{ success: boolean; proposal?: any; error?: string }>(`/api/halls/${hallId}/proposals`, proposal);
+  return post<{ success: boolean; proposal?: any; error?: string }>(
+    `/api/halls/${hallId}/proposals`,
+    proposal,
+  );
 }
 
-export async function voteOnProposal(hallId: string, proposalId: string, choice: "yes" | "no") {
+export async function voteOnProposal(
+  hallId: string,
+  proposalId: string,
+  choice: "yes" | "no",
+) {
   return post<{ success: boolean; vote?: any; error?: string }>(
     `/api/halls/${hallId}/proposals/${proposalId}/vote`,
-    { choice }
+    { choice },
   );
 }
 
 export async function getHallMarketplace(hallId: string) {
-  return get<{ success: boolean; items?: any[]; error?: string }>(`/api/halls/${hallId}/marketplace`);
+  return get<{ success: boolean; items?: any[]; error?: string }>(
+    `/api/halls/${hallId}/marketplace`,
+  );
 }
 
-export async function createMarketplaceOrder(hallId: string, itemId: string, quantity: number, refCode?: string) {
-  return post<{ success: boolean; order?: any; error?: string }>(`/api/halls/${hallId}/marketplace/orders`, {
-    itemId,
-    quantity,
-    refCode,
-  });
+export async function createMarketplaceOrder(
+  hallId: string,
+  itemId: string,
+  quantity: number,
+  refCode?: string,
+) {
+  return post<{ success: boolean; order?: any; error?: string }>(
+    `/api/halls/${hallId}/marketplace/orders`,
+    {
+      itemId,
+      quantity,
+      refCode,
+    },
+  );
 }
 
 export async function generateShareLink(itemId: string, platform?: string) {
-  return post<{ success: boolean; share?: any; error?: string }>("/api/marketplace/share", { itemId, platform });
+  return post<{ success: boolean; share?: any; error?: string }>(
+    "/api/marketplace/share",
+    { itemId, platform },
+  );
 }
 
 /* === V3.2 Withdrawal Client Wrapper === */
-export async function requestWithdrawal(amount: number, destination: string, destinationType = "bank", totpCode?: string) {
-  return post<{ success: boolean; withdrawal?: any; error?: string }>("/api/wallet/withdraw", {
-    amount,
-    destination,
-    destinationType,
-    totpCode,
-  });
+export async function requestWithdrawal(
+  amount: number,
+  destination: string,
+  destinationType = "bank",
+  totpCode?: string,
+) {
+  return post<{ success: boolean; withdrawal?: any; error?: string }>(
+    "/api/wallet/withdraw",
+    {
+      amount,
+      destination,
+      destinationType,
+      totpCode,
+    },
+  );
 }
 
 /* ============================================================
@@ -567,7 +655,9 @@ export async function requestWithdrawal(amount: number, destination: string, des
 
 const STORAGE_KEY = "ledger_identity";
 
-export function storeIdentityLocally(user: AuthUser & { ledgerId: string }): void {
+export function storeIdentityLocally(
+  user: AuthUser & { ledgerId: string },
+): void {
   if (typeof window !== "undefined") {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
   }
@@ -589,7 +679,9 @@ export function clearLocalIdentity(): void {
    GUARD — Redirect if no session
    ============================================================ */
 
-export async function requireAuthClient(router: { push: (path: string) => void }): Promise<AuthUser | null> {
+export async function requireAuthClient(router: {
+  push: (path: string) => void;
+}): Promise<AuthUser | null> {
   const res = await getSession();
   if (!res.success) {
     router.push("/enter");

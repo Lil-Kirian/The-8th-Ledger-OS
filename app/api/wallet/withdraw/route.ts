@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { debitWallet } from "@/server/services/wallet.service";
 import * as otplib from "otplib";
 const { authenticator } = otplib;
 
@@ -148,12 +149,6 @@ export async function POST(request: NextRequest) {
 
     // ── 8. EXECUTE WITHDRAWAL ────────────────────────────────
     const result = await prisma.$transaction(async (tx) => {
-      // Deduct balance
-      await tx.wallet.update({
-        where: { id: wallet.id },
-        data: { balance: { decrement: amount } },
-      });
-
       // Create withdrawal record
       const withdrawal = await tx.withdrawal.create({
         data: {
@@ -166,6 +161,16 @@ export async function POST(request: NextRequest) {
           status: processedAt ? "pending" : "processing", // If instant, go to processing
           processedAt,
         },
+      });
+
+      await debitWallet(tx, {
+        walletId: wallet.id,
+        ledgerId: user.ledgerId,
+        amount,
+        type: "withdrawal_requested",
+        referenceType: "withdrawal",
+        referenceId: withdrawal.id,
+        description: `Withdrawal request for ${currency} ${amount}`,
       });
 
       // Update user activity

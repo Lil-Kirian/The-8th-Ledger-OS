@@ -139,7 +139,8 @@ async function verifySession(
   if (!token) return null;
 
   try {
-    const secret = process.env.SESSION_SECRET || process.env.JWT_SECRET || "8th-ledger-dev-secret-change-in-production";
+    const secret = process.env.SESSION_SECRET;
+    if (!secret) return null;
     if (token.includes(".")) {
       const { jwtVerify } = await import("jose");
       const key = new TextEncoder().encode(secret);
