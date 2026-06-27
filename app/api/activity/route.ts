@@ -7,7 +7,7 @@ import { getSessionUser } from "@/lib/auth";
    ============================================================ */
 interface ActivityResponse {
   success: boolean;
-  events?: any[];
+  events?: unknown[];
   total?: number;
   hasMore?: boolean;
   error?: string;
@@ -33,7 +33,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit") || 20)));
     const skip = (page - 1) * limit;
 
-    const where: any = { ledgerId: user.ledgerId };
+    const where: unknown = { ledgerId: user.ledgerId };
     if (type) where.type = type;
 
     const [events, total] = await prisma.$transaction([

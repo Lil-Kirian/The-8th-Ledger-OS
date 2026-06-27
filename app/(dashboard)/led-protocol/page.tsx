@@ -605,7 +605,7 @@ export default function LedProtocolPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: i * 0.1 }}
             >
-              <HologramCard accent={metric.color as any} className="h-full">
+              <HologramCard accent={metric.color as unknown} className="h-full">
                 <div className="p-5 text-center">
                   <div className="text-2xl mb-2">{metric.icon}</div>
                   <div className="text-xl font-bold text-white font-mono mb-1">

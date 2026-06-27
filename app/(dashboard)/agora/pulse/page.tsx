@@ -14,7 +14,6 @@ import {
   Globe,
   Eye,
   MessageSquare,
-  BookOpen,
   Clock,
   AlertCircle,
 } from "lucide-react";

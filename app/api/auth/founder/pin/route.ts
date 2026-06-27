@@ -73,7 +73,7 @@ export async function GET(req: NextRequest) {
       windowEnd: user.founderAccessWindowEnd ?? 23,
       webauthnEnrolled: !!user.webauthnCredentialId,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[PRIMARY ADMIN PIN GET]", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
@@ -153,7 +153,7 @@ export async function POST(req: NextRequest) {
 
       if (!isValid) {
         const newAttempts = (user.founderPinAttempts || 0) + 1;
-        const lockoutData: any = { founderPinAttempts: newAttempts };
+        const lockoutData: unknown = { founderPinAttempts: newAttempts };
 
         if (newAttempts >= 3) {
           lockoutData.founderLockedUntil = new Date(
@@ -307,7 +307,7 @@ export async function POST(req: NextRequest) {
       { error: "Invalid action. Use set, verify, or change" },
       { status: 400 },
     );
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[PRIMARY ADMIN PIN]", err);
     return NextResponse.json(
       { error: err.message || "Architect PIN failed" },

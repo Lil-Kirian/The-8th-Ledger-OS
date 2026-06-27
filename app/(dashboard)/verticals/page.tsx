@@ -3,10 +3,10 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Landmark, Zap, Crown, HeartPulse,
-  TrendingUp, Hexagon, Plane, ArrowRight,
-  Users, Clock, Sprout, Sun, Wifi, Car,
-  ShoppingBag, Cpu, GraduationCap, Stethoscope,
+  Landmark, Zap, HeartPulse,
+  TrendingUp, Hexagon, Plane,
+  Users, Clock, Sprout, Wifi, Car,
+  ShoppingBag, Cpu, GraduationCap,
   Swords, Sparkles, Activity, BarChart3, Globe,
   ChevronRight, Filter, X, Search, Layers,
   Diamond, Shield, Flame, ArrowUpRight, Minus
@@ -757,7 +757,7 @@ export default function VerticalsPage() {
         const res = await fetch("/api/pools?status=all");
         const data = await res.json();
         if (data.success && data.pools) {
-          setPools(data.pools.map((p: any) => ({
+          setPools(data.pools.map((p: unknown) => ({
             ...p,
             target: p.target || p.accessThreshold || 0,
             id: p.poolId || p.id,

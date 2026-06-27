@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Flame } from "lucide-react";
 
 interface ReferralReward {
   id: string;

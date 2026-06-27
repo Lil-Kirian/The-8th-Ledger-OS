@@ -12,7 +12,6 @@ import {
   FileText,
   Users,
   Wallet,
-  TrendingDown,
   ArrowDownRight,
   ArrowUpRight,
   Clock,
@@ -20,16 +19,13 @@ import {
   Crown,
   Landmark,
   Receipt,
-  Gavel,
   ChevronDown,
   ChevronUp,
   ExternalLink,
   Copy,
   Check,
-  AlertTriangle,
   BadgeCheck,
   Lock,
-  Unlock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

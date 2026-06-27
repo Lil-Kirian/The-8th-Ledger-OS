@@ -4,14 +4,13 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
-  Filter,
   Users,
   Plus,
   SlidersHorizontal,
   ArrowUpDown,
 } from "lucide-react";
 import WorkerCard from "./worker-card";
-import { useWorkers, proposeHire } from "@/hooks/use-forge";
+import { useWorkers } from "@/hooks/use-forge";
 
 interface WorkerRosterProps {
   hallId: string;

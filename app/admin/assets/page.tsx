@@ -8,23 +8,15 @@ import {
   XCircle,
   Eye,
   Loader2,
-  Shield,
   Globe,
   DollarSign,
   Users,
   Clock,
   AlertTriangle,
-  Filter,
   ChevronDown,
   ChevronUp,
-  MoreHorizontal,
   Image as ImageIcon,
   Ban,
-  ArrowRight,
-  Landmark,
-  Hammer,
-  HardHat,
-  Wrench,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";

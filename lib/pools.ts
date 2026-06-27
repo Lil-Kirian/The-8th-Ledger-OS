@@ -3,7 +3,7 @@
    Cooperative Ownership Model, PIR Calculation, Consensus Logic
    ============================================================ */
 
-import { round2, clamp } from "./utils";
+import { round2 } from "./utils";
 
 /* ============================================================
    CONSTANTS
@@ -339,7 +339,7 @@ export function getPoolMetrics(pool: PoolState): PoolMetrics {
 
   // Calculate time remaining from closesAt if available
   let timeRemaining = 0;
-  let estimatedCloseDate = pool.closesAt || "TBD";
+  const estimatedCloseDate = pool.closesAt || "TBD";
   
   if (pool.closesAt) {
     const closeTime = new Date(pool.closesAt).getTime();

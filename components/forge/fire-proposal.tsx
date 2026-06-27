@@ -6,7 +6,6 @@ import {
   XCircle,
   AlertTriangle,
   Clock,
-  FileText,
   Send,
   X,
   User,

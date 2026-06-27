@@ -7,12 +7,9 @@ import {
   TrendingDown,
   Minus,
   ArrowDown,
-  ArrowRight,
   Wallet,
   Building2,
-  Users,
   Percent,
-  Clock,
   AlertTriangle,
   Shield,
   Hammer,
@@ -22,14 +19,12 @@ import {
   Download,
   Receipt,
   PiggyBank,
-  Ban,
   Activity,
   Landmark,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import {
   Tooltip,
   TooltipContent,

@@ -1,25 +1,16 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Lock, Shield, Zap, TrendingUp, Clock, ChevronRight,
-  ArrowUpRight, ArrowDownRight, Eye, Plus, Minus,
-  BarChart3, Users, Wallet, Landmark, Activity,
-  Circle, CheckCircle2, XCircle, MessageSquare,
-  Vote, Gavel, FileText, Bell, Sparkles,
-  Hash, Send, MoreHorizontal, Pin, Loader2,
-  ChevronUp, ChevronDown, Filter, Search,
-  LayoutGrid, List, Terminal, Globe,
-  CircleDollarSign, Percent, Receipt, Building2,
-  Radio, Signal, Wifi, WifiOff, Reply, CornerDownRight,
-  Paperclip, Mic, Image as ImageIcon, AtSign, Crown,
-  ShieldCheck, ScrollText, AlertTriangle, Banknote,
-  Briefcase, HardHat, Megaphone, ThumbsUp, Flag,
-  Maximize2, Minimize2, PanelLeftClose, PanelLeftOpen,
-  Hash as HashIcon, Bot, UserCheck, LockKeyhole
+  Lock, ChevronRight, Eye,
+  BarChart3, Users, MessageSquare,
+  Vote, Gavel, FileText, Send, Pin, Loader2, Search,
+  CircleDollarSign, Receipt, Reply, CornerDownRight,
+  Paperclip, AtSign, Crown,
+  ShieldCheck, ScrollText, Banknote, Megaphone, ThumbsUp, PanelLeftClose, Bot, UserCheck
 } from "lucide-react";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());

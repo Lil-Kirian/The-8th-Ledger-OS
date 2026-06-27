@@ -248,7 +248,7 @@ export async function POST(
         nextPhase: "complete",
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[MERIDIAN_REVEAL_POST]", error);
 
     if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {

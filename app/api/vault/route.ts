@@ -210,7 +210,7 @@ export async function GET(req: NextRequest) {
         totalAssets: assets.length,
       },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[API/vault]", err);
     return NextResponse.json(
       { success: false, error: "Failed to fetch vault" },

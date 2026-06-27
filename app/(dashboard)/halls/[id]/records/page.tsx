@@ -6,16 +6,15 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   Landmark, Zap, Crown, Lock, HeartPulse, TrendingUp, Hexagon, Plane,
-  Sprout, Sun, ChevronLeft, CheckCircle2, Clock, AlertTriangle,
+  Sprout, Sun, ChevronLeft, ChevronRight, CheckCircle2,
   XCircle, ArrowUpRight, ArrowDownRight, Camera,
   Receipt, Download, Eye, Shield, Wrench, Gavel,
   Layers, Calendar, MapPin, Users, Wallet,
   ChevronDown, Flag, Star, Diamond, ShieldCheck,
   Hash, Search, BookOpen, ScrollText, Fingerprint,
-  BadgeCheck, AlertOctagon, Archive, GitCommit
+  BadgeCheck, AlertOctagon, Archive, GitCommit, FileDown, Printer
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 
 /* ============================================================

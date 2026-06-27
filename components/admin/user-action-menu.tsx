@@ -8,7 +8,6 @@ import {
   ShieldOff,
   Ban,
   Unlock,
-  UserCheck,
   UserX,
   ChevronUp,
   ChevronDown,

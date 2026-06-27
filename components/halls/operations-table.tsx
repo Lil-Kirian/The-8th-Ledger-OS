@@ -4,33 +4,19 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search,
-  Filter,
   ChevronDown,
   ChevronUp,
-  ChevronRight,
-  Clock,
   CheckCircle2,
   AlertTriangle,
   Ban,
   Play,
-  FileText,
   Landmark,
-  Hammer,
-  Shield,
   Users,
-  Percent,
   DollarSign,
-  Calendar,
   Download,
   X,
-  BarChart3,
   TrendingUp,
-  TrendingDown,
-  Minus,
-  ArrowRight,
-  Loader2,
   Eye,
-  Gavel,
   Vote,
   ClipboardList,
   Wrench,
@@ -46,11 +32,10 @@ import {
   Sun,
   Wifi,
 } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 
 // ─── Types ───
 export type ProposalStatus = "passed" | "ledger_review" | "in_progress" | "completed" | "cancelled" | "voting";

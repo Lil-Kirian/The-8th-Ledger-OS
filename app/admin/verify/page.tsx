@@ -58,7 +58,7 @@ export default function AdminVerifyPage() {
       if (!s.totpEnabled) { setStep("setup-totp"); return; }
       if (!s.pinSet) { setStep("setup-pin"); return; }
       setStep("totp");
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError("Failed to check admin status. " + err.message);
       setStep("totp");
     }
@@ -83,7 +83,7 @@ export default function AdminVerifyPage() {
       setSetupTotpUrl(data.otpauthUrl || "");
       setDevCode(data.devCode || ""); // ← CAPTURE CODE
       setStep("setup-totp-verify");
-    } catch (err: any) { setError(err.message); }
+    } catch (err: unknown) { setError(err.message); }
     finally { setLoading(false); }
   }
 
@@ -100,7 +100,7 @@ export default function AdminVerifyPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setTotpCode(""); setStep("setup-pin");
-    } catch (err: any) { setError(err.message); }
+    } catch (err: unknown) { setError(err.message); }
     finally { setLoading(false); }
   }
 
@@ -119,7 +119,7 @@ export default function AdminVerifyPage() {
       if (!res.ok) throw new Error(data.error);
       setStep("complete");
       setTimeout(() => { window.location.href = redirect; }, 2000);
-    } catch (err: any) { setError(err.message); }
+    } catch (err: unknown) { setError(err.message); }
     finally { setLoading(false); }
   }
 
@@ -136,7 +136,7 @@ export default function AdminVerifyPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setTotpCode(""); setStep("pin");
-    } catch (err: any) { setError(err.message); }
+    } catch (err: unknown) { setError(err.message); }
     finally { setLoading(false); }
   }
 
@@ -157,7 +157,7 @@ export default function AdminVerifyPage() {
       }
       setLocked(false); setPin(""); setStep("complete");
       setTimeout(() => { window.location.href = redirect; }, 2000);
-    } catch (err: any) { setError(err.message); }
+    } catch (err: unknown) { setError(err.message); }
     finally { setLoading(false); }
   }
 

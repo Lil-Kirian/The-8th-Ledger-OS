@@ -1,9 +1,7 @@
 import { prisma } from "./prisma";
-import { Prisma } from "@prisma/client";
 import {
   getAssetTypePayrollReservePercent,
   getAssetTypeTitheRate,
-  getAssetTypeDividendFrequency,
   getAssetTypeById,
 } from "./asset-types";
 import { calculateTotalIhcpDebt } from "./ihcp";

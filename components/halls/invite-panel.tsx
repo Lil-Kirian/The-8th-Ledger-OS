@@ -13,30 +13,17 @@ import {
   EyeOff,
   Crown,
   Clock,
-  Mail,
-  QrCode,
-  Share2,
   Trash2,
   AlertTriangle,
   ChevronDown,
   ChevronUp,
   Send,
-  Lock,
-  Unlock,
-  Globe,
   Percent,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  RefreshCw,
-  ExternalLink,
-  Ban,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import {
   Tooltip,
   TooltipContent,

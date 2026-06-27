@@ -7,8 +7,6 @@ import {
   Bell,
   Search,
   Menu,
-  LogOut,
-  Settings,
   Activity,
   Lock,
   ChevronDown,

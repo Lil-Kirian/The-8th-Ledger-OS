@@ -3,9 +3,9 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Lock, ArrowRight, Ticket, Star, Crown, Diamond,
-  Timer, Users, Globe, Target, Flame, Search, SlidersHorizontal,
-  ChevronDown, PartyPopper, GlassWater, Music, Theater,
+  Lock, ArrowRight, Diamond,
+  Timer, Users, Target, Search, SlidersHorizontal,
+  ChevronDown,
   MapPin, Zap, TrendingUp, Wifi, Radio, Satellite, Server
 } from "lucide-react";
 import Link from "next/link";
@@ -116,7 +116,7 @@ export default function LedgerAccessPage() {
         const res = await fetch("/api/pools?vertical=ledgeraccess");
         const data = await res.json();
         if (data.success && data.pools) {
-          setPools(data.pools.map((p: any) => ({
+          setPools(data.pools.map((p: unknown) => ({
             ...p,
             accessThreshold: p.accessThreshold || p.target,
             id: p.poolId || p.id,
@@ -280,7 +280,7 @@ export default function LedgerAccessPage() {
               ].map((opt) => (
                 <button
                   key={opt.key}
-                  onClick={() => setSortBy(opt.key as any)}
+                  onClick={() => setSortBy(opt.key as unknown)}
                   className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all border ${
                     sortBy === opt.key
                       ? "bg-amber-500/10 text-amber-400 border-amber-500/30"

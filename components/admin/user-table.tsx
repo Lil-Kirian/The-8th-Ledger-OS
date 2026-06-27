@@ -3,14 +3,12 @@
 import React, { useState, useMemo } from "react";
 import {
   Search,
-  Filter,
   MoreHorizontal,
   Shield,
   ShieldCheck,
   ShieldAlert,
   ShieldX,
   Crown,
-  UserX,
   UserCheck,
   Ban,
   RotateCcw,
@@ -18,16 +16,11 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Eye,
-  Mail,
-  Calendar,
-  Globe,
   Activity,
   TrendingUp,
   TrendingDown,
   Minus,
   CheckCircle2,
-  XCircle,
   AlertTriangle,
   Loader2,
 } from "lucide-react";
@@ -59,7 +52,7 @@ interface UserRow {
 
 interface UserTableProps {
   users: UserRow[];
-  onAction: (action: string, userId: string, payload?: any) => Promise<void>;
+  onAction: (action: string, userId: string, payload?: unknown) => Promise<void>;
   isLoading?: boolean;
 }
 
@@ -221,7 +214,7 @@ export default function UserTable({ users, onAction, isLoading }: UserTableProps
     }
   };
 
-  const handleAction = async (action: string, userId: string, payload?: any) => {
+  const handleAction = async (action: string, userId: string, payload?: unknown) => {
     setActionLoading(`${action}-${userId}`);
     try {
       await onAction(action, userId, payload);

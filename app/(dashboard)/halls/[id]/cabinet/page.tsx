@@ -22,8 +22,6 @@ import {
   XCircle,
   RefreshCw,
   Info,
-  FileText,
-  Landmark,
 } from "lucide-react";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -154,7 +152,7 @@ export default function ExecutiveCabinetPage() {
       setShowImpeachModal(null);
       setImpeachReason("");
       mutate();
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error(e.message);
     } finally {
       setIsSubmitting(false);
@@ -174,7 +172,7 @@ export default function ExecutiveCabinetPage() {
       }
       toast.success("Election called. Voting opens for 48 hours.");
       mutate();
-    } catch (e: any) {
+    } catch (e: unknown) {
       toast.error(e.message);
     } finally {
       setIsSubmitting(false);

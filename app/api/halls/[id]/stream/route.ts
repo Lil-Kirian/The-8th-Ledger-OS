@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser, requireAuth } from "@/lib/auth";
+import { getSessionUser } from "@/lib/auth";
 
 // ─────────────────────────────────────────────────────────────
 // GET  /api/halls/[id]/stream

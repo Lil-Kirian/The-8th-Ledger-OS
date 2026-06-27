@@ -5,28 +5,13 @@ import React from "react";
 import { motion } from "framer-motion";
 import {
   Package,
-  ShoppingCart,
-  TrendingUp,
-  Building2,
   ArrowRight,
   Star,
   MapPin,
-  Layers,
   ImageIcon,
   Tag,
-  AlertTriangle,
   Percent,
   Wallet,
-  Zap,
-  Hexagon,
-  Crown,
-  Lock,
-  HeartPulse,
-  Plane,
-  Sprout,
-  Sun,
-  Landmark,
-  TrendingUp as TrendIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

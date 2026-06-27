@@ -18,9 +18,7 @@ import {
   TrendingUp,
   DollarSign,
   Users,
-  ArrowRight,
   CheckCircle2,
-  XCircle,
   FileText,
   Hash,
 } from "lucide-react";

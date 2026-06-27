@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin, getSessionUser } from "@/lib/auth";
+import {  getSessionUser } from "@/lib/auth";
 import { logSecurityAudit } from "@/lib/audit";
 
 // POST /api/halls/[id]/closure/liquidate

@@ -2,19 +2,14 @@
 
 import { motion } from "framer-motion";
 import {
-  Heart,
+
   Zap,
-  TrendingUp,
   TrendingDown,
   AlertTriangle,
   CheckCircle2,
   ArrowUpRight,
   ArrowDownRight,
   Minus,
-  Thermometer,
-  Droplets,
-  Wind,
-  Sun,
   Home,
   Car,
   Cpu,

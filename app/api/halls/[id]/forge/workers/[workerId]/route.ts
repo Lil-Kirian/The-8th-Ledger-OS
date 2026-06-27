@@ -61,7 +61,7 @@ export async function GET(
     const isAdmin = user.role === "admin";
 
     // Build response — salary redacted unless admin or Class III with showIndividualSalaries
-    const response: Record<string, any> = {
+    const response: Record<string, unknown> = {
       id: worker.id,
       workerNumber: worker.workerNumber,
       role: worker.role,

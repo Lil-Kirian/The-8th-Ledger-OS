@@ -180,7 +180,7 @@ export async function PATCH(
         return NextResponse.json({ error: "Invalid status" }, { status: 400 });
       }
 
-      const updateData: any = { status };
+      const updateData: unknown = { status };
       if (status === "terminated") {
         updateData.terminatedAt = new Date();
         updateData.terminationReason = terminationReason || "Hall proposal";

@@ -24,7 +24,6 @@ import {
   BadgeCheck,
   Wrench,
   AlertTriangle,
-  Gavel,
   Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";

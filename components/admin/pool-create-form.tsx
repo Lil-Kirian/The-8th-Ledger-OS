@@ -1,13 +1,10 @@
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Hammer,
-  Shield,
   SealCheck,
-  Flame,
-  Landmark,
   Swords,
   HeartPulse,
   Building2,
@@ -22,7 +19,6 @@ import {
   Upload,
   MapPin,
   DollarSign,
-  Percent,
   Users,
   Clock,
   ChevronRight,
@@ -30,15 +26,12 @@ import {
   Check,
   AlertCircle,
   Eye,
-  EyeOff,
   Sparkles,
   Globe,
   Image as ImageIcon,
   FileText,
   X,
   Lock,
-  TrendingUp,
-  Landmark as BankIcon,
   ShieldCheck,
   Wrench,
   Rocket,

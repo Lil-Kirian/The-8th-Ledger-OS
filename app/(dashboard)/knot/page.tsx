@@ -4,11 +4,11 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import {
-  Users, Link2, Copy, CheckCircle2, Trophy, Globe, TrendingUp, Zap,
-  Crown, ArrowRight, Share2, Hash, Clock, ChevronRight, Star, Target,
-  Flame, Hexagon, Award, Medal, Sparkles, UserPlus, BarChart3, PieChart,
-  Activity, MapPin, Diamond, Fingerprint, Eye, ShieldCheck, Lock, Unlock,
-  Radio, ArrowUpRight, Wallet, CircleDollarSign, Network
+  Users, Link2, Copy, CheckCircle2, Trophy, TrendingUp,
+  Crown, ArrowRight, Clock, ChevronRight, Target,
+  Flame, Medal, Sparkles, UserPlus,
+  Activity, MapPin, Diamond, Fingerprint, Eye, ShieldCheck, Lock,
+  Radio, Network
 } from "lucide-react";
 
 /* ============================================================
@@ -237,7 +237,7 @@ function StatCard({ label, value, subtext, icon: Icon, color, delay }: { label: 
 
   return (
     <motion.div ref={ref} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}>
-      <GlowCard accent={color.replace("text-", "") as any}>
+      <GlowCard accent={color.replace("text-", "") as unknown}>
         <div className="flex items-start justify-between">
           <div>
             <p className="text-[10px] uppercase tracking-widest text-white/30 font-mono">{label}</p>

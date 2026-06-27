@@ -20,11 +20,9 @@ import {
   X,
   Crown,
   Hash,
-  Percent,
   TrendingUp,
   Clock,
   Activity,
-  Eye,
   Ban,
   UserCheck,
   Printer,
@@ -38,7 +36,6 @@ import {
   Landmark,
   Zap,
   Lock,
-  ScrollText,
   BarChart3,
   HeartPulse,
   MessageSquare,
@@ -166,7 +163,7 @@ interface HallDetail {
   ihcpContributions: IhcpContribution[];
 }
 
-const ROLE_CONFIG: Record<MemberRole, { label: string; color: string; bg: string; border: string; icon: any }> = {
+const ROLE_CONFIG: Record<MemberRole, { label: string; color: string; bg: string; border: string; icon: unknown }> = {
   speaker: { label: "Speaker", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", icon: MessageSquare },
   treasurer: { label: "Treasurer", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", icon: Wallet },
   warden: { label: "Warden", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20", icon: Shield },
@@ -174,7 +171,7 @@ const ROLE_CONFIG: Record<MemberRole, { label: string; color: string; bg: string
   member: { label: "Member", color: "text-slate-400", bg: "bg-slate-500/10", border: "border-slate-500/20", icon: Users },
 };
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string; icon: any }> = {
+const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string; icon: unknown }> = {
   ghost: { label: "Ghost", color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", icon: LayoutGrid },
   live: { label: "Live", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", icon: Activity },
   mature: { label: "Mature", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", icon: TrendingUp },
@@ -198,7 +195,7 @@ const KYC_TIER_CONFIG: Record<string, { label: string; color: string; bg: string
   pending: { label: "Pending", color: "text-amber-400", bg: "bg-amber-500/10" },
 };
 
-const PILLAR_CONFIG: Record<string, { label: string; color: string; icon: any }> = {
+const PILLAR_CONFIG: Record<string, { label: string; color: string; icon: unknown }> = {
   shield: { label: "The Shield", color: "text-red-400", icon: Shield },
   seal: { label: "The Seal", color: "text-blue-400", icon: Lock },
   forge: { label: "The Forge", color: "text-orange-400", icon: Hammer },
@@ -246,7 +243,7 @@ export default function HallDetailPage() {
       if (proposalsData.success) {
         setProposals(proposalsData.proposals || []);
         const logs: ExecutionLog[] = [];
-        proposalsData.proposals?.forEach((p: any) => {
+        proposalsData.proposals?.forEach((p: unknown) => {
           if (p.executionLogs) logs.push(...p.executionLogs);
         });
         setExecutionLogs(logs);

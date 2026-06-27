@@ -4,13 +4,9 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageSquare,
-  ThumbsUp,
-  ThumbsDown,
-  Filter,
   Search,
   Plus,
   MapPin,
-  Tag,
   ChevronUp,
   ChevronDown,
   X,
@@ -18,7 +14,6 @@ import {
   Clock,
   AlertCircle,
   ArrowLeft,
-  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import useSWR, { mutate } from "swr";
@@ -238,7 +233,7 @@ function CreateModal({
       mutate((key: string) => key.startsWith("/api/agora/suggestions"));
       onClose();
       setForm({ title: "", description: "", continent: "", vertical: "" });
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message);
     } finally {
       setSubmitting(false);
@@ -466,7 +461,7 @@ export default function StoaPage() {
 
             <select
               value={sort}
-              onChange={(e) => setSort(e.target.value as any)}
+              onChange={(e) => setSort(e.target.value as unknown)}
               className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-cyan-500/50 focus:outline-none"
             >
               <option value="trending" className="bg-[#0f0f14]">Trending</option>

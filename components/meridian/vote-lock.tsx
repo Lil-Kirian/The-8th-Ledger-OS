@@ -8,17 +8,11 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Lock,
-  Unlock,
-  Vote,
-  CheckCircle2,
   AlertCircle,
   X,
   Globe,
-  TrendingUp,
   Shield,
-  Loader2,
   Fingerprint,
-  Hash,
   Seal,
   Stamp,
   KeyRound,
@@ -223,7 +217,7 @@ export default function VoteLock({
         setErrorMessage(result.error || "Vote failed. The Ledger rejected the seal.");
         setStep("error");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       clearInterval(progressInterval);
       setErrorMessage(err.message || "Network failure. Vote may not be recorded.");
       setStep("error");

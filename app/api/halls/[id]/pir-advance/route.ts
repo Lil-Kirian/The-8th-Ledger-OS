@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, requireHallAccess, requireAdmin, isPrimaryAdmin } from "@/lib/auth";
+import { requireAuth, requireHallAccess, requireAdmin } from "@/lib/auth";
 import {
   getPirStatus,
   getActivePirAdvances,
   calculatePirAdvanceTerms,
   requestPirAdvance,
-  sanctuaryOverride,
 } from "@/lib/pir";
 
 /* ============================================================

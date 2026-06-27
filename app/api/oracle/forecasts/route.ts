@@ -506,7 +506,7 @@ export async function POST(req: NextRequest) {
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[ORACLE_FORECASTS_POST]", error);
 
     if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {

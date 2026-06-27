@@ -6,14 +6,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import {
-  ArrowLeft, Wallet, CheckCircle2, AlertTriangle, Loader2,
+  ArrowLeft, AlertTriangle,
   Landmark, Zap, Crown, Lock, HeartPulse, TrendingUp,
   Hexagon, Plane, Sprout, Sun, Target, Shield,
   FileCheck, Coins, Users, Globe, Timer, Fingerprint,
-  Terminal, Crosshair, Sparkles, Orbit, Diamond,
-  Flame, LockKeyhole, Radio, BarChart3, Satellite,
-  CircleCheck, XCircle, ChevronRight, ShieldCheck,
-  ScrollText, Bot, UserCheck, Crown as CrownIcon
+  Terminal, Orbit, Diamond,
+  Flame, LockKeyhole, Satellite,
+  CircleCheck, XCircle
 } from "lucide-react";
 
 function cn(...classes: (string | false | null | undefined)[]) {
@@ -132,7 +131,7 @@ export default function CommitPage() {
   const poolId = params.id as string;
   const { user } = useAuth();
 
-  const [pool, setPool] = useState<any>(null);
+  const [pool, setPool] = useState<unknown>(null);
   const [loading, setLoading] = useState(true);
   const [amount, setAmount] = useState("");
   const [committing, setCommitting] = useState(false);

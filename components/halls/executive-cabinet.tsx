@@ -3,9 +3,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Crown, Users, MessageSquare, FileText, Shield, Gavel,
+  Crown, MessageSquare, FileText, Shield, Gavel,
   ChevronDown, ChevronUp, Clock, CheckCircle2, Vote,
-  Lock, Unlock, RefreshCw, User,
+  Lock, RefreshCw, User,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

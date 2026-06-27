@@ -1,19 +1,16 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Vault,
   Clock,
   Wallet,
-  TrendingUp,
   AlertTriangle,
-  Shield,
   Unlock,
   User,
   Calendar,
   Hash,
   ChevronRight,
-  Activity,
 } from "lucide-react";
 import { useState } from "react";
 

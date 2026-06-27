@@ -1,6 +1,6 @@
 // app/admin/dashboard/page.tsx
 import { prisma } from "@/lib/prisma";
-import { requireAdmin, requirePrimaryAdmin, isPrimaryAdmin } from "@/lib/auth";
+import { requireAdmin, isPrimaryAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
@@ -13,7 +13,6 @@ import {
   AlertTriangle,
   Globe,
   Eye,
-  Vote,
   Wallet,
   FileCheck,
   Activity,
@@ -26,7 +25,6 @@ import {
   ChevronRight,
   Ban,
   CheckCircle2,
-  Hourglass,
   Landmark,
   Hammer,
   Sparkles,

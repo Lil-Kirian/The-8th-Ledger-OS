@@ -3,9 +3,9 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Hexagon, ArrowRight, Cpu, Server, HardDrive, Wifi,
-  Timer, Users, Globe, Target, Search, SlidersHorizontal,
-  ChevronDown, Monitor, Smartphone, CircuitBoard, Database,
+  Hexagon, ArrowRight, Cpu,
+  Timer, Users, Search, SlidersHorizontal,
+  ChevronDown, CircuitBoard,
   MapPin, TrendingUp, Zap, Lock, Radio, ShoppingCart, Wrench
 } from "lucide-react";
 import Link from "next/link";
@@ -114,7 +114,7 @@ export default function LedgerTechPage() {
         const res = await fetch("/api/pools?vertical=ledgertech");
         const data = await res.json();
         if (data.success && data.pools) {
-          setPools(data.pools.map((p: any) => ({
+          setPools(data.pools.map((p: unknown) => ({
             ...p,
             accessThreshold: p.accessThreshold || p.target,
             id: p.poolId || p.id,
@@ -315,7 +315,7 @@ export default function LedgerTechPage() {
               ].map((opt) => (
                 <button
                   key={opt.key}
-                  onClick={() => setSortBy(opt.key as any)}
+                  onClick={() => setSortBy(opt.key as unknown)}
                   className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all border ${
                     sortBy === opt.key
                       ? "bg-pink-500/10 text-pink-400 border-pink-500/30"

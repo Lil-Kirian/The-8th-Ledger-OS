@@ -14,7 +14,6 @@ import {
   Download,
   Eye,
   Lock,
-  Clock,
   Hash,
   Upload,
   X,
@@ -29,7 +28,6 @@ import {
   ChevronUp,
   ExternalLink,
   Trash2,
-  MoreHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

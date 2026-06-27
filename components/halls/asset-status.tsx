@@ -9,15 +9,8 @@ import {
   Clock,
   MapPin,
   TrendingUp,
-  TrendingDown,
-  Minus,
   Shield,
-  Zap,
-  Thermometer,
-  Droplets,
-  Wind,
   Sun,
-  CloudRain,
   Building2,
   Car,
   Cpu,
@@ -27,23 +20,17 @@ import {
   Plane,
   Wheat,
   Wifi,
-  Users,
   Wrench,
   Ban,
   Globe,
   ChevronDown,
   ChevronUp,
   RefreshCw,
-  Battery,
-  Signal,
-  Truck,
-  Package,
   BarChart3,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 
 // ─── Types ───
 export type VerticalKey =

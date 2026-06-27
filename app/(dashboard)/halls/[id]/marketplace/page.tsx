@@ -9,11 +9,10 @@ import useSWR from "swr";
 import {
   Landmark, Zap, Crown, Lock, HeartPulse, TrendingUp, Hexagon, Plane,
   Sprout, Sun, ChevronLeft, Search, LayoutGrid, List as ListIcon,
-  ShoppingCart, Share2, Trophy, Star, Clock, Shield, CheckCircle2,
-  XCircle, ArrowRight, Wallet, Receipt, Percent, Package,
+  ShoppingCart, Share2, Trophy, Clock, Shield, CheckCircle2, Wallet, Receipt, Package,
   Truck, Sparkles, Copy, Image as ImageIcon, X, Hash,
   Send, Heart, Bookmark, MessageCircle, ExternalLink, Play,
-  AlertTriangle, Megaphone, Users, BarChart3, Eye,
+  AlertTriangle,
   Settings, Plus, Lock as LockIcon, TrendingUp as TrendIcon,
 } from "lucide-react";
 
@@ -107,7 +106,7 @@ function getItemTags(item: InventoryItem): string[] {
   }
 }
 
-function getVerticalConfig(hall: any): typeof VERTICAL_CONFIG[VerticalId] {
+function getVerticalConfig(hall: unknown): typeof VERTICAL_CONFIG[VerticalId] {
   const vid = (hall?.pool?.verticalId || hall?.verticalId || "ledgerprop") as VerticalId;
   return VERTICAL_CONFIG[vid] || VERTICAL_CONFIG.ledgerprop;
 }
@@ -274,7 +273,7 @@ function ShareForgeModal({
   onClose,
 }: {
   item: InventoryItem | null;
-  hall: any;
+  hall: unknown;
   open: boolean;
   onClose: () => void;
 }) {
@@ -435,7 +434,7 @@ function EscrowModal({
   onConfirm,
 }: {
   item: InventoryItem | null;
-  hall: any;
+  hall: unknown;
   userKycTier: string;
   open: boolean;
   onClose: () => void;

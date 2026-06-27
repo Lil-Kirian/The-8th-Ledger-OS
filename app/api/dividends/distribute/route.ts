@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, requireAdmin } from "@/lib/auth";
-import { calculateRevenueSplit, distributeByOwnership } from "@/lib/dividends";
+import {  requireAdmin } from "@/lib/auth";
+import {  distributeByOwnership } from "@/lib/dividends";
 
 /* ============================================================
    POST /api/dividends/distribute

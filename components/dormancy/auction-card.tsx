@@ -4,13 +4,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Gavel,
-  Clock,
-  TrendingUp,
   DollarSign,
   User,
-  Hash,
-  ChevronRight,
-  AlertTriangle,
   Shield,
   CheckCircle2,
   Flame,

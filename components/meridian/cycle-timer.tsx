@@ -1,7 +1,7 @@
 // components/meridian/cycle-timer.tsx
 "use client";
 
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { Globe, Clock, Lock, Sparkles, Shield, Flame } from "lucide-react";
 

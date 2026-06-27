@@ -178,7 +178,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       prefString = typeof preferences === "string" ? preferences : JSON.stringify(preferences);
     }
 
-    const updateData: any = {
+    const updateData: unknown = {
       displayName: displayName !== undefined ? displayName : undefined,
       avatar: avatar !== undefined ? avatar : undefined,
       bio: bio !== undefined ? bio : undefined,

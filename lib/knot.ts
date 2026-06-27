@@ -3,7 +3,7 @@
    Referral rewards, Oracle standing, network math
    ============================================================ */
 
-import { round2, clamp } from "./utils";
+import { round2 } from "./utils";
 
 /* ============================================================
    CONSTANTS — Knot Reward Tiers
@@ -246,8 +246,8 @@ export function calculateOracleStanding(
   forecastResolvedAt: Date
 ): OracleStandingCalculation {
   let newStreak = isCorrect ? currentStanding.streak + 1 : 0;
-  let newCorrectCount = currentStanding.correctCount + (isCorrect ? 1 : 0);
-  let newTotalPredictions = currentStanding.totalPredictions + 1;
+  const newCorrectCount = currentStanding.correctCount + (isCorrect ? 1 : 0);
+  const newTotalPredictions = currentStanding.totalPredictions + 1;
 
   // Reset streak if more than 30 days since last correct
   if (currentStanding.lastCorrectAt) {

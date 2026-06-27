@@ -4,15 +4,12 @@ import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Upload,
-  Image,
   FileText,
   Award,
   X,
   CheckCircle2,
-  AlertTriangle,
   Camera,
   Receipt,
-  Certificate,
   ChevronLeft,
   ChevronRight,
   Trash2,
@@ -20,12 +17,11 @@ import {
   Save,
   DollarSign,
   FileDigit,
-  Clock,
-  Send,
   Loader2,
   Maximize2,
-  Minimize2,
-  GripVertical,
+  TrendingUp,
+  TrendingDown,
+  Minus,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";

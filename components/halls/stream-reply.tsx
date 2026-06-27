@@ -14,7 +14,6 @@ import {
   Mic,
   Landmark,
   ScrollText,
-  User,
   CornerDownRight,
   MoreHorizontal,
 } from "lucide-react";

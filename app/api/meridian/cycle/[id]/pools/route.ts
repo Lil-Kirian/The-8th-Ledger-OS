@@ -517,7 +517,7 @@ export async function POST(
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[MERIDIAN_POOLS_POST]", error);
 
     if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {

@@ -7,12 +7,10 @@ import {
   Crown,
   Search,
   Shield,
-  Eye,
   EyeOff,
   Gavel,
   FileText,
   AlertTriangle,
-  CheckCircle2,
   X,
   ChevronDown,
   ChevronUp,
@@ -25,23 +23,16 @@ import {
   Percent,
   Vote,
   MessageSquare,
-  Lock,
   Globe,
   Award,
-  TrendingUp,
-  TrendingDown,
-  Minus,
 } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import {
   Tooltip,
-  TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
 } from "@/components/ui/tooltip";
 
 // ─── Types ───

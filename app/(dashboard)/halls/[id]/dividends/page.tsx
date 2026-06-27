@@ -6,13 +6,10 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   Landmark, Zap, Crown, Lock, HeartPulse, TrendingUp, Hexagon, Plane,
-  Sprout, Sun, ChevronLeft, Wallet, Coins, TrendingUp as TrendIcon,
-  ArrowUpRight, ArrowDownRight, Calendar, Clock, CheckCircle2,
-  Sparkles, Percent, Target, BarChart3, PieChart, Layers,
-  Download, Calculator, SlidersHorizontal, Receipt, Hash,
-  Diamond, Award, Star, Shield, AlertTriangle, Info,
-  ChevronRight, Zap as ZapIcon, Flame as FlameIcon,
-  Crown as CrownIcon, Diamond as DiamondIcon
+  Sprout, Sun, ChevronLeft, Wallet, Coins, Clock, CheckCircle2, Percent, Target, BarChart3,
+  Download, Calculator, Receipt,
+  Diamond, Star, Shield, Zap as ZapIcon, Flame as FlameIcon,
+  Crown as CrownIcon
 } from "lucide-react";
 
 /* ============================================================
@@ -125,7 +122,7 @@ function TierBadge({ tier, showGlow = false }: { tier: number; showGlow?: boolea
 function AnimatedNumber({ value, prefix = "", suffix = "" }: { value: number; prefix?: string; suffix?: string }) {
   const [display, setDisplay] = useState(0);
   React.useEffect(() => {
-    let start = 0;
+    const start = 0;
     const end = value;
     const duration = 1200;
     const startTime = performance.now();

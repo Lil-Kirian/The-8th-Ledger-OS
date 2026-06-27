@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
   const sort = searchParams.get("sort") || "createdAt";
   const dir = searchParams.get("dir") === "asc" ? "asc" : "desc";
 
-  const where: any = {};
+  const where: unknown = {};
   if (status !== "all") where.status = status;
   if (type !== "all") where.type = type;
   if (q) {
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     ];
   }
 
-  const orderBy: any = {};
+  const orderBy: unknown = {};
   if (["createdAt", "resolvedAt"].includes(sort)) {
     orderBy[sort] = dir;
   } else {
@@ -92,7 +92,7 @@ export async function PATCH(req: NextRequest) {
   if (!user) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   if (!isPrimaryAdmin(user)) return NextResponse.json({ success: false, error: "Primary admin authority required" }, { status: 403 });
 
-  let body: any;
+  let body: unknown;
   try {
     body = await req.json();
   } catch {
@@ -112,8 +112,8 @@ export async function PATCH(req: NextRequest) {
     }
 
     let message = "";
-    let poolUpdate: any = null;
-    let userUpdate: any = null;
+    let poolUpdate: unknown = null;
+    let userUpdate: unknown = null;
 
     switch (action) {
       case "resolve":

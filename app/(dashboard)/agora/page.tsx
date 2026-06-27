@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   MessageSquare,
   BookOpen,
@@ -263,7 +262,7 @@ export default function AgoraPage() {
             
             <div className="space-y-4">
               {suggestionsData?.suggestions?.length ? (
-                suggestionsData.suggestions.map((s: any) => (
+                suggestionsData.suggestions.map((s: unknown) => (
                   <div key={s.id} className="flex items-start gap-4 rounded-xl border border-white/5 bg-white/[0.02] p-4">
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-400 font-bold text-sm">
                       {s.score > 0 ? "+" : ""}{s.score}
@@ -306,7 +305,7 @@ export default function AgoraPage() {
             
             <div className="space-y-4">
               {qaData?.questions?.length ? (
-                qaData.questions.map((q: any) => (
+                qaData.questions.map((q: unknown) => (
                   <div key={q.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
                     <p className="text-sm text-white/80 line-clamp-2">{q.question}</p>
                     <div className="mt-2 flex items-center gap-3 text-xs text-white/30">

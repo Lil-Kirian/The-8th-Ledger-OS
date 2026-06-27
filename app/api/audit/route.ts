@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
    ============================================================ */
 interface AuditResponse {
   success: boolean;
-  events?: any[];
+  events?: unknown[];
   total?: number;
   error?: string;
 }
@@ -25,7 +25,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const skip = (page - 1) * limit;
 
     // Build where clause — public only
-    const where: any = { visibleToPublic: true };
+    const where: unknown = { visibleToPublic: true };
     if (eventType) where.eventType = { contains: eventType, mode: "insensitive" };
     if (poolId) where.poolId = poolId;
     if (vinculumId) where.vinculumId = vinculumId;

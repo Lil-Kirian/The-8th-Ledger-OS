@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import {  AnimatePresence } from "framer-motion";
 import {
   AreaChart,
   Area,
@@ -19,11 +19,9 @@ import {
 } from "recharts";
 import {
   TrendingUp,
-  TrendingDown,
   BarChart3,
   LineChart as LineChartIcon,
   AreaChart as AreaChartIcon,
-  Calendar,
   ChevronDown,
   Download,
   Landmark,
@@ -36,8 +34,7 @@ import {
   ArrowDownRight,
   Minus,
 } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 // ─── Types ───
@@ -91,7 +88,7 @@ function calculateGrowth(data: MonthlyRevenue[], key: keyof MonthlyRevenue): { v
 }
 
 // ─── Custom Tooltip ───
-function CustomTooltip({ active, payload, label, view }: { active?: boolean; payload?: any[]; label?: string; view: DataView }) {
+function CustomTooltip({ active, payload, label, view }: { active?: boolean; payload?: unknown[]; label?: string; view: DataView }) {
   if (!active || !payload || !payload.length) return null;
 
   return (

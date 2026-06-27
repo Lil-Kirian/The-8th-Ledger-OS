@@ -23,10 +23,6 @@ import {
   Hammer,
   Package,
   PiggyBank,
-  Ban,
-  TrendingDown,
-  Shield,
-  Wrench,
   Zap,
 } from "lucide-react";
 

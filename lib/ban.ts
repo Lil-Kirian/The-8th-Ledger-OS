@@ -1,6 +1,5 @@
 import { prisma } from "./prisma";
-import { Prisma } from "@prisma/client";
-import { getHallTotalCapital, getHallMembership } from "./halls";
+import {  getHallMembership } from "./halls";
 
 /* ============================================================
    8TH LEDGER — BAN & APPEAL ENGINE

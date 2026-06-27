@@ -115,7 +115,7 @@ export default function LedgerBizPage() {
         const res = await fetch("/api/pools?vertical=ledgerbiz");
         const data = await res.json();
         if (data.success && data.pools) {
-          setPools(data.pools.map((p: any) => ({
+          setPools(data.pools.map((p: unknown) => ({
             ...p,
             accessThreshold: p.accessThreshold || p.target,
             id: p.poolId || p.id,
@@ -279,7 +279,7 @@ export default function LedgerBizPage() {
               ].map((opt) => (
                 <button
                   key={opt.key}
-                  onClick={() => setSortBy(opt.key as any)}
+                  onClick={() => setSortBy(opt.key as unknown)}
                   className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all border ${
                     sortBy === opt.key
                       ? "bg-orange-500/10 text-orange-400 border-orange-500/30"

@@ -16,31 +16,22 @@ import {
   Sprout,
   Sun,
   Search,
-  Filter,
   Shield,
   Ban,
   Eye,
-  ChevronDown,
-  ChevronUp,
   Loader2,
   AlertTriangle,
   CheckCircle2,
   X,
   Users,
   Coins,
-  ArrowRight,
-  Hash,
-  Globe,
   Activity,
   Layers,
   RefreshCw,
-  FileText,
-  Clock,
   Package,
   Hammer,
   PiggyBank,
   BarChart3,
-  TrendingDown,
   ToggleLeft,
   ToggleRight,
 } from "lucide-react";
@@ -73,7 +64,7 @@ interface Hall {
   closureStatus: string;
 }
 
-const VERTICAL_ICONS: Record<string, any> = {
+const VERTICAL_ICONS: Record<string, unknown> = {
   ledgerprop: Lock,
   ledgerauto: Zap,
   ledgeredu: Crown,
@@ -99,7 +90,7 @@ const VERTICAL_LABELS: Record<string, string> = {
   ledgerenergy: "LedgerEnergy",
 };
 
-const STATUS_CONFIG: Record<HallStatus, { label: string; color: string; bg: string; border: string; icon: any; desc: string }> = {
+const STATUS_CONFIG: Record<HallStatus, { label: string; color: string; bg: string; border: string; icon: unknown; desc: string }> = {
   ghost: { label: "Ghost", color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", icon: Ghost, desc: "Invisible to public" },
   live: { label: "Live", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", icon: Activity, desc: "Active operations" },
   mature: { label: "Mature", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", icon: Crown, desc: "Established revenue" },
@@ -315,7 +306,7 @@ export default function AdminHallsPage() {
 
           <select
             value={featureFilter}
-            onChange={(e) => setFeatureFilter(e.target.value as any)}
+            onChange={(e) => setFeatureFilter(e.target.value as unknown)}
             className="rounded-lg border border-white/10 bg-white/[0.03] px-3 py-2 text-xs text-slate-300 outline-none focus:border-cyan-500/30"
           >
             <option value="all">All Features</option>

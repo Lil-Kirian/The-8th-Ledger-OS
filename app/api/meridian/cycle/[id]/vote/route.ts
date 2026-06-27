@@ -251,7 +251,7 @@ export async function POST(
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[MERIDIAN_VOTE_POST]", error);
 
     if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
@@ -352,7 +352,7 @@ export async function GET(
 
     response.headers.set("Cache-Control", "private, max-age=10");
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[MERIDIAN_VOTE_GET]", error);
 
     if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {

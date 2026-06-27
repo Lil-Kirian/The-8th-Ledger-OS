@@ -5,7 +5,7 @@
 
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
-import { randomBytes, randomUUID } from "crypto";
+import {  randomUUID } from "crypto";
 import { cookies } from "next/headers";
 import { prisma } from "./prisma";
 import { getSessionSecret } from "./env";
@@ -117,7 +117,7 @@ export async function getSessionUser() {
         include: { kycRecord: true, wallet: true },
       });
       if (!user) return null;
-      (user as any)._sessionClaims = claims;
+      (user as unknown)._sessionClaims = claims;
       return user;
     } catch {
       // JWT invalid — fall through to legacy DB lookup
@@ -152,7 +152,7 @@ export async function getSessionClaims(): Promise<SessionClaims | null> {
   }
 }
 
-export async function getCurrentUser(req: Request | any) {
+export async function getCurrentUser(req: Request | unknown) {
   return getSessionUser();
 }
 
@@ -161,7 +161,7 @@ export async function getCurrentUser(req: Request | any) {
    ============================================================ */
 
 export async function isPrimaryAdmin(
-  ledgerId: string | { ledgerId?: string } | any,
+  ledgerId: string | { ledgerId?: string } | unknown,
 ): Promise<boolean> {
   const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
   if (!id || typeof id !== "string") return false;
@@ -173,7 +173,7 @@ export async function isPrimaryAdmin(
 }
 
 export async function isAdmin(
-  ledgerId: string | { ledgerId?: string } | any,
+  ledgerId: string | { ledgerId?: string } | unknown,
 ): Promise<boolean> {
   const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
   if (!id || typeof id !== "string") return false;
@@ -185,7 +185,7 @@ export async function isAdmin(
 }
 
 export async function isFounder(
-  ledgerId: string | { ledgerId?: string } | any,
+  ledgerId: string | { ledgerId?: string } | unknown,
 ): Promise<boolean> {
   const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
   if (!id || typeof id !== "string") return false;
@@ -214,7 +214,7 @@ export function isFounderSync(userRole?: string): boolean {
 }
 
 export async function requirePrimaryAdmin(
-  ledgerId: string | { ledgerId?: string } | any,
+  ledgerId: string | { ledgerId?: string } | unknown,
 ): Promise<void> {
   const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
   if (!id || typeof id !== "string") {
@@ -227,7 +227,7 @@ export async function requirePrimaryAdmin(
 }
 
 export async function requireAdmin(
-  ledgerId: string | { ledgerId?: string } | any,
+  ledgerId: string | { ledgerId?: string } | unknown,
 ): Promise<void> {
   const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
   if (!id || typeof id !== "string") {
@@ -240,7 +240,7 @@ export async function requireAdmin(
 }
 
 export async function requireFounder(
-  ledgerId: string | { ledgerId?: string } | any,
+  ledgerId: string | { ledgerId?: string } | unknown,
 ): Promise<void> {
   const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
   if (!id || typeof id !== "string") {
@@ -551,11 +551,11 @@ export async function severConnection(): Promise<AuthResponse> {
 
 /* === V3.2 KYC Client Wrappers === */
 export async function getKycStatus() {
-  return get<{ success: boolean; kyc?: any; error?: string }>("/api/kyc");
+  return get<{ success: boolean; kyc?: unknown; error?: string }>("/api/kyc");
 }
 
-export async function submitKycStep(step: string, data: any) {
-  return post<{ success: boolean; kyc?: any; error?: string }>("/api/kyc", {
+export async function submitKycStep(step: string, data: unknown) {
+  return post<{ success: boolean; kyc?: unknown; error?: string }>("/api/kyc", {
     step,
     ...data,
   });
@@ -563,7 +563,7 @@ export async function submitKycStep(step: string, data: any) {
 
 /* === V3.2 Hall Client Wrappers === */
 export async function getHall(hallId: string) {
-  return get<{ success: boolean; hall?: any; error?: string }>(
+  return get<{ success: boolean; hall?: unknown; error?: string }>(
     `/api/halls/${hallId}`,
   );
 }
@@ -574,7 +574,7 @@ export async function sendHallMessage(
   type = "text",
   isEphemeral = false,
 ) {
-  return post<{ success: boolean; message?: any; error?: string }>(
+  return post<{ success: boolean; message?: unknown; error?: string }>(
     `/api/halls/${hallId}/messages`,
     {
       content,
@@ -584,8 +584,8 @@ export async function sendHallMessage(
   );
 }
 
-export async function createProposal(hallId: string, proposal: any) {
-  return post<{ success: boolean; proposal?: any; error?: string }>(
+export async function createProposal(hallId: string, proposal: unknown) {
+  return post<{ success: boolean; proposal?: unknown; error?: string }>(
     `/api/halls/${hallId}/proposals`,
     proposal,
   );
@@ -596,14 +596,14 @@ export async function voteOnProposal(
   proposalId: string,
   choice: "yes" | "no",
 ) {
-  return post<{ success: boolean; vote?: any; error?: string }>(
+  return post<{ success: boolean; vote?: unknown; error?: string }>(
     `/api/halls/${hallId}/proposals/${proposalId}/vote`,
     { choice },
   );
 }
 
 export async function getHallMarketplace(hallId: string) {
-  return get<{ success: boolean; items?: any[]; error?: string }>(
+  return get<{ success: boolean; items?: unknown[]; error?: string }>(
     `/api/halls/${hallId}/marketplace`,
   );
 }
@@ -614,7 +614,7 @@ export async function createMarketplaceOrder(
   quantity: number,
   refCode?: string,
 ) {
-  return post<{ success: boolean; order?: any; error?: string }>(
+  return post<{ success: boolean; order?: unknown; error?: string }>(
     `/api/halls/${hallId}/marketplace/orders`,
     {
       itemId,
@@ -625,7 +625,7 @@ export async function createMarketplaceOrder(
 }
 
 export async function generateShareLink(itemId: string, platform?: string) {
-  return post<{ success: boolean; share?: any; error?: string }>(
+  return post<{ success: boolean; share?: unknown; error?: string }>(
     "/api/marketplace/share",
     { itemId, platform },
   );
@@ -638,7 +638,7 @@ export async function requestWithdrawal(
   destinationType = "bank",
   totpCode?: string,
 ) {
-  return post<{ success: boolean; withdrawal?: any; error?: string }>(
+  return post<{ success: boolean; withdrawal?: unknown; error?: string }>(
     "/api/wallet/withdraw",
     {
       amount,

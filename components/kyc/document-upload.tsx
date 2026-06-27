@@ -4,7 +4,6 @@ import React, { useState, useRef, useCallback } from "react";
 import {
   Upload,
   FileText,
-  Image,
   CheckCircle2,
   X,
   AlertTriangle,

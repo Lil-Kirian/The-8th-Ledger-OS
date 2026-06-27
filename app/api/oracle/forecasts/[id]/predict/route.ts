@@ -377,7 +377,7 @@ export async function POST(
       },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[ORACLE_PREDICT_POST]", error);
 
     // Prisma unique constraint violation (race condition)

@@ -104,11 +104,11 @@ function calculateCountryDiversity(
 }
 
 function buildMeritScore(
-  user: any,
-  userOwnerships: any[],
-  userReviews: any[],
-  userDividendEntries: any[],
-  kycRecord: any | null,
+  user: unknown,
+  userOwnerships: unknown[],
+  userReviews: unknown[],
+  userDividendEntries: unknown[],
+  kycRecord: unknown | null,
   countryCounts: Record<string, number>,
   totalParticipants: number
 ): MeritScore {
@@ -270,7 +270,7 @@ export async function GET(request: NextRequest) {
       preview: true,
       message: "Preview mode — no winner selected. Use POST to execute Quantum Merit Consensus.",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[MERIT PREVIEW]", error);
     const status = error instanceof AuthError ? error.status : 500;
     return NextResponse.json(
@@ -425,8 +425,8 @@ export async function POST(request: NextRequest) {
       }
 
       // ── 50% RETURN TO NON-WINNERS (8th Ledger ARC) ──
-      const nonWinners = pool.ownerships.filter((o: any) => o.user.ledgerId !== winner.ledgerId);
-      const returnRecords: any[] = [];
+      const nonWinners = pool.ownerships.filter((o: unknown) => o.user.ledgerId !== winner.ledgerId);
+      const returnRecords: unknown[] = [];
 
       for (const ownership of nonWinners) {
         const stake = ownership.amountCommitted;
@@ -480,7 +480,7 @@ export async function POST(request: NextRequest) {
       }
 
       // ── WINNER OWNERSHIP ACTIVATION ──
-      const winnerOwnership = pool.ownerships.find((o: any) => o.user.ledgerId === winner.ledgerId);
+      const winnerOwnership = pool.ownerships.find((o: unknown) => o.user.ledgerId === winner.ledgerId);
       if (winnerOwnership) {
         await tx.ownership.update({
           where: { id: winnerOwnership.id },
@@ -558,7 +558,7 @@ export async function POST(request: NextRequest) {
       meritScores: result.meritScores,
       message: `Quantum Merit Consensus complete. Winner: ${result.winner.displayName} (Score: ${result.winner.totalMeritScore}). 50% liquid return distributed to ${result.arcDistributed} sovereigns.`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[QUANTUM MERIT]", error);
     const status = error instanceof AuthError ? error.status : 400;
     return NextResponse.json(

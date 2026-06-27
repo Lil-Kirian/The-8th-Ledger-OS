@@ -11,7 +11,6 @@ import {
   Clock,
   AlertTriangle,
   Loader2,
-  Upload,
   ArrowLeft,
   DollarSign,
   Calendar,
@@ -30,7 +29,6 @@ import {
   Hammer,
   PiggyBank,
   Siren,
-  Wrench,
 } from "lucide-react";
 
 type ProposalStatus = "passed" | "executing" | "completed" | "cancelled";
@@ -200,7 +198,7 @@ export default function OperationDetailPage() {
           const p = data.proposals[0];
 
           // Parse executionLogs proofUrls from JSON strings
-          const logs = (p.executionLogs || []).map((log: any) => ({
+          const logs = (p.executionLogs || []).map((log: unknown) => ({
             ...log,
             proofUrls: log.proofUrls
               ? (() => {
@@ -740,7 +738,7 @@ export default function OperationDetailPage() {
                         accept="image/*"
                         onChange={(e) =>
                           handleFileUpload(
-                            field.key as any,
+                            field.key as unknown,
                             e.target.files
                           )
                         }
@@ -768,7 +766,7 @@ export default function OperationDetailPage() {
                             />
                             <button
                               onClick={() =>
-                                removePhoto(field.key as any, i)
+                                removePhoto(field.key as unknown, i)
                               }
                               className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
                             >

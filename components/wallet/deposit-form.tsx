@@ -12,7 +12,8 @@ import {
   CheckCircle2, 
   AlertCircle,
   Copy,
-  ExternalLink
+  ExternalLink,
+  ShieldAlert
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

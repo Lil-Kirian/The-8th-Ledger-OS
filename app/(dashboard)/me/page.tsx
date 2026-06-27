@@ -11,12 +11,12 @@ import { Label } from "@/components/ui/label";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  User, Shield, Crown, BadgeCheck, Coins, CreditCard,
-  Hexagon, Eye, TrendingUp, Globe, Clock, Copy, Check,
+   Shield, Crown, BadgeCheck, Coins,
+  Hexagon, Eye, TrendingUp, Copy, Check,
   Edit3, Save, X, Lock, Smartphone, KeyRound, LogOut,
-  ChevronRight, ArrowLeftRight, Flame, Radio, Trophy,
-  FileText, Scroll, AlertTriangle, Wallet, Landmark,
-  QrCode, Mail, Phone, MapPin, Calendar, Fingerprint
+  ChevronRight, Flame, Radio,
+  FileText, AlertTriangle, Wallet,
+  QrCode, Mail, Phone, MapPin, Fingerprint
 } from "lucide-react";
 
 /* ============================================================

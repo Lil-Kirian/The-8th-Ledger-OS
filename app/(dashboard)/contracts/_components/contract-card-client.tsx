@@ -2,12 +2,11 @@
 "use client";
 
 import React from "react";
-import { Card } from "@/components/ui/card";
 import { formatCurrency, truncateHash } from "@/lib/utils";
 import {
   Shield, Zap, Crown, Clock, AlertTriangle, Download, Printer,
   QrCode, Fingerprint, Lock, Globe, ChevronRight, Ban, Stamp,
-  UserCheck, EyeOff, ScrollText
+  UserCheck, EyeOff
 } from "lucide-react";
 
 /* ============================================================
@@ -45,8 +44,8 @@ export function ContractCardScroll({
   user,
   isPreview,
 }: {
-  receipt: any;
-  user: any;
+  receipt: unknown;
+  user: unknown;
   isPreview?: boolean;
 }) {
   const isOwner = receipt.userId === user.id;

@@ -333,7 +333,7 @@ export async function POST(
         message: "The forge is complete. The pool is live. Commit to earn.",
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[MERIDIAN_FORGE_POST]", error);
 
     if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {

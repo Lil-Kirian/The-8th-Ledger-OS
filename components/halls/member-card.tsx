@@ -10,7 +10,6 @@ import {
   FileText,
   Clock,
   AlertTriangle,
-  ChevronRight,
   Percent,
   Vote,
   Activity,

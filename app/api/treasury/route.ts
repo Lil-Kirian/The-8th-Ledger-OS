@@ -7,7 +7,7 @@ const LEDGER_TITHE_PCT = 0.20;
 
 interface TreasuryResponse {
   success: boolean;
-  data?: any;
+  data?: unknown;
   error?: string;
   message?: string;
 }
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type") || "all";
 
-    const response: any = { success: true };
+    const response: unknown = { success: true };
 
     // ── Global state ──
     if (type === "all" || type === "state") {
@@ -227,7 +227,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       const gross = Number(amount);
       let communityNet = Math.floor(gross * COMMUNITY_PCT * 100) / 100;
-      let ledgerFee = Math.floor(gross * LEDGER_TITHE_PCT * 100) / 100;
+      const ledgerFee = Math.floor(gross * LEDGER_TITHE_PCT * 100) / 100;
 
       // Fix rounding drift
       const drift = gross - (communityNet + ledgerFee);

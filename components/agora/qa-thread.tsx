@@ -7,7 +7,7 @@
 import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  MessageCircle,
+
   CheckCircle2,
   XCircle,
   HelpCircle,
@@ -16,10 +16,7 @@ import {
   Crown,
   Shield,
   ChevronDown,
-  ChevronUp,
-  Scroll,
   Feather,
-  BookOpen,
   Quote,
   CornerDownRight,
   Sparkles,

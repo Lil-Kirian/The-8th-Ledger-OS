@@ -9,8 +9,6 @@ import {
   List,
   SlidersHorizontal,
   ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
   X,
   MapPin,
   Building2,
@@ -23,7 +21,6 @@ import {
   Wheat,
   Sun,
   Wifi,
-  Crown,
   Shield,
   AlertTriangle,
   Lock,
@@ -37,10 +34,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import {

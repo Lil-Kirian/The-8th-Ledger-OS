@@ -3,18 +3,14 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Landmark,
+
   ShieldAlert,
   CheckCircle2,
   XCircle,
   Clock,
-  TrendingDown,
-  TrendingUp,
   DollarSign,
-  Percent,
   Calendar,
   AlertTriangle,
-  Hash,
   ChevronDown,
   ChevronUp,
   Info,

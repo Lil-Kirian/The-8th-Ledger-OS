@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Gavel, Ban, Shield, AlertTriangle, Clock, CheckCircle2, X,
+  Gavel, Ban, Shield, CheckCircle2, X,
   Users, Vote, FileText, ChevronDown, ChevronUp,
   Unlock, History, Eye, Crown,
   MessageSquare,

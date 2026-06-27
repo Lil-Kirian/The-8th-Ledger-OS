@@ -9,20 +9,16 @@ import {
   ShieldCheck,
   Globe,
   Star,
-  ChevronRight,
   AlertTriangle,
   CheckCircle2,
   X,
   Loader2,
-  Download,
   Eye,
   Lock,
-  TrendingUp,
   Users,
   BarChart3,
   Sparkles,
   ArrowLeft,
-  RotateCcw,
 } from "lucide-react";
 
 /* ============================================================
@@ -102,7 +98,7 @@ export default function QuantumMeritPage() {
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       setMeritData(data);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message);
     } finally {
       setLoading(false);
@@ -126,7 +122,7 @@ export default function QuantumMeritPage() {
       setConfirmOpen(false);
       setConfirmText("");
       previewMerit();
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message);
     } finally {
       setExecuting(false);
@@ -269,7 +265,7 @@ export default function QuantumMeritPage() {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
+                onClick={() => setActiveTab(tab.id as unknown)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
                   activeTab === tab.id
                     ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"

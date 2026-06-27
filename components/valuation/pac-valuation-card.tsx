@@ -4,21 +4,8 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Tag,
-  TrendingUp,
-  Award,
   AlertTriangle,
-  DollarSign,
-  ArrowRight,
-  Lock,
-  Unlock,
-  TrendingDown,
-  Plus,
-  Minus,
-  Equal,
-  Hash,
   Calendar,
-  Shield,
-  Gavel,
   X,
 } from "lucide-react";
 

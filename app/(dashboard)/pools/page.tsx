@@ -7,13 +7,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
   Layers, Users, Timer, Globe, Landmark, Zap, Crown, Lock,
-  HeartPulse, TrendingUp, Hexagon, Plane, Wheat, Sun,
-  ArrowRight, Coins, CheckCircle2, Shield, Radio, Activity,
-  ChevronRight, Sparkles, Terminal, Orbit, Crosshair,
-  BarChart3, Flame, CircleDot, Fingerprint, Satellite,
-  Building2, CircleCheck, XCircle, Diamond, Flame as FlameIcon,
-  LockKeyhole, Target, Percent, TrendingUp as TrendUp,
-  ArrowLeft, Hash, CircleDollarSign, Wallet, Receipt
+  HeartPulse, TrendingUp, Hexagon, Plane, Wheat, Sun, CheckCircle2, Shield, Radio, Activity, Sparkles, Terminal, Orbit, Crosshair,
+  BarChart3, Flame, CircleDot, Fingerprint, Satellite, XCircle, Diamond, Flame as FlameIcon,
+  LockKeyhole, Target
 } from "lucide-react";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -128,7 +124,7 @@ function StatusBadge({ status }: { status: string }) {
 /* ============================================================
    HERO STATS
    ============================================================ */
-function HeroStats({ stats }: { stats: any }) {
+function HeroStats({ stats }: { stats: unknown }) {
   const cards = [
     { label: "TOTAL POOLS", value: stats?.total ?? 0, icon: Layers, color: "cyan", suffix: "" },
     { label: "ACTIVE FORGES", value: stats?.active ?? 0, icon: Flame, color: "amber", suffix: "" },
@@ -265,7 +261,7 @@ function VerticalSelector({ activeId, onSelect }: { activeId: string | null; onS
 /* ============================================================
    POOL CARD — NO TARGET / TRUE COST
    ============================================================ */
-function PoolCard({ pool, index }: { pool: any; index: number }) {
+function PoolCard({ pool, index }: { pool: unknown; index: number }) {
   const vertical = ALL_VERTICALS.find(v => pool.verticalId?.includes(v.id)) || ALL_VERTICALS[0];
   const colors = COLOR_MAP[vertical.color];
   const Icon = vertical.icon;
@@ -630,7 +626,7 @@ export default function PoolsPage() {
             ) : pools.length === 0 ? (
               <EmptyState />
             ) : (
-              pools.map((pool: any, i: number) => (
+              pools.map((pool: unknown, i: number) => (
                 <PoolCard key={pool.poolId} pool={pool} index={i} />
               ))
             )}

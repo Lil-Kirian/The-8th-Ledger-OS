@@ -332,7 +332,7 @@ export default function VaultPage() {
   }, [assets]);
 
   const filtered = useMemo(() => {
-    let list = filter === "all" ? assets : assets.filter(a => a.status === filter);
+    const list = filter === "all" ? assets : assets.filter(a => a.status === filter);
     return [...list].sort((a, b) => {
       switch (sortBy) {
         case "value": return b.value - a.value;

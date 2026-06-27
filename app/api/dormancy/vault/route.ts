@@ -77,7 +77,7 @@ export async function GET(request: NextRequest) {
       })),
       count: vaults.length,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[DORMANCY VAULT] GET error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to load vault" },
@@ -194,7 +194,7 @@ export async function POST(request: NextRequest) {
       ownershipId: vault.ownershipId,
       reclaimedAt: new Date().toISOString(),
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[DORMANCY VAULT] POST error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to reclaim from vault" },

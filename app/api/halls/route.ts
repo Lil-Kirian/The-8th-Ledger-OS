@@ -93,7 +93,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const ownedHallIds = ownerships.map((o) => o.hallId).filter(Boolean);
 
     // ── 2. Discovery halls (live/mature, not owned) ───────────
-    const discoveryWhere: any = {
+    const discoveryWhere: unknown = {
       status: { in: ["live", "mature"] },
       ...(ownedHallIds.length > 0 ? { id: { notIn: ownedHallIds } } : {}),
     };
@@ -190,7 +190,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // ── 5. Format helper ─────────────────────────────────────
-    function formatHall(hall: any, ownership?: any) {
+    function formatHall(hall: unknown, ownership?: unknown) {
       const pool = hall.pool;
       const treasury = hall.hallTreasury;
       const sri = hall.sriSnapshots?.[0];
@@ -212,7 +212,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
       const emojiSet = pool?.emojiSet ? Array.from(pool.emojiSet) : ["🏠"];
 
-      const base: Record<string, any> = {
+      const base: Record<string, unknown> = {
         id: hall.id,
         verticalId: pool?.verticalId || "unknown",
         name: hall.name,

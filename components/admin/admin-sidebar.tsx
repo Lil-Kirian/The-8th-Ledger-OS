@@ -19,7 +19,6 @@ import {
   Settings,
   ChevronDown,
   Crown,
-  Shield,
   ChevronLeft,
   ChevronRight,
   LogOut,

@@ -8,13 +8,10 @@ import {
   Landmark, Zap, Crown, Lock, HeartPulse, TrendingUp, Hexagon, Plane,
   Sprout, Sun, ChevronLeft, Search, Users, Shield, Star, Award,
   ShieldCheck, AlertTriangle, Ban, Scale, MessageCircle, Clock,
-  Activity, ChevronRight, MoreHorizontal, Filter, Crown as CrownIcon,
-  Diamond, Zap as ZapIcon, Flame as FlameIcon, Swords, UserX,
-  UserCheck, Fingerprint, Eye, Flag, Bookmark, Share2,
-  TrendingUp as TrendIcon, BarChart3, PieChart, Layers,
-  MapPin, Calendar, Mail, Phone, Hash, Percent, Target,
-  CheckCircle2, XCircle, AlertOctagon, Info, Download,
-  QrCode, Lock as LockIcon, Unlock, Send, X
+  Activity, ChevronRight, MoreHorizontal, Crown as CrownIcon,
+  Diamond, Zap as ZapIcon, Flame as FlameIcon, Flag, BarChart3, PieChart, Layers,
+  MapPin, Percent, Target, Wallet,
+  CheckCircle2, X
 } from "lucide-react";
 
 /* ============================================================
@@ -751,7 +748,7 @@ export default function HallMembersPage() {
                 </div>
                 <select
                   value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value as any)}
+                  onChange={(e) => setFilterStatus(e.target.value as unknown)}
                   className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white outline-none focus:border-cyan-500/30 transition-all"
                 >
                   <option value="all" className="bg-[#0a0a14]">All Status</option>

@@ -6,13 +6,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  LayoutDashboard, ArrowLeftRight, Flame, Users, User,
+  LayoutDashboard, Flame, Users, User,
   Shield, Grid3X3, Menu, X, ChevronRight, Hexagon,
-  Bell, Search, LogOut, Eye, Crown, Settings, BarChart3,
+  Bell, Search, LogOut, Eye, Crown, Settings,
   Radio, FileText, Wallet, Trophy,
   Scroll, Store, Coins, BadgeCheck,
-  Landmark, ChevronDown, Globe, Target, LandmarkIcon,
-  BookOpen, HelpCircle, Sparkles, Library
+  Landmark, ChevronDown, Globe, Target,
+  BookOpen, Sparkles, Library
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 

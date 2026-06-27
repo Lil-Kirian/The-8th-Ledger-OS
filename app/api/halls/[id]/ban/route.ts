@@ -196,7 +196,7 @@ export async function POST(
       proposalId: result.proposal.id,
       message: `Ban proposed for ${target.displayName}. Community must vote 51% to enforce.`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[BAN POST]", error);
     return NextResponse.json({ success: false, error: error.message || "Ban proposal failed" }, { status: 500 });
   }
@@ -288,7 +288,7 @@ export async function PATCH(
       proposalId: result.proposal.id,
       message: "Appeal submitted. Community must vote 51% to overturn.",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[BAN PATCH]", error);
     return NextResponse.json({ success: false, error: error.message || "Appeal failed" }, { status: 500 });
   }

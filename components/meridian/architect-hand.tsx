@@ -11,10 +11,8 @@ import {
   Sparkles,
   Flame,
   Lock,
-  Eye,
   AlertTriangle,
   CheckCircle2,
-  Loader2,
   Shield,
   Hash,
   X,
@@ -22,10 +20,8 @@ import {
   Swords,
   Scale,
   Scroll,
-  ChevronRight,
   Fingerprint,
   Radio,
-  Timer,
   Award,
 } from "lucide-react";
 
@@ -325,7 +321,7 @@ export default function ArchitectHand({
         setErrorMessage(result.error || "The forge failed. The cycle is unchanged.");
         setStep("error");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setErrorMessage(err.message || "Network failure. The seal could not be struck.");
       setStep("error");
     }

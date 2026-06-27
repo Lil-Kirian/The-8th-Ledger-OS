@@ -9,8 +9,8 @@ import prisma from "@/lib/prisma";
    Install: npm install speakeasy qrcode
    ============================================================ */
 
-let speakeasy: any;
-let QRCode: any;
+let speakeasy: unknown;
+let QRCode: unknown;
 
 try {
   speakeasy = require("speakeasy");
@@ -32,7 +32,7 @@ const devFallback = {
     for (let i = 0; i < 32; i++) secret += chars[Math.floor(Math.random() * 32)];
     return { base32: secret };
   },
-  otpauthURL: (opts: any) => `otpauth://totp/8thLedger:${opts.encoding}?secret=${opts.secret}`,
+  otpauthURL: (opts: unknown) => `otpauth://totp/8thLedger:${opts.encoding}?secret=${opts.secret}`,
   totp: {
     verify: ({ token, secret }: { token: string; secret: string }) => {
       // DEV ONLY: Accept any 6-digit code
@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
       enabled: user.founderTotpEnabled || false,
       setup: !!user.founderTotpSecret,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[PRIMARY ADMIN TOTP GET]", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
@@ -220,7 +220,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[PRIMARY ADMIN TOTP]", err);
     return NextResponse.json({ error: err.message || "Failed" }, { status: 500 });
   }

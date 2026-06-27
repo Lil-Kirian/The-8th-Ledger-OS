@@ -5,7 +5,7 @@ import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   BookOpen, Search, X, ChevronRight, Lightbulb,
-  HelpCircle, ArrowRight, Sparkles, Crown
+  HelpCircle, Sparkles, Crown
 } from "lucide-react";
 
 function cn(...classes: (string | false | null | undefined)[]) {

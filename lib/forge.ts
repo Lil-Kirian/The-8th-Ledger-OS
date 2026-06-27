@@ -5,9 +5,7 @@ import {
   getDepartmentForRole,
   getWorkerSalaryRange,
   generateWorkerNumber,
-  getContractDurationMonths,
   getPerformanceThresholds,
-  getTerminationNoticeDays,
   getSeveranceMonthsPerYear,
 } from "./asset-types";
 

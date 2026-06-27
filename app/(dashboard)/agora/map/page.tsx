@@ -3,16 +3,14 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  Globe,
+
   ArrowLeft,
-  Clock,
   ChevronRight,
   MapPin,
   Lock,
   Unlock,
   Sparkles,
   Trophy,
-  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import useSWR from "swr";
@@ -108,7 +106,7 @@ function ContinentCard({
       }`}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${continent.color} opacity-30`} />
-      
+
       <div className="relative">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">

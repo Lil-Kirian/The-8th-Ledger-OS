@@ -10,46 +10,26 @@ import {
   Shield,
   CheckCircle2,
   X,
-  Globe,
   Users,
   Vote,
   Clock,
-  FileText,
   ChevronDown,
   ChevronUp,
-  Landmark,
-  Building2,
-  Stethoscope,
-  Cross,
-  Activity,
-  Thermometer,
-  Droplets,
   Ambulance,
   Hospital,
-  Pill,
-  Syringe,
-  Bandage,
   ClipboardList,
   Send,
   Ban,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  RefreshCw,
   Download,
-  ExternalLink,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
-  TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
 } from "@/components/ui/tooltip";
 
 // ─── Types ───

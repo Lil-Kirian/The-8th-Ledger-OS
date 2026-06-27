@@ -87,7 +87,7 @@ export async function GET(req: NextRequest) {
       },
     }).catch(() => []);
 
-    const history = forgeHistory.map((tx: any) => {
+    const history = forgeHistory.map((tx: unknown) => {
       const meta = tx.metadata ? JSON.parse(tx.metadata) : {};
       return {
         id: tx.id,
@@ -129,11 +129,11 @@ export async function GET(req: NextRequest) {
       history,
       supply: {
         total: 21_000_000,
-        burned: history.reduce((a: number, h: any) => a + (h.ledgerBurned || 0), 0),
+        burned: history.reduce((a: number, h: unknown) => a + (h.ledgerBurned || 0), 0),
         remainingPercent: "100.0",
       },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[API/forge GET]", err);
     return NextResponse.json(
       { success: false, error: "Failed to fetch forge data" },
@@ -260,7 +260,7 @@ export async function POST(req: NextRequest) {
         forgesCompleted: newForges,
       },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[API/forge POST]", err);
     return NextResponse.json(
       { success: false, error: "Forge failed: " + err.message },

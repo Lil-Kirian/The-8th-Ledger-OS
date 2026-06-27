@@ -8,7 +8,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
   Users,
-  Shield,
   ShieldCheck,
   ShieldAlert,
   Crown,
@@ -18,7 +17,6 @@ import {
   ChevronDown,
   LogOut,
   Landmark,
-  Globe,
   Flame,
   Wallet,
   FileText,
@@ -31,7 +29,6 @@ import {
   BarChart3,
   Lock,
   Fingerprint,
-  Loader2,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { cn } from "@/lib/utils";

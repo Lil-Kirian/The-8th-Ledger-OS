@@ -109,7 +109,7 @@ export async function GET(req: NextRequest) {
       prisma.$transaction([
         prisma.oracleStanding.count(),
         prisma.oracleStanding.count({
-          where: { totalPoints: { gt: { /* filled below */ } as any } },
+          where: { totalPoints: { gt: { /* filled below */ } as unknown } },
         }),
       ]).catch(() => [0, 0] as [number, number]),
     ]);
@@ -251,7 +251,7 @@ export async function GET(req: NextRequest) {
     // 8. Cache control — standing is personal but changes slowly
     response.headers.set("Cache-Control", "private, max-age=30, stale-while-revalidate=60");
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[ORACLE_STANDING_GET]", error);
 
     if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {

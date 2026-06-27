@@ -24,8 +24,6 @@ import {
   Eye,
   Flame,
   Droplets,
-  Wind,
-  Sun,
   Zap,
   Building2,
   Car,

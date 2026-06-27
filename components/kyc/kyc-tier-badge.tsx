@@ -3,22 +3,13 @@
 import React, { useState } from "react";
 import {
   Shield,
-  Crown,
   Star,
   Gem,
   ChevronDown,
-  ChevronUp,
   Lock,
   Wallet,
-  CheckCircle2,
-  Clock,
-  AlertTriangle,
-  X,
   Eye,
   Fingerprint,
-  Hash,
-  ArrowRight,
-  Ban,
   Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";

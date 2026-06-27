@@ -6,9 +6,6 @@ import {
   BookOpen,
   Search,
   MessageCircle,
-  CheckCircle2,
-  Clock,
-  X,
   Send,
   ArrowLeft,
   Shield,
@@ -285,7 +282,7 @@ export default function ArchivesPage() {
           </div>
           <select
             value={sort}
-            onChange={(e) => setSort(e.target.value as any)}
+            onChange={(e) => setSort(e.target.value as unknown)}
             className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-cyan-500/50 focus:outline-none"
           >
             <option value="unanswered_first" className="bg-[#0f0f14]">Unanswered First</option>

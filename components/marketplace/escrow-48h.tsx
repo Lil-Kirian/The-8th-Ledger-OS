@@ -2,10 +2,9 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   Clock,
-  Shield,
   CheckCircle2,
   XCircle,
   AlertTriangle,
@@ -14,9 +13,6 @@ import {
   Hash,
   FileCheck,
   Loader2,
-  TrendingUp,
-  TrendingDown,
-  UserCheck,
   Ban,
 } from "lucide-react";
 import { cn } from "@/lib/utils";

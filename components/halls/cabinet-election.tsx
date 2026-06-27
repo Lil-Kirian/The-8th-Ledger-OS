@@ -4,35 +4,25 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Vote,
-  Crown,
-  Users,
   MessageSquare,
   FileText,
   Shield,
   Clock,
   CheckCircle2,
-  AlertTriangle,
   ChevronDown,
   ChevronUp,
   Send,
-  Lock,
-  Unlock,
   Trophy,
   Percent,
-  BarChart3,
   TrendingUp,
   X,
   User,
-  RefreshCw,
-  Landmark,
   Gavel,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
 
 // ─── Types ───
 export type CabinetRole = "speaker" | "treasurer" | "warden" | "scribe";

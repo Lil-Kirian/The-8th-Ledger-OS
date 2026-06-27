@@ -238,7 +238,7 @@ export async function POST(
       const noPercent = totalWeight > 0 ? (updated.voteWeightNo / totalWeight) * 100 : 0;
       const thresholdMet = yesPercent >= updated.thresholdPercent;
 
-      let removed = false;
+      const removed = false;
       let reelectionProposal = null;
 
       if (thresholdMet && updated.status === "active") {

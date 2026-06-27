@@ -1,5 +1,4 @@
 import { prisma } from "./prisma";
-import { Prisma } from "@prisma/client";
 import { getHallMembership, getHallTotalCapital, hasQuorum, HallAccessError } from "./halls";
 
 /* ============================================================

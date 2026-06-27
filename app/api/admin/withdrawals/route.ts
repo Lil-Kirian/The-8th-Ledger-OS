@@ -49,14 +49,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const sort = searchParams.get("sort") || "createdAt";
     const dir = searchParams.get("dir") === "asc" ? "asc" : "desc";
 
-    const orderBy: any = {};
+    const orderBy: unknown = {};
     if (["createdAt", "amount", "processedAt"].includes(sort)) {
       orderBy[sort] = dir;
     } else {
       orderBy.createdAt = "desc";
     }
 
-    let withdrawals: any[] = [];
+    let withdrawals: unknown[] = [];
     let total = 0;
 
     /* ── MODERN WITHDRAWALS (Wallet relation) ── */
@@ -247,7 +247,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    let result: any;
+    let result: unknown;
     let message = "";
     let amount = 0;
     let ledgerId = "";

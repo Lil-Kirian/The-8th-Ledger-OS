@@ -231,7 +231,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
     const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
 
-    const where: any = { ledgerId: user.ledgerId };
+    const where: unknown = { ledgerId: user.ledgerId };
     if (status) where.status = status;
 
     const withdrawals = await prisma.withdrawal.findMany({

@@ -5,15 +5,12 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Briefcase,
   DollarSign,
-  Clock,
-  Target,
   FileText,
   Send,
   X,
   ChevronDown,
   CheckCircle2,
   AlertCircle,
-  Users,
 } from "lucide-react";
 import { proposeHire } from "@/hooks/use-forge";
 

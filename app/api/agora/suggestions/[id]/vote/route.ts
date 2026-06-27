@@ -220,7 +220,7 @@ export async function POST(
         score: updatedSuggestion.upvotes - updatedSuggestion.downvotes,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[AGORA_SUGGESTION_VOTE]", error);
 
     if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {

@@ -37,6 +37,11 @@ function isSegmentedTabsProps(
 }
 
 export function Tabs(props: SegmentedTabsProps | CompoundTabsProps) {
+  const compoundProps = isSegmentedTabsProps(props) ? null : props;
+  const [internalValue, setInternalValue] = useState(
+    compoundProps?.defaultValue ?? "",
+  );
+
   if (isSegmentedTabsProps(props)) {
     const { tabs, activeTab, onChange, className } = props;
     return (
@@ -86,11 +91,9 @@ export function Tabs(props: SegmentedTabsProps | CompoundTabsProps) {
   const {
     children,
     value,
-    defaultValue = "",
     onValueChange,
     className,
   } = props;
-  const [internalValue, setInternalValue] = useState(defaultValue);
   const currentValue = value ?? internalValue;
 
   const setValue = (nextValue: string) => {

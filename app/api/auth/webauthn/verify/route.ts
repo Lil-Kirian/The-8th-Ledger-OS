@@ -169,7 +169,7 @@ export async function POST(req: NextRequest) {
         });
 
         return response;
-      } catch (libError: any) {
+      } catch (libError: unknown) {
         // Fallback without simplewebauthn
         // ⚠️ Production MUST use library for full verification
         await prisma.securityAuditLog.create({
@@ -195,7 +195,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ error: "Invalid step. Use 'start' or 'finish'." }, { status: 400 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[WEBAUTHN VERIFY]", err);
     return NextResponse.json(
       { error: err.message || "Hardware key verification failed" },

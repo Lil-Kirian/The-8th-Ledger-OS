@@ -7,7 +7,6 @@ import {
   TrendingDown,
   ArrowUpRight,
   ArrowDownRight,
-  Percent,
   PiggyBank,
   Zap,
   Activity,
@@ -115,7 +114,7 @@ export default function TreasuryCard({ hallId, hallName, data }: TreasuryCardPro
   const [animatedBalance, setAnimatedBalance] = useState(0);
 
   useEffect(() => {
-    let start = 0;
+    const start = 0;
     const duration = 1200;
     const startTime = performance.now();
     const animate = (now: number) => {

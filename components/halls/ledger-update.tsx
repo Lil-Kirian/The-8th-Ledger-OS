@@ -21,7 +21,6 @@ import {
   BadgeCheck,
   ArrowUpRight,
   ArrowDownRight,
-  Wallet,
   Gavel,
   Info,
 } from "lucide-react";
@@ -554,7 +553,7 @@ export function LedgerUpdateList({
 
           <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as any)}
+            onChange={(e) => setFilterStatus(e.target.value as unknown)}
             className="rounded-lg bg-slate-800/60 border border-slate-700/50 px-2.5 py-1.5 text-[11px] text-slate-300 focus:outline-none focus:border-cyan-500/40"
           >
             <option value="all">All Status</option>

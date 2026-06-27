@@ -5,7 +5,7 @@ import crypto from "crypto";
 import { getSessionUser, isPrimaryAdmin } from "@/lib/auth";
 import { sanitizeDisplayName, sanitizeEmail, sanitizeCountry } from "@/lib/sanitize";
 import { createAuditEntry } from "@/lib/audit";
-import { createTempToken, verifyTempToken, verifyTOTP, verifyRecoveryCode } from "@/lib/totp";
+import { createTempToken } from "@/lib/totp";
 
 /* ============================================================
    TYPES
@@ -73,7 +73,7 @@ function getClientIP(request: NextRequest): string {
   if (xf) return xf.split(",")[0].trim();
   const ri = request.headers.get("x-real-ip");
   if (ri) return ri;
-  return (request as any).ip ?? "unknown";
+  return (request as unknown).ip ?? "unknown";
 }
 
 function getUserAgent(request: NextRequest): string {
@@ -105,7 +105,7 @@ async function enforceSessionCap(ledgerId: string) {
   }
 }
 
-async function rotateSession(session: any, request: NextRequest): Promise<string> {
+async function rotateSession(session: unknown, request: NextRequest): Promise<string> {
   const newToken = generateToken();
   const ip = getClientIP(request);
   const ua = getUserAgent(request);
@@ -129,7 +129,7 @@ async function rotateSession(session: any, request: NextRequest): Promise<string
 /* ============================================================
    ANOMALY DETECTION
    ============================================================ */
-function detectAnomaly(session: any, request: NextRequest): string | null {
+function detectAnomaly(session: unknown, request: NextRequest): string | null {
   const fp = getDeviceFingerprint(request);
   if (session.deviceFingerprint && session.deviceFingerprint !== fp) {
     return "DEVICE_MISMATCH";

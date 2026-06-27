@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   Video,
   Eye,
@@ -8,13 +8,10 @@ import {
   RotateCcw,
   CheckCircle2,
   AlertTriangle,
-  Loader2,
-  X,
   Shield,
   ChevronRight,
   Zap,
   BrainCircuit,
-  Fingerprint,
   ScanFace,
   Sun,
   Moon,

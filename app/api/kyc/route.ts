@@ -105,7 +105,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       where: { userId: user.id },
     });
 
-    const updateData: any = {};
+    const updateData: unknown = {};
 
     if (step === "id") {
       if (!idType || !idNumber || !idImageUrl) {
@@ -252,7 +252,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ success: false, error: "KYC record not found" }, { status: 404 });
     }
 
-    const updateData: any = {
+    const updateData: unknown = {
       status,
       reviewedBy: user.ledgerId,
       reviewedAt: new Date(),

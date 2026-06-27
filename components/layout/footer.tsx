@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Gem, Globe, Eye, Shield, ExternalLink } from "lucide-react";
+import { Gem, Globe, Eye, Shield } from "lucide-react";
 
 export function Footer() {
   return (

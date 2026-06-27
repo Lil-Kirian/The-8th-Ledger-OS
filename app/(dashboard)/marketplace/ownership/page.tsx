@@ -1,22 +1,18 @@
 // app/(dashboard)/marketplace/ownership/page.tsx
 "use client";
 
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Search, Filter, Crown, Gem, Shield, MapPin, ArrowUpDown, X,
-  Wallet, Loader2, ShoppingBag, Landmark, Clock, CheckCircle2,
-  AlertTriangle, Lock, Hash, TrendingUp, Percent, Eye, Heart,
-  ArrowRight, ChevronRight, BadgeCheck, Ban, HelpCircle,
+  Search, Filter, Crown, Gem, Shield, MapPin, X, Loader2, ShoppingBag, Landmark, Clock, CheckCircle2,
+  AlertTriangle, Lock, Hash, TrendingUp, Percent, Eye,
+  ArrowRight, ChevronRight, BadgeCheck,
   Home, Car, GraduationCap, Lock as LockIcon, Stethoscope,
-  Briefcase, Plane, Sprout, Sun, Wifi, Swords, Zap, Activity,
-  BarChart3, ArrowUpRight, ArrowDownRight, Sparkles, Diamond,
-  Timer, Receipt, User, ChevronDown, ChevronUp, Globe, Star,
-  ShieldCheck, Flame, Layers, CircleDollarSign, FileText,
-  QrCode, Copy, Check, XCircle, Minus, Plus, Banknote,
-  PlusCircle, Tag, Store, ChevronLeft,
+  Briefcase, Plane, Sprout, Sun, Wifi, Swords, Activity, ArrowUpRight, ArrowDownRight, Diamond, Receipt, User,
+  ShieldCheck, Layers, Copy, Check, Banknote,
+  PlusCircle, Tag, Store,
 } from "lucide-react";
 
 const fetcher = (url: string) => fetch(url, { credentials: "include" }).then((r) => r.json());
@@ -33,11 +29,11 @@ function formatCompact(n: number) {
   return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(n);
 }
 
-function safeStr(val: any, fallback = ""): string {
+function safeStr(val: unknown, fallback = ""): string {
   return typeof val === "string" ? val : fallback;
 }
 
-function safeNum(val: any, fallback = 0): number {
+function safeNum(val: unknown, fallback = 0): number {
   return typeof val === "number" && !isNaN(val) ? val : fallback;
 }
 

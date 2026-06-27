@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, getSessionUser } from "@/lib/auth";
+import {  getSessionUser } from "@/lib/auth";
 import { logSecurityAudit } from "@/lib/audit";
 
 const MIN_BID_INCREMENT = 0.05; // 5%
@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 100);
     const offset = parseInt(searchParams.get("offset") || "0");
 
-    const where: any = { status };
+    const where: unknown = { status };
     if (hallId) {
       where.vault = {
         ownership: { hallId },
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
       }),
       count: auctions.length,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[DORMANCY AUCTION] GET error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to load auctions" },
@@ -344,7 +344,7 @@ export async function POST(request: NextRequest) {
       yourBid: bidAmount,
       ledgerId: user.ledgerId,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[DORMANCY AUCTION] POST error:", error);
     return NextResponse.json(
       { success: false, error: "Auction action failed" },

@@ -7,8 +7,8 @@ import { getSessionUser } from "@/lib/auth";
    ============================================================ */
 interface InviteResponse {
   success: boolean;
-  codes?: any[];
-  code?: any;
+  codes?: unknown[];
+  code?: unknown;
   error?: string;
   message?: string;
 }

@@ -360,7 +360,7 @@ export async function POST(
         ? `Committed $${amount.toLocaleString()}. Pool FILLED. Hall activated LIVE. Your PAC: ${result.ownership.pacToken}`
         : `Committed $${amount.toLocaleString()}. Pool is ${Math.round((result.updatedPool.committed / result.updatedPool.target) * 100)}% to threshold. Your PAC: ${result.ownership.pacToken}`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[COMMIT POST]", error);
     return NextResponse.json(
       { success: false, error: error.message || "Commitment failed" },

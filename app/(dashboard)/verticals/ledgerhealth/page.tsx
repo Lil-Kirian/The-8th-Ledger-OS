@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   HeartPulse, ArrowRight, Stethoscope, Search, SlidersHorizontal,
   ChevronDown, MapPin, Zap, TrendingUp, Users, Timer, Lock,
-  Crown, Check, Globe, Radio, Activity
+  Crown, Globe, Radio, Activity
 } from "lucide-react";
 import Link from "next/link";
 
@@ -112,7 +112,7 @@ export default function LedgerHealthPage() {
         const res = await fetch("/api/pools?vertical=ledgerhealth");
         const data = await res.json();
         if (data.success && data.pools) {
-          setPools(data.pools.map((p: any) => ({
+          setPools(data.pools.map((p: unknown) => ({
             ...p,
             accessThreshold: p.accessThreshold || p.target,
             id: p.poolId || p.id,
@@ -312,7 +312,7 @@ export default function LedgerHealthPage() {
               ].map((opt) => (
                 <button
                   key={opt.key}
-                  onClick={() => setSortBy(opt.key as any)}
+                  onClick={() => setSortBy(opt.key as unknown)}
                   className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all border ${
                     sortBy === opt.key
                       ? "bg-teal-500/10 text-teal-400 border-teal-500/30"

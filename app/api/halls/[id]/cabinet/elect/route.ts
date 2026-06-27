@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, requireHallAccess } from "@/lib/auth";
+import { requireAuth } from "@/lib/auth";
 
 // POST /api/halls/[id]/cabinet/elect
 // Call an Executive Cabinet election. Creates a capital-weighted proposal.
@@ -181,7 +181,7 @@ export async function POST(
       nominees,
       message: "Election called. Owners must vote within 48 hours.",
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[CABINET ELECT]", error);
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

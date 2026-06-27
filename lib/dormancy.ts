@@ -1,5 +1,4 @@
 import { prisma } from "./prisma";
-import { Prisma } from "@prisma/client";
 
 /* ============================================================
    8TH LEDGER — DORMANCY PROTOCOL V3.2

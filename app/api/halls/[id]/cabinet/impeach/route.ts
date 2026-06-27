@@ -179,7 +179,7 @@ export async function POST(
       reason: reason.trim(),
       message: `Impeachment vote initiated. ${roleLabels[targetRole]} will be removed if 51% of capital votes in favor.`,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[CABINET IMPEACH]", error);
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -2,19 +2,16 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import {
   Landmark, Zap, Crown, Lock, HeartPulse, TrendingUp, Hexagon, Plane, Sprout, Sun,
-  ArrowLeft, Users, Globe, Timer, Coins, CheckCircle2, Shield, Copy, Check,
-  ExternalLink, MapPin, ChevronLeft, ChevronRight, Star, Target, BarChart3,
-  Activity, Radio, Fingerprint, Orbit, Sparkles, Crosshair, Terminal, Satellite,
-  Flame, CircleDot, ArrowUpRight, Wallet, FileText, TrendingUp as TrendIcon,
-  LockKeyhole, Eye, Layers, Diamond, Gauge, Bell, Bookmark, Share2, MessageSquare,
-  ThumbsUp, Flag, AlertTriangle, XCircle, CircleCheck, Percent, Receipt, Banknote,
-  Hash, Grid3X3, CircleDollarSign, Landmark as LandmarkIcon, Building2, ShieldCheck,
-  ScrollText, Megaphone, Pin, UserCheck, Bot, Crown as CrownIcon, Award
+  ArrowLeft, Users, Globe, Timer, Coins, CheckCircle2, Shield,
+  ExternalLink, MapPin, ChevronLeft, ChevronRight, Star, Target,
+  Activity, Fingerprint, Orbit, Sparkles, Terminal, Satellite,
+  Flame,
+  LockKeyhole, Diamond, MessageSquare, AlertTriangle, XCircle, CircleCheck, Banknote, Building2
 } from "lucide-react";
 
 function cn(...classes: (string | false | null | undefined)[]) {
@@ -155,7 +152,7 @@ function StatusBadge({ status, isFilled, isExpired }: { status: string; isFilled
 /* ============================================================
    HERO SECTION — NO TARGET / TRUE COST
    ============================================================ */
-function HeroSection({ pool, vertical, colors, activeImage, setActiveImage, assetImages }: any) {
+function HeroSection({ pool, vertical, colors, activeImage, setActiveImage, assetImages }: unknown) {
   const timeLeft = new Date(pool.closesAt).getTime() - Date.now();
 
   return (
@@ -260,7 +257,7 @@ function HeroSection({ pool, vertical, colors, activeImage, setActiveImage, asse
 
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
                 <div className="flex gap-2">
-                  {assetImages.map((_: any, i: number) => (
+                  {assetImages.map((_: unknown, i: number) => (
                     <button key={i} onClick={() => setActiveImage(i)} className={cn(
                       "h-1.5 rounded-full transition-all duration-300",
                       i === activeImage ? "bg-cyan-400 w-8" : "bg-slate-600 w-4 hover:bg-slate-500"
@@ -298,7 +295,7 @@ function HeroSection({ pool, vertical, colors, activeImage, setActiveImage, asse
 /* ============================================================
    DATA DASHBOARD — NO TARGET / TRUE COST
    ============================================================ */
-function DataDashboard({ pool, colors, user }: any) {
+function DataDashboard({ pool, colors, user }: unknown) {
   const assetValue = pool.assetValue || 0;
   const committed = pool.committed || 0;
   const pir = pool.pirAllocation || pool.surplus || 0;
@@ -404,7 +401,7 @@ function PirBreakdown() {
 /* ============================================================
    LOCATION OPTIONS
    ============================================================ */
-function LocationOptions({ options, colors }: { options: any[]; colors: any }) {
+function LocationOptions({ options, colors }: { options: unknown[]; colors: unknown }) {
   if (!options || options.length === 0) return null;
 
   return (
@@ -418,7 +415,7 @@ function LocationOptions({ options, colors }: { options: any[]; colors: any }) {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {options.map((loc: any, i: number) => (
+          {options.map((loc: unknown, i: number) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 10 }}
@@ -466,7 +463,7 @@ function LocationOptions({ options, colors }: { options: any[]; colors: any }) {
 /* ============================================================
    COMMIT TERMINAL — NO TARGET REFERENCE
    ============================================================ */
-function CommitTerminal({ pool, user, onCommit, committing, message, commitAmount, setCommitAmount }: any) {
+function CommitTerminal({ pool, user, onCommit, committing, message, commitAmount, setCommitAmount }: unknown) {
   const isClosed = pool.status === "forged" || pool.status === "active" || pool.status === "dormant" || pool.status === "sold" || pool.status === "dissolved";
   const timeLeft = new Date(pool.closesAt).getTime() - Date.now();
   const isExpired = timeLeft <= 0;
@@ -580,7 +577,7 @@ function CommitTerminal({ pool, user, onCommit, committing, message, commitAmoun
 /* ============================================================
    SOVEREIGN ACCESS CARD
    ============================================================ */
-function SovereignAccess({ pool, userOwnership, colors }: any) {
+function SovereignAccess({ pool, userOwnership, colors }: unknown) {
   if (!userOwnership || userOwnership.ownershipPercent <= 0) return null;
 
   return (
@@ -629,7 +626,7 @@ function SovereignAccess({ pool, userOwnership, colors }: any) {
 /* ============================================================
    REVIEW SYSTEM
    ============================================================ */
-function ReviewSystem({ reviews, reviewStats, user, poolId, onSubmit }: any) {
+function ReviewSystem({ reviews, reviewStats, user, poolId, onSubmit }: unknown) {
   const [rating, setRating] = useState(5);
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -693,7 +690,7 @@ function ReviewSystem({ reviews, reviewStats, user, poolId, onSubmit }: any) {
               <p className="text-xs text-slate-600">No reviews yet. Be the first to review this asset.</p>
             </div>
           ) : (
-            reviews.map((review: any, i: number) => (
+            reviews.map((review: unknown, i: number) => (
               <motion.div
                 key={review.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -731,12 +728,12 @@ function ReviewSystem({ reviews, reviewStats, user, poolId, onSubmit }: any) {
 /* ============================================================
    EXTERNAL LINKS
    ============================================================ */
-function ExternalLinks({ links }: { links: any[] }) {
+function ExternalLinks({ links }: { links: unknown[] }) {
   if (!links || links.length === 0) return null;
 
   return (
     <div className="flex flex-wrap gap-2">
-      {links.map((link: any, i: number) => (
+      {links.map((link: unknown, i: number) => (
         <a
           key={i}
           href={link.url}
@@ -760,8 +757,8 @@ export default function PoolDetailPage() {
   const poolId = params.id as string;
   const { user } = useAuth();
 
-  const [pool, setPool] = useState<any>(null);
-  const [reviews, setReviews] = useState<any[]>([]);
+  const [pool, setPool] = useState<unknown>(null);
+  const [reviews, setReviews] = useState<unknown[]>([]);
   const [reviewStats, setReviewStats] = useState({ total: 0, average: 0 });
   const [loading, setLoading] = useState(true);
   const [commitAmount, setCommitAmount] = useState("");
@@ -828,7 +825,7 @@ export default function PoolDetailPage() {
     }
   }
 
-  async function handleReviewSubmit({ poolId, rating, content }: any) {
+  async function handleReviewSubmit({ poolId, rating, content }: unknown) {
     if (!user) {
       setMessage("Authenticate to leave a review");
       return;

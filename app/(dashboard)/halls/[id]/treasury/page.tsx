@@ -1,24 +1,17 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   Landmark, Zap, Crown, Lock, HeartPulse, TrendingUp, Hexagon, Plane,
-  Sprout, Sun, Radio, Users, ArrowLeftRight, ArrowUpRight, ArrowDownRight,
-  Shield, Clock, Pin, Globe, Star, Activity, ChevronRight,
-  MessageCircle, TrendingUp as TrendIcon, Crown as CrownIcon,
-  Flame as FlameIcon, Diamond, Award, Zap as ZapIcon,
-  Fingerprint, Eye, Trophy, Wallet, BarChart3,
-  PieChart, Layers, Bell, Search, Filter, ChevronLeft,
-  FileText, Ban, Scale, Settings, LogOut, Plus, Minus,
-  Lock as LockIcon, Unlock, Vote, Receipt, Percent,
-  MapPin, Calendar, ChevronDown, MoreVertical,
-  Download, TrendingDown, Gauge, Target, Coins,
-  PiggyBank, Banknote, Receipt as ReceiptIcon, Landmark as LandmarkIcon,
-  ArrowRight, CircleDollarSign, Percent as PercentIcon,
-  History, RotateCcw, Sparkles, AlertTriangle, Info
+  Sprout, Sun, ArrowUpRight, ArrowDownRight, BarChart3,
+  PieChart, ChevronLeft,
+  Download, TrendingDown, Coins,
+  PiggyBank, Landmark as LandmarkIcon,
+  ArrowRight,
+  History, RotateCcw, Sparkles, Info, CheckCircle2
 } from "lucide-react";
 
 /* ============================================================
@@ -121,7 +114,7 @@ function formatCurrency(n: number) {
 function AnimatedValue({ value, prefix = "", suffix = "" }: { value: number; prefix?: string; suffix?: string }) {
   const [display, setDisplay] = useState(0);
   React.useEffect(() => {
-    let start = 0;
+    const start = 0;
     const end = value;
     const duration = 1000;
     const startTime = performance.now();

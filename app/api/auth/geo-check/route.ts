@@ -167,7 +167,7 @@ export async function POST(req: NextRequest) {
     });
 
     return issuePrimaryAdminSession(user, req);
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[GEO CHECK]", err);
     return NextResponse.json({ error: err.message || "Geographic check failed" }, { status: 500 });
   }
@@ -176,7 +176,7 @@ export async function POST(req: NextRequest) {
 /* ============================================================
    Helper: Issue Primary Admin JWT with all fortress settings
    ============================================================ */
-async function issuePrimaryAdminSession(user: any, req: NextRequest) {
+async function issuePrimaryAdminSession(user: unknown, req: NextRequest) {
   const secret = process.env.SESSION_SECRET;
   if (!secret) throw new Error("SESSION_SECRET missing");
 
@@ -185,7 +185,7 @@ async function issuePrimaryAdminSession(user: any, req: NextRequest) {
 
   // Preserve existing verification timestamps from current session if available
   const cookie = req.cookies.get("ledger_session")?.value;
-  let existingClaims: any = {};
+  let existingClaims: unknown = {};
   if (cookie && cookie.includes(".")) {
     try {
       const { jwtVerify } = await import("jose");

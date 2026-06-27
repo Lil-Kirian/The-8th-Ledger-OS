@@ -10,8 +10,6 @@ import {
   Globe,
   Shield,
   AlertTriangle,
-  CheckCircle2,
-  ArrowRight,
   Tag,
   DollarSign,
   Package,

@@ -429,7 +429,7 @@ export async function POST(
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[ORACLE_RESOLVE_POST]", error);
 
     // Prisma unique constraint (race condition on double-resolve)

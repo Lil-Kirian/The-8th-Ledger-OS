@@ -4,13 +4,11 @@
 
 "use client";
 
-import React, { useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React from "react";
+import { motion } from "framer-motion";
 import {
   Heart,
   Zap,
-  TrendingUp,
-  TrendingDown,
   Minus,
   Activity,
   Users,
@@ -23,8 +21,6 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   Clock,
-  Shield,
-  AlertTriangle,
   Crown,
   Gem,
   BarChart3,

@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Eye,
   EyeOff,
-  ArrowRight,
   Shield,
   Globe,
   Lock,

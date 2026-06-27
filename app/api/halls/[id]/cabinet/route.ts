@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser, requireAuth, requireHallAccess } from "@/lib/auth";
+import {  requireAuth } from "@/lib/auth";
 
 // GET /api/halls/[id]/cabinet
 // Returns current Executive Cabinet with enriched member profiles
@@ -124,7 +124,7 @@ export async function GET(
           }
         : null;
       return acc;
-    }, {} as Record<string, any>);
+    }, {} as Record<string, unknown>);
 
     // Calculate term status
     const now = new Date();
@@ -162,7 +162,7 @@ export async function GET(
       canElect: isAdmin || (!cabinet.isImpeached && isActive && daysRemaining <= 14),
       canImpeach: (!!ownership || isAdmin) && isActive && !cabinet.isImpeached,
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[CABINET GET]", error);
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

@@ -13,28 +13,18 @@ import {
   Target,
   Trophy,
   Flame,
-  Globe,
   CheckCircle2,
   Clock,
-  ChevronRight,
   Star,
   Crown,
   Medal,
-  TrendingUp,
-  Activity,
   Zap,
-  ArrowRight,
-  Hash,
   Lock,
-  Unlock,
-  BarChart3,
   AlertTriangle,
   Sparkle,
   BrainCircuit,
   Telescope,
   Fingerprint,
-  Loader2,
-  RefreshCw,
   XCircle,
   Info,
 } from "lucide-react";
@@ -360,7 +350,7 @@ function ForecastCard({
     try {
       await onPredict(forecast.id, selectedVertical, selectedCountry);
       setSubmitted(true);
-    } catch (err: any) {
+    } catch (err: unknown) {
       setError(err.message || "Failed to submit prophecy");
     }
   };
@@ -726,7 +716,7 @@ export default function OraclePage() {
 
         addToast("Prophecy cast successfully. The Oracle remembers.", "success");
         await Promise.all([mutateForecasts(), mutatePredictions()]);
-      } catch (err: any) {
+      } catch (err: unknown) {
         addToast(err.message || "The Oracle could not hear your prophecy", "error");
         throw err;
       } finally {

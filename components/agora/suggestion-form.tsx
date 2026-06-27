@@ -8,21 +8,16 @@ import React, { useState, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Send,
-  MapPin,
-  Tag,
   AlertCircle,
   CheckCircle2,
   Loader2,
   X,
   Feather,
-  Crown,
   Shield,
   Scroll,
   Sparkles,
-  ChevronDown,
   Globe,
   Building2,
-  Lightbulb,
   PenTool,
   Check,
 } from "lucide-react";
@@ -355,7 +350,7 @@ export function SuggestionForm({ onSubmit, onClose }: SuggestionFormProps) {
           vertical,
         });
         setSuccess(true);
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError(err.message || "Failed to submit petition.");
       } finally {
         setIsSubmitting(false);

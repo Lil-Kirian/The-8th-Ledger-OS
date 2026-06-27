@@ -5,7 +5,6 @@ import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Lock,
-  Unlock,
   MapPin,
   TrendingUp,
   Flame,

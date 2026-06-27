@@ -11,15 +11,14 @@ import {
   Lock,
   Clock,
   Crown,
-  ChevronRight,
   Landmark,
   CreditCard,
   Globe,
-  X,
   Eye,
   EyeOff,
   Fingerprint,
   Timer,
+  RotateCcw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -200,7 +199,7 @@ export default function WithdrawalForm({
         setStep("error");
         setError(res.message || "Withdrawal failed");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       setStep("error");
       setError(err?.message || "Network error. Please retry.");
     } finally {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -17,7 +17,6 @@ import {
   Sprout,
   Sun,
   ArrowRight,
-  Coins,
   CheckCircle2,
   AlertTriangle,
   Globe,
@@ -38,9 +37,6 @@ import {
   Sparkles,
   Ghost,
   Calculator,
-  Wallet,
-  FileText,
-  ChevronDown,
   X,
   PiggyBank,
   Swords,

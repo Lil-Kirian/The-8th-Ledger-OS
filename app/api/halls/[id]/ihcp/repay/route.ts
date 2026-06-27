@@ -273,7 +273,7 @@ export async function POST(
         result.processed.length
       } contributor(s). $${(revenuePool - repaymentAmount).toLocaleString()} remains for payroll/COGS/dividends.`,
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("[IHCP_REPAY_POST]", err);
     if (err.message === "Unauthorized") {
       return NextResponse.json({ error: "Login required" }, { status: 401 });

@@ -9,37 +9,15 @@ import {
   AlertTriangle,
   ChevronDown,
   ChevronUp,
-  Users,
-  Percent,
   Clock,
   Globe,
-  Thermometer,
-  Droplets,
-  Wind,
-  Sun,
-  CloudRain,
-  Truck,
-  Building2,
-  Wifi,
-  Zap,
-  Plane,
-  Wheat,
   TrendingUp,
-  TrendingDown,
-  Minus,
-  Shield,
   Landmark,
   BarChart3,
-  Navigation,
-  Anchor,
-  TreePine,
-  Mountain,
-  Waves,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import {
   Tooltip,
   TooltipContent,

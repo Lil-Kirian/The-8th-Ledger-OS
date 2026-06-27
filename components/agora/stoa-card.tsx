@@ -8,8 +8,6 @@ import React, { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ThumbsUp,
-  ThumbsDown,
-  MapPin,
   Tag,
   Clock,
   Shield,
@@ -21,12 +19,10 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  Crown,
   Globe,
   ArrowUp,
   ArrowDown,
   Sparkles,
-  FileText,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -281,7 +277,7 @@ export function StoaCard({ suggestion, onVote, index = 0 }: StoaCardProps) {
       if (isVoting || !user) return;
 
       const prev = { ...optimisticState };
-      let next = { ...optimisticState };
+      const next = { ...optimisticState };
 
       if (prev.userVote === direction) {
         // Unvote

@@ -381,7 +381,7 @@ export async function POST(req: NextRequest) {
     );
 
     return response;
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[AGORA_SUGGESTIONS_POST]", error);
 
     if (error.message?.includes("KYC tier")) {

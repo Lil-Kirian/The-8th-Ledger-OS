@@ -11,13 +11,9 @@ import {
   Users,
   Gavel,
   FileText,
-  ArrowRight,
   Shield,
-  X,
   ChevronRight,
   Activity,
-  Heart,
-  Vote,
 } from "lucide-react";
 
 interface ClosureWarningProps {

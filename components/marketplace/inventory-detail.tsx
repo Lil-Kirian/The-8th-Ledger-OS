@@ -5,30 +5,17 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ArrowLeft,
-  Package,
-  ShoppingCart,
   Plus,
   Minus,
   Star,
-  MapPin,
-  Building2,
-  Shield,
-  Crown,
-  Gem,
-  Activity,
-  Truck,
   Clock,
-  CheckCircle2,
   X,
   Info,
-  Layers,
   Wallet,
   Lock,
   Percent,
   Tag,
   ImageIcon,
-  AlertTriangle,
-  Ban,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

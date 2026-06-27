@@ -1,15 +1,15 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
 import {
-  Shield, Mail, Smartphone, Sun, Upload, Trash2, AlertTriangle,
-  Download, Ban, CheckCircle2, XCircle, Loader2, Plus, Copy, ExternalLink,
-  Lock, KeyRound, Fingerprint, Globe, Bell, Eye, EyeOff, ChevronRight,
-  Clock, FileCheck, FileX, FileQuestion, HardDrive, LogOut, User,
-  Crown, Zap, ShieldCheck, Pencil, Save, X, MoreHorizontal, CreditCard,
+  Shield, Mail, Smartphone, Upload, Trash2, AlertTriangle,
+  Download, Ban, CheckCircle2, XCircle, Loader2, Plus, Copy,
+  Lock, KeyRound, Fingerprint, Globe, Bell, Eye,
+  Clock, FileCheck, FileX, HardDrive, LogOut, User,
+  Crown, Zap, ShieldCheck, Pencil, Save, X, CreditCard,
   Landmark, Bitcoin, Wallet
 } from "lucide-react";
 

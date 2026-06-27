@@ -8,34 +8,23 @@ import {
   Cell,
   ResponsiveContainer,
   Tooltip,
-  Legend,
 } from "recharts";
 import {
   Users,
   Percent,
   Crown,
-  Shield,
-  BadgeCheck,
-  EyeOff,
   TrendingUp,
-  TrendingDown,
-  Minus,
-  ArrowRight,
   ShoppingCart,
   Tag,
   AlertTriangle,
   ChevronDown,
   ChevronUp,
   Download,
-  Hash,
-  Lock,
-  Unlock,
   Wallet,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 
 // ─── Types ───
 export type KycTier = "visitor" | "sovereign" | "verified" | "whale";

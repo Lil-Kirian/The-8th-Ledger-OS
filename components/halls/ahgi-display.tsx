@@ -9,7 +9,6 @@ import {
   TrendingDown,
   Minus,
   AlertTriangle,
-  CheckCircle2,
   ChevronDown,
   ChevronUp,
   Activity,
@@ -29,18 +28,12 @@ import {
   Hash,
   Info,
   BadgeCheck,
-  Ban,
   Unlock,
   Lock,
-  Thermometer,
-  Droplets,
-  Sun,
-  Wind,
-  Users,
   BarChart3,
   Gauge,
   Wrench,
-  Leaf,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

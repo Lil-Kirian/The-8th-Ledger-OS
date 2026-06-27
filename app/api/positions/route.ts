@@ -60,7 +60,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const statusFilter = searchParams.get("status");
     const limit = Math.min(100, Math.max(1, Number(searchParams.get("limit") || 50)));
 
-    const where: any = { userId: user.id };
+    const where: unknown = { userId: user.id };
     if (statusFilter && statusFilter !== "all") {
       where.status = statusFilter;
     }

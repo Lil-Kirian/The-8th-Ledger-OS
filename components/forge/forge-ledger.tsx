@@ -285,7 +285,7 @@ function WorkerRow({
   showSalary,
   hallId,
 }: {
-  worker: any;
+  worker: unknown;
   index: number;
   showSalary: boolean;
   hallId: string;
@@ -346,7 +346,7 @@ function WorkerRow({
   );
 }
 
-function LedgerRow({ ledger, index }: { ledger: any; index: number }) {
+function LedgerRow({ ledger, index }: { ledger: unknown; index: number }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -381,7 +381,7 @@ function HireProposalModal({
 }: {
   hallId: string;
   onClose: () => void;
-  onSubmit: (payload: any) => void;
+  onSubmit: (payload: unknown) => void;
 }) {
   const [role, setRole] = useState("");
   const [responsibilities, setResponsibilities] = useState("");

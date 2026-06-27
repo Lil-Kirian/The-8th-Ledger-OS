@@ -3,7 +3,7 @@
 // Controls what pages/components/APIs are locked/unlocked
 
 import { prisma } from "./prisma";
-import { getSessionUser, requireAuth } from "./auth";
+import {  requireAuth } from "./auth";
 import { getAssetTypeById, getVerticalClass } from "./asset-types";
 
 /* ============================================================

@@ -5,12 +5,8 @@ import useSWR from "swr";
 import { motion } from "framer-motion";
 import {
   Crown,
-  Award,
-  Medal,
-  Shield,
   AlertTriangle,
   TrendingUp,
-  TrendingDown,
   Users,
   Vote,
   Clock,
@@ -264,7 +260,7 @@ export default function SRIDashboard({ hallId }: { hallId: string }) {
       {/* Components Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {Object.entries(COMPONENT_META).map(([key, meta], i) => {
-          const score = (components as any)[key] as number;
+          const score = (components as unknown)[key] as number;
           return (
             <motion.div
               key={key}

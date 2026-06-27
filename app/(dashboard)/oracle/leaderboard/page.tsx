@@ -5,17 +5,14 @@
 "use client";
 
 import React, { useState, useMemo, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import useSWR from "swr";
 import {
   Crown,
-  Medal,
   Star,
   Eye,
   Flame,
-  Trophy,
   Search,
-  Filter,
   ChevronDown,
   ChevronUp,
   TrendingUp,
@@ -23,11 +20,8 @@ import {
   Minus,
   Globe,
   Fingerprint,
-  Sparkles,
   ArrowLeft,
-  Loader2,
   AlertTriangle,
-  BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
