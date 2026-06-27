@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -13,131 +13,131 @@ datasource db {
 // ============================================================
 
 model User {
-  id              String   @id @default(cuid())
-  ledgerId        String   @unique
+  id              String    @id @default(cuid())
+  ledgerId        String    @unique
   displayName     String
-  email           String   @unique
+  email           String    @unique
   passwordHash    String
   country         String
   phone           String?
-  trustScore      Int      @default(100)
-  tier            Int      @default(1)
-  ledgerBalance   Int      @default(0)
-  creditPool      Int      @default(0)
-  forgesCompleted Int      @default(0)
-  referrals       Int      @default(0)
+  trustScore      Int       @default(100)
+  tier            Int       @default(1)
+  ledgerBalance   Int       @default(0)
+  creditPool      Int       @default(0)
+  forgesCompleted Int       @default(0)
+  referrals       Int       @default(0)
   referredBy      String?
   lastLoginAt     DateTime?
   lastLoginIP     String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
-  totpSecret      String?
-  totpEnabled     Boolean  @default(false)
-  totpVerified    Boolean  @default(false)
-  recoveryCodes   String?
+  totpSecret    String?
+  totpEnabled   Boolean @default(false)
+  totpVerified  Boolean @default(false)
+  recoveryCodes String?
 
-  bio             String?
-  preferences     String?
-  avatar          String?
-  totalCommitted  Int      @default(0)
+  bio              String?
+  preferences      String?
+  avatar           String?
+  totalCommitted   Int     @default(0)
   reportsSubmitted Int     @default(0)
 
-  identityScore   Int      @default(0)
-  kycStatus       String   @default("unverified")
-  kycVerifiedAt   DateTime?
-  role            String   @default("user")
-  isPrimaryAdmin  Boolean  @default(false)
+  identityScore  Int       @default(0)
+  kycStatus      String    @default("unverified")
+  kycVerifiedAt  DateTime?
+  role           String    @default("user")
+  isPrimaryAdmin Boolean   @default(false)
 
   legalName         String?
   idNumber          String?
   idDocumentUrl     String?
   addressProofUrl   String?
   selfieUrl         String?
-  livenessVerified  Boolean   @default(false)
-  kycTier           String    @default("visitor")
-  lastActivityAt    DateTime  @default(now())
+  livenessVerified  Boolean  @default(false)
+  kycTier           String   @default("visitor")
+  lastActivityAt    DateTime @default(now())
   deviceFingerprint String?
-  isBanned          Boolean   @default(false)
+  isBanned          Boolean  @default(false)
   banReason         String?
   beneficiaryName   String?
   beneficiaryEmail  String?
 
-  adminTotpSecret        String?
-  adminTotpEnabled       Boolean   @default(false)
-  adminPinHash           String?
-  adminPinAttempts       Int       @default(0)
-  adminLockedUntil       DateTime?
-  lastAdminAccessAt      DateTime?
-  lastAdminIP            String?
-  adminAccessCount       Int       @default(0)
+  adminTotpSecret   String?
+  adminTotpEnabled  Boolean   @default(false)
+  adminPinHash      String?
+  adminPinAttempts  Int       @default(0)
+  adminLockedUntil  DateTime?
+  lastAdminAccessAt DateTime?
+  lastAdminIP       String?
+  adminAccessCount  Int       @default(0)
 
-  founderTotpSecret      String?
-  founderTotpEnabled     Boolean   @default(false)
-  founderPinHash         String?
-  webauthnCredentialId   String?
-  webauthnPublicKey      String?
-  webauthnCounter        Int       @default(0)
-  lastFounderAccessAt    DateTime?
-  lastFounderIP          String?
-  founderAccessCount     Int       @default(0)
-  founderPinAttempts     Int       @default(0)
-  founderLockedUntil     DateTime?
+  founderTotpSecret        String?
+  founderTotpEnabled       Boolean   @default(false)
+  founderPinHash           String?
+  webauthnCredentialId     String?
+  webauthnPublicKey        String?
+  webauthnCounter          Int       @default(0)
+  lastFounderAccessAt      DateTime?
+  lastFounderIP            String?
+  founderAccessCount       Int       @default(0)
+  founderPinAttempts       Int       @default(0)
+  founderLockedUntil       DateTime?
   founderAccessWindowStart Int?
   founderAccessWindowEnd   Int?
-  founderTrustedLat      Float?
-  founderTrustedLng      Float?
-  founderGeoRadiusKm     Int       @default(50)
+  founderTrustedLat        Float?
+  founderTrustedLng        Float?
+  founderGeoRadiusKm       Int       @default(50)
 
-  globalSriScore         Int       @default(0)
+  globalSriScore Int @default(0)
 
-  sessions               Session[]
-  orders                 Order[]
-  tradesAsBuyer          Trade[]  @relation("BuyerTrades")
-  tradesAsSeller         Trade[]  @relation("SellerTrades")
-  rewardsReceived        ReferralReward[] @relation("RewardTo")
-  rewardsSent            ReferralReward[] @relation("RewardFrom")
-  reviews                Review[]
-  activities             ActivityEvent[]
-  milestones             TierMilestone[]
-  withdrawals            WithdrawalRequest[]
-  auditEntries           AuditEntry[]
-  auditLogs              AuditLog[]
-  knotMembership         KnotMember?
-  poolReviews            PoolReview[]
-  wallet                 Wallet?
-  assetReports           AssetReport[]
-  disputes               Dispute[]
-  notifications          Notification[]
-  quantumMerit           QuantumMeritScore?
-  userIdentity           UserIdentity?
+  sessions        Session[]
+  orders          Order[]
+  tradesAsBuyer   Trade[]             @relation("BuyerTrades")
+  tradesAsSeller  Trade[]             @relation("SellerTrades")
+  rewardsReceived ReferralReward[]    @relation("RewardTo")
+  rewardsSent     ReferralReward[]    @relation("RewardFrom")
+  reviews         Review[]
+  activities      ActivityEvent[]
+  milestones      TierMilestone[]
+  withdrawals     WithdrawalRequest[]
+  auditEntries    AuditEntry[]
+  auditLogs       AuditLog[]
+  knotMembership  KnotMember?
+  poolReviews     PoolReview[]
+  wallet          Wallet?
+  assetReports    AssetReport[]
+  disputes        Dispute[]
+  notifications   Notification[]
+  quantumMerit    QuantumMeritScore?
+  userIdentity    UserIdentity?
 
-  hallMessages           HallMessage[]
-  proposals              Proposal[]
-  votes                  Vote[]
-  ownerships             Ownership[]
-  socialShares           SocialShare[]
-  banRecords             BanRecord[]
-  bannedUsers            BanRecord[] @relation("Banner")
-  hallRoles              HallRole[]
-  kycRecord              KycRecord?
-  hallActivities         HallActivity[]
-  hallInvites            HallInvite[]
-  securityAuditLogs      SecurityAuditLog[]
+  hallMessages      HallMessage[]
+  proposals         Proposal[]
+  votes             Vote[]
+  ownerships        Ownership[]
+  socialShares      SocialShare[]
+  banRecords        BanRecord[]
+  bannedUsers       BanRecord[]        @relation("Banner")
+  hallRoles         HallRole[]
+  kycRecord         KycRecord?
+  hallActivities    HallActivity[]
+  hallInvites       HallInvite[]
+  securityAuditLogs SecurityAuditLog[]
 
-  oraclePredictions      OraclePrediction[]
-  oracleStanding         OracleStanding?
-  dormancyVaults         DormancyVault[]
-  agoraSuggestions       AgoraSuggestion[]
-  agoraQAs               AgoraQA[]
-  agoraSuggestionVotes   AgoraSuggestionVote[]
-  liquidationPayouts     LiquidationPayout[]
-  inventoryOrders        InventoryOrder[]
-  ownershipListings      OwnershipListing[]
-  boughtListings         OwnershipListing[] @relation("ListingBuyer")
-  sovereignStreamPosts   SovereignStreamPost[]
-  boughtAuctions         DormancyAuction[] @relation("AuctionBuyer")
-  hallContributions      HallContribution[]
+  oraclePredictions    OraclePrediction[]
+  oracleStanding       OracleStanding?
+  dormancyVaults       DormancyVault[]
+  agoraSuggestions     AgoraSuggestion[]
+  agoraQAs             AgoraQA[]
+  agoraSuggestionVotes AgoraSuggestionVote[]
+  liquidationPayouts   LiquidationPayout[]
+  inventoryOrders      InventoryOrder[]
+  ownershipListings    OwnershipListing[]
+  boughtListings       OwnershipListing[]    @relation("ListingBuyer")
+  sovereignStreamPosts SovereignStreamPost[]
+  boughtAuctions       DormancyAuction[]     @relation("AuctionBuyer")
+  hallContributions    HallContribution[]
 
   @@index([ledgerId])
   @@index([email])
@@ -180,27 +180,51 @@ model Wallet {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  user          User     @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
-  deposits      Deposit[]
-  payouts       Withdrawal[]
+  user     User         @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
+  deposits Deposit[]
+  payouts  Withdrawal[]
 
   @@index([ledgerId])
   @@map("wallets")
 }
 
+model LedgerEntry {
+  id             String   @id @default(cuid())
+  ledgerId       String
+  walletId       String?
+  type           String
+  direction      String
+  amount         Decimal  @db.Decimal(18, 2)
+  currency       String   @default("USD")
+  status         String   @default("posted")
+  referenceType  String?
+  referenceId    String?
+  idempotencyKey String?  @unique
+  description    String
+  metadata       Json?
+  createdAt      DateTime @default(now())
+
+  @@index([ledgerId])
+  @@index([walletId])
+  @@index([type])
+  @@index([referenceType, referenceId])
+  @@index([createdAt])
+  @@map("ledger_entries")
+}
+
 model Deposit {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   walletId    String
   ledgerId    String
   amount      Float
-  currency    String   @default("USD")
-  status      String   @default("pending")
-  method      String   @default("bank_transfer")
+  currency    String    @default("USD")
+  status      String    @default("pending")
+  method      String    @default("bank_transfer")
   reference   String?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
   completedAt DateTime?
 
-  wallet      Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
 
   @@index([walletId])
   @@index([ledgerId])
@@ -209,21 +233,21 @@ model Deposit {
 }
 
 model Withdrawal {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   walletId        String
   ledgerId        String
   amount          Float
-  currency        String   @default("USD")
-  status          String   @default("pending")
+  currency        String    @default("USD")
+  status          String    @default("pending")
   destination     String
-  destinationType String   @default("bank")
+  destinationType String    @default("bank")
   reference       String?
-  createdAt       DateTime @default(now())
+  createdAt       DateTime  @default(now())
   processedAt     DateTime?
   processedBy     String?
   rejectionReason String?
 
-  wallet          Wallet   @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  wallet Wallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
 
   @@index([walletId])
   @@index([ledgerId])
@@ -236,72 +260,72 @@ model Withdrawal {
 // ============================================================
 
 model Pool {
-  id              String   @id @default(cuid())
-  poolId          String   @unique
+  id              String    @id @default(cuid())
+  poolId          String    @unique
   verticalId      String
   name            String
-  description     String   @default("")
+  description     String    @default("")
   imageUrl        String?
   assetValue      Int
-  committed       Int      @default(0)
+  committed       Int       @default(0)
   target          Int
-  participants    Int      @default(0)
+  participants    Int       @default(0)
   maxParticipants Int
-  status          String   @default("filling")
+  status          String    @default("filling")
   country         String
   creatorId       String
-  isVerified      Boolean  @default(false)
-  reportedCount   Int      @default(0)
-  createdAt       DateTime @default(now())
+  isVerified      Boolean   @default(false)
+  reportedCount   Int       @default(0)
+  createdAt       DateTime  @default(now())
   closesAt        DateTime
   distributedAt   DateTime?
 
-  trueCost        Int?
-  listedPrice     Int?
-  surplus         Int?
-  spv             SpvEntity?
-  managementFee   Float    @default(20.00)
-  minCommitment   Int      @default(1)
-  maxCommitment   Int?
-  campaignDuration Int     @default(30)
-  emojiSet        String    @default("🏠🚗📱🎓🏥🏗️✈️🌾⚡")
-  hallUnlocked    Boolean   @default(false)
+  trueCost         Int?
+  listedPrice      Int?
+  surplus          Int?
+  spv              SpvEntity?
+  managementFee    Float      @default(20.00)
+  minCommitment    Int        @default(1)
+  maxCommitment    Int?
+  campaignDuration Int        @default(30)
+  emojiSet         String     @default("🏠🚗📱🎓🏥🏗️✈️🌾⚡")
+  hallUnlocked     Boolean    @default(false)
   selectedLocation String?
-  externalLinks   String?
-  assetImages     String?
-  assetVideos     String?
-  tour360Url      String?
-  documents       String?
-  assetCondition  String    @default("new")
+  externalLinks    String?
+  assetImages      String?
+  assetVideos      String?
+  tour360Url       String?
+  documents        String?
+  assetCondition   String     @default("new")
 
-  assetType       String?
-  revenueSources  String?
+  assetType      String?
+  revenueSources String?
 
-  hallClass       String?
-  pirAllocation   String?
-  assetBookValue  Int       @default(0)
+  hallClass      String?
+  pirAllocation  String?
+  assetBookValue Int     @default(0)
 
   insuranceAllocation Int?
-  executionQueue  String?
+  executionQueue      String?
 
-  ihcpTarget      Int?
+  ihcpTarget Int?
 
-  treasuryTxs     TreasuryTransaction[]
-  auditEntries    AuditEntry[]
-  auditLogs       AuditLog[]
-  poolReviews     PoolReview[]
-  disputes        Dispute[]
-  notifications   Notification[]
+  treasuryTxs   TreasuryTransaction[]
+  auditEntries  AuditEntry[]
+  auditLogs     AuditLog[]
+  poolReviews   PoolReview[]
+  disputes      Dispute[]
+  notifications Notification[]
 
-  hall            Hall?
-  assetReports    AssetReport[]
-  ownerships      Ownership[]
-  proposals       Proposal[]
-  revenueLogs     RevenueLog[]
-  insuranceFunds  InsuranceFund[]
+  hall                Hall?
+  assetReports        AssetReport[]
+  ownerships          Ownership[]
+  proposals           Proposal[]
+  revenueLogs         RevenueLog[]
+  insuranceFunds      InsuranceFund[]
   locationOptionsList LocationOption[]
 
-  cyclePools      CyclePool[]
+  cyclePools       CyclePool[]
   marketplaceItems MarketplaceItem[]
 
   @@index([verticalId])
@@ -317,19 +341,19 @@ model Pool {
 // ============================================================
 
 model Order {
-  id          String   @id @default(cuid())
-  side        String
-  ledgerId    String
-  amount      Int
-  price       Float
-  filled      Int      @default(0)
-  status      String   @default("open")
-  createdAt   DateTime @default(now())
-  txHash      String   @unique
+  id        String   @id @default(cuid())
+  side      String
+  ledgerId  String
+  amount    Int
+  price     Float
+  filled    Int      @default(0)
+  status    String   @default("open")
+  createdAt DateTime @default(now())
+  txHash    String   @unique
 
-  user        User     @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
-  buyTrades   Trade[]  @relation("BuyOrder")
-  sellTrades  Trade[]  @relation("SellOrder")
+  user       User    @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
+  buyTrades  Trade[] @relation("BuyOrder")
+  sellTrades Trade[] @relation("SellOrder")
 
   @@index([ledgerId])
   @@index([status])
@@ -339,21 +363,21 @@ model Order {
 }
 
 model Trade {
-  id            String   @id @default(cuid())
-  buyOrderId    String
-  sellOrderId   String
-  amount        Int
-  price         Float
-  total         Float
-  buyerId       String
-  sellerId      String
-  executedAt    DateTime @default(now())
-  txHash        String   @unique
+  id          String   @id @default(cuid())
+  buyOrderId  String
+  sellOrderId String
+  amount      Int
+  price       Float
+  total       Float
+  buyerId     String
+  sellerId    String
+  executedAt  DateTime @default(now())
+  txHash      String   @unique
 
-  buyOrder      Order    @relation("BuyOrder", fields: [buyOrderId], references: [id])
-  sellOrder     Order    @relation("SellOrder", fields: [sellOrderId], references: [id])
-  buyer         User     @relation("BuyerTrades", fields: [buyerId], references: [ledgerId])
-  seller        User     @relation("SellerTrades", fields: [sellerId], references: [ledgerId])
+  buyOrder  Order @relation("BuyOrder", fields: [buyOrderId], references: [id])
+  sellOrder Order @relation("SellOrder", fields: [sellOrderId], references: [id])
+  buyer     User  @relation("BuyerTrades", fields: [buyerId], references: [ledgerId])
+  seller    User  @relation("SellerTrades", fields: [sellerId], references: [ledgerId])
 
   @@index([buyerId])
   @@index([sellerId])
@@ -366,21 +390,21 @@ model Trade {
 // ============================================================
 
 model KnotMember {
-  id              String   @id @default(cuid())
-  ledgerId        String   @unique
-  displayName     String
-  country         String
-  tier            Int
-  joinedAt        DateTime @default(now())
-  totalCommitted  Int      @default(0)
-  poolsWon        Int      @default(0)
-  trustScore      Int      @default(100)
-  referrals       Int      @default(0)
-  depth           Int      @default(1)
-  status          String   @default("active")
-  referredBy      String?
+  id             String   @id @default(cuid())
+  ledgerId       String   @unique
+  displayName    String
+  country        String
+  tier           Int
+  joinedAt       DateTime @default(now())
+  totalCommitted Int      @default(0)
+  poolsWon       Int      @default(0)
+  trustScore     Int      @default(100)
+  referrals      Int      @default(0)
+  depth          Int      @default(1)
+  status         String   @default("active")
+  referredBy     String?
 
-  user            User?    @relation(fields: [ledgerId], references: [ledgerId])
+  user User? @relation(fields: [ledgerId], references: [ledgerId])
 
   @@index([referredBy])
   @@index([depth])
@@ -399,8 +423,8 @@ model ReferralReward {
   status          String   @default("pending")
   createdAt       DateTime @default(now())
 
-  toUser          User     @relation("RewardTo", fields: [toLedgerId], references: [ledgerId])
-  fromUser        User     @relation("RewardFrom", fields: [fromLedgerId], references: [ledgerId])
+  toUser   User @relation("RewardTo", fields: [toLedgerId], references: [ledgerId])
+  fromUser User @relation("RewardFrom", fields: [fromLedgerId], references: [ledgerId])
 
   @@index([toLedgerId])
   @@index([fromLedgerId])
@@ -425,7 +449,7 @@ model TreasuryTransaction {
   timestamp   DateTime @default(now())
   audited     Boolean  @default(false)
 
-  pool        Pool?    @relation(fields: [poolId], references: [poolId])
+  pool Pool? @relation(fields: [poolId], references: [poolId])
 
   @@index([type])
   @@index([ledgerId])
@@ -434,19 +458,19 @@ model TreasuryTransaction {
 }
 
 model WithdrawalRequest {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   ledgerId        String
   displayName     String
   amount          Int
   destination     String
-  destinationType String   @default("bank")
-  status          String   @default("pending")
-  requestedAt     DateTime @default(now())
+  destinationType String    @default("bank")
+  status          String    @default("pending")
+  requestedAt     DateTime  @default(now())
   processedAt     DateTime?
   processedBy     String?
   rejectionReason String?
 
-  user            User     @relation(fields: [ledgerId], references: [ledgerId])
+  user User @relation(fields: [ledgerId], references: [ledgerId])
 
   @@index([ledgerId])
   @@index([status])
@@ -466,7 +490,7 @@ model ActivityEvent {
   amount      Int?
   points      Int?
 
-  user        User     @relation(fields: [ledgerId], references: [ledgerId])
+  user User @relation(fields: [ledgerId], references: [ledgerId])
 
   @@index([ledgerId])
   @@index([type])
@@ -475,18 +499,18 @@ model ActivityEvent {
 }
 
 model Review {
-  id            String   @id @default(cuid())
-  ledgerId      String
-  propertyName  String
-  verticalId    String
-  rating        Int
-  text          String
-  date          DateTime @default(now())
-  helpful       Int      @default(0)
-  reported      Boolean  @default(false)
-  status        String   @default("visible")
+  id           String   @id @default(cuid())
+  ledgerId     String
+  propertyName String
+  verticalId   String
+  rating       Int
+  text         String
+  date         DateTime @default(now())
+  helpful      Int      @default(0)
+  reported     Boolean  @default(false)
+  status       String   @default("visible")
 
-  user          User     @relation(fields: [ledgerId], references: [ledgerId])
+  user User @relation(fields: [ledgerId], references: [ledgerId])
 
   @@index([ledgerId])
   @@index([verticalId])
@@ -495,15 +519,15 @@ model Review {
 }
 
 model TierMilestone {
-  id            String   @id @default(cuid())
-  ledgerId      String
-  tier          Int
-  name          String
-  date          DateTime @default(now())
-  trustScore    Int
-  triggeredBy   String
+  id          String   @id @default(cuid())
+  ledgerId    String
+  tier        Int
+  name        String
+  date        DateTime @default(now())
+  trustScore  Int
+  triggeredBy String
 
-  user          User     @relation(fields: [ledgerId], references: [ledgerId])
+  user User @relation(fields: [ledgerId], references: [ledgerId])
 
   @@index([ledgerId])
   @@index([tier])
@@ -521,8 +545,8 @@ model AuditEntry {
   ledgerId     String?
   poolId       String?
 
-  user         User?    @relation(fields: [ledgerId], references: [ledgerId])
-  pool         Pool?    @relation(fields: [poolId], references: [id])
+  user User? @relation(fields: [ledgerId], references: [ledgerId])
+  pool Pool? @relation(fields: [poolId], references: [id])
 
   @@index([type])
   @@index([timestamp])
@@ -544,8 +568,8 @@ model AuditLog {
   txHash          String   @unique
   visibleToPublic Boolean  @default(true)
 
-  pool            Pool?    @relation(fields: [poolId], references: [id])
-  user            User?    @relation(fields: [ledgerId], references: [ledgerId])
+  pool Pool? @relation(fields: [poolId], references: [id])
+  user User? @relation(fields: [ledgerId], references: [ledgerId])
 
   @@index([eventType])
   @@index([timestamp])
@@ -556,35 +580,35 @@ model AuditLog {
 }
 
 model ProtocolSettings {
-  id                      String   @id @default(cuid())
-  key                     String   @unique
-  platformFee             Int      @default(0)
-  minCommitment           Int      @default(50)
-  maxCommitment           Int      @default(50000)
-  consensusThreshold      Int      @default(2)
-  publicAudit             Boolean  @default(true)
-  updatedAt               DateTime @updatedAt
-  updatedBy               String?
+  id                 String   @id @default(cuid())
+  key                String   @unique
+  platformFee        Int      @default(0)
+  minCommitment      Int      @default(50)
+  maxCommitment      Int      @default(50000)
+  consensusThreshold Int      @default(2)
+  publicAudit        Boolean  @default(true)
+  updatedAt          DateTime @updatedAt
+  updatedBy          String?
 
-  pirEnabled              Boolean  @default(true)
-  oracleEnabled           Boolean  @default(true)
-  meridianCycleEnabled    Boolean  @default(true)
-  closureProtocolEnabled  Boolean  @default(true)
-  dormancyProtocolEnabled Boolean  @default(true)
-  dynamicValuationEnabled Boolean  @default(true)
-  forgeLedgerEnabled      Boolean  @default(true)
-  eighthLedgerTithe       Int      @default(20)
+  pirEnabled              Boolean @default(true)
+  oracleEnabled           Boolean @default(true)
+  meridianCycleEnabled    Boolean @default(true)
+  closureProtocolEnabled  Boolean @default(true)
+  dormancyProtocolEnabled Boolean @default(true)
+  dynamicValuationEnabled Boolean @default(true)
+  forgeLedgerEnabled      Boolean @default(true)
+  eighthLedgerTithe       Int     @default(20)
 
   @@map("protocol_settings")
 }
 
 model InviteCode {
-  id        String   @id @default(cuid())
-  code      String   @unique
+  id        String    @id @default(cuid())
+  code      String    @unique
   ownerId   String
-  uses      Int      @default(0)
-  maxUses   Int      @default(50)
-  createdAt DateTime @default(now())
+  uses      Int       @default(0)
+  maxUses   Int       @default(50)
+  createdAt DateTime  @default(now())
   expiresAt DateTime?
 
   @@index([ownerId])
@@ -593,15 +617,15 @@ model InviteCode {
 }
 
 model PoolReview {
-  id         String   @id @default(cuid())
-  poolId     String
-  ledgerId   String
-  rating     Int
-  title      String?
-  content    String
-  tags       String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id        String   @id @default(cuid())
+  poolId    String
+  ledgerId  String
+  rating    Int
+  title     String?
+  content   String
+  tags      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   pool Pool @relation(fields: [poolId], references: [poolId], onDelete: Cascade)
   user User @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
@@ -613,18 +637,18 @@ model PoolReview {
 }
 
 model VerticalConfig {
-  id              String   @id @default(cuid())
-  slug            String   @unique
-  name            String
-  description     String
-  icon            String?
-  color           String?
-  minCommitment   Int      @default(50)
-  maxCommitment   Int      @default(50000)
-  hallClass       String   @default("I")
-  isActive        Boolean  @default(true)
-  sortOrder       Int      @default(0)
-  createdAt       DateTime @default(now())
+  id            String   @id @default(cuid())
+  slug          String   @unique
+  name          String
+  description   String
+  icon          String?
+  color         String?
+  minCommitment Int      @default(50)
+  maxCommitment Int      @default(50000)
+  hallClass     String   @default("I")
+  isActive      Boolean  @default(true)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
 
   @@index([slug])
   @@index([isActive])
@@ -632,22 +656,22 @@ model VerticalConfig {
 }
 
 model UserIdentity {
-  id                String   @id @default(cuid())
-  ledgerId          String   @unique
-  kycStatus         String   @default("unverified")
-  verificationTier  Int      @default(0)
+  id                String    @id @default(cuid())
+  ledgerId          String    @unique
+  kycStatus         String    @default("unverified")
+  verificationTier  Int       @default(0)
   idDocumentUrl     String?
   selfieUrl         String?
   proofOfAddressUrl String?
   verifiedAt        DateTime?
   verifiedBy        String?
   rejectionReason   String?
-  identityScore     Int      @default(0)
+  identityScore     Int       @default(0)
   countryVerified   String?
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 
-  user              User     @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
+  user User @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
 
   @@index([ledgerId])
   @@index([kycStatus])
@@ -655,20 +679,20 @@ model UserIdentity {
 }
 
 model QuantumMeritScore {
-  id                 String   @id @default(cuid())
-  ledgerId           String   @unique
-  ownershipBase      Int      @default(0)
-  poolHistoryScore   Int      @default(0)
-  communityScore     Int      @default(0)
-  reviewQualityScore Int      @default(0)
-  identityScore      Int      @default(0)
-  arcStreakScore     Int      @default(0)
-  countryDiversityScore Int   @default(0)
-  totalMeritScore    Int      @default(0)
-  lastPoolId         String?
-  calculatedAt       DateTime @updatedAt
+  id                    String   @id @default(cuid())
+  ledgerId              String   @unique
+  ownershipBase         Int      @default(0)
+  poolHistoryScore      Int      @default(0)
+  communityScore        Int      @default(0)
+  reviewQualityScore    Int      @default(0)
+  identityScore         Int      @default(0)
+  arcStreakScore        Int      @default(0)
+  countryDiversityScore Int      @default(0)
+  totalMeritScore       Int      @default(0)
+  lastPoolId            String?
+  calculatedAt          DateTime @updatedAt
 
-  user               User     @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
+  user User @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
 
   @@index([ledgerId])
   @@index([totalMeritScore])
@@ -676,18 +700,18 @@ model QuantumMeritScore {
 }
 
 model AssetReport {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   poolId      String
   ledgerId    String
   reason      String
   description String
-  status      String   @default("pending")
-  createdAt   DateTime @default(now())
+  status      String    @default("pending")
+  createdAt   DateTime  @default(now())
   reviewedAt  DateTime?
   reviewedBy  String?
 
-  pool        Pool     @relation(fields: [poolId], references: [poolId], onDelete: Cascade)
-  user        User     @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
+  pool Pool @relation(fields: [poolId], references: [poolId], onDelete: Cascade)
+  user User @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
 
   @@index([poolId])
   @@index([ledgerId])
@@ -696,20 +720,20 @@ model AssetReport {
 }
 
 model Dispute {
-  id            String   @id @default(cuid())
-  poolId        String
-  ledgerId      String
-  type          String
-  description   String
-  evidence      String?
-  status          String   @default("open")
-  resolution    String?
-  createdAt     DateTime @default(now())
-  resolvedAt    DateTime?
-  resolvedBy    String?
+  id          String    @id @default(cuid())
+  poolId      String
+  ledgerId    String
+  type        String
+  description String
+  evidence    String?
+  status      String    @default("open")
+  resolution  String?
+  createdAt   DateTime  @default(now())
+  resolvedAt  DateTime?
+  resolvedBy  String?
 
-  pool          Pool     @relation(fields: [poolId], references: [poolId], onDelete: Cascade)
-  user          User     @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
+  pool Pool @relation(fields: [poolId], references: [poolId], onDelete: Cascade)
+  user User @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
 
   @@index([poolId])
   @@index([ledgerId])
@@ -729,9 +753,9 @@ model Notification {
   actionUrl  String?
   createdAt  DateTime @default(now())
 
-  user      User      @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
-  pool      Pool?     @relation(fields: [poolId], references: [id], onDelete: SetNull)
-  proposal  Proposal? @relation(fields: [proposalId], references: [id], onDelete: SetNull)
+  user     User      @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
+  pool     Pool?     @relation(fields: [poolId], references: [id], onDelete: SetNull)
+  proposal Proposal? @relation(fields: [proposalId], references: [id], onDelete: SetNull)
 
   @@index([ledgerId])
   @@index([type])
@@ -754,24 +778,24 @@ model Hall {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  hallClass       String?
-  sriScore        Int       @default(50)
-  ahgiScore       Int       @default(50)
-  closureStatus   String    @default("active")
-  pirDebt         Int       @default(0)
-  payrollReserve  Int       @default(0)
+  hallClass      String?
+  sriScore       Int     @default(50)
+  ahgiScore      Int     @default(50)
+  closureStatus  String  @default("active")
+  pirDebt        Int     @default(0)
+  payrollReserve Int     @default(0)
 
-  assetType       String?
-  businessStatus  String    @default("operating")
+  assetType      String?
+  businessStatus String  @default("operating")
 
-  inventoryEnabled Boolean   @default(false)
-  forgeEnabled     Boolean   @default(false)
-  ihcpBalance      Int       @default(0)
+  inventoryEnabled Boolean @default(false)
+  forgeEnabled     Boolean @default(false)
+  ihcpBalance      Int     @default(0)
 
-  deedUrl             String?
+  deedUrl                 String?
   insuranceCertificateUrl String?
-  spvAgreementUrl     String?
-  constitutionUrl     String?
+  spvAgreementUrl         String?
+  constitutionUrl         String?
 
   messages        HallMessage[]
   proposals       Proposal[]
@@ -784,68 +808,68 @@ model Hall {
   locationOptions LocationOption[]
   executionLogs   ExecutionLog[]
 
-  executiveCabinet ExecutiveCabinet?
-  workers         Worker[]
-  forgeLedgers    ForgeLedger[]
-  relayMessages   RelayMessage[]
-  sriSnapshots    SriSnapshot[]
-  ahgiSnapshots   AhgiSnapshot[]
-  dynamicValuations DynamicValuation[]
-  pirAllocations  PirAllocation[]
-  pirAdvances     PirAdvance[]
-  closureProtocols ClosureProtocol[]
-  eighthLedgerUpdates EighthLedgerUpdate[]
-  inventoryItems  InventoryItem[]
-  ownershipListings OwnershipListing[]
+  executiveCabinet     ExecutiveCabinet?
+  workers              Worker[]
+  forgeLedgers         ForgeLedger[]
+  relayMessages        RelayMessage[]
+  sriSnapshots         SriSnapshot[]
+  ahgiSnapshots        AhgiSnapshot[]
+  dynamicValuations    DynamicValuation[]
+  pirAllocations       PirAllocation[]
+  pirAdvances          PirAdvance[]
+  closureProtocols     ClosureProtocol[]
+  eighthLedgerUpdates  EighthLedgerUpdate[]
+  inventoryItems       InventoryItem[]
+  ownershipListings    OwnershipListing[]
   sovereignStreamPosts SovereignStreamPost[]
-  hallContributions HallContribution[]
-  marketplaceItems MarketplaceItem[]
+  hallContributions    HallContribution[]
+  marketplaceItems     MarketplaceItem[]
 
   @@index([poolId])
   @@map("halls")
 }
 
 model HallMessage {
-  id            String   @id @default(cuid())
+  id            String    @id @default(cuid())
   hallId        String
-  hall          Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  hall          Hall      @relation(fields: [hallId], references: [id], onDelete: Cascade)
   userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   content       String
-  type          String   @default("text")
+  type          String    @default("text")
   watermarkHash String
-  isEphemeral   Boolean  @default(false)
+  isEphemeral   Boolean   @default(false)
   expiresAt     DateTime?
-  createdAt     DateTime @default(now())
+  createdAt     DateTime  @default(now())
 
   @@index([hallId, createdAt])
   @@map("hall_messages")
 }
 
 model Proposal {
-  id              String   @id @default(cuid())
-  poolId          String
-  pool            Pool     @relation(fields: [poolId], references: [id], onDelete: Cascade)
-  hallId          String?
-  hall            Hall?    @relation(fields: [hallId], references: [id])
-  proposerId      String
-  proposer        User     @relation(fields: [proposerId], references: [id])
+  id         String  @id @default(cuid())
+  poolId     String
+  pool       Pool    @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  hallId     String?
+  hall       Hall?   @relation(fields: [hallId], references: [id])
+  proposerId String
+  proposer   User    @relation(fields: [proposerId], references: [id])
 
-  title           String
-  description     String
-  type            String
-  amount          Int?
-  targetUserId    String?
-  locationOption  String?
+  title          String
+  description    String
+  type           String
+  amount         Int?
+  targetUserId   String?
+  locationOption String?
 
-  voteWeightYes   Float    @default(0)
-  voteWeightNo    Float    @default(0)
-  voteCountYes    Int      @default(0)
-  voteCountNo     Int      @default(0)
-  thresholdPercent Float   @default(51.00)
-  status          String   @default("pending")
+  voteWeightYes    Float  @default(0)
+  voteWeightNo     Float  @default(0)
+  voteCountYes     Int    @default(0)
+  voteCountNo      Int    @default(0)
+  thresholdPercent Float  @default(51.00)
+  status           String @default("pending")
 
-  executionStatus String?  @default("pending")
+  executionStatus String?   @default("pending")
   executedAt      DateTime?
   executionResult String?
   executionCost   Int?
@@ -857,13 +881,13 @@ model Proposal {
   passedAt        DateTime?
   executedBy      String?
 
-  createdAt       DateTime @default(now())
-  endsAt          DateTime
+  createdAt DateTime @default(now())
+  endsAt    DateTime
 
-  votes           Vote[]
-  notifications   Notification[]
-  executionLogs   ExecutionLog[]
-  streamPosts     SovereignStreamPost[]
+  votes         Vote[]
+  notifications Notification[]
+  executionLogs ExecutionLog[]
+  streamPosts   SovereignStreamPost[]
 
   @@index([poolId])
   @@index([hallId])
@@ -886,41 +910,41 @@ model Vote {
 }
 
 model Ownership {
-  id              String   @id @default(cuid())
-  poolId          String
-  pool            Pool     @relation(fields: [poolId], references: [id], onDelete: Cascade)
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  hallId          String?
-  hall            Hall?    @relation(fields: [hallId], references: [id])
+  id     String  @id @default(cuid())
+  poolId String
+  pool   Pool    @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  userId String
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  hallId String?
+  hall   Hall?   @relation(fields: [hallId], references: [id])
 
   amountCommitted  Int
   ownershipPercent Float
-  pacToken         String?  @unique
-  totalReturned    Int      @default(0)
-  totalFromSale    Int      @default(0)
-  totalFromMarket  Int      @default(0)
-  status           String   @default("active")
+  pacToken         String? @unique
+  totalReturned    Int     @default(0)
+  totalFromSale    Int     @default(0)
+  totalFromMarket  Int     @default(0)
+  status           String  @default("active")
 
-  role            String?
-  roleExpiresAt   DateTime?
+  role          String?
+  roleExpiresAt DateTime?
 
-  isWinner         Boolean  @default(false)
-  inviteCodesRemaining Int @default(3)
-  inviteCodesUsed  Int      @default(0)
-  dynamicValue     Float    @default(0)
-  accumulatedDividends Int  @default(0)
-  pirDebt          Int      @default(0)
-  ihcpDebt         Int      @default(0)
-  ledgerId         String?
+  isWinner             Boolean @default(false)
+  inviteCodesRemaining Int     @default(3)
+  inviteCodesUsed      Int     @default(0)
+  dynamicValue         Float   @default(0)
+  accumulatedDividends Int     @default(0)
+  pirDebt              Int     @default(0)
+  ihcpDebt             Int     @default(0)
+  ledgerId             String?
 
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   dividendEntries DividendEntry[]
 
   ownershipListings OwnershipListing[]
-  dormancyVaults  DormancyVault[]
+  dormancyVaults    DormancyVault[]
 
   @@unique([poolId, userId])
   @@index([pacToken])
@@ -929,20 +953,20 @@ model Ownership {
 }
 
 model HallTreasury {
-  id               String   @id @default(cuid())
-  hallId           String   @unique
-  hall             Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  balance          Int      @default(0)
-  totalDistributed Int      @default(0)
-  totalRevenue     Int      @default(0)
+  id               String    @id @default(cuid())
+  hallId           String    @unique
+  hall             Hall      @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  balance          Int       @default(0)
+  totalDistributed Int       @default(0)
+  totalRevenue     Int       @default(0)
   lastDistribution DateTime?
 
-  payrollReserve   Int      @default(0)
-  pirDebt          Int      @default(0)
-  closureReserve   Int      @default(0)
-  monthlyRevenue   Int      @default(0)
+  payrollReserve Int @default(0)
+  pirDebt        Int @default(0)
+  closureReserve Int @default(0)
+  monthlyRevenue Int @default(0)
 
-  transactions     HallTreasuryTransaction[]
+  transactions HallTreasuryTransaction[]
 
   @@map("hall_treasuries")
 }
@@ -973,10 +997,10 @@ model RevenueLog {
   distributionTx String?
   createdAt      DateTime @default(now())
 
-  payrollDeducted Int     @default(0)
-  netAfterPayroll Int     @default(0)
+  payrollDeducted Int @default(0)
+  netAfterPayroll Int @default(0)
 
-  businessSource  String?
+  businessSource String?
 
   @@index([poolId])
   @@index([distributed])
@@ -984,32 +1008,32 @@ model RevenueLog {
 }
 
 model SpvEntity {
-  id                  String   @id @default(cuid())
-  poolId              String   @unique
-  pool                Pool     @relation(fields: [poolId], references: [id])
-  name                String
-  entityType          String   @default("llc")
-  jurisdiction        String
-  registrationNumber  String?
-  registeredAt        DateTime?
-  bankAccount         String?
-  taxId               String?
-  documents           String?
-  createdAt           DateTime @default(now())
+  id                 String    @id @default(cuid())
+  poolId             String    @unique
+  pool               Pool      @relation(fields: [poolId], references: [id])
+  name               String
+  entityType         String    @default("llc")
+  jurisdiction       String
+  registrationNumber String?
+  registeredAt       DateTime?
+  bankAccount        String?
+  taxId              String?
+  documents          String?
+  createdAt          DateTime  @default(now())
 
   @@map("spv_entities")
 }
 
 model InsuranceFund {
-  id               String   @id @default(cuid())
+  id               String  @id @default(cuid())
   poolId           String?
-  pool             Pool?    @relation(fields: [poolId], references: [id])
-  type             String   @default("global")
-  balance          Int      @default(0)
-  totalContributed Int      @default(0)
-  totalClaimsPaid  Int      @default(0)
+  pool             Pool?   @relation(fields: [poolId], references: [id])
+  type             String  @default("global")
+  balance          Int     @default(0)
+  totalContributed Int     @default(0)
+  totalClaimsPaid  Int     @default(0)
 
-  transactions     InsuranceTransaction[]
+  transactions InsuranceTransaction[]
 
   @@map("insurance_funds")
 }
@@ -1029,17 +1053,17 @@ model InsuranceTransaction {
 }
 
 model SocialShare {
-  id              String          @id @default(cuid())
-  itemId          String
-  item            InventoryItem   @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  userId          String
-  user            User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  refCode         String          @unique
-  platform        String?
-  clicks          Int             @default(0)
-  conversions     Int             @default(0)
-  commissionEarned Int            @default(0)
-  createdAt       DateTime        @default(now())
+  id               String        @id @default(cuid())
+  itemId           String
+  item             InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refCode          String        @unique
+  platform         String?
+  clicks           Int           @default(0)
+  conversions      Int           @default(0)
+  commissionEarned Int           @default(0)
+  createdAt        DateTime      @default(now())
 
   @@index([itemId])
   @@index([userId])
@@ -1047,17 +1071,17 @@ model SocialShare {
 }
 
 model HallInvite {
-  id        String   @id @default(cuid())
+  id        String @id @default(cuid())
   hallId    String
-  hall      Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  hall      Hall   @relation(fields: [hallId], references: [id], onDelete: Cascade)
   creatorId String
-  creator   User     @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  creator   User   @relation(fields: [creatorId], references: [id], onDelete: Cascade)
 
-  code      String   @unique
-  maxUses   Int      @default(1)
-  usedCount Int      @default(0)
+  code      String    @unique
+  maxUses   Int       @default(1)
+  usedCount Int       @default(0)
   expiresAt DateTime?
-  isActive  Boolean  @default(true)
+  isActive  Boolean   @default(true)
 
   createdAt DateTime @default(now())
 
@@ -1067,21 +1091,21 @@ model HallInvite {
 }
 
 model BanRecord {
-  id         String   @id @default(cuid())
+  id         String @id @default(cuid())
   hallId     String
-  hall       Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  hall       Hall   @relation(fields: [hallId], references: [id], onDelete: Cascade)
   userId     String
-  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user       User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   bannedById String
-  bannedBy   User     @relation("Banner", fields: [bannedById], references: [id], onDelete: Cascade)
+  bannedBy   User   @relation("Banner", fields: [bannedById], references: [id], onDelete: Cascade)
 
-  reason     String
-  evidence   String?
-  duration   String   @default("permanent")
-  expiresAt  DateTime?
-  isAppealed Boolean  @default(false)
+  reason       String
+  evidence     String?
+  duration     String    @default("permanent")
+  expiresAt    DateTime?
+  isAppealed   Boolean   @default(false)
   appealReason String?
-  createdAt  DateTime @default(now())
+  createdAt    DateTime  @default(now())
 
   @@index([hallId])
   @@index([userId])
@@ -1105,17 +1129,17 @@ model HallActivity {
 }
 
 model HallRole {
-  id            String   @id @default(cuid())
-  hallId        String
-  hall          Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  userId        String
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  hallId String
+  hall   Hall   @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   role          String
-  electedAt     DateTime @default(now())
+  electedAt     DateTime  @default(now())
   expiresAt     DateTime
-  votesReceived Int      @default(0)
-  isImpeached   Boolean  @default(false)
+  votesReceived Int       @default(0)
+  isImpeached   Boolean   @default(false)
   impeachedAt   DateTime?
   impeachReason String?
 
@@ -1124,51 +1148,51 @@ model HallRole {
 }
 
 model KycRecord {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  idType            String?
-  idNumber          String?
-  idImageUrl        String?
-  idVerified        Boolean  @default(false)
+  idType     String?
+  idNumber   String?
+  idImageUrl String?
+  idVerified Boolean @default(false)
 
-  selfieUrl         String?
-  selfieMatchScore  Float?
-  selfieVerified    Boolean  @default(false)
+  selfieUrl        String?
+  selfieMatchScore Float?
+  selfieVerified   Boolean @default(false)
 
-  livenessVideoUrl  String?
-  livenessPassed    Boolean  @default(false)
+  livenessVideoUrl String?
+  livenessPassed   Boolean @default(false)
 
-  addressProofUrl   String?
-  addressVerified   Boolean  @default(false)
+  addressProofUrl String?
+  addressVerified Boolean @default(false)
 
-  legalName         String?
-  dateOfBirth       DateTime?
-  address           String?
+  legalName   String?
+  dateOfBirth DateTime?
+  address     String?
 
-  tier              String   @default("visitor")
-  reviewedBy        String?
-  reviewedAt        DateTime?
-  rejectionReason   String?
-  status            String   @default("pending")
+  tier            String    @default("visitor")
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  rejectionReason String?
+  status          String    @default("pending")
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@map("kyc_records")
 }
 
 model DividendDistribution {
-  id            String   @id @default(cuid())
-  poolId        String
-  revenueLogId  String?
+  id           String  @id @default(cuid())
+  poolId       String
+  revenueLogId String?
 
   totalAmount   Int
   totalOwners   Int
   distributedAt DateTime @default(now())
 
-  entries       DividendEntry[]
+  entries DividendEntry[]
 
   @@index([poolId])
   @@map("dividend_distributions")
@@ -1190,11 +1214,11 @@ model DividendEntry {
 }
 
 model LocationOption {
-  id          String   @id @default(cuid())
-  poolId      String
-  pool        Pool     @relation(fields: [poolId], references: [id], onDelete: Cascade)
-  hallId      String?
-  hall        Hall?    @relation(fields: [hallId], references: [id])
+  id     String  @id @default(cuid())
+  poolId String
+  pool   Pool    @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  hallId String?
+  hall   Hall?   @relation(fields: [hallId], references: [id])
 
   name        String
   address     String
@@ -1203,26 +1227,26 @@ model LocationOption {
   cost        Int?
   image       String?
   description String?
-  votes       Int      @default(0)
-  voteWeight  Float    @default(0)
-  isSelected  Boolean  @default(false)
+  votes       Int     @default(0)
+  voteWeight  Float   @default(0)
+  isSelected  Boolean @default(false)
 
-  createdAt   DateTime @default(now())
+  createdAt DateTime @default(now())
 
   @@index([poolId])
   @@map("location_options")
 }
 
 model DormancyLog {
-  id         String   @id @default(cuid())
-  userId     String?
-  poolId     String?
-  hallId     String?
+  id     String  @id @default(cuid())
+  userId String?
+  poolId String?
+  hallId String?
 
   type       String
   stage      String
   message    String
-  notifiedAt DateTime @default(now())
+  notifiedAt DateTime  @default(now())
   resolvedAt DateTime?
 
   @@index([userId])
@@ -1232,18 +1256,18 @@ model DormancyLog {
 }
 
 model ExecutionLog {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   proposalId  String?
   proposal    Proposal? @relation(fields: [proposalId], references: [id], onDelete: Cascade)
   hallId      String?
   hall        Hall?     @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  status      String   @default("passed")
+  status      String    @default("passed")
   cost        Float?
   proofUrls   String?
   executedBy  String?
   completedAt DateTime?
   notes       String?
-  createdAt   DateTime @default(now())
+  createdAt   DateTime  @default(now())
 
   @@index([proposalId])
   @@index([hallId])
@@ -1278,18 +1302,18 @@ model SecurityAuditLog {
 // ============================================================
 
 model MeridianCycle {
-  id            String   @id @default(cuid())
-  continent     String
-  phase         String   @default("hush")
-  startAt       DateTime
-  endAt         DateTime
-  lockStatus    String   @default("unlocked")
-  winnerPoolId  String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id           String   @id @default(cuid())
+  continent    String
+  phase        String   @default("hush")
+  startAt      DateTime
+  endAt        DateTime
+  lockStatus   String   @default("unlocked")
+  winnerPoolId String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  cyclePools    CyclePool[]
-  cycleVotes    CycleVote[]
+  cyclePools CyclePool[]
+  cycleVotes CycleVote[]
 
   @@index([continent])
   @@index([phase])
@@ -1297,18 +1321,18 @@ model MeridianCycle {
 }
 
 model CyclePool {
-  id          String   @id @default(cuid())
-  cycleId     String
-  cycle       MeridianCycle @relation(fields: [cycleId], references: [id], onDelete: Cascade)
-  poolId      String
-  pool        Pool     @relation(fields: [poolId], references: [id], onDelete: Cascade)
-  voteCount   Int      @default(0)
-  voteWeight  Float    @default(0)
-  isWinner    Boolean  @default(false)
-  revealedAt  DateTime?
-  createdAt   DateTime @default(now())
+  id         String        @id @default(cuid())
+  cycleId    String
+  cycle      MeridianCycle @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  poolId     String
+  pool       Pool          @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  voteCount  Int           @default(0)
+  voteWeight Float         @default(0)
+  isWinner   Boolean       @default(false)
+  revealedAt DateTime?
+  createdAt  DateTime      @default(now())
 
-  cycleVotes  CycleVote[]
+  cycleVotes CycleVote[]
 
   @@unique([cycleId, poolId])
   @@index([cycleId])
@@ -1317,13 +1341,13 @@ model CyclePool {
 }
 
 model CycleVote {
-  id        String   @id @default(cuid())
-  cycleId   String
-  cycle     MeridianCycle @relation(fields: [cycleId], references: [id], onDelete: Cascade)
-  poolId    String
-  pool      CyclePool @relation(fields: [poolId], references: [id], onDelete: Cascade)
-  userId    String
-  votedAt   DateTime @default(now())
+  id      String        @id @default(cuid())
+  cycleId String
+  cycle   MeridianCycle @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+  poolId  String
+  pool    CyclePool     @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  userId  String
+  votedAt DateTime      @default(now())
 
   @@unique([cycleId, userId])
   @@index([cycleId])
@@ -1357,15 +1381,15 @@ model OracleForecast {
 }
 
 model OraclePrediction {
-  id           String   @id @default(cuid())
+  id           String         @id @default(cuid())
   forecastId   String
   forecast     OracleForecast @relation(fields: [forecastId], references: [id], onDelete: Cascade)
   userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
   vertical     String
   country      String
-  pointsEarned Int      @default(0)
-  status       String   @default("pending")
+  pointsEarned Int            @default(0)
+  status       String         @default("pending")
 
   createdAt DateTime @default(now())
 
@@ -1375,17 +1399,17 @@ model OraclePrediction {
 }
 
 model OracleStanding {
-  id            String   @id @default(cuid())
-  userId        String   @unique
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  totalPoints   Int      @default(0)
-  correctCount  Int      @default(0)
-  totalPredictions Int   @default(0)
-  tier          String   @default("novice")
-  streak        Int      @default(0)
-  lastCorrectAt DateTime?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  user             User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  totalPoints      Int       @default(0)
+  correctCount     Int       @default(0)
+  totalPredictions Int       @default(0)
+  tier             String    @default("novice")
+  streak           Int       @default(0)
+  lastCorrectAt    DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   @@index([userId])
   @@index([tier])
@@ -1394,16 +1418,16 @@ model OracleStanding {
 }
 
 model ExecutiveCabinet {
-  id            String   @id @default(cuid())
-  hallId        String   @unique
-  hall          Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  id            String    @id @default(cuid())
+  hallId        String    @unique
+  hall          Hall      @relation(fields: [hallId], references: [id], onDelete: Cascade)
   speakerId     String?
   treasurerId   String?
   wardenId      String?
   scribeId      String?
-  electedAt     DateTime @default(now())
+  electedAt     DateTime  @default(now())
   expiresAt     DateTime
-  isImpeached   Boolean  @default(false)
+  isImpeached   Boolean   @default(false)
   impeachedAt   DateTime?
   impeachReason String?
 
@@ -1412,24 +1436,24 @@ model ExecutiveCabinet {
 }
 
 model Worker {
-  id              String   @id @default(cuid())
-  hallId          String
-  hall            Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  workerNumber    String   @unique
-  role            String
-  salary          Int
-  contractMonths  Int
-  hiredAt         DateTime @default(now())
-  status          String   @default("active")
-  performanceScore Float   @default(0)
+  id                String    @id @default(cuid())
+  hallId            String
+  hall              Hall      @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  workerNumber      String    @unique
+  role              String
+  salary            Int
+  contractMonths    Int
+  hiredAt           DateTime  @default(now())
+  status            String    @default("active")
+  performanceScore  Float     @default(0)
   terminationReason String?
-  terminatedAt    DateTime?
+  terminatedAt      DateTime?
 
-  shiftSchedule   String?
-  department      String?
+  shiftSchedule String?
+  department    String?
 
-  performances    WorkerPerformance[]
-  relayMessages   RelayMessage[]
+  performances  WorkerPerformance[]
+  relayMessages RelayMessage[]
 
   @@index([hallId])
   @@index([workerNumber])
@@ -1454,17 +1478,17 @@ model WorkerPerformance {
 }
 
 model ForgeLedger {
-  id          String   @id @default(cuid())
-  hallId      String
-  hall        Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  month       String
+  id           String   @id @default(cuid())
+  hallId       String
+  hall         Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  month        String
   totalPayroll Int
-  workerCount Int
-  entries     String
-  createdAt   DateTime @default(now())
+  workerCount  Int
+  entries      String
+  createdAt    DateTime @default(now())
 
-  businessRevenue   Int @default(0)
-  costOfGoodsSold  Int @default(0)
+  businessRevenue Int @default(0)
+  costOfGoodsSold Int @default(0)
 
   @@unique([hallId, month])
   @@index([hallId])
@@ -1472,16 +1496,16 @@ model ForgeLedger {
 }
 
 model RelayMessage {
-  id          String   @id @default(cuid())
-  hallId      String
-  hall        Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  workerId    String
-  worker      Worker   @relation(fields: [workerId], references: [id], onDelete: Cascade)
-  direction   String
-  content     String
-  relayedAt   DateTime @default(now())
-  status      String   @default("relayed")
-  loggedBy    String
+  id        String   @id @default(cuid())
+  hallId    String
+  hall      Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  workerId  String
+  worker    Worker   @relation(fields: [workerId], references: [id], onDelete: Cascade)
+  direction String
+  content   String
+  relayedAt DateTime @default(now())
+  status    String   @default("relayed")
+  loggedBy  String
 
   @@index([hallId])
   @@index([workerId])
@@ -1522,17 +1546,17 @@ model AhgiSnapshot {
 }
 
 model DynamicValuation {
-  id                          String   @id @default(cuid())
-  hallId                      String
-  hall                        Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  assetBookValue              Int      @default(0)
-  accumulatedDividendsPerPercent Int @default(0)
-  ahgiPremium                 Int      @default(0)
-  sriBonus                    Int      @default(0)
-  pirDebtPerPercent           Int      @default(0)
-  ihcpDebtPerPercent          Int      @default(0)
-  valuePerPercent             Float    @default(0)
-  calculatedAt                DateTime @default(now())
+  id                             String   @id @default(cuid())
+  hallId                         String
+  hall                           Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  assetBookValue                 Int      @default(0)
+  accumulatedDividendsPerPercent Int      @default(0)
+  ahgiPremium                    Int      @default(0)
+  sriBonus                       Int      @default(0)
+  pirDebtPerPercent              Int      @default(0)
+  ihcpDebtPerPercent             Int      @default(0)
+  valuePerPercent                Float    @default(0)
+  calculatedAt                   DateTime @default(now())
 
   @@index([hallId])
   @@index([calculatedAt])
@@ -1540,15 +1564,15 @@ model DynamicValuation {
 }
 
 model PirAllocation {
-  id          String   @id @default(cuid())
-  hallId      String
-  hall        Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  pillar      String
-  amount      Int
-  purpose     String
-  spent       Int      @default(0)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id        String   @id @default(cuid())
+  hallId    String
+  hall      Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  pillar    String
+  amount    Int
+  purpose   String
+  spent     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([hallId])
   @@index([pillar])
@@ -1556,18 +1580,18 @@ model PirAllocation {
 }
 
 model PirAdvance {
-  id             String   @id @default(cuid())
-  hallId         String
-  hall           Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  amount         Int
-  reason         String
-  repaymentRate  Float    @default(0)
-  repaidAmount   Int      @default(0)
-  interestRate   Float    @default(0)
-  status         String   @default("active")
-  approvedBy     String
-  approvedAt     DateTime @default(now())
-  dueDate        DateTime?
+  id            String    @id @default(cuid())
+  hallId        String
+  hall          Hall      @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  amount        Int
+  reason        String
+  repaymentRate Float     @default(0)
+  repaidAmount  Int       @default(0)
+  interestRate  Float     @default(0)
+  status        String    @default("active")
+  approvedBy    String
+  approvedAt    DateTime  @default(now())
+  dueDate       DateTime?
 
   @@index([hallId])
   @@index([status])
@@ -1575,27 +1599,27 @@ model PirAdvance {
 }
 
 model ClosureProtocol {
-  id               String   @id @default(cuid())
+  id               String    @id @default(cuid())
   hallId           String
-  hall             Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  hall             Hall      @relation(fields: [hallId], references: [id], onDelete: Cascade)
   triggerMonth     DateTime
   ahgiAtTrigger    Int
   revenueAtTrigger Int
   payrollAtTrigger Int
-  phase            String   @default("warning")
+  phase            String    @default("warning")
   liquidationValue Int?
   assetSalePrice   Int?
-  pirDebtPaid      Int      @default(0)
-  taxPaid          Int      @default(0)
-  severancePaid    Int      @default(0)
-  ledgerFeePaid    Int      @default(0)
+  pirDebtPaid      Int       @default(0)
+  taxPaid          Int       @default(0)
+  severancePaid    Int       @default(0)
+  ledgerFeePaid    Int       @default(0)
   netProceeds      Int?
-  status           String   @default("active")
+  status           String    @default("active")
   closedAt         DateTime?
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
-  payouts          LiquidationPayout[]
+  payouts LiquidationPayout[]
 
   @@index([hallId])
   @@index([phase])
@@ -1604,16 +1628,16 @@ model ClosureProtocol {
 }
 
 model LiquidationPayout {
-  id               String   @id @default(cuid())
+  id               String          @id @default(cuid())
   closureId        String
   closure          ClosureProtocol @relation(fields: [closureId], references: [id], onDelete: Cascade)
   userId           String
-  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   ownershipPercent Float
   amount           Int
-  status           String   @default("pending")
+  status           String          @default("pending")
   paidAt           DateTime?
-  createdAt        DateTime @default(now())
+  createdAt        DateTime        @default(now())
 
   @@index([closureId])
   @@index([userId])
@@ -1621,17 +1645,17 @@ model LiquidationPayout {
 }
 
 model DormancyVault {
-  id                  String   @id @default(cuid())
-  userId              String
-  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  ownershipId         String
-  ownership           Ownership @relation(fields: [ownershipId], references: [id], onDelete: Cascade)
-  vaultedAt           DateTime @default(now())
-  accumulatedDividends Int     @default(0)
-  status              String   @default("vaulted")
-  reclaimedAt         DateTime?
+  id                   String    @id @default(cuid())
+  userId               String
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ownershipId          String
+  ownership            Ownership @relation(fields: [ownershipId], references: [id], onDelete: Cascade)
+  vaultedAt            DateTime  @default(now())
+  accumulatedDividends Int       @default(0)
+  status               String    @default("vaulted")
+  reclaimedAt          DateTime?
 
-  auctions            DormancyAuction[]
+  auctions DormancyAuction[]
 
   @@index([userId])
   @@index([ownershipId])
@@ -1640,15 +1664,15 @@ model DormancyVault {
 }
 
 model DormancyAuction {
-  id            String   @id @default(cuid())
+  id            String        @id @default(cuid())
   vaultId       String
   vault         DormancyVault @relation(fields: [vaultId], references: [id], onDelete: Cascade)
-  listedAt      DateTime @default(now())
+  listedAt      DateTime      @default(now())
   startingPrice Int
   finalPrice    Int?
   buyerId       String?
-  buyer         User?    @relation("AuctionBuyer", fields: [buyerId], references: [id], onDelete: SetNull)
-  status        String   @default("active")
+  buyer         User?         @relation("AuctionBuyer", fields: [buyerId], references: [id], onDelete: SetNull)
+  status        String        @default("active")
   completedAt   DateTime?
 
   @@index([vaultId])
@@ -1671,7 +1695,7 @@ model AgoraSuggestion {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
-  votes       AgoraSuggestionVote[]
+  votes AgoraSuggestionVote[]
 
   @@index([userId])
   @@index([status])
@@ -1680,14 +1704,14 @@ model AgoraSuggestion {
 }
 
 model AgoraSuggestionVote {
-  id           String   @id @default(cuid())
+  id           String          @id @default(cuid())
   suggestionId String
   suggestion   AgoraSuggestion @relation(fields: [suggestionId], references: [id], onDelete: Cascade)
   userId       String
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   direction    String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
 
   @@unique([suggestionId, userId])
   @@index([suggestionId])
@@ -1696,15 +1720,15 @@ model AgoraSuggestionVote {
 }
 
 model AgoraQA {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  question    String
-  answer      String?
-  answeredBy  String?
-  status      String   @default("pending")
-  createdAt   DateTime @default(now())
-  answeredAt  DateTime?
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question   String
+  answer     String?
+  answeredBy String?
+  status     String    @default("pending")
+  createdAt  DateTime  @default(now())
+  answeredAt DateTime?
 
   @@index([userId])
   @@index([status])
@@ -1728,21 +1752,21 @@ model EighthLedgerUpdate {
 }
 
 model SovereignStreamPost {
-  id          String   @id @default(cuid())
-  hallId      String
-  hall        Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  type        String
-  title       String
-  content     String
-  authorId    String
-  author      User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  proposalId  String?
-  proposal    Proposal? @relation(fields: [proposalId], references: [id], onDelete: SetNull)
-  parentId    String?
-  parent      SovereignStreamPost? @relation("PostReplies", fields: [parentId], references: [id], onDelete: SetNull)
-  replies     SovereignStreamPost[] @relation("PostReplies")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id         String                @id @default(cuid())
+  hallId     String
+  hall       Hall                  @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  type       String
+  title      String
+  content    String
+  authorId   String
+  author     User                  @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  proposalId String?
+  proposal   Proposal?             @relation(fields: [proposalId], references: [id], onDelete: SetNull)
+  parentId   String?
+  parent     SovereignStreamPost?  @relation("PostReplies", fields: [parentId], references: [id], onDelete: SetNull)
+  replies    SovereignStreamPost[] @relation("PostReplies")
+  createdAt  DateTime              @default(now())
+  updatedAt  DateTime              @updatedAt
 
   @@index([hallId])
   @@index([type])
@@ -1753,28 +1777,28 @@ model SovereignStreamPost {
 }
 
 model InventoryItem {
-  id          String   @id @default(cuid())
-  hallId      String
-  hall        Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  title       String
-  description String
-  price       Int
-  quantity    Int      @default(1)
-  quantitySold Int    @default(0)
-  status      String   @default("active")
-  listedAt    DateTime @default(now())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  hallId       String
+  hall         Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  title        String
+  description  String
+  price        Int
+  quantity     Int      @default(1)
+  quantitySold Int      @default(0)
+  status       String   @default("active")
+  listedAt     DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   costOfGoods      Int @default(0)
   reorderThreshold Int @default(0)
 
-  imageUrl    String?
-  images      String?  // JSON array string
-  tags        String?  // JSON array string
-  specs       String?  // JSON object string
+  imageUrl String?
+  images   String? // JSON array string
+  tags     String? // JSON array string
+  specs    String? // JSON object string
 
-  orders      InventoryOrder[]
+  orders       InventoryOrder[]
   socialShares SocialShare[]
 
   @@index([hallId])
@@ -1783,19 +1807,19 @@ model InventoryItem {
 }
 
 model MarketplaceItem {
-  id          String   @id @default(cuid())
-  poolId      String?
-  pool        Pool?    @relation(fields: [poolId], references: [id], onDelete: SetNull)
-  hallId      String
-  hall        Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  title       String
-  description String
-  price       Int
-  quantity    Int      @default(1)
-  quantitySold Int    @default(0)
-  status      String   @default("active")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  poolId       String?
+  pool         Pool?    @relation(fields: [poolId], references: [id], onDelete: SetNull)
+  hallId       String
+  hall         Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  title        String
+  description  String
+  price        Int
+  quantity     Int      @default(1)
+  quantitySold Int      @default(0)
+  status       String   @default("active")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([hallId])
   @@index([poolId])
@@ -1804,21 +1828,21 @@ model MarketplaceItem {
 }
 
 model InventoryOrder {
-  id              String   @id @default(cuid())
-  inventoryId     String
-  inventory       InventoryItem @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
-  buyerId         String
-  buyer           User     @relation(fields: [buyerId], references: [id], onDelete: Cascade)
-  amount          Int
-  quantity        Int
-  status          String   @default("pending")
+  id               String        @id @default(cuid())
+  inventoryId      String
+  inventory        InventoryItem @relation(fields: [inventoryId], references: [id], onDelete: Cascade)
+  buyerId          String
+  buyer            User          @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  amount           Int
+  quantity         Int
+  status           String        @default("pending")
   escrowReleasedAt DateTime?
-  createdAt       DateTime @default(now())
-  completedAt     DateTime?
+  createdAt        DateTime      @default(now())
+  completedAt      DateTime?
 
-  platformFee     Int      @default(0)
-  fulfillmentCost Int      @default(0)
-  netToHall       Int      @default(0)
+  platformFee     Int @default(0)
+  fulfillmentCost Int @default(0)
+  netToHall       Int @default(0)
 
   @@index([inventoryId])
   @@index([buyerId])
@@ -1827,32 +1851,32 @@ model InventoryOrder {
 }
 
 model OwnershipListing {
-  id              String   @id @default(cuid())
+  id              String    @id @default(cuid())
   ownershipId     String
   ownership       Ownership @relation(fields: [ownershipId], references: [id], onDelete: Cascade)
   hallId          String
-  hall            Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  hall            Hall      @relation(fields: [hallId], references: [id], onDelete: Cascade)
   sellerId        String
-  seller          User     @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  seller          User      @relation(fields: [sellerId], references: [id], onDelete: Cascade)
   percentListed   Float
   pricePerPercent Float
   totalPrice      Float
   floorPrice      Float
-  status          String   @default("active")
-  listedAt        DateTime @default(now())
+  status          String    @default("active")
+  listedAt        DateTime  @default(now())
   expiresAt       DateTime?
   soldAt          DateTime?
   buyerId         String?
-  buyer           User?    @relation("ListingBuyer", fields: [buyerId], references: [id], onDelete: SetNull)
+  buyer           User?     @relation("ListingBuyer", fields: [buyerId], references: [id], onDelete: SetNull)
 
-  escrowStartedAt DateTime?
-  escrowExpiresAt DateTime?
-  auditHash       String?  @unique
-  belowFloorApproved Boolean @default(false)
-  viewCount       Int      @default(0)
-  interestCount   Int      @default(0)
-  isFractional    Boolean  @default(false)
-  sellerKycTier   String?
+  escrowStartedAt    DateTime?
+  escrowExpiresAt    DateTime?
+  auditHash          String?   @unique
+  belowFloorApproved Boolean   @default(false)
+  viewCount          Int       @default(0)
+  interestCount      Int       @default(0)
+  isFractional       Boolean   @default(false)
+  sellerKycTier      String?
 
   @@index([hallId])
   @@index([sellerId])
@@ -1867,19 +1891,19 @@ model OwnershipListing {
 // ============================================================
 
 model HallContribution {
-  id          String   @id @default(cuid())
-  hallId      String
-  hall        Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
-  ledgerId    String
-  user        User     @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
-  
-  amount      Int
-  purpose     String
-  repaidAmount Int     @default(0)
-  status      String   @default("active")
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id       String @id @default(cuid())
+  hallId   String
+  hall     Hall   @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  ledgerId String
+  user     User   @relation(fields: [ledgerId], references: [ledgerId], onDelete: Cascade)
+
+  amount       Int
+  purpose      String
+  repaidAmount Int    @default(0)
+  status       String @default("active")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([hallId])
   @@index([ledgerId])
