@@ -302,6 +302,7 @@ model Pool {
   locationOptionsList LocationOption[]
 
   cyclePools      CyclePool[]
+  marketplaceItems MarketplaceItem[]
 
   @@index([verticalId])
   @@index([status])
@@ -798,6 +799,7 @@ model Hall {
   ownershipListings OwnershipListing[]
   sovereignStreamPosts SovereignStreamPost[]
   hallContributions HallContribution[]
+  marketplaceItems MarketplaceItem[]
 
   @@index([poolId])
   @@map("halls")
@@ -1778,6 +1780,27 @@ model InventoryItem {
   @@index([hallId])
   @@index([status])
   @@map("inventory_items")
+}
+
+model MarketplaceItem {
+  id          String   @id @default(cuid())
+  poolId      String?
+  pool        Pool?    @relation(fields: [poolId], references: [id], onDelete: SetNull)
+  hallId      String
+  hall        Hall     @relation(fields: [hallId], references: [id], onDelete: Cascade)
+  title       String
+  description String
+  price       Int
+  quantity    Int      @default(1)
+  quantitySold Int    @default(0)
+  status      String   @default("active")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([hallId])
+  @@index([poolId])
+  @@index([status])
+  @@map("marketplace_items")
 }
 
 model InventoryOrder {
