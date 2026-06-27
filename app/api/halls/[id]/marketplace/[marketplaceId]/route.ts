@@ -1,4 +1,4 @@
-// app/api/marketplace/[id]/route.ts
+// app/api/halls/[id]/marketplace/[marketplaceId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, isFounderSync, getSessionClaims } from "@/lib/auth";
@@ -9,13 +9,13 @@ const KYC_THRESHOLD = 500;
 /* ── GET — Public product detail ─────────────────────────── */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string; marketplaceId: string }> }
 ): Promise<NextResponse> {
   try {
-    const { id } = await params;
+    const { marketplaceId } = await params;
 
     const item = await prisma.inventoryItem.findUnique({
-      where: { id },
+      where: { id: marketplaceId },
       include: {
         hall: {
           select: {
@@ -88,12 +88,12 @@ export async function GET(
 /* ── POST — Buy inventory item ────────────────────────────── */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string; marketplaceId: string }> }
 ): Promise<NextResponse> {
   try {
     const user = await requireAuth(request);
 
-    const { id } = await params;
+    const { marketplaceId } = await params;
     const body = await request.json();
     const { quantity = 1 } = body;
 
@@ -105,7 +105,7 @@ export async function POST(
     }
 
     const item = await prisma.inventoryItem.findUnique({
-      where: { id },
+      where: { id: marketplaceId },
       include: {
         hall: {
           select: {
@@ -189,7 +189,7 @@ export async function POST(
       // 2. Create order (pending escrow)
       const order = await tx.inventoryOrder.create({
         data: {
-          inventoryId: id,
+          inventoryId: marketplaceId,
           buyerId: user.id,
           amount: totalPrice,
           quantity,
@@ -203,7 +203,7 @@ export async function POST(
 
       // 3. Reserve inventory
       await tx.inventoryItem.update({
-        where: { id },
+        where: { id: marketplaceId },
         data: { quantitySold: { increment: quantity } },
       });
 
@@ -233,7 +233,7 @@ export async function POST(
           description: `${user.displayName} purchased ${quantity}x "${item.title}" via 8th Ledger escrow ($${totalPrice.toFixed(2)})`,
           metadata: JSON.stringify({
             orderId: order.id,
-            inventoryId: id,
+            inventoryId: marketplaceId,
             quantity,
             unitPrice,
             totalPrice,
@@ -271,7 +271,7 @@ export async function POST(
       success: true,
       order: {
         id: result.order.id,
-        inventoryId: id,
+        inventoryId: marketplaceId,
         buyerId: user.id,
         quantity,
         unitPrice,
@@ -294,7 +294,7 @@ export async function POST(
 /* ── PATCH — Fulfillment & escrow release (8th Ledger only) ─ */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string; marketplaceId: string }> }
 ): Promise<NextResponse> {
   try {
     const user = await requireAuth(request);
@@ -308,7 +308,7 @@ export async function PATCH(
       );
     }
 
-    const { id } = await params;
+    const { marketplaceId } = await params;
     const body = await request.json();
     const { stage, trackingNumber, fulfillmentCost, notes } = body;
 
@@ -321,7 +321,7 @@ export async function PATCH(
     }
 
     const item = await prisma.inventoryItem.findUnique({
-      where: { id },
+      where: { id: marketplaceId },
       include: {
         hall: {
           select: {
@@ -400,7 +400,7 @@ export async function PATCH(
           description: `Fulfillment: ${item.title} → ${stage.toUpperCase()}${notes ? ` (${notes})` : ""}`,
           metadata: JSON.stringify({
             orderId: order.id,
-            inventoryId: id,
+            inventoryId: marketplaceId,
             stage,
             trackingNumber: trackingNumber || null,
             notes: notes || null,
@@ -416,7 +416,7 @@ export async function PATCH(
         });
 
         await tx.inventoryItem.update({
-          where: { id },
+          where: { id: marketplaceId },
           data: { quantitySold: { decrement: order.quantity } },
         });
 
@@ -442,7 +442,7 @@ export async function PATCH(
             type: "inventory_refund",
             title: "Order Cancelled",
             message: `"${item.title}" cancelled. $${totalPrice.toFixed(2)} refunded.`,
-            actionUrl: `/marketplace/inventory/${id}`,
+            actionUrl: `/marketplace/inventory/${marketplaceId}`,
             read: false,
           },
         });
@@ -487,7 +487,7 @@ export async function PATCH(
               description: `Platform fee: ${order.quantity}x ${item.title}`,
               metadata: JSON.stringify({
                 orderId: order.id,
-                inventoryId: id,
+                inventoryId: marketplaceId,
               }),
             },
           });
@@ -503,7 +503,7 @@ export async function PATCH(
               description: `Fulfillment cost: ${order.quantity}x ${item.title}`,
               metadata: JSON.stringify({
                 orderId: order.id,
-                inventoryId: id,
+                inventoryId: marketplaceId,
               }),
             },
           });
@@ -519,7 +519,7 @@ export async function PATCH(
               description: `Escrow released: ${order.quantity}x ${item.title} delivered`,
               metadata: JSON.stringify({
                 orderId: order.id,
-                inventoryId: id,
+                inventoryId: marketplaceId,
                 buyerId: order.buyerId,
               }),
             },
@@ -559,7 +559,7 @@ export async function PATCH(
             type: "inventory_delivered",
             title: "Order Delivered",
             message: `${order.quantity}x ${item.title} fulfilled. $${totalPrice.toFixed(2)} released from escrow.`,
-            actionUrl: `/marketplace/inventory/${id}`,
+            actionUrl: `/marketplace/inventory/${marketplaceId}`,
             read: false,
           },
         });
@@ -582,7 +582,7 @@ export async function PATCH(
       success: true,
       fulfillment: {
         orderId: result.updatedOrder.id,
-        inventoryId: id,
+        inventoryId: marketplaceId,
         stage,
         status: result.updatedOrder.status,
         completedAt: result.updatedOrder.completedAt,

@@ -12,12 +12,12 @@ import {
   Radio, FileText, Wallet, Trophy,
   Scroll, Store, Coins, BadgeCheck,
   Landmark, ChevronDown, Globe, Target, LandmarkIcon,
-  BookOpen, HelpCircle
+  BookOpen, HelpCircle, Sparkles, Library
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
 /* ============================================================
-   FEATURE FLAGS — ALL EXISTING PAGES UNLOCKED
+   FEATURE FLAGS
    ============================================================ */
 const FEATURES = {
   dashboard:    true,
@@ -47,7 +47,7 @@ const FEATURES = {
 };
 
 /* ============================================================
-   NAVIGATION STRUCTURE — 5 Groups, All Paths Mapped
+   NAVIGATION STRUCTURE
    ============================================================ */
 interface NavItem {
   label: string;
@@ -55,11 +55,33 @@ interface NavItem {
   icon: React.ElementType;
   badge?: string | number;
   feature: keyof typeof FEATURES;
-  section: "assets" | "capital" | "identity" | "records" | "account";
+  section: "sacred" | "assets" | "capital" | "identity" | "records" | "account";
   matchPrefix?: string;
+  special?: "codex" | null;
 }
 
 const NAV_ITEMS: NavItem[] = [
+  /* ─── THE SACRED RECORD — System Knowledge ─── */
+  {
+    label: "The Octachronicle",
+    href: "/the-octachronicle",
+    icon: Library,
+    feature: "codex",
+    section: "sacred",
+    matchPrefix: "/the-octachronicle",
+    badge: "CODEX",
+    special: "codex",
+  },
+  {
+    label: "The Codex",
+    href: "/codex",
+    icon: BookOpen,
+    feature: "codex",
+    section: "sacred",
+    matchPrefix: "/codex",
+    badge: "GUIDE",
+  },
+
   /* ─── SOVEREIGN ASSETS ─── */
   { label: "Dashboard",   href: "/dashboard",      icon: LayoutDashboard, feature: "dashboard",   section: "assets", matchPrefix: "/dashboard" },
   { label: "My Halls",    href: "/halls",          icon: Radio,           feature: "halls",       section: "assets", matchPrefix: "/halls" },
@@ -69,10 +91,10 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Meridian",    href: "/meridian",       icon: Globe,           feature: "meridian",    section: "assets", matchPrefix: "/meridian", badge: "Cycle" },
 
   /* ─── CAPITAL ─── */
-  { label: "Dividends", href: "/dividends",   icon: Coins,           feature: "dividends", section: "capital", matchPrefix: "/dividends" },
-  { label: "Vault",     href: "/vault",       icon: Shield,          feature: "vault",     section: "capital", matchPrefix: "/vault" },
-  { label: "Wallet",    href: "/wallet",      icon: Wallet,          feature: "wallet",    section: "capital", matchPrefix: "/wallet" },
-  { label: "LED Protocol", href: "/led-protocol", icon: Hexagon, feature: "exchange", section: "capital", matchPrefix: "/led-protocol" },
+  { label: "Dividends",    href: "/dividends",    icon: Coins,      feature: "dividends", section: "capital", matchPrefix: "/dividends" },
+  { label: "Vault",        href: "/vault",        icon: Shield,     feature: "vault",     section: "capital", matchPrefix: "/vault" },
+  { label: "Wallet",       href: "/wallet",       icon: Wallet,     feature: "wallet",    section: "capital", matchPrefix: "/wallet" },
+  { label: "LED Protocol", href: "/led-protocol", icon: Hexagon,    feature: "exchange",  section: "capital", matchPrefix: "/led-protocol" },
 
   /* ─── IDENTITY & POWER ─── */
   { label: "SIV / KYC",    href: "/kyc",          icon: BadgeCheck, feature: "kyc",          section: "identity", matchPrefix: "/kyc" },
@@ -83,7 +105,6 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Agora",        href: "/agora",        icon: Globe,      feature: "agora",        section: "identity", matchPrefix: "/agora" },
 
   /* ─── RECORDS ─── */
-  { label: "The Codex", href: "/codex",     icon: BookOpen,   feature: "codex",     section: "records", matchPrefix: "/codex", badge: "GUIDE" },
   { label: "Contracts", href: "/contracts", icon: FileText,   feature: "contracts", section: "records", matchPrefix: "/contracts" },
   { label: "Audit",     href: "/audit",     icon: Eye,        feature: "audit",     section: "records", matchPrefix: "/audit" },
 
@@ -92,7 +113,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Settings", href: "/settings", icon: Settings, feature: "settings", section: "account", matchPrefix: "/settings" },
 ];
 
-/* ─── LEGAL FOOTER LINKS (no main nav) ─── */
+/* ─── LEGAL FOOTER LINKS ─── */
 const LEGAL_LINKS = [
   { label: "Privacy", href: "/privacy", icon: Shield },
   { label: "Terms", href: "/terms", icon: BookOpen },
@@ -100,14 +121,15 @@ const LEGAL_LINKS = [
 
 /* ─── SECTION METADATA ─── */
 const SECTION_META: Record<string, { name: string; icon: React.ElementType; color: string }> = {
-  assets:   { name: "Sovereign Assets", icon: Landmark, color: "text-cyan-400" },
-  capital:  { name: "Capital",          icon: Coins,    color: "text-amber-400" },
-  identity: { name: "Identity & Power", icon: Shield,   color: "text-violet-400" },
-  records:  { name: "Records",          icon: Scroll,   color: "text-emerald-400" },
-  account:  { name: "Account",          icon: User,     color: "text-slate-400" },
+  sacred:   { name: "The Sacred Record", icon: Scroll,   color: "text-amber-400" },
+  assets:   { name: "Sovereign Assets",  icon: Landmark, color: "text-cyan-400" },
+  capital:  { name: "Capital",           icon: Coins,    color: "text-amber-400" },
+  identity: { name: "Identity & Power",  icon: Shield,   color: "text-violet-400" },
+  records:  { name: "Records",           icon: Scroll,   color: "text-emerald-400" },
+  account:  { name: "Account",           icon: User,     color: "text-slate-400" },
 };
 
-/* ─── KYC TIER CONFIG (Authoritative Gate) ─── */
+/* ─── KYC TIER CONFIG ─── */
 const KYC_TIER_NAMES: Record<string, string> = {
   visitor:   "Visitor",
   sovereign: "Sovereign",
@@ -196,8 +218,69 @@ function NavSection({
                 const prefix = item.matchPrefix || item.href;
                 const isActive = pathname === item.href || pathname?.startsWith(`${prefix}/`) || pathname === prefix;
                 const isLocked = !FEATURES[item.feature];
+                const isSpecial = item.special === "codex";
                 const ItemIcon = item.icon;
 
+                /* ── Special: The Octachronicle ── */
+                if (isSpecial) {
+                  return (
+                    <Link
+                      key={item.href}
+                      href={isLocked ? "#" : item.href}
+                      onClick={(e) => {
+                        if (isLocked) e.preventDefault();
+                        else onNavigate();
+                      }}
+                      className={`group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-[12px] font-semibold transition-all ${
+                        isActive
+                          ? "bg-amber-500/[0.08] text-amber-100 border border-amber-500/20 shadow-[0_0_12px_rgba(245,158,11,0.08)]"
+                          : isLocked
+                          ? "text-white/15 cursor-not-allowed"
+                          : "text-amber-200/40 hover:bg-amber-500/[0.05] hover:text-amber-200/70 border border-transparent hover:border-amber-500/10"
+                      }`}
+                    >
+                      {isActive && (
+                        <motion.div
+                          layoutId="sidebar-codex-glow"
+                          className="absolute inset-0 rounded-lg bg-gradient-to-r from-amber-500/5 to-transparent"
+                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        />
+                      )}
+                      {isActive && (
+                        <motion.div
+                          layoutId="sidebar-codex-active"
+                          className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-amber-400"
+                          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        />
+                      )}
+
+                      <ItemIcon
+                        className={`h-[15px] w-[15px] transition-colors relative z-10 ${
+                          isActive ? "text-amber-400" : "text-amber-500/30 group-hover:text-amber-400/60"
+                        }`}
+                      />
+                      <span className="flex-1 relative z-10 tracking-wide">{item.label}</span>
+
+                      {item.badge && (
+                        <span
+                          className={`relative z-10 rounded-md px-1.5 py-0.5 text-[9px] font-bold border ${
+                            isActive
+                              ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                              : "bg-amber-500/10 text-amber-400/70 border-amber-500/15"
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+
+                      {isActive && (
+                        <Sparkles className="h-3 w-3 text-amber-400/50 relative z-10" />
+                      )}
+                    </Link>
+                  );
+                }
+
+                /* ── Standard Item ── */
                 return (
                   <Link
                     key={item.href}
@@ -271,13 +354,14 @@ function NavSection({
 }
 
 /* ============================================================
-   SIDEBAR
+   SIDEBAR — STICKY / FIXED
    ============================================================ */
 function Sidebar({ mobileOpen, setMobileOpen }: { mobileOpen: boolean; setMobileOpen: (v: boolean) => void }) {
   const pathname = usePathname();
   const { user, isAuthenticated, logout } = useAuth();
 
   const sections = {
+    sacred:   NAV_ITEMS.filter((n) => n.section === "sacred"   && FEATURES[n.feature]),
     assets:   NAV_ITEMS.filter((n) => n.section === "assets"   && FEATURES[n.feature]),
     capital:  NAV_ITEMS.filter((n) => n.section === "capital"  && FEATURES[n.feature]),
     identity: NAV_ITEMS.filter((n) => n.section === "identity" && FEATURES[n.feature]),
@@ -309,12 +393,12 @@ function Sidebar({ mobileOpen, setMobileOpen }: { mobileOpen: boolean; setMobile
       </AnimatePresence>
 
       <motion.aside
-        className={`fixed left-0 top-0 z-50 flex h-screen w-[270px] flex-col border-r border-white/[0.04] bg-[#08080f] lg:translate-x-0 ${
+        className={`fixed left-0 top-0 z-50 flex h-screen w-[270px] flex-col border-r border-white/[0.04] bg-[#08080f] ${
           mobileOpen ? "translate-x-0" : "-translate-x-full"
-        } transition-transform duration-300 ease-out lg:static lg:block`}
+        } lg:translate-x-0 transition-transform duration-300 ease-out`}
       >
         {/* ── Logo ── */}
-        <div className="flex items-center gap-3 border-b border-white/[0.04] px-5 py-4">
+        <div className="flex items-center gap-3 border-b border-white/[0.04] px-5 py-4 flex-shrink-0">
           <div className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-cyan-500 to-cyan-700 shadow-lg shadow-cyan-500/15">
             <span className="text-sm font-bold text-white">8</span>
             <div className="absolute -right-0.5 -top-0.5 h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.5)] animate-pulse" />
@@ -329,7 +413,7 @@ function Sidebar({ mobileOpen, setMobileOpen }: { mobileOpen: boolean; setMobile
         </div>
 
         {/* ── Sovereign Identity Card ── */}
-        <div className="mx-3 mt-4 rounded-xl border border-white/[0.04] bg-white/[0.02] p-3.5 relative overflow-hidden">
+        <div className="mx-3 mt-4 rounded-xl border border-white/[0.04] bg-white/[0.02] p-3.5 relative overflow-hidden flex-shrink-0">
           <div className={`absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br ${tierColor.split(" ")[0]} to-transparent opacity-20 blur-2xl`} />
 
           <div className="relative">
@@ -378,7 +462,8 @@ function Sidebar({ mobileOpen, setMobileOpen }: { mobileOpen: boolean; setMobile
         </div>
 
         {/* ── Navigation ── */}
-        <nav className="flex-1 overflow-y-auto px-3 py-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/[0.06]">
+        <nav className="flex-1 overflow-y-auto px-3 py-4 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/[0.06] min-h-0">
+          <NavSection sectionKey="sacred"   items={sections.sacred}   pathname={pathname} onNavigate={() => setMobileOpen(false)} />
           <NavSection sectionKey="assets"   items={sections.assets}   pathname={pathname} onNavigate={() => setMobileOpen(false)} />
           <NavSection sectionKey="capital"  items={sections.capital}  pathname={pathname} onNavigate={() => setMobileOpen(false)} />
           <NavSection sectionKey="identity" items={sections.identity} pathname={pathname} onNavigate={() => setMobileOpen(false)} />
@@ -387,7 +472,7 @@ function Sidebar({ mobileOpen, setMobileOpen }: { mobileOpen: boolean; setMobile
         </nav>
 
         {/* ── Balances & Footer ── */}
-        <div className="border-t border-white/[0.04] p-3">
+        <div className="border-t border-white/[0.04] p-3 flex-shrink-0">
           <div className="mb-3">
             <div className="flex items-center justify-between rounded-lg bg-white/[0.02] border border-white/[0.03] px-3 py-2">
               <div className="flex items-center gap-2">
@@ -512,7 +597,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="flex min-h-screen bg-[#08080f] text-white selection:bg-cyan-500/20 selection:text-cyan-100">
       <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
-      <div className="flex flex-1 flex-col lg:ml-0">
+      <div className="flex flex-1 flex-col lg:ml-[270px]">
         <TopHeader setMobileOpen={setMobileOpen} />
         <main className="flex-1 p-4 sm:p-6 lg:p-8">
           <motion.div
