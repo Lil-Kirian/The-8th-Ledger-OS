@@ -14,14 +14,20 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getSessionUser();
     if (!user || user.role !== "admin" || !user.isPrimaryAdmin) {
-      return NextResponse.json({ error: "Architect authority required. Primary admin access only." }, { status: 403 });
+      return NextResponse.json(
+        { error: "Architect authority required. Primary admin access only." },
+        { status: 403 },
+      );
     }
 
     // Check if hardware key is enrolled
     if (!user.webauthnCredentialId || !user.webauthnPublicKey) {
       return NextResponse.json(
-        { error: "No hardware key enrolled. Register first at /api/auth/webauthn/register" },
-        { status: 400 }
+        {
+          error:
+            "No hardware key enrolled. Register first at /api/auth/webauthn/register",
+        },
+        { status: 400 },
       );
     }
 
@@ -42,13 +48,13 @@ export async function POST(req: NextRequest) {
       });
 
       try {
-        const { generateAuthenticationOptions } = await import("@simplewebauthn/server");
+        const { generateAuthenticationOptions } =
+          await import("@simplewebauthn/server");
         const options = await generateAuthenticationOptions({
           rpID: process.env.WEBAUTHN_RP_ID || "localhost",
           allowCredentials: [
             {
-              id: Buffer.from(user.webauthnCredentialId, "base64url"),
-              type: "public-key",
+              id: user.webauthnCredentialId,
               transports: ["internal", "hybrid"],
             },
           ],
@@ -83,20 +89,27 @@ export async function POST(req: NextRequest) {
     if (step === "finish") {
       const { credential } = body;
       if (!credential?.id || !credential?.rawId || !credential?.response) {
-        return NextResponse.json({ error: "Invalid credential payload" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Invalid credential payload" },
+          { status: 400 },
+        );
       }
 
       try {
-        const { verifyAuthenticationResponse } = await import("@simplewebauthn/server");
+        const { verifyAuthenticationResponse } =
+          await import("@simplewebauthn/server");
         const verification = await verifyAuthenticationResponse({
           response: credential,
           expectedChallenge: async () => true,
-          expectedOrigin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+          expectedOrigin:
+            process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
           expectedRPID: process.env.WEBAUTHN_RP_ID || "localhost",
           requireUserVerification: true,
-          authenticator: {
-            credentialID: Buffer.from(user.webauthnCredentialId, "base64url"),
-            credentialPublicKey: Buffer.from(user.webauthnPublicKey, "base64url"),
+          credential: {
+            id: user.webauthnCredentialId,
+            publicKey: new Uint8Array(
+              Buffer.from(user.webauthnPublicKey, "base64url"),
+            ),
             counter: user.webauthnCounter || 0,
             transports: ["internal", "hybrid"],
           },
@@ -112,7 +125,9 @@ export async function POST(req: NextRequest) {
           data: {
             webauthnCounter: verification.authenticationInfo.newCounter,
             lastFounderAccessAt: new Date(),
-            lastFounderIP: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown",
+            lastFounderIP:
+              req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+              "unknown",
             founderAccessCount: { increment: 1 },
           },
         });
@@ -122,11 +137,15 @@ export async function POST(req: NextRequest) {
           data: {
             ledgerId: user.ledgerId,
             action: "admin_login",
-            ipAddress: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown",
+            ipAddress:
+              req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+              "unknown",
             userAgent: req.headers.get("user-agent") || "unknown",
-            deviceFingerprint: req.headers.get("x-device-fingerprint") || "unknown",
+            deviceFingerprint:
+              req.headers.get("x-device-fingerprint") || "unknown",
             success: true,
-            details: "Hardware key verified. WebAuthn counter updated. Architect access granted.",
+            details:
+              "Hardware key verified. WebAuthn counter updated. Architect access granted.",
             currentHash: crypto.randomUUID(),
           },
         });
@@ -176,7 +195,9 @@ export async function POST(req: NextRequest) {
           data: {
             ledgerId: user.ledgerId,
             action: "webauthn_fail",
-            ipAddress: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown",
+            ipAddress:
+              req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+              "unknown",
             userAgent: req.headers.get("user-agent") || "unknown",
             success: false,
             details: `Fallback verification: ${libError.message}`,
@@ -186,20 +207,24 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json(
           {
-            error: "Hardware key verification requires @simplewebauthn/server. Install for production.",
+            error:
+              "Hardware key verification requires @simplewebauthn/server. Install for production.",
             fallback: true,
           },
-          { status: 501 }
+          { status: 501 },
         );
       }
     }
 
-    return NextResponse.json({ error: "Invalid step. Use 'start' or 'finish'." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid step. Use 'start' or 'finish'." },
+      { status: 400 },
+    );
   } catch (err: any) {
     console.error("[WEBAUTHN VERIFY]", err);
     return NextResponse.json(
       { error: err.message || "Hardware key verification failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

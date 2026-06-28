@@ -85,7 +85,7 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-      messageId: result.messageId,
+      messageId: result.message?.id,
       direction,
       relayedAt: new Date(),
       status: "relayed",

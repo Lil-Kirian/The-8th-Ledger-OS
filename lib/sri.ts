@@ -97,7 +97,7 @@ export function getSriTier(score: number): SriTier {
  */
 export function getSriTierMeta(score: number) {
   const tier = getSriTier(score);
-  return SRI_TIERS[tier];
+  return { tier, ...SRI_TIERS[tier] };
 }
 
 /**

@@ -42,13 +42,24 @@ interface RateLimitEntry {
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
-function checkRateLimit(userId: string): { allowed: boolean; resetAt: number; remaining: number } {
+function checkRateLimit(userId: string): {
+  allowed: boolean;
+  resetAt: number;
+  remaining: number;
+} {
   const now = Date.now();
   const entry = rateLimitStore.get(userId);
 
   if (!entry || now > entry.resetAt) {
-    rateLimitStore.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true, resetAt: now + RATE_LIMIT_WINDOW_MS, remaining: RATE_LIMIT_MAX_PREDICTIONS - 1 };
+    rateLimitStore.set(userId, {
+      count: 1,
+      resetAt: now + RATE_LIMIT_WINDOW_MS,
+    });
+    return {
+      allowed: true,
+      resetAt: now + RATE_LIMIT_WINDOW_MS,
+      remaining: RATE_LIMIT_MAX_PREDICTIONS - 1,
+    };
   }
 
   if (entry.count >= RATE_LIMIT_MAX_PREDICTIONS) {
@@ -56,7 +67,11 @@ function checkRateLimit(userId: string): { allowed: boolean; resetAt: number; re
   }
 
   entry.count += 1;
-  return { allowed: true, resetAt: entry.resetAt, remaining: RATE_LIMIT_MAX_PREDICTIONS - entry.count };
+  return {
+    allowed: true,
+    resetAt: entry.resetAt,
+    remaining: RATE_LIMIT_MAX_PREDICTIONS - entry.count,
+  };
 }
 
 //
@@ -119,7 +134,15 @@ async function logAudit(props: {
 //
 
 async function checkForecastLock(forecastId: string): Promise<{
-  forecast: Awaited<ReturnType<typeof prisma.oracleForecast.findUnique>>;
+  forecast: {
+    id: string;
+    title: string;
+    status: string;
+    lockDate: Date;
+    verticalOptions: string;
+    countryOptions: string;
+    resolvedOutcome: string | null;
+  } | null;
   isLocked: boolean;
   isResolved: boolean;
   isCancelled: boolean;
@@ -152,7 +175,7 @@ async function checkForecastLock(forecastId: string): Promise<{
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     // 1. Auth gate (strict — predictions require auth)
@@ -442,14 +465,14 @@ export async function POST(
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await getSessionUser(req);
     if (!user) {
       return NextResponse.json(
         { error: "Authentication required.", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -458,7 +481,7 @@ export async function GET(
     if (!forecastId || forecastId.length < 10) {
       return NextResponse.json(
         { error: "Invalid forecast ID.", code: "VALIDATION_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -486,7 +509,7 @@ export async function GET(
     if (!forecast) {
       return NextResponse.json(
         { error: "Forecast not found.", code: "NOT_FOUND" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -501,7 +524,10 @@ export async function GET(
           isResolved,
           isCancelled,
           lockDate: forecast.lockDate,
-          verticalOptions: safeJsonParse<VerticalSlug[]>(forecast.verticalOptions, []),
+          verticalOptions: safeJsonParse<VerticalSlug[]>(
+            forecast.verticalOptions,
+            [],
+          ),
           countryOptions: safeJsonParse<string[]>(forecast.countryOptions, []),
         },
         message: "You have not predicted on this forecast.",
@@ -533,8 +559,11 @@ export async function GET(
   } catch (error) {
     console.error("[ORACLE_PREDICT_GET]", error);
     return NextResponse.json(
-      { error: "Cannot retrieve prediction status.", code: "ORACLE_PREDICT_002" },
-      { status: 500 }
+      {
+        error: "Cannot retrieve prediction status.",
+        code: "ORACLE_PREDICT_002",
+      },
+      { status: 500 },
     );
   }
 }

@@ -6,6 +6,7 @@ import { getSessionUser, isPrimaryAdmin } from "@/lib/auth";
 import { sanitizeDisplayName, sanitizeEmail, sanitizeCountry } from "@/lib/sanitize";
 import { createAuditEntry } from "@/lib/audit";
 import { createTempToken } from "@/lib/totp";
+import { generateSecureSegment } from "@/lib/utils";
 
 /* ============================================================
    TYPES
@@ -57,8 +58,7 @@ function isQuantumKeyStrong(password: string): { valid: boolean; error?: string 
    CRYPTO / ID UTILS
    ============================================================ */
 function generateLedgerId(): string {
-  const seg = () => Math.random().toString(36).substring(2, 6).toUpperCase();
-  return `LED-${seg()}-${seg()}`;
+  return `LED-${generateSecureSegment()}-${generateSecureSegment()}`;
 }
 
 function generateToken(): string {

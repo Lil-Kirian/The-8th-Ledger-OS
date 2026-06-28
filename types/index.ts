@@ -69,6 +69,24 @@ export interface AuthUser {
   phone: string | null;
   identityScore: number;
   isPrimaryAdmin?: boolean;
+  creditPool?: number;
+  legalName?: string | null;
+  bio?: string | null;
+  avatar?: string | null;
+  beneficiaryName?: string | null;
+  beneficiaryEmail?: string | null;
+  totalCommitted?: number;
+  reportsSubmitted?: number;
+  forgesCompleted?: number;
+  referrals?: number;
+  lastLoginAt?: string | Date | null;
+  createdAt?: string | Date | null;
+  totpEnabled?: boolean;
+  recoveryCodes?: unknown;
+  livenessVerified?: boolean;
+  addressProofUrl?: string | null;
+  oracleStanding?: number;
+  globalSriScore?: number;
 }
 
 export interface AuthResponse {
@@ -106,7 +124,12 @@ export interface Session {
    VERTICALS & POOLS
    ============================================================ */
 
-export type PoolStatus = "filling" | "consensus" | "distributed" | "closed" | "suspended";
+export type PoolStatus =
+  | "filling"
+  | "consensus"
+  | "distributed"
+  | "closed"
+  | "suspended";
 export type HallClass = "I" | "II" | "III";
 
 export interface VerticalMeta {
@@ -274,7 +297,13 @@ export interface QuantumMeritResult {
    PROTOCOL INFRASTRUCTURE RESERVE (PIR)
    ============================================================ */
 
-export type PirPillar = "shield" | "seal" | "forge" | "spire" | "vanguard" | "sanctuary";
+export type PirPillar =
+  | "shield"
+  | "seal"
+  | "forge"
+  | "spire"
+  | "vanguard"
+  | "sanctuary";
 
 export interface PirAllocation {
   id: string;
@@ -499,7 +528,11 @@ export type TreasuryTxType =
   | "operations"
   | "closure_payout";
 
-export type WithdrawalStatus = "pending" | "processing" | "completed" | "rejected";
+export type WithdrawalStatus =
+  | "pending"
+  | "processing"
+  | "completed"
+  | "rejected";
 export type DestinationType = "bank" | "usdc" | "crypto";
 
 export interface TreasuryTransaction {
@@ -609,11 +642,27 @@ export interface Proposal {
   hallId: string;
   title: string;
   description: string;
-  type: "strategy" | "hire" | "fire" | "maintenance" | "inventory_list" | "closure" | "pir_advance" | "location_select" | "sale";
+  type:
+    | "strategy"
+    | "hire"
+    | "fire"
+    | "maintenance"
+    | "inventory_list"
+    | "closure"
+    | "pir_advance"
+    | "location_select"
+    | "sale";
   proposedBy: string;
   costEstimate?: number;
   voteThreshold: number;
-  status: "draft" | "active" | "passed" | "rejected" | "executing" | "completed" | "cancelled";
+  status:
+    | "draft"
+    | "active"
+    | "passed"
+    | "rejected"
+    | "executing"
+    | "completed"
+    | "cancelled";
   votesFor: number;
   votesAgainst: number;
   votesAbstain: number;
@@ -834,7 +883,14 @@ export interface InventoryOrder {
 export interface EighthLedgerUpdate {
   id: string;
   hallId: string;
-  type: "insurance" | "repair" | "tax" | "payroll" | "valuation" | "pir_advance" | "maintenance";
+  type:
+    | "insurance"
+    | "repair"
+    | "tax"
+    | "payroll"
+    | "valuation"
+    | "pir_advance"
+    | "maintenance";
   title: string;
   content: string;
   amount?: number;
@@ -845,7 +901,15 @@ export interface EighthLedgerUpdate {
    ACTIVITY & REVIEWS
    ============================================================ */
 
-export type ActivityType = "commit" | "win" | "return" | "review" | "referral" | "dividend" | "marketplace_sale" | "marketplace_purchase";
+export type ActivityType =
+  | "commit"
+  | "win"
+  | "return"
+  | "review"
+  | "referral"
+  | "dividend"
+  | "marketplace_sale"
+  | "marketplace_purchase";
 
 export interface ActivityEvent {
   id: string;

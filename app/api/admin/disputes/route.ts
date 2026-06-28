@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isPrimaryAdmin } from "@/lib/auth";
+import { generateTxHash } from "@/lib/utils";
 
 /* ============================================================
    8TH LEDGER — DISPUTE ADMIN API
@@ -12,8 +13,16 @@ import { getSessionUser, isPrimaryAdmin } from "@/lib/auth";
    ============================================================ */
 export async function GET(req: NextRequest) {
   const user = await getSessionUser();
-  if (!user) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-  if (!isPrimaryAdmin(user)) return NextResponse.json({ success: false, error: "Primary admin authority required" }, { status: 403 });
+  if (!user)
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 },
+    );
+  if (!isPrimaryAdmin(user))
+    return NextResponse.json(
+      { success: false, error: "Primary admin authority required" },
+      { status: 403 },
+    );
 
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q") || "";
@@ -65,8 +74,14 @@ export async function GET(req: NextRequest) {
     const poolIds = [...new Set(disputes.map((d) => d.poolId))];
     const userIds = [...new Set(disputes.map((d) => d.ledgerId))];
     const [pools, users] = await Promise.all([
-      prisma.pool.findMany({ where: { poolId: { in: poolIds } }, select: { poolId: true, name: true } }),
-      prisma.user.findMany({ where: { ledgerId: { in: userIds } }, select: { ledgerId: true, displayName: true } }),
+      prisma.pool.findMany({
+        where: { poolId: { in: poolIds } },
+        select: { poolId: true, name: true },
+      }),
+      prisma.user.findMany({
+        where: { ledgerId: { in: userIds } },
+        select: { ledgerId: true, displayName: true },
+      }),
     ]);
     const poolMap = new Map(pools.map((p) => [p.poolId, p.name]));
     const userMap = new Map(users.map((u) => [u.ledgerId, u.displayName]));
@@ -80,7 +95,10 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: true, disputes: enriched });
   } catch (err) {
     console.error("[ADMIN_DISPUTES ERROR]", err);
-    return NextResponse.json({ success: false, error: "Database error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Database error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -89,26 +107,49 @@ export async function GET(req: NextRequest) {
    ============================================================ */
 export async function PATCH(req: NextRequest) {
   const user = await getSessionUser();
-  if (!user) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-  if (!isPrimaryAdmin(user)) return NextResponse.json({ success: false, error: "Primary admin authority required" }, { status: 403 });
+  if (!user)
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 },
+    );
+  if (!isPrimaryAdmin(user))
+    return NextResponse.json(
+      { success: false, error: "Primary admin authority required" },
+      { status: 403 },
+    );
 
   let body: any;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ success: false, error: "Invalid JSON" }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: "Invalid JSON" },
+      { status: 400 },
+    );
   }
 
   const { action, disputeId, resolution } = body;
   if (!action || !disputeId) {
-    return NextResponse.json({ success: false, error: "Missing action or disputeId" }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: "Missing action or disputeId" },
+      { status: 400 },
+    );
   }
 
   try {
-    const dispute = await prisma.dispute.findUnique({ where: { id: disputeId } });
-    if (!dispute) return NextResponse.json({ success: false, error: "Dispute not found" }, { status: 404 });
+    const dispute = await prisma.dispute.findUnique({
+      where: { id: disputeId },
+    });
+    if (!dispute)
+      return NextResponse.json(
+        { success: false, error: "Dispute not found" },
+        { status: 404 },
+      );
     if (dispute.status !== "open") {
-      return NextResponse.json({ success: false, error: "Dispute already closed" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Dispute already closed" },
+        { status: 400 },
+      );
     }
 
     let message = "";
@@ -197,7 +238,10 @@ export async function PATCH(req: NextRequest) {
         break;
 
       default:
-        return NextResponse.json({ success: false, error: "Unknown action" }, { status: 400 });
+        return NextResponse.json(
+          { success: false, error: "Unknown action" },
+          { status: 400 },
+        );
     }
 
     // Audit log
@@ -207,8 +251,14 @@ export async function PATCH(req: NextRequest) {
         description: message,
         poolId: dispute.poolId,
         ledgerId: dispute.ledgerId,
-        metadata: JSON.stringify({ action, disputeId, resolution, poolUpdate, userUpdate }),
-        txHash: `AUD-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        metadata: JSON.stringify({
+          action,
+          disputeId,
+          resolution,
+          poolUpdate,
+          userUpdate,
+        }),
+        txHash: generateTxHash("AUD-DISPUTE"),
         visibleToPublic: false,
       },
     });
@@ -216,6 +266,9 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ success: true, message });
   } catch (err) {
     console.error("[ADMIN_DISPUTES PATCH ERROR]", err);
-    return NextResponse.json({ success: false, error: "Database error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Database error" },
+      { status: 500 },
+    );
   }
 }

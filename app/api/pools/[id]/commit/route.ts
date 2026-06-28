@@ -8,12 +8,15 @@ import { getSessionUser, generatePacToken } from "@/lib/auth";
    ============================================================ */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: poolId } = await params;
@@ -52,10 +55,14 @@ export async function GET(
     ]);
 
     if (!pool) {
-      return NextResponse.json({ success: false, error: "Pool not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Pool not found" },
+        { status: 404 },
+      );
     }
 
-    const fillPercent = pool.target > 0 ? Math.round((pool.committed / pool.target) * 100) : 0;
+    const fillPercent =
+      pool.target > 0 ? Math.round((pool.committed / pool.target) * 100) : 0;
 
     return NextResponse.json({
       success: true,
@@ -78,7 +85,10 @@ export async function GET(
     });
   } catch (error) {
     console.error("[COMMIT GET]", error);
-    return NextResponse.json({ success: false, error: "Status check failed" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Status check failed" },
+      { status: 500 },
+    );
   }
 }
 
@@ -88,7 +98,7 @@ export async function GET(
    ============================================================ */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
@@ -349,7 +359,7 @@ export async function POST(
       });
 
       return { updatedPool, ownership, isFilled, pool, requiresInvite };
-    };);
+    });
 
     return NextResponse.json({
       success: true,

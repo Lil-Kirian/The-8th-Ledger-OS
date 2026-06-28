@@ -84,23 +84,115 @@ type LeaderboardEntry = {
   streak: number;
 };
 
-type Toast = { id: string; message: string; type: "success" | "error" | "info" };
+type Toast = {
+  id: string;
+  message: string;
+  type: "success" | "error" | "info";
+};
 
 /* ============================================================
    CONSTANTS — The Oracle Codex
    ============================================================ */
 const VERTICALS = [
-  { slug: "ledgerprop", name: "LedgerProp", icon: "🏠", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", glow: "shadow-emerald-500/20" },
-  { slug: "ledgerauto", name: "LedgerAuto", icon: "🚗", color: "text-sky-400", bg: "bg-sky-500/10", border: "border-sky-500/20", glow: "shadow-sky-500/20" },
-  { slug: "ledgertech", name: "LedgerTech", icon: "📱", color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", glow: "shadow-violet-500/20" },
-  { slug: "ledgeredu", name: "LedgerEdu", icon: "🎓", color: "text-indigo-400", bg: "bg-indigo-500/10", border: "border-indigo-500/20", glow: "shadow-indigo-500/20" },
-  { slug: "ledgerhealth", name: "LedgerHealth", icon: "🏥", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/20", glow: "shadow-rose-500/20" },
-  { slug: "ledgerbiz", name: "LedgerBiz", icon: "🏗️", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", glow: "shadow-amber-500/20" },
-  { slug: "ledgertravel", name: "LedgerTravel", icon: "✈️", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20", glow: "shadow-cyan-500/20" },
-  { slug: "ledgeragri", name: "LedgerAgri", icon: "🌾", color: "text-lime-400", bg: "bg-lime-500/10", border: "border-lime-500/20", glow: "shadow-lime-500/20" },
-  { slug: "ledgerenergy", name: "LedgerEnergy", icon: "⚡", color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", glow: "shadow-yellow-500/20" },
-  { slug: "ledgeraccess", name: "LedgerAccess", icon: "📡", color: "text-fuchsia-400", bg: "bg-fuchsia-500/10", border: "border-fuchsia-500/20", glow: "shadow-fuchsia-500/20" },
-  { slug: "ledgersport", name: "LedgerSport", icon: "⚽", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/20", glow: "shadow-rose-500/20" },
+  {
+    slug: "ledgerprop",
+    name: "LedgerProp",
+    icon: "🏠",
+    color: "text-emerald-400",
+    bg: "bg-emerald-500/10",
+    border: "border-emerald-500/20",
+    glow: "shadow-emerald-500/20",
+  },
+  {
+    slug: "ledgerauto",
+    name: "LedgerAuto",
+    icon: "🚗",
+    color: "text-sky-400",
+    bg: "bg-sky-500/10",
+    border: "border-sky-500/20",
+    glow: "shadow-sky-500/20",
+  },
+  {
+    slug: "ledgertech",
+    name: "LedgerTech",
+    icon: "📱",
+    color: "text-violet-400",
+    bg: "bg-violet-500/10",
+    border: "border-violet-500/20",
+    glow: "shadow-violet-500/20",
+  },
+  {
+    slug: "ledgeredu",
+    name: "LedgerEdu",
+    icon: "🎓",
+    color: "text-indigo-400",
+    bg: "bg-indigo-500/10",
+    border: "border-indigo-500/20",
+    glow: "shadow-indigo-500/20",
+  },
+  {
+    slug: "ledgerhealth",
+    name: "LedgerHealth",
+    icon: "🏥",
+    color: "text-rose-400",
+    bg: "bg-rose-500/10",
+    border: "border-rose-500/20",
+    glow: "shadow-rose-500/20",
+  },
+  {
+    slug: "ledgerbiz",
+    name: "LedgerBiz",
+    icon: "🏗️",
+    color: "text-amber-400",
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/20",
+    glow: "shadow-amber-500/20",
+  },
+  {
+    slug: "ledgertravel",
+    name: "LedgerTravel",
+    icon: "✈️",
+    color: "text-cyan-400",
+    bg: "bg-cyan-500/10",
+    border: "border-cyan-500/20",
+    glow: "shadow-cyan-500/20",
+  },
+  {
+    slug: "ledgeragri",
+    name: "LedgerAgri",
+    icon: "🌾",
+    color: "text-lime-400",
+    bg: "bg-lime-500/10",
+    border: "border-lime-500/20",
+    glow: "shadow-lime-500/20",
+  },
+  {
+    slug: "ledgerenergy",
+    name: "LedgerEnergy",
+    icon: "⚡",
+    color: "text-yellow-400",
+    bg: "bg-yellow-500/10",
+    border: "border-yellow-500/20",
+    glow: "shadow-yellow-500/20",
+  },
+  {
+    slug: "ledgeraccess",
+    name: "LedgerAccess",
+    icon: "📡",
+    color: "text-fuchsia-400",
+    bg: "bg-fuchsia-500/10",
+    border: "border-fuchsia-500/20",
+    glow: "shadow-fuchsia-500/20",
+  },
+  {
+    slug: "ledgersport",
+    name: "LedgerSport",
+    icon: "⚽",
+    color: "text-rose-400",
+    bg: "bg-rose-500/10",
+    border: "border-rose-500/20",
+    glow: "shadow-rose-500/20",
+  },
 ];
 
 const COUNTRIES = [
@@ -126,11 +218,59 @@ const COUNTRIES = [
   { code: "ID", name: "Indonesia", continent: "Oceania", flag: "🇮🇩" },
 ];
 
-const TIER_CONFIG: Record<StandingTier, { label: string; color: string; bg: string; border: string; icon: React.ElementType; requirement: number; privilege: string }> = {
-  novice: { label: "Novice", color: "text-slate-400", bg: "bg-slate-500/10", border: "border-slate-500/20", icon: Eye, requirement: 0, privilege: "Begin your journey" },
-  seer: { label: "Seer", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", icon: Star, requirement: 10, privilege: "Bronze icon • Codex access" },
-  oracle: { label: "Oracle", color: "text-sky-400", bg: "bg-sky-500/10", border: "border-sky-500/20", icon: Eye, requirement: 50, privilege: "Silver icon • Early pool access (24h)" },
-  prophet: { label: "Prophet", color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", icon: Crown, requirement: 100, privilege: "Gold icon • Name on pool cards • Council invitation" },
+const TIER_CONFIG: Record<
+  StandingTier,
+  {
+    label: string;
+    color: string;
+    bg: string;
+    border: string;
+    glow: string;
+    icon: React.ElementType;
+    requirement: number;
+    privilege: string;
+  }
+> = {
+  novice: {
+    label: "Novice",
+    color: "text-slate-400",
+    bg: "bg-slate-500/10",
+    border: "border-slate-500/20",
+    glow: "shadow-slate-500/10",
+    icon: Eye,
+    requirement: 0,
+    privilege: "Begin your journey",
+  },
+  seer: {
+    label: "Seer",
+    color: "text-amber-400",
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/20",
+    glow: "shadow-amber-500/20",
+    icon: Star,
+    requirement: 10,
+    privilege: "Bronze icon • Codex access",
+  },
+  oracle: {
+    label: "Oracle",
+    color: "text-sky-400",
+    bg: "bg-sky-500/10",
+    border: "border-sky-500/20",
+    glow: "shadow-sky-500/20",
+    icon: Eye,
+    requirement: 50,
+    privilege: "Silver icon • Early pool access (24h)",
+  },
+  prophet: {
+    label: "Prophet",
+    color: "text-violet-400",
+    bg: "bg-violet-500/10",
+    border: "border-violet-500/20",
+    glow: "shadow-violet-500/20",
+    icon: Crown,
+    requirement: 100,
+    privilege: "Gold icon • Name on pool cards • Council invitation",
+  },
 };
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -157,13 +297,32 @@ function useCountdown(targetDate: string) {
   const minutes = Math.floor((remaining % 3600000) / 60000);
   const seconds = Math.floor((remaining % 60000) / 1000);
 
-  if (remaining <= 0) return { text: "Locked", expired: true, parts: { days: 0, hours: 0, minutes: 0, seconds: 0 } };
-  if (days > 0) return { text: `${days}d ${hours}h ${minutes}m`, expired: false, parts: { days, hours, minutes, seconds } };
-  return { text: `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`, expired: false, parts: { days, hours, minutes, seconds } };
+  if (remaining <= 0)
+    return {
+      text: "Locked",
+      expired: true,
+      parts: { days: 0, hours: 0, minutes: 0, seconds: 0 },
+    };
+  if (days > 0)
+    return {
+      text: `${days}d ${hours}h ${minutes}m`,
+      expired: false,
+      parts: { days, hours, minutes, seconds },
+    };
+  return {
+    text: `${hours.toString().padStart(2, "0")}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`,
+    expired: false,
+    parts: { days, hours, minutes, seconds },
+  };
 }
 
 function formatDate(d: string): string {
-  return new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  return new Date(d).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 /* ============================================================
@@ -171,11 +330,17 @@ function formatDate(d: string): string {
    ============================================================ */
 function useToast() {
   const [toasts, setToasts] = useState<Toast[]>([]);
-  const addToast = useCallback((message: string, type: Toast["type"] = "info") => {
-    const id = Math.random().toString(36).slice(2);
-    setToasts((prev) => [...prev, { id, message, type }]);
-    setTimeout(() => setToasts((prev) => prev.filter((t) => t.id !== id)), 4000);
-  }, []);
+  const addToast = useCallback(
+    (message: string, type: Toast["type"] = "info") => {
+      const id = Math.random().toString(36).slice(2);
+      setToasts((prev) => [...prev, { id, message, type }]);
+      setTimeout(
+        () => setToasts((prev) => prev.filter((t) => t.id !== id)),
+        4000,
+      );
+    },
+    [],
+  );
   return { toasts, addToast };
 }
 
@@ -196,8 +361,8 @@ function ToastContainer({ toasts }: { toasts: Toast[] }) {
               toast.type === "success"
                 ? "border-emerald-500/30 bg-emerald-950/80 text-emerald-300"
                 : toast.type === "error"
-                ? "border-crimson/30 bg-crimson/10 text-crimson"
-                : "border-white/10 bg-surface-800/90 text-white/80"
+                  ? "border-crimson/30 bg-crimson/10 text-crimson"
+                  : "border-white/10 bg-surface-800/90 text-white/80"
             }`}
           >
             {toast.type === "success" && <CheckCircle2 className="h-4 w-4" />}
@@ -214,13 +379,24 @@ function ToastContainer({ toasts }: { toasts: Toast[] }) {
 /* ============================================================
    COMPONENT — Standing Card (Redesigned)
    ============================================================ */
-function StandingCard({ standing, isLoading }: { standing?: OracleStanding; isLoading: boolean }) {
+function StandingCard({
+  standing,
+  isLoading,
+}: {
+  standing?: OracleStanding;
+  isLoading: boolean;
+}) {
   if (isLoading) return <StandingSkeleton />;
   if (!standing) return null;
 
   const tier = TIER_CONFIG[standing.tier];
   const TierIcon = tier.icon;
-  const progressPct = Math.min((standing.correctCount / (standing.correctCount + standing.nextTier.remaining)) * 100, 100);
+  const progressPct = Math.min(
+    (standing.correctCount /
+      (standing.correctCount + standing.nextTier.remaining)) *
+      100,
+    100,
+  );
 
   return (
     <motion.div
@@ -244,16 +420,27 @@ function StandingCard({ standing, isLoading }: { standing?: OracleStanding; isLo
           </motion.div>
           <div>
             <div className="flex items-center gap-2">
-              <span className={`text-sm font-black uppercase tracking-widest ${tier.color}`}>{tier.label}</span>
-              <span className="rounded-md bg-white/5 px-2 py-0.5 text-[10px] text-white/40 font-mono border border-white/5">Rank #{standing.rank}</span>
+              <span
+                className={`text-sm font-black uppercase tracking-widest ${tier.color}`}
+              >
+                {tier.label}
+              </span>
+              <span className="rounded-md bg-white/5 px-2 py-0.5 text-[10px] text-white/40 font-mono border border-white/5">
+                Rank #{standing.rank}
+              </span>
             </div>
             <p className="mt-1 text-xs text-white/40">
-              {standing.correctCount} correct • {standing.totalPredictions} total predictions
+              {standing.correctCount} correct • {standing.totalPredictions}{" "}
+              total predictions
             </p>
             <div className="mt-2 flex items-center gap-1.5">
               <Flame className="h-3.5 w-3.5 text-orange-400" />
-              <span className="text-xs font-bold text-orange-400">{standing.streak} streak</span>
-              {standing.streak >= 3 && <Sparkle className="h-3 w-3 text-amber-400 animate-pulse" />}
+              <span className="text-xs font-bold text-orange-400">
+                {standing.streak} streak
+              </span>
+              {standing.streak >= 3 && (
+                <Sparkle className="h-3 w-3 text-amber-400 animate-pulse" />
+              )}
             </div>
           </div>
         </div>
@@ -261,8 +448,13 @@ function StandingCard({ standing, isLoading }: { standing?: OracleStanding; isLo
         {/* Progress Bar */}
         <div className="flex-1 max-w-md">
           <div className="flex items-center justify-between text-[10px] text-white/30 mb-2">
-            <span className="uppercase tracking-wider">Path to {standing.nextTier.name}</span>
-            <span className="font-mono">{standing.correctCount} / {standing.correctCount + standing.nextTier.remaining}</span>
+            <span className="uppercase tracking-wider">
+              Path to {standing.nextTier.name}
+            </span>
+            <span className="font-mono">
+              {standing.correctCount} /{" "}
+              {standing.correctCount + standing.nextTier.remaining}
+            </span>
           </div>
           <div className="h-2.5 w-full overflow-hidden rounded-full bg-white/5 ring-1 ring-white/5">
             <motion.div
@@ -273,13 +465,16 @@ function StandingCard({ standing, isLoading }: { standing?: OracleStanding; isLo
             />
           </div>
           <p className="mt-2 text-[10px] text-white/20">
-            {standing.nextTier.remaining} more correct forecasts to ascend to {standing.nextTier.name}
+            {standing.nextTier.remaining} more correct forecasts to ascend to{" "}
+            {standing.nextTier.name}
           </p>
         </div>
 
         {/* Score */}
         <div className="text-right lg:pl-6">
-          <p className="text-[10px] uppercase tracking-widest text-white/30 mb-1">Standing</p>
+          <p className="text-[10px] uppercase tracking-widest text-white/30 mb-1">
+            Standing
+          </p>
           <motion.p
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -332,7 +527,11 @@ function ForecastCard({
   isSubmitting,
 }: {
   forecast: OracleForecast;
-  onPredict: (forecastId: string, vertical: string, country: string) => Promise<void>;
+  onPredict: (
+    forecastId: string,
+    vertical: string,
+    country: string,
+  ) => Promise<void>;
   hasPredicted: boolean;
   isSubmitting: boolean;
 }) {
@@ -342,7 +541,11 @@ function ForecastCard({
   const [error, setError] = useState<string | null>(null);
 
   const countdown = useCountdown(forecast.lockDate);
-  const isLocked = forecast.status !== "active" || hasPredicted || submitted || countdown.expired;
+  const isLocked =
+    forecast.status !== "active" ||
+    hasPredicted ||
+    submitted ||
+    countdown.expired;
 
   const handleSubmit = async () => {
     if (!selectedVertical || !selectedCountry) return;
@@ -371,23 +574,35 @@ function ForecastCard({
             <div className="flex h-6 w-6 items-center justify-center rounded-md bg-violet-500/10">
               <Telescope className="h-3.5 w-3.5 text-violet-400" />
             </div>
-            <span className="text-[10px] font-bold uppercase tracking-widest text-violet-400/80">Prophecy</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-violet-400/80">
+              Prophecy
+            </span>
             {forecast.type === "asset_launch" && (
-              <span className="rounded-md bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-400 border border-emerald-500/20">Asset Launch</span>
+              <span className="rounded-md bg-emerald-500/10 px-1.5 py-0.5 text-[9px] font-semibold text-emerald-400 border border-emerald-500/20">
+                Asset Launch
+              </span>
             )}
           </div>
-          <h3 className="text-lg font-bold text-white sm:text-xl">{forecast.title}</h3>
-          <p className="mt-1 text-xs text-white/40 leading-relaxed">{forecast.description}</p>
+          <h3 className="text-lg font-bold text-white sm:text-xl">
+            {forecast.title}
+          </h3>
+          <p className="mt-1 text-xs text-white/40 leading-relaxed">
+            {forecast.description}
+          </p>
         </div>
         <div className="flex items-center gap-2 rounded-xl border border-amber-500/20 bg-amber-500/5 px-3 py-2">
           <Clock className="h-3.5 w-3.5 text-amber-400" />
-          <span className="font-mono text-xs font-bold text-amber-300 tabular-nums">{countdown.text}</span>
+          <span className="font-mono text-xs font-bold text-amber-300 tabular-nums">
+            {countdown.text}
+          </span>
         </div>
       </div>
 
       {/* Vertical Selection */}
       <div className="mb-4">
-        <p className="mb-2.5 text-[10px] uppercase tracking-widest text-white/20 font-semibold">Select Vertical</p>
+        <p className="mb-2.5 text-[10px] uppercase tracking-widest text-white/20 font-semibold">
+          Select Vertical
+        </p>
         <div className="flex flex-wrap gap-2">
           {forecast.verticalOptions.map((v) => {
             const vert = VERTICALS.find((x) => x.slug === v);
@@ -417,7 +632,9 @@ function ForecastCard({
 
       {/* Country Selection */}
       <div className="mb-5">
-        <p className="mb-2.5 text-[10px] uppercase tracking-widest text-white/20 font-semibold">Select Nation</p>
+        <p className="mb-2.5 text-[10px] uppercase tracking-widest text-white/20 font-semibold">
+          Select Nation
+        </p>
         <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-4">
           {forecast.countryOptions.map((c) => {
             const country = COUNTRIES.find((x) => x.code === c);
@@ -438,7 +655,9 @@ function ForecastCard({
               >
                 <span className="text-lg leading-none">{country.flag}</span>
                 <span className="truncate">{country.name}</span>
-                {isSelected && <CheckCircle2 className="ml-auto h-3 w-3 shrink-0" />}
+                {isSelected && (
+                  <CheckCircle2 className="ml-auto h-3 w-3 shrink-0" />
+                )}
               </motion.button>
             );
           })}
@@ -447,7 +666,11 @@ function ForecastCard({
 
       {/* Error */}
       {error && (
-        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mb-4 flex items-center gap-2 rounded-lg border border-crimson/20 bg-crimson/5 px-3 py-2 text-xs text-crimson">
+        <motion.div
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: "auto" }}
+          className="mb-4 flex items-center gap-2 rounded-lg border border-crimson/20 bg-crimson/5 px-3 py-2 text-xs text-crimson"
+        >
           <AlertTriangle className="h-3.5 w-3.5" />
           {error}
         </motion.div>
@@ -457,7 +680,9 @@ function ForecastCard({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-2 text-[10px] text-white/20">
           <BrainCircuit className="h-3 w-3" />
-          <span>{forecast.totalPredictions.toLocaleString()} prophecies cast</span>
+          <span>
+            {forecast.totalPredictions.toLocaleString()} prophecies cast
+          </span>
         </div>
         {hasPredicted || submitted ? (
           <motion.div
@@ -471,7 +696,12 @@ function ForecastCard({
         ) : (
           <Button
             onClick={handleSubmit}
-            disabled={!selectedVertical || !selectedCountry || isSubmitting || countdown.expired}
+            disabled={
+              !selectedVertical ||
+              !selectedCountry ||
+              isSubmitting ||
+              countdown.expired
+            }
             variant="cyan"
             size="sm"
             isLoading={isSubmitting}
@@ -507,18 +737,30 @@ function PredictionRow({ prediction }: { prediction: UserPrediction }) {
             prediction.status === "correct"
               ? "bg-emerald-500/10 text-emerald-400 ring-1 ring-emerald-500/20"
               : prediction.status === "incorrect"
-              ? "bg-crimson/10 text-crimson ring-1 ring-crimson/20"
-              : "bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20"
+                ? "bg-crimson/10 text-crimson ring-1 ring-crimson/20"
+                : "bg-amber-500/10 text-amber-400 ring-1 ring-amber-500/20"
           }`}
         >
-          {prediction.status === "correct" ? <CheckCircle2 className="h-4 w-4" /> : prediction.status === "incorrect" ? <XCircle className="h-4 w-4" /> : <Clock className="h-4 w-4" />}
+          {prediction.status === "correct" ? (
+            <CheckCircle2 className="h-4 w-4" />
+          ) : prediction.status === "incorrect" ? (
+            <XCircle className="h-4 w-4" />
+          ) : (
+            <Clock className="h-4 w-4" />
+          )}
         </div>
         <div>
-          <p className="text-xs font-semibold text-white">{prediction.forecastTitle}</p>
+          <p className="text-xs font-semibold text-white">
+            {prediction.forecastTitle}
+          </p>
           <div className="flex items-center gap-2 text-[10px] text-white/30 mt-0.5">
-            <span className="flex items-center gap-1">{vert?.icon} <span className={vert?.color}>{vert?.name}</span></span>
+            <span className="flex items-center gap-1">
+              {vert?.icon} <span className={vert?.color}>{vert?.name}</span>
+            </span>
             <span className="text-white/10">•</span>
-            <span className="flex items-center gap-1">{country?.flag} {country?.name}</span>
+            <span className="flex items-center gap-1">
+              {country?.flag} {country?.name}
+            </span>
             <span className="text-white/10">•</span>
             <span>{formatDate(prediction.createdAt)}</span>
           </div>
@@ -526,13 +768,21 @@ function PredictionRow({ prediction }: { prediction: UserPrediction }) {
       </div>
       <div className="text-right">
         {prediction.status === "correct" ? (
-          <motion.p initial={{ scale: 1.5 }} animate={{ scale: 1 }} className="text-sm font-bold text-emerald-400 tabular-nums">+{prediction.pointsEarned}</motion.p>
+          <motion.p
+            initial={{ scale: 1.5 }}
+            animate={{ scale: 1 }}
+            className="text-sm font-bold text-emerald-400 tabular-nums"
+          >
+            +{prediction.pointsEarned}
+          </motion.p>
         ) : prediction.status === "incorrect" ? (
           <p className="text-sm font-bold text-crimson tabular-nums">0</p>
         ) : (
           <p className="text-sm font-bold text-amber-400">Pending</p>
         )}
-        <p className="text-[9px] text-white/20 capitalize">{prediction.status}</p>
+        <p className="text-[9px] text-white/20 capitalize">
+          {prediction.status}
+        </p>
       </div>
     </motion.div>
   );
@@ -541,7 +791,13 @@ function PredictionRow({ prediction }: { prediction: UserPrediction }) {
 /* ============================================================
    COMPONENT — Leaderboard Row
    ============================================================ */
-function LeaderboardRow({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolean }) {
+function LeaderboardRow({
+  entry,
+  isMe,
+}: {
+  entry: LeaderboardEntry;
+  isMe: boolean;
+}) {
   const tier = TIER_CONFIG[entry.tier];
   const TierIcon = tier.icon;
 
@@ -551,7 +807,9 @@ function LeaderboardRow({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolea
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: entry.rank * 0.04 }}
       className={`group flex items-center gap-3 rounded-xl border p-3.5 transition-all ${
-        isMe ? "border-violet-500/30 bg-violet-950/10 shadow-lg shadow-violet-500/5" : "border-white/5 bg-white/[0.02] hover:border-white/10 hover:bg-white/[0.03]"
+        isMe
+          ? "border-violet-500/30 bg-violet-950/10 shadow-lg shadow-violet-500/5"
+          : "border-white/5 bg-white/[0.02] hover:border-white/10 hover:bg-white/[0.03]"
       }`}
     >
       {/* Rank */}
@@ -563,25 +821,35 @@ function LeaderboardRow({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolea
         ) : entry.rank === 3 ? (
           <Medal className="h-5 w-5 text-orange-400" />
         ) : (
-          <span className="w-5 text-center text-xs font-bold text-white/30 tabular-nums">{entry.rank}</span>
+          <span className="w-5 text-center text-xs font-bold text-white/30 tabular-nums">
+            {entry.rank}
+          </span>
         )}
       </div>
 
       {/* Avatar */}
       <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-violet-500/20 to-cyan-500/20 ring-1 ring-white/10">
-        <span className="text-sm font-bold text-violet-300">{entry.displayName.charAt(0)}</span>
+        <span className="text-sm font-bold text-violet-300">
+          {entry.displayName.charAt(0)}
+        </span>
       </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className={`text-sm font-bold ${isMe ? "text-violet-300" : "text-white"}`}>{entry.displayName}</span>
+          <span
+            className={`text-sm font-bold ${isMe ? "text-violet-300" : "text-white"}`}
+          >
+            {entry.displayName}
+          </span>
           {isMe && (
             <span className="rounded-md bg-violet-500/20 px-1.5 py-0.5 text-[9px] font-bold text-violet-300 border border-violet-500/30">
               You
             </span>
           )}
-          <span className={`flex items-center gap-1 rounded-md ${tier.bg} px-1.5 py-0.5 text-[9px] font-bold ${tier.color} border ${tier.border}`}>
+          <span
+            className={`flex items-center gap-1 rounded-md ${tier.bg} px-1.5 py-0.5 text-[9px] font-bold ${tier.color} border ${tier.border}`}
+          >
             <TierIcon className="h-2.5 w-2.5" />
             {tier.label}
           </span>
@@ -592,17 +860,23 @@ function LeaderboardRow({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolea
       {/* Stats */}
       <div className="hidden text-right sm:block">
         <p className="text-[10px] text-white/20">Correct</p>
-        <p className="text-xs font-bold text-emerald-400 tabular-nums">{entry.correctCount}</p>
+        <p className="text-xs font-bold text-emerald-400 tabular-nums">
+          {entry.correctCount}
+        </p>
       </div>
       <div className="hidden text-right sm:block">
         <p className="text-[10px] text-white/20">Streak</p>
         <div className="flex items-center justify-end gap-1">
           <Flame className="h-3 w-3 text-orange-400" />
-          <span className="text-xs font-bold text-orange-400 tabular-nums">{entry.streak}</span>
+          <span className="text-xs font-bold text-orange-400 tabular-nums">
+            {entry.streak}
+          </span>
         </div>
       </div>
       <div className="text-right min-w-[60px]">
-        <p className="text-sm font-bold text-white font-mono tabular-nums">{entry.totalPoints}</p>
+        <p className="text-sm font-bold text-white font-mono tabular-nums">
+          {entry.totalPoints}
+        </p>
         <p className="text-[9px] text-white/20">pts</p>
       </div>
     </motion.div>
@@ -612,7 +886,15 @@ function LeaderboardRow({ entry, isMe }: { entry: LeaderboardEntry; isMe: boolea
 /* ============================================================
    COMPONENT — Empty State
    ============================================================ */
-function EmptyState({ icon: Icon, title, subtitle }: { icon: React.ElementType; title: string; subtitle: string }) {
+function EmptyState({
+  icon: Icon,
+  title,
+  subtitle,
+}: {
+  icon: React.ElementType;
+  title: string;
+  subtitle: string;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -635,7 +917,10 @@ function SectionSkeleton() {
   return (
     <div className="space-y-3">
       {[1, 2, 3].map((i) => (
-        <div key={i} className="animate-pulse rounded-xl border border-white/5 bg-surface-800 p-5">
+        <div
+          key={i}
+          className="animate-pulse rounded-xl border border-white/5 bg-surface-800 p-5"
+        >
           <div className="flex items-start justify-between mb-4">
             <div className="space-y-2">
               <div className="h-3 w-20 rounded bg-white/5" />

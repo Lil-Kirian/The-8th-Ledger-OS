@@ -20,7 +20,7 @@ import {
   Settings,
 } from "lucide-react";
 
-type Step = "checking" | "setup-totp" | "setup-pin" | "setup-webauthn" | "setup-geo" | "totp" | "pin" | "webauthn" | "geo" | "complete";
+type Step = "checking" | "setup-totp" | "setup-totp-verify" | "setup-pin" | "setup-webauthn" | "setup-geo" | "totp" | "pin" | "webauthn" | "geo" | "complete";
 
 type Status = {
   totpEnabled: boolean;

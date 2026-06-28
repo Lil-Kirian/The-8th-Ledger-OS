@@ -61,7 +61,10 @@ export async function POST(
     }
 
     // ── Ownership gate ──
-    const ownership = await verifyOwnership(hallId, user.id);
+    const ownership = await prisma.ownership.findFirst({
+      where: { hallId, userId: user.id, status: { not: "forfeited" } },
+      select: { ownershipPercent: true },
+    });
     if (!ownership) {
       return NextResponse.json(
         { success: false, error: "Sovereign access denied" },
@@ -69,7 +72,7 @@ export async function POST(
       );
     }
 
-    const weight = ownership.percentage || ownership.ownershipPercent || 0;
+    const weight = ownership.ownershipPercent || 0;
     if (weight <= 0) {
       return NextResponse.json(
         { success: false, error: "Invalid voting weight" },
@@ -80,9 +83,9 @@ export async function POST(
     // ── Dormancy check ──
     const isDormant = await prisma.dormancyLog.findFirst({
       where: {
-        OR: [{ accountId: user.id }, { hallId }],
+        OR: [{ userId: user.id }, { hallId }],
         type: "account",
-        status: { in: ["warning", "critical", "forfeited"] },
+        stage: { in: ["warning", "critical", "forfeited"] },
       },
     });
     if (isDormant) {
@@ -96,8 +99,7 @@ export async function POST(
     const isBanned = await prisma.banRecord.findFirst({
       where: {
         hallId,
-        targetLedgerId: user.ledgerId,
-        status: { in: ["active", "executed"] },
+        userId: user.id,
         OR: [{ expiresAt: { gt: new Date() } }, { expiresAt: null }],
       },
     });
@@ -129,9 +131,9 @@ export async function POST(
     }
 
     // ── 6-month term guard ──
-    const termStart = targetRole.assignedAt || targetRole.createdAt;
+    const termStart = targetRole.electedAt;
     const sixMonthsAgo = new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000);
-    if (termStart > sixMonthsAgo && !isPrimaryAdmin(user.ledgerId)) {
+    if (termStart > sixMonthsAgo && !(await isPrimaryAdmin(user.ledgerId))) {
       return NextResponse.json(
         { success: false, error: `Manager/Liaison term is protected for 6 months. Primary Admin override required.` },
         { status: 403 }
@@ -238,7 +240,7 @@ export async function POST(
       const noPercent = totalWeight > 0 ? (updated.voteWeightNo / totalWeight) * 100 : 0;
       const thresholdMet = yesPercent >= updated.thresholdPercent;
 
-      const removed = false;
+      let removed = false;
       let reelectionProposal = null;
 
       if (thresholdMet && updated.status === "active") {
@@ -268,9 +270,10 @@ export async function POST(
             hallId,
             status: "completed",
             executedBy: user.id,
-            description: `${targetRole.user.displayName} impeached as ${role} — ${reason.trim()}`,
+            notes: `${targetRole.user.displayName} impeached as ${role}: ${reason.trim()}`,
           },
         });
+        removed = true;
 
         // ── Auto-trigger re-election proposal ──
         const reelectionType = role === "manager" ? "manager_change" : "manager_change";
@@ -311,13 +314,13 @@ export async function POST(
         // ── Notify all owners ──
         const owners = await tx.ownership.findMany({
           where: { hallId },
-          select: { userId: true },
+          select: { user: { select: { ledgerId: true } } },
         });
 
         if (owners.length > 0) {
           await tx.notification.createMany({
             data: owners.map((o) => ({
-              ledgerId: o.userId,
+              ledgerId: o.user.ledgerId,
               proposalId: proposal!.id,
               type: "impeachment_executed",
               title: `${role === "manager" ? "Manager" : "Liaison"} Impeached`,
@@ -385,8 +388,8 @@ export async function GET(
 
     const { id: hallId } = await params;
 
-    const isOwner = await verifyOwnership(hallId, user.id);
-    if (!isOwner && !isPrimaryAdmin(user.ledgerId) && user.role !== "admin") {
+    const isOwner = await verifyOwnership(user.id, undefined, hallId);
+    if (!isOwner && !(await isPrimaryAdmin(user.ledgerId)) && user.role !== "admin") {
       return NextResponse.json({ success: false, error: "Sovereign access denied" }, { status: 403 });
     }
 

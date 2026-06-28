@@ -31,6 +31,12 @@ export interface Hall {
   hallClass: string | null;
   sriScore: number;
   ahgiScore: number;
+  canManage?: boolean;
+  isAdmin?: boolean;
+  inventoryEnabled?: boolean;
+  forgeEnabled?: boolean;
+  businessStatus?: string;
+  ihcpBalance?: number;
   closureStatus: string; // active | warning | decision | liquidation | dissolved
   executiveCabinet?: ExecutiveCabinet;
   pirDebt: number;
@@ -238,6 +244,12 @@ function enrichHall(raw: Record<string, unknown>): Hall {
     hallClass: (raw.hallClass || raw.hall_class) as string | null,
     sriScore: Number(raw.sriScore || raw.sri_score || 50),
     ahgiScore: Number(raw.ahgiScore || raw.ahgi_score || 50),
+    canManage: Boolean(raw.canManage || raw.can_manage || false),
+    isAdmin: Boolean(raw.isAdmin || raw.is_admin || false),
+    inventoryEnabled: Boolean(raw.inventoryEnabled || raw.inventory_enabled || false),
+    forgeEnabled: Boolean(raw.forgeEnabled || raw.forge_enabled || false),
+    businessStatus: String(raw.businessStatus || raw.business_status || "operating"),
+    ihcpBalance: Number(raw.ihcpBalance || raw.ihcp_balance || 0),
     closureStatus: String(raw.closureStatus || raw.closure_status || "active"),
     executiveCabinet: cabinetRaw ? enrichCabinet(cabinetRaw) : undefined,
     pirDebt: Number(raw.pirDebt || raw.pir_debt || 0),
@@ -347,6 +359,7 @@ export function useHall(hallId: string | null | undefined) {
   const hall = data?.hall ? enrichHall(data.hall as Record<string, unknown>) : undefined;
 
   return {
+    data: hall,
     hall,
     isLoading,
     isValidating,

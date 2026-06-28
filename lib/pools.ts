@@ -3,7 +3,7 @@
    Cooperative Ownership Model, PIR Calculation, Consensus Logic
    ============================================================ */
 
-import { round2 } from "./utils";
+import { generatePacToken as generateSharedPacToken, round2 } from "./utils";
 
 /* ============================================================
    CONSTANTS
@@ -196,9 +196,7 @@ export function convertToOwnership(pool: PoolState): PoolDistributionResult {
  * Generate PAC token
  */
 export function generatePacToken(poolId: string, ledgerId: string): string {
-  const timestamp = Date.now().toString(36).toUpperCase();
-  const hash = Math.random().toString(36).substring(2, 6).toUpperCase();
-  return `PAC-${poolId.substring(0, 4)}-${ledgerId.substring(4, 8)}-${timestamp}-${hash}`;
+  return generateSharedPacToken(poolId, ledgerId);
 }
 
 /**

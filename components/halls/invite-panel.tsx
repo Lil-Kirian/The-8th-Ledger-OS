@@ -69,17 +69,60 @@ export interface InvitePanelProps {
   activeInvites: ActiveInvite[];
   inviteHistory: InviteUsage[];
   isLoading?: boolean;
-  onCreateInvite?: (data: { kycTier: KycTier; maxUses: number; ownershipPercent: number; expiresInDays: number }) => void;
+  onCreateInvite?: (data: {
+    kycTier: KycTier;
+    maxUses: number;
+    ownershipPercent: number;
+    expiresInDays: number;
+  }) => void;
   onRevokeInvite?: (inviteId: string) => void;
   onCopyLink?: (url: string) => void;
 }
 
 //  Config
-const KYC_CONFIG: Record<KycTier, { label: string; color: string; bg: string; icon: React.ElementType; desc: string }> = {
-  visitor:  { label: "Visitor",  color: "text-slate-400",    bg: "bg-slate-500/10",    icon: EyeOff,      desc: "No KYC required. Anyone can join." },
-  sovereign:{ label: "Sovereign",color: "text-cyan-400",     bg: "bg-cyan-500/10",     icon: Shield,      desc: "Must have sovereign tier or higher." },
-  verified: { label: "Verified", color: "text-emerald-400",  bg: "bg-emerald-500/10",  icon: BadgeCheck,  desc: "Must have verified KYC tier." },
-  whale:    { label: "Whale",    color: "text-amber-400",    bg: "bg-amber-500/10",    icon: Crown,       desc: "Whale tier only. High-value investors." },
+const KYC_CONFIG: Record<
+  KycTier,
+  {
+    label: string;
+    color: string;
+    bg: string;
+    border: string;
+    icon: React.ElementType;
+    desc: string;
+  }
+> = {
+  visitor: {
+    label: "Visitor",
+    color: "text-slate-400",
+    bg: "bg-slate-500/10",
+    border: "border-slate-500/20",
+    icon: EyeOff,
+    desc: "No KYC required. Anyone can join.",
+  },
+  sovereign: {
+    label: "Sovereign",
+    color: "text-cyan-400",
+    bg: "bg-cyan-500/10",
+    border: "border-cyan-500/20",
+    icon: Shield,
+    desc: "Must have sovereign tier or higher.",
+  },
+  verified: {
+    label: "Verified",
+    color: "text-emerald-400",
+    bg: "bg-emerald-500/10",
+    border: "border-emerald-500/20",
+    icon: BadgeCheck,
+    desc: "Must have verified KYC tier.",
+  },
+  whale: {
+    label: "Whale",
+    color: "text-amber-400",
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/20",
+    icon: Crown,
+    desc: "Whale tier only. High-value investors.",
+  },
 };
 
 const EXPIRY_OPTIONS = [
@@ -91,7 +134,12 @@ const EXPIRY_OPTIONS = [
 
 //  Helpers
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function daysRemaining(expiresAt: string) {
@@ -135,18 +183,26 @@ export function InvitePanel({
       setCopiedId(invite.id);
       setTimeout(() => setCopiedId(null), 2000);
     },
-    [onCopyLink]
+    [onCopyLink],
   );
 
   const handleCreate = () => {
     if (ownershipOffered > unallocatedPercent) return;
-    onCreateInvite?.({ kycTier, maxUses, ownershipPercent: ownershipOffered, expiresInDays });
+    onCreateInvite?.({
+      kycTier,
+      maxUses,
+      ownershipPercent: ownershipOffered,
+      expiresInDays,
+    });
     setShowCreate(false);
   };
 
   const totalInvitedOwnership = activeInvites
     .filter((i) => i.status === "active")
-    .reduce((s, i) => s + i.ownershipPercentOffered * (i.maxUses - i.usedCount), 0);
+    .reduce(
+      (s, i) => s + i.ownershipPercentOffered * (i.maxUses - i.usedCount),
+      0,
+    );
 
   if (isLoading) {
     return <InviteSkeleton />;

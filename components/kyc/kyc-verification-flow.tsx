@@ -81,6 +81,7 @@ export default function KycVerificationFlow({
     matchScore: number;
   } | null>(null);
   const [addressData, setAddressData] = useState<{
+    type: string;
     uploaded: boolean;
     verified: boolean;
   } | null>(null);
@@ -146,9 +147,12 @@ export default function KycVerificationFlow({
               <Shield size={20} className="text-cyan-400" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-slate-100">SIV / KYC Verification</h2>
+              <h2 className="text-sm font-bold text-slate-100">
+                SIV / KYC Verification
+              </h2>
               <p className="text-[10px] text-slate-500 mt-0.5">
-                Ledger ID: <span className="font-mono text-slate-400">{ledgerId}</span>
+                Ledger ID:{" "}
+                <span className="font-mono text-slate-400">{ledgerId}</span>
               </p>
             </div>
           </div>
@@ -163,8 +167,12 @@ export default function KycVerificationFlow({
         {/* Progress Bar */}
         <div className="mt-5">
           <div className="flex items-center justify-between text-[10px] text-slate-500 uppercase tracking-wider mb-2">
-            <span>Step {currentStepIndex + 1} of {steps.length}</span>
-            <span className="font-mono text-cyan-400">{Math.round(progress)}%</span>
+            <span>
+              Step {currentStepIndex + 1} of {steps.length}
+            </span>
+            <span className="font-mono text-cyan-400">
+              {Math.round(progress)}%
+            </span>
           </div>
           <div className="h-2 bg-slate-800/40 rounded-full overflow-hidden">
             <div
@@ -188,7 +196,7 @@ export default function KycVerificationFlow({
                   <div
                     className={cn(
                       "h-px flex-1 transition-all",
-                      isCompleted ? "bg-cyan-700/30" : "bg-slate-800/40"
+                      isCompleted ? "bg-cyan-700/30" : "bg-slate-800/40",
                     )}
                   />
                 )}
@@ -201,8 +209,8 @@ export default function KycVerificationFlow({
                     isActive
                       ? "bg-cyan-900/20 border-cyan-700/30"
                       : isCompleted
-                      ? "bg-emerald-900/10 border-emerald-700/20"
-                      : "bg-slate-800/20 border-slate-800/20 opacity-50"
+                        ? "bg-emerald-900/10 border-emerald-700/20"
+                        : "bg-slate-800/20 border-slate-800/20 opacity-50",
                   )}
                 >
                   <div
@@ -211,8 +219,8 @@ export default function KycVerificationFlow({
                       isActive
                         ? "bg-cyan-900/30"
                         : isCompleted
-                        ? "bg-emerald-900/20"
-                        : "bg-slate-800/30"
+                          ? "bg-emerald-900/20"
+                          : "bg-slate-800/30",
                     )}
                   >
                     {isCompleted ? (
@@ -220,7 +228,9 @@ export default function KycVerificationFlow({
                     ) : (
                       <StepIcon
                         size={14}
-                        className={isActive ? "text-cyan-400" : "text-slate-600"}
+                        className={
+                          isActive ? "text-cyan-400" : "text-slate-600"
+                        }
                       />
                     )}
                   </div>
@@ -228,7 +238,11 @@ export default function KycVerificationFlow({
                     <div
                       className={cn(
                         "text-[10px] font-bold",
-                        isActive ? "text-cyan-300" : isCompleted ? "text-emerald-400" : "text-slate-600"
+                        isActive
+                          ? "text-cyan-300"
+                          : isCompleted
+                            ? "text-emerald-400"
+                            : "text-slate-600",
                       )}
                     >
                       {step.label}
@@ -257,14 +271,21 @@ export default function KycVerificationFlow({
               <div className="w-16 h-16 mx-auto rounded-2xl bg-cyan-900/20 border border-cyan-700/30 flex items-center justify-center mb-3">
                 <Fingerprint size={28} className="text-cyan-400" />
               </div>
-              <h3 className="text-sm font-bold text-slate-200">Upload Government ID</h3>
+              <h3 className="text-sm font-bold text-slate-200">
+                Upload Government ID
+              </h3>
               <p className="text-xs text-slate-500 mt-1">
                 Passport, driver's license, or national identity card
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              {["passport", "drivers_license", "national_id", "residence_permit"].map((type) => (
+              {[
+                "passport",
+                "drivers_license",
+                "national_id",
+                "residence_permit",
+              ].map((type) => (
                 <button
                   key={type}
                   onClick={() => setDocumentData({ type, verified: true })}
@@ -272,7 +293,7 @@ export default function KycVerificationFlow({
                     "p-4 rounded-xl border text-left transition-all",
                     documentData?.type === type
                       ? "bg-cyan-900/20 border-cyan-700/30"
-                      : "bg-slate-800/20 border-slate-700/30 hover:border-slate-600/40"
+                      : "bg-slate-800/20 border-slate-700/30 hover:border-slate-600/40",
                   )}
                 >
                   <div className="text-xs font-medium text-slate-300 capitalize">
@@ -313,7 +334,9 @@ export default function KycVerificationFlow({
               <div className="w-16 h-16 mx-auto rounded-2xl bg-cyan-900/20 border border-cyan-700/30 flex items-center justify-center mb-3">
                 <Scan size={28} className="text-cyan-400" />
               </div>
-              <h3 className="text-sm font-bold text-slate-200">Liveness Check</h3>
+              <h3 className="text-sm font-bold text-slate-200">
+                Liveness Check
+              </h3>
               <p className="text-xs text-slate-500 mt-1">
                 Real-time face verification to prevent identity fraud
               </p>
@@ -325,7 +348,9 @@ export default function KycVerificationFlow({
               </div>
               <div className="text-center z-10">
                 <Camera size={32} className="text-slate-600 mx-auto mb-2" />
-                <p className="text-xs text-slate-500">Camera preview will appear here</p>
+                <p className="text-xs text-slate-500">
+                  Camera preview will appear here
+                </p>
               </div>
             </div>
 
@@ -339,14 +364,20 @@ export default function KycVerificationFlow({
                   key={action.label}
                   className="p-3 rounded-lg bg-slate-800/20 border border-slate-700/30 text-center"
                 >
-                  <div className="text-xs font-medium text-slate-300">{action.label}</div>
-                  <div className="text-[10px] text-slate-600">{action.desc}</div>
+                  <div className="text-xs font-medium text-slate-300">
+                    {action.label}
+                  </div>
+                  <div className="text-[10px] text-slate-600">
+                    {action.desc}
+                  </div>
                 </div>
               ))}
             </div>
 
             <button
-              onClick={() => setSelfieData({ captured: true, matchScore: 98.5 })}
+              onClick={() =>
+                setSelfieData({ captured: true, matchScore: 98.5 })
+              }
               className="w-full py-3 rounded-xl bg-cyan-600 border border-cyan-500 text-white text-sm font-bold hover:bg-cyan-500 transition-all shadow-lg shadow-cyan-900/20"
             >
               Start Liveness Check
@@ -368,37 +399,45 @@ export default function KycVerificationFlow({
               <div className="w-16 h-16 mx-auto rounded-2xl bg-cyan-900/20 border border-cyan-700/30 flex items-center justify-center mb-3">
                 <Home size={28} className="text-cyan-400" />
               </div>
-              <h3 className="text-sm font-bold text-slate-200">Proof of Address</h3>
+              <h3 className="text-sm font-bold text-slate-200">
+                Proof of Address
+              </h3>
               <p className="text-xs text-slate-500 mt-1">
-                Utility bill, bank statement, or government letter (last 3 months)
+                Utility bill, bank statement, or government letter (last 3
+                months)
               </p>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              {["utility_bill", "bank_statement", "government_letter", "rental_agreement"].map(
-                (type) => (
-                  <button
-                    key={type}
-                    onClick={() => setAddressData({ uploaded: true, verified: true })}
-                    className={cn(
-                      "p-4 rounded-xl border text-left transition-all",
-                      addressData?.uploaded && addressData?.type === type
-                        ? "bg-cyan-900/20 border-cyan-700/30"
-                        : "bg-slate-800/20 border-slate-700/30 hover:border-slate-600/40"
-                    )}
-                  >
-                    <div className="text-xs font-medium text-slate-300 capitalize">
-                      {type.replace("_", " ")}
-                    </div>
-                    <div className="text-[10px] text-slate-600 mt-1">
-                      {type === "utility_bill" && "Electric, water, or gas"}
-                      {type === "bank_statement" && "Official bank document"}
-                      {type === "government_letter" && "Tax or official mail"}
-                      {type === "rental_agreement" && "Signed lease contract"}
-                    </div>
-                  </button>
-                )
-              )}
+              {[
+                "utility_bill",
+                "bank_statement",
+                "government_letter",
+                "rental_agreement",
+              ].map((type) => (
+                <button
+                  key={type}
+                  onClick={() =>
+                    setAddressData({ type, uploaded: true, verified: true })
+                  }
+                  className={cn(
+                    "p-4 rounded-xl border text-left transition-all",
+                    addressData?.uploaded && addressData?.type === type
+                      ? "bg-cyan-900/20 border-cyan-700/30"
+                      : "bg-slate-800/20 border-slate-700/30 hover:border-slate-600/40",
+                  )}
+                >
+                  <div className="text-xs font-medium text-slate-300 capitalize">
+                    {type.replace("_", " ")}
+                  </div>
+                  <div className="text-[10px] text-slate-600 mt-1">
+                    {type === "utility_bill" && "Electric, water, or gas"}
+                    {type === "bank_statement" && "Official bank document"}
+                    {type === "government_letter" && "Tax or official mail"}
+                    {type === "rental_agreement" && "Signed lease contract"}
+                  </div>
+                </button>
+              ))}
             </div>
 
             <div className="p-4 rounded-xl border border-dashed border-slate-700/40 bg-slate-800/10 text-center">
@@ -426,7 +465,9 @@ export default function KycVerificationFlow({
               <div className="w-16 h-16 mx-auto rounded-2xl bg-cyan-900/20 border border-cyan-700/30 flex items-center justify-center mb-3">
                 <FileCheck size={28} className="text-cyan-400" />
               </div>
-              <h3 className="text-sm font-bold text-slate-200">Review & Submit</h3>
+              <h3 className="text-sm font-bold text-slate-200">
+                Review & Submit
+              </h3>
               <p className="text-xs text-slate-500 mt-1">
                 Verify all information before submitting to 8th Ledger Security
               </p>
@@ -438,12 +479,16 @@ export default function KycVerificationFlow({
                   <CheckCircle2 size={18} className="text-emerald-400" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-xs font-medium text-slate-200">Government ID</div>
+                  <div className="text-xs font-medium text-slate-200">
+                    Government ID
+                  </div>
                   <div className="text-[10px] text-slate-500 capitalize">
                     {documentData?.type?.replace("_", " ") || "Not uploaded"}
                   </div>
                 </div>
-                <div className="text-[10px] text-emerald-400 font-bold">Verified</div>
+                <div className="text-[10px] text-emerald-400 font-bold">
+                  Verified
+                </div>
               </div>
 
               <div className="p-4 rounded-xl bg-slate-800/20 border border-slate-700/30 flex items-center gap-3">
@@ -451,12 +496,16 @@ export default function KycVerificationFlow({
                   <CheckCircle2 size={18} className="text-emerald-400" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-xs font-medium text-slate-200">Liveness Check</div>
+                  <div className="text-xs font-medium text-slate-200">
+                    Liveness Check
+                  </div>
                   <div className="text-[10px] text-slate-500">
                     Match score: {selfieData?.matchScore || 0}%
                   </div>
                 </div>
-                <div className="text-[10px] text-emerald-400 font-bold">Verified</div>
+                <div className="text-[10px] text-emerald-400 font-bold">
+                  Verified
+                </div>
               </div>
 
               <div className="p-4 rounded-xl bg-slate-800/20 border border-slate-700/30 flex items-center gap-3">
@@ -464,19 +513,29 @@ export default function KycVerificationFlow({
                   <CheckCircle2 size={18} className="text-emerald-400" />
                 </div>
                 <div className="flex-1">
-                  <div className="text-xs font-medium text-slate-200">Proof of Address</div>
-                  <div className="text-[10px] text-slate-500">Document uploaded</div>
+                  <div className="text-xs font-medium text-slate-200">
+                    Proof of Address
+                  </div>
+                  <div className="text-[10px] text-slate-500">
+                    Document uploaded
+                  </div>
                 </div>
-                <div className="text-[10px] text-emerald-400 font-bold">Verified</div>
+                <div className="text-[10px] text-emerald-400 font-bold">
+                  Verified
+                </div>
               </div>
             </div>
 
             <div className="p-4 rounded-xl bg-amber-950/10 border border-amber-800/20 flex items-start gap-3">
-              <AlertTriangle size={16} className="text-amber-400 shrink-0 mt-0.5" />
+              <AlertTriangle
+                size={16}
+                className="text-amber-400 shrink-0 mt-0.5"
+              />
               <div className="text-xs text-amber-300/80 leading-relaxed">
-                By submitting, you consent to 8th Ledger Security processing your identity data. 
-                All documents are encrypted with AES-256 and stored in secure vaults. 
-                Verification typically takes 24-48 hours.
+                By submitting, you consent to 8th Ledger Security processing
+                your identity data. All documents are encrypted with AES-256 and
+                stored in secure vaults. Verification typically takes 24-48
+                hours.
               </div>
             </div>
 
@@ -487,7 +546,7 @@ export default function KycVerificationFlow({
                 "w-full flex items-center justify-center gap-2 px-4 py-3.5 rounded-xl border text-sm font-bold transition-all",
                 isSubmitting
                   ? "bg-slate-800/40 border-slate-700/40 text-slate-500 cursor-not-allowed"
-                  : "bg-cyan-600 border-cyan-500 text-white hover:bg-cyan-500 shadow-lg shadow-cyan-900/20"
+                  : "bg-cyan-600 border-cyan-500 text-white hover:bg-cyan-500 shadow-lg shadow-cyan-900/20",
               )}
             >
               {isSubmitting ? (
@@ -515,8 +574,8 @@ export default function KycVerificationFlow({
               Verification Submitted
             </h3>
             <p className="text-sm text-slate-500 max-w-sm mx-auto leading-relaxed">
-              Your SIV/KYC verification has been submitted to 8th Ledger Security. 
-              You will be notified within 24-48 hours.
+              Your SIV/KYC verification has been submitted to 8th Ledger
+              Security. You will be notified within 24-48 hours.
             </p>
             <div className="mt-6 p-4 rounded-xl bg-slate-800/20 border border-slate-700/30 max-w-sm mx-auto">
               <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">
@@ -540,7 +599,7 @@ export default function KycVerificationFlow({
               "flex items-center gap-2 px-4 py-2.5 rounded-lg border text-xs font-bold transition-all",
               currentStepIndex === 0
                 ? "bg-slate-800/20 border-slate-800/20 text-slate-700 cursor-not-allowed"
-                : "bg-slate-800/40 border-slate-700/40 text-slate-400 hover:text-slate-200 hover:border-slate-600/40"
+                : "bg-slate-800/40 border-slate-700/40 text-slate-400 hover:text-slate-200 hover:border-slate-600/40",
             )}
           >
             <ChevronLeft size={14} />
@@ -555,7 +614,7 @@ export default function KycVerificationFlow({
                 "flex items-center gap-2 px-4 py-2.5 rounded-lg border text-xs font-bold transition-all",
                 !canProceed()
                   ? "bg-slate-800/20 border-slate-800/20 text-slate-700 cursor-not-allowed"
-                  : "bg-cyan-600 border-cyan-500 text-white hover:bg-cyan-500 shadow-lg shadow-cyan-900/20"
+                  : "bg-cyan-600 border-cyan-500 text-white hover:bg-cyan-500 shadow-lg shadow-cyan-900/20",
               )}
             >
               Next

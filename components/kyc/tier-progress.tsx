@@ -261,7 +261,8 @@ export default function TierProgress({
               .filter((t) => t.tier === expandedTier)
               .map((tier) => {
                 const TierIcon = tier.icon;
-                const status = getTierStatus(tiers.findIndex((x) => x.tier === tier.tier));
+                const tierIndex = tiers.findIndex((x) => x.tier === tier.tier);
+                const status = getTierStatus(tierIndex);
 
                 return (
                   <div
@@ -387,7 +388,7 @@ export default function TierProgress({
                     {status === "locked" && (
                       <div className="p-3 rounded-lg bg-slate-800/20 border border-slate-700/30 flex items-center gap-2 text-xs text-slate-500">
                         <Lock size={14} />
-                        Complete {tiers[index - 1]?.label} tier first
+                        Complete {tiers[tierIndex - 1]?.label} tier first
                       </div>
                     )}
                   </div>

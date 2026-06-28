@@ -48,89 +48,259 @@ interface VaultStats {
 // ─
 const ASSETS: VaultAsset[] = [
   {
-    id: "v-2847", hallName: "Solar Array Alpha", vertical: "LedgerEnergy", emoji: "⚡", continent: "Africa",
-    pacToken: "PAC-8X2P-9LQ3-2847", ownershipPercent: 8.5, monthlyIncome: 2840.00, annualYield: 11.2,
-    value: 185000, dynamicValuePerPercent: 2930, accumulatedDividends: 18460,
-    acquiredAt: "2025-09-14", status: "active", sriScore: 87, sriTier: "gold", ahgiScore: 72, ahgiTrend: "up",
-    pirDebt: 0, ihcpDebt: 0, lastPayout: "2026-06-22",
-    monthlyHistory: [2100, 2250, 2180, 2400, 2550, 2480, 2600, 2700, 2750, 2800, 2780, 2840],
+    id: "v-2847",
+    hallName: "Solar Array Alpha",
+    vertical: "LedgerEnergy",
+    emoji: "⚡",
+    continent: "Africa",
+    pacToken: "PAC-8X2P-9LQ3-2847",
+    ownershipPercent: 8.5,
+    monthlyIncome: 2840.0,
+    annualYield: 11.2,
+    value: 185000,
+    dynamicValuePerPercent: 2930,
+    accumulatedDividends: 18460,
+    acquiredAt: "2025-09-14",
+    status: "active",
+    sriScore: 87,
+    sriTier: "gold",
+    ahgiScore: 72,
+    ahgiTrend: "up",
+    pirDebt: 0,
+    ihcpDebt: 0,
+    lastPayout: "2026-06-22",
+    monthlyHistory: [
+      2100, 2250, 2180, 2400, 2550, 2480, 2600, 2700, 2750, 2800, 2780, 2840,
+    ],
   },
   {
-    id: "v-2901", hallName: "Metro Fleet Corridor", vertical: "LedgerAuto", emoji: "🚗", continent: "Americas",
-    pacToken: "PAC-3F7K-2M9P-2901", ownershipPercent: 12.3, monthlyIncome: 4100.50, annualYield: 13.5,
-    value: 312000, dynamicValuePerPercent: 4120, accumulatedDividends: 28730,
-    acquiredAt: "2025-07-22", status: "active", sriScore: 92, sriTier: "platinum", ahgiScore: 81, ahgiTrend: "up",
-    pirDebt: 0, ihcpDebt: 450, lastPayout: "2026-06-22",
-    monthlyHistory: [3200, 3350, 3400, 3600, 3700, 3650, 3800, 3900, 3950, 4000, 4050, 4100],
+    id: "v-2901",
+    hallName: "Metro Fleet Corridor",
+    vertical: "LedgerAuto",
+    emoji: "🚗",
+    continent: "Americas",
+    pacToken: "PAC-3F7K-2M9P-2901",
+    ownershipPercent: 12.3,
+    monthlyIncome: 4100.5,
+    annualYield: 13.5,
+    value: 312000,
+    dynamicValuePerPercent: 4120,
+    accumulatedDividends: 28730,
+    acquiredAt: "2025-07-22",
+    status: "active",
+    sriScore: 92,
+    sriTier: "platinum",
+    ahgiScore: 81,
+    ahgiTrend: "up",
+    pirDebt: 0,
+    ihcpDebt: 450,
+    lastPayout: "2026-06-22",
+    monthlyHistory: [
+      3200, 3350, 3400, 3600, 3700, 3650, 3800, 3900, 3950, 4000, 4050, 4100,
+    ],
   },
   {
-    id: "v-3012", hallName: "Quantum Campus", vertical: "LedgerEdu", emoji: "🎓", continent: "Asia",
-    pacToken: "PAC-9LQ3-8X2P-3012", ownershipPercent: 5.0, monthlyIncome: 1560.00, annualYield: 9.8,
-    value: 98000, dynamicValuePerPercent: 2150, accumulatedDividends: 7800,
-    acquiredAt: "2026-01-08", status: "active", sriScore: 74, sriTier: "silver", ahgiScore: 68, ahgiTrend: "flat",
-    pirDebt: 0, ihcpDebt: 0, lastPayout: "2026-06-21",
-    monthlyHistory: [1200, 1250, 1300, 1350, 1400, 1380, 1420, 1450, 1480, 1500, 1520, 1560],
+    id: "v-3012",
+    hallName: "Quantum Campus",
+    vertical: "LedgerEdu",
+    emoji: "🎓",
+    continent: "Asia",
+    pacToken: "PAC-9LQ3-8X2P-3012",
+    ownershipPercent: 5.0,
+    monthlyIncome: 1560.0,
+    annualYield: 9.8,
+    value: 98000,
+    dynamicValuePerPercent: 2150,
+    accumulatedDividends: 7800,
+    acquiredAt: "2026-01-08",
+    status: "active",
+    sriScore: 74,
+    sriTier: "silver",
+    ahgiScore: 68,
+    ahgiTrend: "flat",
+    pirDebt: 0,
+    ihcpDebt: 0,
+    lastPayout: "2026-06-21",
+    monthlyHistory: [
+      1200, 1250, 1300, 1350, 1400, 1380, 1420, 1450, 1480, 1500, 1520, 1560,
+    ],
   },
   {
-    id: "v-3156", hallName: "Cocoa Collective", vertical: "LedgerAgri", emoji: "🌾", continent: "Africa",
-    pacToken: "PAC-2M9P-3F7K-3156", ownershipPercent: 15.0, monthlyIncome: 5200.00, annualYield: 14.1,
-    value: 380000, dynamicValuePerPercent: 3850, accumulatedDividends: 41600,
-    acquiredAt: "2025-04-30", status: "active", sriScore: 64, sriTier: "silver", ahgiScore: 58, ahgiTrend: "down",
-    pirDebt: 1200, ihcpDebt: 1800, lastPayout: "2026-06-20",
-    monthlyHistory: [4800, 4900, 5000, 5100, 5050, 5150, 5200, 5250, 5300, 5350, 5280, 5200],
+    id: "v-3156",
+    hallName: "Cocoa Collective",
+    vertical: "LedgerAgri",
+    emoji: "🌾",
+    continent: "Africa",
+    pacToken: "PAC-2M9P-3F7K-3156",
+    ownershipPercent: 15.0,
+    monthlyIncome: 5200.0,
+    annualYield: 14.1,
+    value: 380000,
+    dynamicValuePerPercent: 3850,
+    accumulatedDividends: 41600,
+    acquiredAt: "2025-04-30",
+    status: "active",
+    sriScore: 64,
+    sriTier: "silver",
+    ahgiScore: 58,
+    ahgiTrend: "down",
+    pirDebt: 1200,
+    ihcpDebt: 1800,
+    lastPayout: "2026-06-20",
+    monthlyHistory: [
+      4800, 4900, 5000, 5100, 5050, 5150, 5200, 5250, 5300, 5350, 5280, 5200,
+    ],
   },
   {
-    id: "v-3204", hallName: "Nordic Charter Aero", vertical: "LedgerTravel", emoji: "✈️", continent: "Europe",
-    pacToken: "PAC-8X2P-2M9P-3204", ownershipPercent: 3.2, monthlyIncome: 980.00, annualYield: 8.4,
-    value: 72000, dynamicValuePerPercent: 5600, accumulatedDividends: 5880,
-    acquiredAt: "2025-11-15", status: "maturing", sriScore: 88, sriTier: "gold", ahgiScore: 76, ahgiTrend: "up",
-    pirDebt: 0, ihcpDebt: 0, lastPayout: "2026-06-22",
-    monthlyHistory: [800, 820, 850, 880, 900, 920, 940, 950, 960, 970, 975, 980],
+    id: "v-3204",
+    hallName: "Nordic Charter Aero",
+    vertical: "LedgerTravel",
+    emoji: "✈️",
+    continent: "Europe",
+    pacToken: "PAC-8X2P-2M9P-3204",
+    ownershipPercent: 3.2,
+    monthlyIncome: 980.0,
+    annualYield: 8.4,
+    value: 72000,
+    dynamicValuePerPercent: 5600,
+    accumulatedDividends: 5880,
+    acquiredAt: "2025-11-15",
+    status: "maturing",
+    sriScore: 88,
+    sriTier: "gold",
+    ahgiScore: 76,
+    ahgiTrend: "up",
+    pirDebt: 0,
+    ihcpDebt: 0,
+    lastPayout: "2026-06-22",
+    monthlyHistory: [
+      800, 820, 850, 880, 900, 920, 940, 950, 960, 970, 975, 980,
+    ],
   },
   {
-    id: "v-3381", hallName: "Gulf Academy FC", vertical: "SportLedger", emoji: "🏆", continent: "Middle East",
-    pacToken: "PAC-3F7K-9LQ3-3381", ownershipPercent: 6.7, monthlyIncome: 2100.00, annualYield: 10.5,
-    value: 145000, dynamicValuePerPercent: 3100, accumulatedDividends: 12600,
-    acquiredAt: "2025-10-03", status: "active", sriScore: 71, sriTier: "silver", ahgiScore: 63, ahgiTrend: "flat",
-    pirDebt: 0, ihcpDebt: 0, lastPayout: "2026-06-19",
-    monthlyHistory: [1600, 1700, 1750, 1800, 1850, 1900, 1950, 2000, 2050, 2080, 2090, 2100],
+    id: "v-3381",
+    hallName: "Gulf Academy FC",
+    vertical: "SportLedger",
+    emoji: "🏆",
+    continent: "Middle East",
+    pacToken: "PAC-3F7K-9LQ3-3381",
+    ownershipPercent: 6.7,
+    monthlyIncome: 2100.0,
+    annualYield: 10.5,
+    value: 145000,
+    dynamicValuePerPercent: 3100,
+    accumulatedDividends: 12600,
+    acquiredAt: "2025-10-03",
+    status: "active",
+    sriScore: 71,
+    sriTier: "silver",
+    ahgiScore: 63,
+    ahgiTrend: "flat",
+    pirDebt: 0,
+    ihcpDebt: 0,
+    lastPayout: "2026-06-19",
+    monthlyHistory: [
+      1600, 1700, 1750, 1800, 1850, 1900, 1950, 2000, 2050, 2080, 2090, 2100,
+    ],
   },
   {
-    id: "v-3409", hallName: "Pacific Diagnostics", vertical: "LedgerHealth", emoji: "🏥", continent: "Oceania",
-    pacToken: "PAC-9LQ3-3F7K-3409", ownershipPercent: 4.1, monthlyIncome: 720.00, annualYield: 6.2,
-    value: 54000, dynamicValuePerPercent: 1800, accumulatedDividends: 3600,
-    acquiredAt: "2026-02-20", status: "closure-warning", sriScore: 45, sriTier: "bronze", ahgiScore: 42, ahgiTrend: "down",
-    pirDebt: 0, ihcpDebt: 950, lastPayout: "2026-06-15",
-    monthlyHistory: [900, 880, 860, 840, 820, 800, 780, 760, 740, 730, 725, 720],
+    id: "v-3409",
+    hallName: "Pacific Diagnostics",
+    vertical: "LedgerHealth",
+    emoji: "🏥",
+    continent: "Oceania",
+    pacToken: "PAC-9LQ3-3F7K-3409",
+    ownershipPercent: 4.1,
+    monthlyIncome: 720.0,
+    annualYield: 6.2,
+    value: 54000,
+    dynamicValuePerPercent: 1800,
+    accumulatedDividends: 3600,
+    acquiredAt: "2026-02-20",
+    status: "closure-warning",
+    sriScore: 45,
+    sriTier: "bronze",
+    ahgiScore: 42,
+    ahgiTrend: "down",
+    pirDebt: 0,
+    ihcpDebt: 950,
+    lastPayout: "2026-06-15",
+    monthlyHistory: [
+      900, 880, 860, 840, 820, 800, 780, 760, 740, 730, 725, 720,
+    ],
   },
   {
-    id: "v-3501", hallName: "Silicon Forge Node", vertical: "LedgerTech", emoji: "📱", continent: "Asia",
-    pacToken: "PAC-2M9P-8X2P-3501", ownershipPercent: 7.8, monthlyIncome: 3450.00, annualYield: 12.8,
-    value: 210000, dynamicValuePerPercent: 4200, accumulatedDividends: 18900,
-    acquiredAt: "2025-08-11", status: "active", sriScore: 79, sriTier: "gold", ahgiScore: 74, ahgiTrend: "up",
-    pirDebt: 0, ihcpDebt: 0, lastPayout: "2026-06-22",
-    monthlyHistory: [2800, 2900, 3000, 3100, 3150, 3200, 3250, 3300, 3350, 3400, 3420, 3450],
+    id: "v-3501",
+    hallName: "Silicon Forge Node",
+    vertical: "LedgerTech",
+    emoji: "📱",
+    continent: "Asia",
+    pacToken: "PAC-2M9P-8X2P-3501",
+    ownershipPercent: 7.8,
+    monthlyIncome: 3450.0,
+    annualYield: 12.8,
+    value: 210000,
+    dynamicValuePerPercent: 4200,
+    accumulatedDividends: 18900,
+    acquiredAt: "2025-08-11",
+    status: "active",
+    sriScore: 79,
+    sriTier: "gold",
+    ahgiScore: 74,
+    ahgiTrend: "up",
+    pirDebt: 0,
+    ihcpDebt: 0,
+    lastPayout: "2026-06-22",
+    monthlyHistory: [
+      2800, 2900, 3000, 3100, 3150, 3200, 3250, 3300, 3350, 3400, 3420, 3450,
+    ],
   },
 ];
 
-const MONTHLY_AGGREGATE = [12400, 13200, 12800, 14500, 15100, 14800, 16200, 15800, 17500, 18200, 17800, 19240];
+const MONTHLY_AGGREGATE = [
+  12400, 13200, 12800, 14500, 15100, 14800, 16200, 15800, 17500, 18200, 17800,
+  19240,
+];
 
 // ─
 // UTILITIES
 // ─
 const formatMoney = (n: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(n);
 
 const formatMoneyPrecise = (n: number) =>
-  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(n);
+  new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 2,
+  }).format(n);
 
-const AnimatedCounter = ({ value, prefix = "", suffix = "", duration = 1800 }: { value: number; prefix?: string; suffix?: string; duration?: number }) => {
+const AnimatedCounter = ({
+  value,
+  prefix = "",
+  suffix = "",
+  duration = 1800,
+}: {
+  value: number;
+  prefix?: string;
+  suffix?: string;
+  duration?: number;
+}) => {
   const [display, setDisplay] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
   const [started, setStarted] = useState(false);
 
   useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) setStarted(true); }, { threshold: 0.1 });
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setStarted(true);
+      },
+      { threshold: 0.1 },
+    );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
   }, []);
@@ -149,7 +319,12 @@ const AnimatedCounter = ({ value, prefix = "", suffix = "", duration = 1800 }: {
 
   return (
     <span ref={ref} className="tabular-nums tracking-tighter">
-      {prefix}{display.toLocaleString("en-US", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}{suffix}
+      {prefix}
+      {display.toLocaleString("en-US", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      })}
+      {suffix}
     </span>
   );
 };
@@ -158,17 +333,33 @@ const AnimatedCounter = ({ value, prefix = "", suffix = "", duration = 1800 }: {
 // FUTURISTIC UI COMPONENTS
 // ─
 
-const HologramCard = ({ children, className = "", accent = "cyan", glow = false }: { children: React.ReactNode; className?: string; accent?: "cyan" | "amber" | "violet" | "emerald" | "rose" | "slate"; glow?: boolean }) => {
+const HologramCard = ({
+  children,
+  className = "",
+  accent = "cyan",
+  glow = false,
+}: {
+  children: React.ReactNode;
+  className?: string;
+  accent?: "cyan" | "amber" | "violet" | "emerald" | "rose" | "slate";
+  glow?: boolean;
+}) => {
   const accentMap = {
     cyan: "from-cyan-500/[0.08] via-blue-500/[0.03] to-transparent border-cyan-500/20 shadow-[0_0_60px_-15px_rgba(6,182,212,0.2)]",
-    amber: "from-amber-500/[0.08] via-yellow-500/[0.03] to-transparent border-amber-500/20 shadow-[0_0_60px_-15px_rgba(245,158,11,0.2)]",
-    violet: "from-violet-500/[0.08] via-fuchsia-500/[0.03] to-transparent border-violet-500/20 shadow-[0_0_60px_-15px_rgba(139,92,246,0.2)]",
-    emerald: "from-emerald-500/[0.08] via-teal-500/[0.03] to-transparent border-emerald-500/20 shadow-[0_0_60px_-15px_rgba(16,185,129,0.2)]",
+    amber:
+      "from-amber-500/[0.08] via-yellow-500/[0.03] to-transparent border-amber-500/20 shadow-[0_0_60px_-15px_rgba(245,158,11,0.2)]",
+    violet:
+      "from-violet-500/[0.08] via-fuchsia-500/[0.03] to-transparent border-violet-500/20 shadow-[0_0_60px_-15px_rgba(139,92,246,0.2)]",
+    emerald:
+      "from-emerald-500/[0.08] via-teal-500/[0.03] to-transparent border-emerald-500/20 shadow-[0_0_60px_-15px_rgba(16,185,129,0.2)]",
     rose: "from-rose-500/[0.08] via-red-500/[0.03] to-transparent border-rose-500/20 shadow-[0_0_60px_-15px_rgba(244,63,94,0.2)]",
-    slate: "from-slate-500/[0.06] via-slate-500/[0.02] to-transparent border-slate-500/15 shadow-[0_0_40px_-15px_rgba(100,116,139,0.1)]",
+    slate:
+      "from-slate-500/[0.06] via-slate-500/[0.02] to-transparent border-slate-500/15 shadow-[0_0_40px_-15px_rgba(100,116,139,0.1)]",
   };
   return (
-    <div className={`relative group overflow-hidden rounded-2xl border bg-gradient-to-br backdrop-blur-2xl transition-all duration-500 hover:scale-[1.005] ${accentMap[accent]} ${glow ? "animate-pulse-slow" : ""} ${className}`}>
+    <div
+      className={`relative group overflow-hidden rounded-2xl border bg-gradient-to-br backdrop-blur-2xl transition-all duration-500 hover:scale-[1.005] ${accentMap[accent]} ${glow ? "animate-pulse-slow" : ""} ${className}`}
+    >
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:24px_24px] opacity-40 pointer-events-none" />
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/5 to-transparent" />
@@ -180,15 +371,35 @@ const HologramCard = ({ children, className = "", accent = "cyan", glow = false 
 
 const StatusBadge = ({ status }: { status: string }) => {
   const map: Record<string, { cls: string; dot: string; label: string }> = {
-    active: { cls: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30", dot: "bg-emerald-400", label: "ACTIVE" },
-    maturing: { cls: "bg-amber-500/10 text-amber-400 border-amber-500/30", dot: "bg-amber-400", label: "MATURING" },
-    dormant: { cls: "bg-slate-500/10 text-slate-400 border-slate-500/30", dot: "bg-slate-400", label: "DORMANT" },
-    "closure-warning": { cls: "bg-rose-500/10 text-rose-400 border-rose-500/30", dot: "bg-rose-400 animate-pulse", label: "CRITICAL" },
+    active: {
+      cls: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30",
+      dot: "bg-emerald-400",
+      label: "ACTIVE",
+    },
+    maturing: {
+      cls: "bg-amber-500/10 text-amber-400 border-amber-500/30",
+      dot: "bg-amber-400",
+      label: "MATURING",
+    },
+    dormant: {
+      cls: "bg-slate-500/10 text-slate-400 border-slate-500/30",
+      dot: "bg-slate-400",
+      label: "DORMANT",
+    },
+    "closure-warning": {
+      cls: "bg-rose-500/10 text-rose-400 border-rose-500/30",
+      dot: "bg-rose-400 animate-pulse",
+      label: "CRITICAL",
+    },
   };
   const s = map[status] || map.dormant;
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-bold border uppercase tracking-[0.15em] ${s.cls}`}>
-      <span className={`w-1 h-1 rounded-full ${s.dot} shadow-[0_0_6px_currentColor]`} />
+    <span
+      className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[9px] font-bold border uppercase tracking-[0.15em] ${s.cls}`}
+    >
+      <span
+        className={`w-1 h-1 rounded-full ${s.dot} shadow-[0_0_6px_currentColor]`}
+      />
       {s.label}
     </span>
   );
@@ -196,18 +407,38 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 const SRIBadge = ({ tier, score }: { tier: string; score: number }) => {
   const map: Record<string, { icon: string; color: string; label: string }> = {
-    platinum: { icon: "👑", color: "from-violet-400 to-fuchsia-400", label: "PLATINUM" },
+    platinum: {
+      icon: "👑",
+      color: "from-violet-400 to-fuchsia-400",
+      label: "PLATINUM",
+    },
     gold: { icon: "🥇", color: "from-amber-400 to-yellow-400", label: "GOLD" },
-    silver: { icon: "🥈", color: "from-slate-300 to-slate-400", label: "SILVER" },
-    bronze: { icon: "🥉", color: "from-orange-400 to-amber-600", label: "BRONZE" },
-    "at-risk": { icon: "⚠️", color: "from-rose-400 to-red-500", label: "AT RISK" },
+    silver: {
+      icon: "🥈",
+      color: "from-slate-300 to-slate-400",
+      label: "SILVER",
+    },
+    bronze: {
+      icon: "🥉",
+      color: "from-orange-400 to-amber-600",
+      label: "BRONZE",
+    },
+    "at-risk": {
+      icon: "⚠️",
+      color: "from-rose-400 to-red-500",
+      label: "AT RISK",
+    },
   };
   const t = map[tier] || map.silver;
   return (
     <div className="flex items-center gap-1.5">
       <span className="text-[10px]">{t.icon}</span>
       <div className="flex flex-col leading-none">
-        <span className={`text-[9px] font-bold bg-gradient-to-r ${t.color} bg-clip-text text-transparent uppercase tracking-wider`}>{t.label}</span>
+        <span
+          className={`text-[9px] font-bold bg-gradient-to-r ${t.color} bg-clip-text text-transparent uppercase tracking-wider`}
+        >
+          {t.label}
+        </span>
         <span className="text-[9px] font-mono text-slate-500">SRI {score}</span>
       </div>
     </div>
@@ -215,13 +446,28 @@ const SRIBadge = ({ tier, score }: { tier: string; score: number }) => {
 };
 
 const AHGIBar = ({ score, trend }: { score: number; trend: string }) => {
-  const color = score >= 80 ? "bg-emerald-400" : score >= 60 ? "bg-cyan-400" : score >= 40 ? "bg-amber-400" : "bg-rose-400";
+  const color =
+    score >= 80
+      ? "bg-emerald-400"
+      : score >= 60
+        ? "bg-cyan-400"
+        : score >= 40
+          ? "bg-amber-400"
+          : "bg-rose-400";
   const trendIcon = trend === "up" ? "↗" : trend === "down" ? "↘" : "→";
-  const trendColor = trend === "up" ? "text-emerald-400" : trend === "down" ? "text-rose-400" : "text-slate-400";
+  const trendColor =
+    trend === "up"
+      ? "text-emerald-400"
+      : trend === "down"
+        ? "text-rose-400"
+        : "text-slate-400";
   return (
     <div className="flex items-center gap-1.5 w-20">
       <div className="flex-1 h-1 bg-slate-800 rounded-full overflow-hidden">
-        <div className={`h-full rounded-full ${color} shadow-[0_0_6px_currentColor]`} style={{ width: `${score}%` }} />
+        <div
+          className={`h-full rounded-full ${color} shadow-[0_0_6px_currentColor]`}
+          style={{ width: `${score}%` }}
+        />
       </div>
       <span className="text-[9px] font-mono text-slate-500 w-4">{score}</span>
       <span className={`text-[10px] ${trendColor}`}>{trendIcon}</span>
@@ -229,28 +475,69 @@ const AHGIBar = ({ score, trend }: { score: number; trend: string }) => {
   );
 };
 
-const MiniSparkline = ({ data, color = "#22d3ee", height = 28 }: { data: number[]; color?: string; height?: number }) => {
+const MiniSparkline = ({
+  data,
+  color = "#22d3ee",
+  height = 28,
+}: {
+  data: number[];
+  color?: string;
+  height?: number;
+}) => {
   const max = Math.max(...data);
   const min = Math.min(...data);
   const range = max - min || 1;
   const w = 100;
   const h = height;
-  const points = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * h}`).join(" ");
+  const points = data
+    .map(
+      (v, i) => `${(i / (data.length - 1)) * w},${h - ((v - min) / range) * h}`,
+    )
+    .join(" ");
   return (
-    <svg width="100%" height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" className="overflow-visible">
+    <svg
+      width="100%"
+      height={h}
+      viewBox={`0 0 ${w} ${h}`}
+      preserveAspectRatio="none"
+      className="overflow-visible"
+    >
       <defs>
-        <linearGradient id={`sp-${color.replace("#", "")}`} x1="0" y1="0" x2="0" y2="1">
+        <linearGradient
+          id={`sp-${color.replace("#", "")}`}
+          x1="0"
+          y1="0"
+          x2="0"
+          y2="1"
+        >
           <stop offset="0%" stopColor={color} stopOpacity="0.25" />
           <stop offset="100%" stopColor={color} stopOpacity="0" />
         </linearGradient>
       </defs>
-      <polyline fill={`url(#sp-${color.replace("#", "")})`} stroke="none" points={`0,${h} ${points} ${w},${h}`} />
-      <polyline fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" points={points} />
+      <polyline
+        fill={`url(#sp-${color.replace("#", "")})`}
+        stroke="none"
+        points={`0,${h} ${points} ${w},${h}`}
+      />
+      <polyline
+        fill="none"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        points={points}
+      />
     </svg>
   );
 };
 
-const DonutChart = ({ data, size = 140 }: { data: { label: string; value: number; color: string }[]; size?: number }) => {
+const DonutChart = ({
+  data,
+  size = 140,
+}: {
+  data: { label: string; value: number; color: string }[];
+  size?: number;
+}) => {
   const total = data.reduce((s, d) => s + d.value, 0);
   let cumulative = 0;
   const strokeWidth = 18;
@@ -259,7 +546,12 @@ const DonutChart = ({ data, size = 140 }: { data: { label: string; value: number
 
   return (
     <div className="relative" style={{ width: size, height: size }}>
-      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="rotate-[-90deg]">
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className="rotate-[-90deg]"
+      >
         {data.map((slice, i) => {
           const slicePercent = slice.value / total;
           const dashArray = slicePercent * circumference;
@@ -283,25 +575,42 @@ const DonutChart = ({ data, size = 140 }: { data: { label: string; value: number
         })}
       </svg>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <span className="text-[9px] text-slate-500 uppercase tracking-wider">Value</span>
-        <span className="text-sm font-bold text-white font-mono">{formatMoney(total)}</span>
+        <span className="text-[9px] text-slate-500 uppercase tracking-wider">
+          Value
+        </span>
+        <span className="text-sm font-bold text-white font-mono">
+          {formatMoney(total)}
+        </span>
       </div>
     </div>
   );
 };
 
-const HexBadge = ({ value, label, color = "cyan" }: { value: string; label: string; color?: "cyan" | "amber" | "emerald" | "violet" | "rose" }) => {
+const HexBadge = ({
+  value,
+  label,
+  color = "cyan",
+}: {
+  value: string;
+  label: string;
+  color?: "cyan" | "amber" | "emerald" | "violet" | "rose" | "slate";
+}) => {
   const colors = {
     cyan: "border-cyan-500/30 text-cyan-400 bg-cyan-500/5",
     amber: "border-amber-500/30 text-amber-400 bg-amber-500/5",
     emerald: "border-emerald-500/30 text-emerald-400 bg-emerald-500/5",
     violet: "border-violet-500/30 text-violet-400 bg-violet-500/5",
     rose: "border-rose-500/30 text-rose-400 bg-rose-500/5",
+    slate: "border-slate-500/30 text-slate-400 bg-slate-500/5",
   };
   return (
-    <div className={`flex flex-col items-center justify-center w-14 h-14 rounded-xl border ${colors[color]} backdrop-blur-sm`}>
+    <div
+      className={`flex flex-col items-center justify-center w-14 h-14 rounded-xl border ${colors[color]} backdrop-blur-sm`}
+    >
       <span className="text-xs font-bold font-mono">{value}</span>
-      <span className="text-[8px] uppercase tracking-wider text-slate-500">{label}</span>
+      <span className="text-[8px] uppercase tracking-wider text-slate-500">
+        {label}
+      </span>
     </div>
   );
 };
@@ -311,8 +620,12 @@ const HexBadge = ({ value, label, color = "cyan" }: { value: string; label: stri
 // ─
 export default function VaultPage() {
   const [assets, setAssets] = useState<VaultAsset[]>(ASSETS);
-  const [filter, setFilter] = useState<"all" | "active" | "maturing" | "dormant" | "closure-warning">("all");
-  const [sortBy, setSortBy] = useState<"value" | "yield" | "income" | "ahgi" | "sri">("value");
+  const [filter, setFilter] = useState<
+    "all" | "active" | "maturing" | "dormant" | "closure-warning"
+  >("all");
+  const [sortBy, setSortBy] = useState<
+    "value" | "yield" | "income" | "ahgi" | "sri"
+  >("value");
   const [viewMode, setViewMode] = useState<"grid" | "table">("grid");
   const [selectedAsset, setSelectedAsset] = useState<string | null>(null);
   const [reinvestRate, setReinvestRate] = useState(50);
@@ -322,44 +635,92 @@ export default function VaultPage() {
     const totalValue = assets.reduce((s, a) => s + a.value, 0);
     const totalMonthly = assets.reduce((s, a) => s + a.monthlyIncome, 0);
     const totalAnnual = totalMonthly * 12;
-    const avgYield = assets.length ? assets.reduce((s, a) => s + a.annualYield, 0) / assets.length : 0;
-    const sriWeighted = assets.length ? assets.reduce((s, a) => s + a.sriScore * a.value, 0) / totalValue : 0;
-    const ahgiWeighted = assets.length ? assets.reduce((s, a) => s + a.ahgiScore * a.value, 0) / totalValue : 0;
-    const uniqueVerticals = new Set(assets.map(a => a.vertical)).size;
+    const avgYield = assets.length
+      ? assets.reduce((s, a) => s + a.annualYield, 0) / assets.length
+      : 0;
+    const sriWeighted = assets.length
+      ? assets.reduce((s, a) => s + a.sriScore * a.value, 0) / totalValue
+      : 0;
+    const ahgiWeighted = assets.length
+      ? assets.reduce((s, a) => s + a.ahgiScore * a.value, 0) / totalValue
+      : 0;
+    const uniqueVerticals = new Set(assets.map((a) => a.vertical)).size;
     const diversificationScore = Math.min((uniqueVerticals / 11) * 100, 100);
-    const riskExposure = assets.filter(a => a.status === "closure-warning").reduce((s, a) => s + a.value, 0) / totalValue * 100;
-    return { totalValue, totalMonthly, totalAnnual, avgYield, totalAssets: assets.length, sriWeighted, ahgiWeighted, diversificationScore, riskExposure };
+    const riskExposure =
+      (assets
+        .filter((a) => a.status === "closure-warning")
+        .reduce((s, a) => s + a.value, 0) /
+        totalValue) *
+      100;
+    return {
+      totalValue,
+      totalMonthly,
+      totalAnnual,
+      avgYield,
+      totalAssets: assets.length,
+      sriWeighted,
+      ahgiWeighted,
+      diversificationScore,
+      riskExposure,
+    };
   }, [assets]);
 
   const filtered = useMemo(() => {
-    const list = filter === "all" ? assets : assets.filter(a => a.status === filter);
+    const list =
+      filter === "all" ? assets : assets.filter((a) => a.status === filter);
     return [...list].sort((a, b) => {
       switch (sortBy) {
-        case "value": return b.value - a.value;
-        case "yield": return b.annualYield - a.annualYield;
-        case "income": return b.monthlyIncome - a.monthlyIncome;
-        case "ahgi": return b.ahgiScore - a.ahgiScore;
-        case "sri": return b.sriScore - a.sriScore;
-        default: return 0;
+        case "value":
+          return b.value - a.value;
+        case "yield":
+          return b.annualYield - a.annualYield;
+        case "income":
+          return b.monthlyIncome - a.monthlyIncome;
+        case "ahgi":
+          return b.ahgiScore - a.ahgiScore;
+        case "sri":
+          return b.sriScore - a.sriScore;
+        default:
+          return 0;
       }
     });
   }, [assets, filter, sortBy]);
 
   const allocation = useMemo(() => {
     const map: Record<string, number> = {};
-    assets.forEach(a => { map[a.vertical] = (map[a.vertical] || 0) + a.value; });
+    assets.forEach((a) => {
+      map[a.vertical] = (map[a.vertical] || 0) + a.value;
+    });
     const colors: Record<string, string> = {
-      LedgerProp: "#fbbf24", LedgerAuto: "#22d3ee", LedgerTravel: "#a855f7", LedgerAgri: "#34d399",
-      LedgerEnergy: "#f59e0b", LedgerBiz: "#6366f1", LedgerEdu: "#ec4899", LedgerHealth: "#f43f5e",
-      LedgerTech: "#14b8a6", LedgerAccess: "#8b5cf6", SportLedger: "#e879f9",
+      LedgerProp: "#fbbf24",
+      LedgerAuto: "#22d3ee",
+      LedgerTravel: "#a855f7",
+      LedgerAgri: "#34d399",
+      LedgerEnergy: "#f59e0b",
+      LedgerBiz: "#6366f1",
+      LedgerEdu: "#ec4899",
+      LedgerHealth: "#f43f5e",
+      LedgerTech: "#14b8a6",
+      LedgerAccess: "#8b5cf6",
+      SportLedger: "#e879f9",
     };
-    return Object.entries(map).map(([label, value]) => ({ label, value, color: colors[label] || "#94a3b8" }));
+    return Object.entries(map).map(([label, value]) => ({
+      label,
+      value,
+      color: colors[label] || "#94a3b8",
+    }));
   }, [assets]);
 
   const continentSpread = useMemo(() => {
     const map: Record<string, number> = {};
-    assets.forEach(a => { map[a.continent] = (map[a.continent] || 0) + a.value; });
-    return Object.entries(map).map(([name, value]) => ({ name, value, percent: ((value / stats.totalValue) * 100).toFixed(1) }));
+    assets.forEach((a) => {
+      map[a.continent] = (map[a.continent] || 0) + a.value;
+    });
+    return Object.entries(map).map(([name, value]) => ({
+      name,
+      value,
+      percent: ((value / stats.totalValue) * 100).toFixed(1),
+    }));
   }, [assets, stats.totalValue]);
 
   const simulatorProjection = useMemo(() => {
@@ -378,9 +739,17 @@ export default function VaultPage() {
   }, [stats, reinvestRate]);
 
   const VERTICAL_LABELS: Record<string, string> = {
-    LedgerProp: "Property", LedgerAuto: "Auto", LedgerTravel: "Travel", LedgerAgri: "Agriculture",
-    LedgerEnergy: "Energy", LedgerBiz: "Business", LedgerEdu: "Education", LedgerHealth: "Health",
-    LedgerTech: "Technology", LedgerAccess: "Access", SportLedger: "Sport",
+    LedgerProp: "Property",
+    LedgerAuto: "Auto",
+    LedgerTravel: "Travel",
+    LedgerAgri: "Agriculture",
+    LedgerEnergy: "Energy",
+    LedgerBiz: "Business",
+    LedgerEdu: "Education",
+    LedgerHealth: "Health",
+    LedgerTech: "Technology",
+    LedgerAccess: "Access",
+    SportLedger: "Sport",
   };
 
   return (

@@ -73,7 +73,7 @@ interface CycleArchive {
   winnerPoolId: string | null;
   startAt: string;
   endAt: string;
-  cyclePools: { id: string; pool: { name: string; verticalId: string } }[];
+  cyclePools: { id: string; poolId?: string; pool: { name: string; verticalId: string } }[];
 }
 
 //
@@ -811,7 +811,7 @@ function ForgeCard({ cyclePool }: { cyclePool: CyclePool }) {
 function CycleArchiveCard({ cycle }: { cycle: CycleArchive }) {
   const router = useRouter();
   const continent = CONTINENTS.find((c) => c.id === cycle.continent);
-  const winner = cycle.cyclePools.find((cp) => cp.poolId === cycle.winnerPoolId);
+  const winner = cycle.cyclePools.find((cp) => (cp.poolId ?? cp.id) === cycle.winnerPoolId);
 
   return (
     <div

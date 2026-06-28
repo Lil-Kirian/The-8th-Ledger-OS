@@ -111,8 +111,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         },
         dividendEntries: {
           where: { claimed: true },
-          select: { amount: true, createdAt: true },
-          orderBy: { createdAt: "desc" },
+          select: {
+            amount: true,
+            distribution: { select: { distributedAt: true } },
+          },
+          orderBy: { distribution: { distributedAt: "desc" } },
           take: 12,
         },
       },

@@ -19,7 +19,10 @@ const PHASE_DURATIONS_MS = {
   forge: 6 * 60 * 60 * 1000,
 } as const;
 
-const TOTAL_CYCLE_DURATION_MS = Object.values(PHASE_DURATIONS_MS).reduce((a, b) => a + b, 0);
+const TOTAL_CYCLE_DURATION_MS = Object.values(PHASE_DURATIONS_MS).reduce(
+  (a, b) => a + b,
+  0,
+);
 
 //
 // HELPERS
@@ -37,7 +40,7 @@ function maskPoolId(poolId: string): string {
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     // 1. Auth
@@ -202,7 +205,6 @@ export async function POST(
         where: { id: winner.pool.id },
         data: {
           status: "filling",
-          meridianCycleId: cycleId,
         },
       });
 
@@ -286,7 +288,7 @@ export async function POST(
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: cycleId } = await params;
@@ -294,7 +296,7 @@ export async function GET(
     if (!cycleId || cycleId.length < 10) {
       return NextResponse.json(
         { error: "Invalid cycle ID", code: "VALIDATION_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -322,15 +324,19 @@ export async function GET(
     if (!cycle) {
       return NextResponse.json(
         { error: "Cycle not found", code: "NOT_FOUND" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    const totalVotes = cycle.cyclePools.reduce((sum, cp) => sum + cp.voteCount, 0);
+    const totalVotes = cycle.cyclePools.reduce(
+      (sum, cp) => sum + cp.voteCount,
+      0,
+    );
     const maxVotes = Math.max(...cycle.cyclePools.map((cp) => cp.voteCount), 0);
 
     const tally = cycle.cyclePools.map((cp) => {
-      const votePercent = totalVotes > 0 ? (cp.voteCount / totalVotes) * 100 : 0;
+      const votePercent =
+        totalVotes > 0 ? (cp.voteCount / totalVotes) * 100 : 0;
       return {
         id: cp.id,
         cyclePoolId: cp.id,
@@ -352,7 +358,9 @@ export async function GET(
         id: cycle.id,
         continent: cycle.continent,
         phase: cycle.phase,
-        winnerPoolId: cycle.winnerPoolId ? maskPoolId(cycle.winnerPoolId) : null,
+        winnerPoolId: cycle.winnerPoolId
+          ? maskPoolId(cycle.winnerPoolId)
+          : null,
       },
       tally,
       stats: {
@@ -365,18 +373,21 @@ export async function GET(
           cycle.phase === "reveal"
             ? "The votes are being counted."
             : cycle.phase === "forge"
-            ? "The winner has been revealed. The Forge is open."
-            : "Cycle complete.",
+              ? "The winner has been revealed. The Forge is open."
+              : "Cycle complete.",
       },
     });
 
-    response.headers.set("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=30, stale-while-revalidate=60",
+    );
     return response;
   } catch (error) {
     console.error("[MERIDIAN_REVEAL_GET]", error);
     return NextResponse.json(
       { error: "Cannot retrieve reveal state", code: "MERIDIAN_REVEAL_002" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

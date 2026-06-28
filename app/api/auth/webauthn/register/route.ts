@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
         const options = await generateRegistrationOptions({
           rpName: "8th Ledger Protocol",
           rpID: process.env.WEBAUTHN_RP_ID || "localhost",
-          userID: user.ledgerId,
+          userID: Buffer.from(user.ledgerId),
           userName: user.displayName,
           challenge,
           attestationType: "direct",
@@ -84,15 +84,15 @@ export async function POST(req: NextRequest) {
 
     /* ---- STEP 2: Verify & Store Credential ---- */
     if (step === "finish") {
-      const { credential } = body;
-      if (!credential?.id || !credential?.rawId || !credential?.response) {
+      const { credential: responseCredential } = body;
+      if (!responseCredential?.id || !responseCredential?.rawId || !responseCredential?.response) {
         return NextResponse.json({ error: "Invalid credential payload" }, { status: 400 });
       }
 
       try {
         const { verifyRegistrationResponse } = await import("@simplewebauthn/server");
         const verification = await verifyRegistrationResponse({
-          response: credential,
+          response: responseCredential,
           expectedChallenge: async () => true, // Simplified — production should verify exact challenge
           expectedOrigin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
           expectedRPID: process.env.WEBAUTHN_RP_ID || "localhost",
@@ -103,14 +103,14 @@ export async function POST(req: NextRequest) {
           throw new Error("Verification failed");
         }
 
-        const { credentialPublicKey, credentialID, counter } = verification.registrationInfo;
+        const { credential: storedCredential } = verification.registrationInfo;
 
         await prisma.user.update({
           where: { id: user.id },
           data: {
-            webauthnCredentialId: Buffer.from(credentialID).toString("base64url"),
-            webauthnPublicKey: Buffer.from(credentialPublicKey).toString("base64url"),
-            webauthnCounter: counter,
+            webauthnCredentialId: storedCredential.id,
+            webauthnPublicKey: Buffer.from(storedCredential.publicKey).toString("base64url"),
+            webauthnCounter: storedCredential.counter,
           },
         });
 
@@ -135,8 +135,8 @@ export async function POST(req: NextRequest) {
         await prisma.user.update({
           where: { id: user.id },
           data: {
-            webauthnCredentialId: credential.id,
-            webauthnPublicKey: credential.rawId,
+            webauthnCredentialId: responseCredential.id,
+            webauthnPublicKey: responseCredential.rawId,
             webauthnCounter: 0,
           },
         });

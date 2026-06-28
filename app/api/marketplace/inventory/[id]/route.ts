@@ -126,7 +126,7 @@ export async function PATCH(
 ) {
   try {
     const user = await requireAuth(req);
-    const claims = getSessionClaims(req);
+    const claims = await getSessionClaims(req);
     const isFounder = isFounderSync(claims);
 
     const { id } = await params;
@@ -344,7 +344,7 @@ export async function DELETE(
 ) {
   try {
     const user = await requireAuth(req);
-    const claims = getSessionClaims(req);
+    const claims = await getSessionClaims(req);
     const isFounder = isFounderSync(claims);
 
     const { id } = await params;

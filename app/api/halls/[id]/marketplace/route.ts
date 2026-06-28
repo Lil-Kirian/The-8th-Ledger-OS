@@ -21,12 +21,12 @@ async function isHallOwner(hallId: string, userId: string): Promise<boolean> {
 // ── GET — List hall inventory with stats
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: hallId } = await params;
     const user = await requireAuth(req);
-    const claims = getSessionClaims(req);
+    const claims = await getSessionClaims(req);
     const isFounder = isFounderSync(claims);
 
     const hall = await prisma.hall.findUnique({
@@ -188,15 +188,15 @@ export async function GET(
   }
 }
 
-// ── POST — Create inventory item for hall 
+// ── POST — Create inventory item for hall
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: hallId } = await params;
     const user = await requireAuth(req);
-    const claims = getSessionClaims(req);
+    const claims = await getSessionClaims(req);
     const isFounder = isFounderSync(claims);
 
     const hall = await prisma.hall.findUnique({
@@ -366,12 +366,12 @@ export async function POST(
 // ── PATCH — Update inventory item
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: hallId } = await params;
     const user = await requireAuth(req);
-    const claims = getSessionClaims(req);
+    const claims = await getSessionClaims(req);
     const isFounder = isFounderSync(claims);
 
     const body = await req.json();
@@ -560,12 +560,12 @@ export async function PATCH(
 // ── DELETE — Soft-delete inventory item ─
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: hallId } = await params;
     const user = await requireAuth(req);
-    const claims = getSessionClaims(req);
+    const claims = await getSessionClaims(req);
     const isFounder = isFounderSync(claims);
 
     const { searchParams } = new URL(req.url);

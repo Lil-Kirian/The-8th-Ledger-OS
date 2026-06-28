@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
+import type { PoolDetail } from "@/types/pools";
 import {
   Landmark, Zap, Crown, Lock, HeartPulse, TrendingUp, Hexagon, Plane, Sprout, Sun,
   ArrowLeft, Users, Globe, Timer, Coins, CheckCircle2, Shield,
@@ -757,7 +758,7 @@ export default function PoolDetailPage() {
   const poolId = params.id as string;
   const { user } = useAuth();
 
-  const [pool, setPool] = useState<unknown>(null);
+  const [pool, setPool] = useState<PoolDetail | null>(null);
   const [reviews, setReviews] = useState<unknown[]>([]);
   const [reviewStats, setReviewStats] = useState({ total: 0, average: 0 });
   const [loading, setLoading] = useState(true);

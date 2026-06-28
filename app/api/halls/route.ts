@@ -212,7 +212,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
       const emojiSet = pool?.emojiSet ? Array.from(pool.emojiSet) : ["🏠"];
 
-      const base: Record<string, unknown> = {
+      const base: any = {
         id: hall.id,
         verticalId: pool?.verticalId || "unknown",
         name: hall.name,

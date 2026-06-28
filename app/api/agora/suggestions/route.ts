@@ -52,13 +52,21 @@ interface RateLimitEntry {
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
-function checkRateLimit(ip: string): { allowed: boolean; resetAt: number; remaining: number } {
+function checkRateLimit(ip: string): {
+  allowed: boolean;
+  resetAt: number;
+  remaining: number;
+} {
   const now = Date.now();
   const entry = rateLimitStore.get(ip);
 
   if (!entry || now > entry.resetAt) {
     rateLimitStore.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true, resetAt: now + RATE_LIMIT_WINDOW_MS, remaining: RATE_LIMIT_MAX - 1 };
+    return {
+      allowed: true,
+      resetAt: now + RATE_LIMIT_WINDOW_MS,
+      remaining: RATE_LIMIT_MAX - 1,
+    };
   }
 
   if (entry.count >= RATE_LIMIT_MAX) {
@@ -66,7 +74,11 @@ function checkRateLimit(ip: string): { allowed: boolean; resetAt: number; remain
   }
 
   entry.count += 1;
-  return { allowed: true, resetAt: entry.resetAt, remaining: RATE_LIMIT_MAX - entry.count };
+  return {
+    allowed: true,
+    resetAt: entry.resetAt,
+    remaining: RATE_LIMIT_MAX - entry.count,
+  };
 }
 
 //
@@ -131,7 +143,10 @@ export async function GET(req: NextRequest) {
     const q = searchParams.get("q") || undefined;
     const sort = (searchParams.get("sort") as SortMode) || "trending";
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const limit = Math.min(
+      50,
+      Math.max(1, parseInt(searchParams.get("limit") || "20", 10)),
+    );
     const skip = (page - 1) * limit;
 
     // Build Prisma where clause (schema-indexed fields)
@@ -139,7 +154,10 @@ export async function GET(req: NextRequest) {
       status?: StatusFilter;
       continent?: string;
       vertical?: string;
-      OR?: Array<{ title?: { contains: string; mode: "insensitive" }; description?: { contains: string; mode: "insensitive" } }>;
+      OR?: Array<{
+        title?: { contains: string; mode: "insensitive" };
+        description?: { contains: string; mode: "insensitive" };
+      }>;
     } = {};
 
     if (status) where.status = status;
@@ -157,8 +175,8 @@ export async function GET(req: NextRequest) {
       sort === "newest"
         ? { createdAt: "desc" as const }
         : sort === "top"
-        ? { upvotes: "desc" as const }
-        : [{ upvotes: "desc" as const }, { createdAt: "desc" as const }];
+          ? { upvotes: "desc" as const }
+          : [{ upvotes: "desc" as const }, { createdAt: "desc" as const }];
 
     // Parallel fetch: data + count
     const [suggestions, total] = await Promise.all([
@@ -212,13 +230,16 @@ export async function GET(req: NextRequest) {
     });
 
     // Public cache: 60 seconds for read-heavy endpoint
-    response.headers.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=60, stale-while-revalidate=300",
+    );
     return response;
   } catch (error) {
     console.error("[AGORA_SUGGESTIONS_GET]", error);
     return NextResponse.json(
       { error: "Failed to fetch suggestions", code: "AGORA_001" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -235,7 +256,10 @@ export async function POST(req: NextRequest) {
     requireKycTier(user, "sovereign");
 
     // 2. Rate limit by IP
-    const ip = req.headers.get("x-forwarded-for") || req.ip || "unknown";
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("x-real-ip") ||
+      "unknown";
     const rateLimit = checkRateLimit(ip);
     if (!rateLimit.allowed) {
       return NextResponse.json(

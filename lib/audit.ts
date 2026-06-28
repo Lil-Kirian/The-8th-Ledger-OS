@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { generateTxHash } from "@/lib/utils";
 
 /* ============================================================
    8TH LEDGER — AUDIT HELPER
@@ -42,7 +43,7 @@ export async function logSecurityAudit(data: {
   return createAuditEntry({
     type: data.action,
     description: `${data.action}${data.targetId ? ` on ${data.targetId}` : ""}`,
-    txHash: `SEC-${data.action}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+    txHash: generateTxHash(`SEC-${data.action}`),
     ledgerId: data.actorId ?? undefined,
     poolId: undefined,
   }).catch(async () =>
@@ -52,9 +53,9 @@ export async function logSecurityAudit(data: {
         description: `${data.action}${data.targetId ? ` on ${data.targetId}` : ""}`,
         ledgerId: data.actorId ?? undefined,
         metadata: JSON.stringify(metadata),
-        txHash: `SECLOG-${data.action}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+        txHash: generateTxHash(`SECLOG-${data.action}`),
         visibleToPublic: false,
       },
-    })
+    }),
   );
 }

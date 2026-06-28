@@ -33,7 +33,7 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
-    if (!user || !isPrimaryAdmin(user.ledgerId)) {
+    if (!user || !(await isPrimaryAdmin(user.ledgerId))) {
       return NextResponse.json(
         { success: false, error: "Primary Admin authority required" },
         { status: 403 }
@@ -61,7 +61,6 @@ export async function GET(
             target: true,
             hallClass: true,
             pirAllocation: true,
-            meridianCycleId: true,
           },
         },
         hallTreasury: true,
@@ -132,7 +131,7 @@ export async function GET(
         where: { hallId },
         orderBy: { calculatedAt: "desc" },
       }),
-      prisma.closureProtocol.findUnique({
+      prisma.closureProtocol.findFirst({
         where: { hallId },
       }),
       prisma.sriSnapshot.findMany({
@@ -165,7 +164,10 @@ export async function GET(
         },
       }),
       prisma.banRecord.findMany({
-        where: { hallId, status: "active" },
+        where: {
+          hallId,
+          OR: [{ expiresAt: { gt: new Date() } }, { expiresAt: null }],
+        },
         include: {
           user: {
             select: {
@@ -226,7 +228,7 @@ export async function GET(
         sriScore: hall.sriScore,
         ahgiScore: hall.ahgiScore,
         closureStatus: hall.closureStatus,
-        executiveCabinetId: hall.executiveCabinetId,
+        executiveCabinetId: hall.executiveCabinet?.id ?? null,
         pirDebt: hall.pirDebt,
         payrollReserve: hall.payrollReserve,
         createdAt: hall.createdAt,
@@ -328,7 +330,7 @@ export async function PATCH(
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
-    if (!user || !isPrimaryAdmin(user.ledgerId)) {
+    if (!user || !(await isPrimaryAdmin(user.ledgerId))) {
       return NextResponse.json(
         { success: false, error: "Primary Admin authority required" },
         { status: 403 }
@@ -407,7 +409,7 @@ export async function POST(
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
-    if (!user || !isPrimaryAdmin(user.ledgerId)) {
+    if (!user || !(await isPrimaryAdmin(user.ledgerId))) {
       return NextResponse.json(
         { success: false, error: "Primary Admin authority required" },
         { status: 403 }
@@ -435,7 +437,7 @@ export async function POST(
     if (action === "trigger_closure_warning") {
       const { reason } = body;
 
-      const existing = await prisma.closureProtocol.findUnique({
+      const existing = await prisma.closureProtocol.findFirst({
         where: { hallId },
       });
 
@@ -496,7 +498,7 @@ export async function POST(
     if (action === "force_liquidation") {
       const { liquidationValue, reason } = body;
 
-      const activeProtocol = await prisma.closureProtocol.findUnique({
+      const activeProtocol = await prisma.closureProtocol.findFirst({
         where: { hallId },
       });
 

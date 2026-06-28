@@ -18,7 +18,7 @@ const reviewSchema = z.object({
    ============================================================ */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const { id: poolId } = await params;
@@ -56,7 +56,7 @@ export async function GET(
     console.error("[REVIEWS_GET]", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch reviews" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -66,12 +66,15 @@ export async function GET(
    ============================================================ */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: poolId } = await params;
@@ -83,7 +86,10 @@ export async function POST(
     });
 
     if (!pool) {
-      return NextResponse.json({ success: false, error: "Pool not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Pool not found" },
+        { status: 404 },
+      );
     }
 
     // Check if user already reviewed this pool
@@ -96,7 +102,7 @@ export async function POST(
     if (existingReview) {
       return NextResponse.json(
         { success: false, error: "You have already reviewed this pool" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -131,15 +137,15 @@ export async function POST(
   } catch (error) {
     if (error instanceof z.ZodError) {
       return NextResponse.json(
-        { success: false, error: "Invalid input", details: error.errors },
-        { status: 400 }
+        { success: false, error: "Invalid input", details: error.issues },
+        { status: 400 },
       );
     }
 
     console.error("[REVIEWS_POST]", error);
     return NextResponse.json(
       { success: false, error: "Failed to create review" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

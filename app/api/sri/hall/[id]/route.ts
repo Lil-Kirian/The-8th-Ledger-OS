@@ -44,7 +44,7 @@ async function calculateSri(hallId: string): Promise<SRIBreakdown> {
       ownerships: { where: { status: "active" } },
       proposals: true,
       sriSnapshots: { orderBy: { recordedAt: "desc" }, take: 1 },
-      revenueLogs: true,
+      pool: { include: { revenueLogs: true } },
       _count: { select: { ownerships: true } },
     },
   });
@@ -55,15 +55,19 @@ async function calculateSri(hallId: string): Promise<SRIBreakdown> {
   const activeOwners = hall.ownerships.length;
 
   // Governance Activity (25%): votes cast / eligible voters
-  const proposalsWithVotes = hall.proposals.filter((p) => p.voteCountYes + p.voteCountNo > 0);
-  const totalVotesCast = proposalsWithVotes.reduce((sum, p) => sum + p.voteCountYes + p.voteCountNo, 0);
+  const proposalsWithVotes = hall.proposals.filter(
+    (p) => p.voteCountYes + p.voteCountNo > 0,
+  );
+  const totalVotesCast = proposalsWithVotes.reduce(
+    (sum, p) => sum + p.voteCountYes + p.voteCountNo,
+    0,
+  );
   const eligibleVotes = totalOwners * hall.proposals.length;
-  const governanceActivity = eligibleVotes > 0
-    ? Math.round((totalVotesCast / eligibleVotes) * 100)
-    : 0;
+  const governanceActivity =
+    eligibleVotes > 0 ? Math.round((totalVotesCast / eligibleVotes) * 100) : 0;
 
   // Revenue Consistency (25%): positive months / total months
-  const revenueLogs = hall.revenueLogs;
+  const revenueLogs = hall.pool.revenueLogs;
   const positiveMonths = revenueLogs.filter((r) => r.amount > 0).length;
   const totalMonths = revenueLogs.length || 1;
   const revenueConsistency = Math.round((positiveMonths / totalMonths) * 100);
@@ -73,29 +77,34 @@ async function calculateSri(hallId: string): Promise<SRIBreakdown> {
 
   // Proposal Quality (15%): pass rate
   const closedProposals = hall.proposals.filter((p) => p.status !== "pending");
-  const passedProposals = closedProposals.filter((p) => p.status === "passed").length;
-  const proposalQuality = closedProposals.length > 0
-    ? Math.round((passedProposals / closedProposals.length) * 100)
-    : 0;
+  const passedProposals = closedProposals.filter(
+    (p) => p.status === "passed",
+  ).length;
+  const proposalQuality =
+    closedProposals.length > 0
+      ? Math.round((passedProposals / closedProposals.length) * 100)
+      : 0;
 
   // Dormancy Rate (10%): % inactive (inverted: lower dormancy = higher score)
   const inactiveOwners = totalOwners - activeOwners;
-  const dormancyRate = totalOwners > 0
-    ? Math.round(((totalOwners - inactiveOwners) / totalOwners) * 100)
-    : 100;
+  const dormancyRate =
+    totalOwners > 0
+      ? Math.round(((totalOwners - inactiveOwners) / totalOwners) * 100)
+      : 100;
 
   // Marketplace Velocity (5%): PAC turnover (mock: 100 if no listings, else calc)
   const listings = await prisma.ownershipListing.count({ where: { hallId } });
-  const marketplaceVelocity = listings === 0 ? 100 : Math.max(0, 100 - listings * 5);
+  const marketplaceVelocity =
+    listings === 0 ? 100 : Math.max(0, 100 - listings * 5);
 
   // Weighted total
   const totalScore = Math.round(
     governanceActivity * 0.25 +
-    revenueConsistency * 0.25 +
-    dividendReliability * 0.20 +
-    proposalQuality * 0.15 +
-    dormancyRate * 0.10 +
-    marketplaceVelocity * 0.05
+      revenueConsistency * 0.25 +
+      dividendReliability * 0.2 +
+      proposalQuality * 0.15 +
+      dormancyRate * 0.1 +
+      marketplaceVelocity * 0.05,
   );
 
   const components: SRIComponents = {
@@ -167,7 +176,9 @@ async function calculateSri(hallId: string): Promise<SRIBreakdown> {
   };
 }
 
-async function getLatestSriSnapshot(hallId: string): Promise<SRIBreakdown | null> {
+async function getLatestSriSnapshot(
+  hallId: string,
+): Promise<SRIBreakdown | null> {
   const snap = await prisma.sriSnapshot.findFirst({
     where: { hallId },
     orderBy: { recordedAt: "desc" },
@@ -210,7 +221,7 @@ async function getSriHistory(hallId: string, months: number) {
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: hallId } = await params;
@@ -219,7 +230,7 @@ export async function GET(
     if (!auth.success) {
       return NextResponse.json(
         { error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -227,7 +238,7 @@ export async function GET(
     if (!access.success && !auth.isPrimaryAdmin && auth.role !== "admin") {
       return NextResponse.json(
         { error: "Hall access denied" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -267,15 +278,15 @@ export async function GET(
           breakdown.tier === "platinum"
             ? 0.25
             : breakdown.tier === "gold"
-            ? 0.5
-            : 1.0,
+              ? 0.5
+              : 1.0,
       },
     });
   } catch (error) {
     console.error("[SRI HALL GET]", error);
     return NextResponse.json(
       { error: "Failed to fetch SRI", detail: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -287,7 +298,7 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: hallId } = await params;
@@ -296,7 +307,7 @@ export async function POST(
     if (!admin.success) {
       return NextResponse.json(
         { error: "Admin authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -306,10 +317,7 @@ export async function POST(
     });
 
     if (!hall) {
-      return NextResponse.json(
-        { error: "Hall not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Hall not found" }, { status: 404 });
     }
 
     const breakdown = await calculateSri(hallId);
@@ -340,15 +348,15 @@ export async function POST(
           breakdown.tier === "platinum"
             ? 0.25
             : breakdown.tier === "gold"
-            ? 0.5
-            : 1.0,
+              ? 0.5
+              : 1.0,
       },
     });
   } catch (error) {
     console.error("[SRI HALL POST]", error);
     return NextResponse.json(
       { error: "Failed to recalculate SRI", detail: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

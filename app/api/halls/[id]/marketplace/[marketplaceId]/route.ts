@@ -298,7 +298,7 @@ export async function PATCH(
 ): Promise<NextResponse> {
   try {
     const user = await requireAuth(request);
-    const claims = getSessionClaims(request);
+    const claims = await getSessionClaims(request);
     const isFounder = isFounderSync(claims);
 
     if (!isFounder && user.role !== "admin") {

@@ -69,6 +69,36 @@ export interface HallClassWorkerRules {
   showIndividualSalaries: boolean;
 }
 
+export interface TerminationProposalInput {
+  workerId: string;
+  workerNumber: string;
+  role: string;
+  performanceScore: number;
+  reason: string;
+  noticeDays: number;
+}
+
+export function buildTerminationProposal(input: TerminationProposalInput): {
+  title: string;
+  description: string;
+  metadata: TerminationProposalInput;
+} {
+  const noticeText =
+    input.noticeDays > 0
+      ? `${input.noticeDays}-day notice`
+      : "immediate termination";
+
+  return {
+    title: `Terminate ${input.role} ${input.workerNumber}`,
+    description: [
+      `Proposal for ${noticeText} of worker ${input.workerNumber} (${input.role}).`,
+      `Performance score: ${Math.round(input.performanceScore)}.`,
+      `Reason: ${input.reason.trim()}`,
+    ].join("\n\n"),
+    metadata: input,
+  };
+}
+
 export function getHallClassWorkerRules(hallClass?: string | null): HallClassWorkerRules {
   switch (hallClass) {
     case "III":
@@ -305,7 +335,14 @@ export async function executePayroll(
   monthOrExecutorId?: string,
   executorId?: string,
   isAdmin: boolean = true
-): Promise<{ success: boolean; payroll?: PayrollExecution; error?: string }> {
+): Promise<{
+  success: boolean;
+  payroll?: PayrollExecution;
+  forgeLedgerId?: string;
+  totalPayroll?: number;
+  workerCount?: number;
+  error?: string;
+}> {
   if (!isAdmin) return { success: false, error: "8th Ledger authority required" };
   const month =
     monthOrExecutorId && /^\d{4}-\d{2}$/.test(monthOrExecutorId)
@@ -354,7 +391,7 @@ export async function executePayroll(
     status: w.status,
   }));
 
-  await prisma.$transaction(async (tx) => {
+  const ledger = await prisma.$transaction(async (tx) => {
     // Deduct from treasury first, then IHCP
     let remaining = totalPayroll;
     const fromTreasury = Math.min(remaining, treasuryBalance);
@@ -373,7 +410,7 @@ export async function executePayroll(
     }
 
     // Create ForgeLedger
-    await tx.forgeLedger.create({
+    const createdLedger = await tx.forgeLedger.create({
       data: {
         hallId,
         month,
@@ -384,14 +421,16 @@ export async function executePayroll(
     });
 
     // Create treasury transaction
-    await tx.hallTreasuryTransaction.create({
-      data: {
-        treasuryId: hallId,
-        type: "payroll",
-        amount: totalPayroll,
-        description: `Monthly payroll: ${workers.length} workers, $${totalPayroll}`,
-      },
-    });
+    if (hall.hallTreasury?.id) {
+      await tx.hallTreasuryTransaction.create({
+        data: {
+          treasuryId: hall.hallTreasury.id,
+          type: "payroll",
+          amount: totalPayroll,
+          description: `Monthly payroll: ${workers.length} workers, $${totalPayroll}`,
+        },
+      });
+    }
 
     // Audit
     await tx.auditEntry.create({
@@ -402,10 +441,15 @@ export async function executePayroll(
         txHash: `PAYROLL-${hallId}-${month}-${executedBy}-${Date.now()}`,
       },
     });
+
+    return createdLedger;
   });
 
   return {
     success: true,
+    forgeLedgerId: ledger.id,
+    totalPayroll,
+    workerCount: workers.length,
     payroll: {
       hallId,
       month,

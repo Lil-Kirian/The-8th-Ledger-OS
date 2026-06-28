@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, isFounderSync, getSessionClaims } from "@/lib/auth";
+import { generateTxHash } from "@/lib/utils";
 
 /* ============================================================
    POST /api/marketplace/ownership/[id]/refund
@@ -9,12 +10,12 @@ import { requireAuth, isFounderSync, getSessionClaims } from "@/lib/auth";
    ============================================================ */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
     const user = await requireAuth(req);
-    const claims = getSessionClaims(req);
+    const claims = await getSessionClaims(req);
     const isFounder = isFounderSync(claims) || user.role === "founder";
 
     const listing = await prisma.ownershipListing.findUnique({
@@ -45,15 +46,19 @@ export async function POST(
     if (!listing) {
       return NextResponse.json(
         { success: false, error: "Listing not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Must be in escrow
-    if (listing.status !== "escrow" || !listing.escrowStartedAt || !listing.buyerId) {
+    if (
+      listing.status !== "escrow" ||
+      !listing.escrowStartedAt ||
+      !listing.buyerId
+    ) {
       return NextResponse.json(
         { success: false, error: "No active escrow to refund." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -63,7 +68,7 @@ export async function POST(
     if (!isBuyer && !isFounder) {
       return NextResponse.json(
         { success: false, error: "Only the buyer can cancel this purchase." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -77,10 +82,11 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error: "Escrow period has expired. Funds auto-released to seller. Refund no longer possible.",
+          error:
+            "Escrow period has expired. Funds auto-released to seller. Refund no longer possible.",
           escrowEndedAt: escrowEndsAt,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -94,7 +100,7 @@ export async function POST(
     if (!buyerLedgerId) {
       return NextResponse.json(
         { success: false, error: "Buyer wallet not found" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -119,7 +125,6 @@ export async function POST(
           escrowExpiresAt: null,
           auditHash: null,
           soldAt: null,
-          updatedAt: new Date(),
         },
       });
     });
@@ -142,7 +147,7 @@ export async function POST(
           buyerTotal,
           refundedBy: isFounder && !isBuyer ? "founder_override" : "buyer",
         }),
-        txHash: `LED-REFUND-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+        txHash: generateTxHash("LED-REFUND"),
         visibleToPublic: true,
       },
     });
@@ -173,14 +178,15 @@ export async function POST(
         refundedAt: now,
         refundedBy: isFounder && !isBuyer ? "founder_override" : "buyer",
       },
-      message: "Purchase cancelled. Full refund processed. Listing returned to active marketplace.",
+      message:
+        "Purchase cancelled. Full refund processed. Listing returned to active marketplace.",
     });
   } catch (err: any) {
     console.error("[OWNERSHIP_REFUND_POST]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
       { success: false, error: message || "Failed to process refund" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

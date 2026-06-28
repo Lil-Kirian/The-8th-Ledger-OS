@@ -22,7 +22,7 @@ export function DropdownMenuTrigger({
   children,
 }: {
   asChild?: boolean;
-  children: React.ReactElement;
+  children: React.ReactElement<{ onClick?: React.MouseEventHandler }>;
 }) {
   const context = React.useContext(DropdownContext);
   if (!context) return children;

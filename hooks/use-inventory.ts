@@ -20,7 +20,11 @@ export interface InventoryStockItem {
   reorderThreshold: number;
   status: "active" | "inactive" | "sold_out";
   listedAt: string;
+  createdAt: string;
   imageUrl?: string;
+  images?: string | null;
+  tags?: string | null;
+  specs?: string | null;
   margin: number;
   marginPercent: number;
 }
@@ -87,7 +91,11 @@ function enrichStockItem(raw: Record<string, unknown>): InventoryStockItem {
     reorderThreshold: Number(raw.reorderThreshold || raw.reorder_threshold || 0),
     status: String(raw.status || "active") as InventoryStockItem["status"],
     listedAt: String(raw.listedAt || raw.listed_at || new Date().toISOString()),
+    createdAt: String(raw.createdAt || raw.created_at || raw.listedAt || raw.listed_at || new Date().toISOString()),
     imageUrl: (raw.imageUrl || raw.image_url) as string | undefined,
+    images: (raw.images as string | null | undefined) ?? null,
+    tags: (raw.tags as string | null | undefined) ?? null,
+    specs: (raw.specs as string | null | undefined) ?? null,
     margin: price - cogs,
     marginPercent: price > 0 ? Math.round(((price - cogs) / price) * 100) : 0,
   };
@@ -128,6 +136,12 @@ export function useHallInventory(hallId: string | null | undefined) {
   }, [items, data]);
 
   return {
+    data: {
+      items,
+      metrics,
+      salesVelocity: data?.salesVelocity || 0,
+      turnoverRate: data?.turnoverRate || 0,
+    },
     items,
     metrics,
     isLoading,
@@ -135,6 +149,7 @@ export function useHallInventory(hallId: string | null | undefined) {
     error: error?.message || null,
     mutate,
     refresh: mutate,
+    refetch: mutate,
   };
 }
 

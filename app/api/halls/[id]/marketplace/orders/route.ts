@@ -21,11 +21,11 @@ async function isHallOwner(hallId: string, userId: string): Promise<boolean> {
 // ── GET — List hall inventory orders
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireAuth(request);
-    const claims = getSessionClaims(request);
+    const claims = await getSessionClaims(request);
     const isFounder = isFounderSync(claims) || user.role === "founder";
 
     const { id: hallId } = await params;
@@ -149,11 +149,11 @@ export async function GET(
 // ── POST — Fulfillment & escrow release
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireAuth(request);
-    const claims = getSessionClaims(request);
+    const claims = await getSessionClaims(request);
     const isFounder = isFounderSync(claims) || user.role === "founder";
 
     const { id: hallId } = await params;
@@ -250,7 +250,6 @@ export async function POST(
       // 1. Update order
       const updateData: Prisma.InventoryOrderUpdateInput = {
         status: action,
-        updatedAt: new Date(),
       };
       if (action === "completed") {
         updateData.completedAt = new Date();

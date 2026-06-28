@@ -2,7 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, verifyOwnership, isPrimaryAdmin } from "@/lib/auth";
 
-const APPLICABLE_VERTICALS = ["ledgerbiz", "ledgeragri", "ledgeraccess", "ledgertravel"];
+const APPLICABLE_VERTICALS = [
+  "ledgerbiz",
+  "ledgeragri",
+  "ledgeraccess",
+  "ledgertravel",
+];
 
 /* ============================================================
    GET /api/halls/[id]/location — 3 location options + current vote
@@ -10,19 +15,25 @@ const APPLICABLE_VERTICALS = ["ledgerbiz", "ledgeragri", "ledgeraccess", "ledger
    ============================================================ */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: hallId } = await params;
 
-    const isOwner = await verifyOwnership(hallId, user.id);
-    if (!isOwner && !isPrimaryAdmin(user) && user.role !== "admin") {
-      return NextResponse.json({ success: false, error: "Sovereign access denied" }, { status: 403 });
+    const isOwner = await verifyOwnership(user.id, undefined, hallId);
+    if (!isOwner && !(await isPrimaryAdmin(user)) && user.role !== "admin") {
+      return NextResponse.json(
+        { success: false, error: "Sovereign access denied" },
+        { status: 403 },
+      );
     }
 
     const hall = await prisma.hall.findUnique({
@@ -31,7 +42,7 @@ export async function GET(
         /* ── V3.2: Location options from relation ONLY ── */
         pool: {
           select: {
-            vertical: true,
+            verticalId: true,
             id: true,
             locationOptionsList: true,
           },
@@ -40,13 +51,19 @@ export async function GET(
     });
 
     if (!hall?.pool) {
-      return NextResponse.json({ success: false, error: "Hall not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Hall not found" },
+        { status: 404 },
+      );
     }
 
-    if (!APPLICABLE_VERTICALS.includes(hall.pool.vertical.toLowerCase())) {
+    if (!APPLICABLE_VERTICALS.includes(hall.pool.verticalId.toLowerCase())) {
       return NextResponse.json(
-        { success: false, error: `Location voting not applicable for ${hall.pool.vertical}` },
-        { status: 400 }
+        {
+          success: false,
+          error: `Location voting not applicable for ${hall.pool.verticalId}`,
+        },
+        { status: 400 },
       );
     }
 
@@ -55,7 +72,8 @@ export async function GET(
       id: opt.id,
       label: opt.name,
       description: opt.description || undefined,
-      coordinates: opt.lat && opt.lng ? { lat: opt.lat, lng: opt.lng } : undefined,
+      coordinates:
+        opt.lat && opt.lng ? { lat: opt.lat, lng: opt.lng } : undefined,
       data: {
         address: opt.address,
         cost: opt.cost,
@@ -77,7 +95,8 @@ export async function GET(
           applicable: true,
           needsSetup: true,
         },
-        message: "No location options configured. Primary admin must set 3 options on pool creation.",
+        message:
+          "No location options configured. Primary admin must set 3 options on pool creation.",
       });
     }
 
@@ -96,9 +115,8 @@ export async function GET(
 
     // ── Build vote tally per option ──
     const voteTally = options.map((opt) => {
-      const votesFor = activeProposal?.votes.filter(
-        (v) => v.choice === opt.id
-      ) || [];
+      const votesFor =
+        activeProposal?.votes.filter((v) => v.choice === opt.id) || [];
       const totalWeight = votesFor.reduce((sum, v) => sum + (v.weight || 0), 0);
       return {
         optionId: opt.id,
@@ -124,7 +142,10 @@ export async function GET(
         selected,
         voteTally: voteTally.map((v) => ({
           ...v,
-          percent: totalVotedWeight > 0 ? Number(((v.weight / totalVotedWeight) * 100).toFixed(2)) : 0,
+          percent:
+            totalVotedWeight > 0
+              ? Number(((v.weight / totalVotedWeight) * 100).toFixed(2))
+              : 0,
         })),
         activeProposalId: activeProposal?.id || null,
         activeProposalStatus: activeProposal?.status || null,
@@ -137,7 +158,7 @@ export async function GET(
     console.error("[HALL LOCATION GET]", error);
     return NextResponse.json(
       { success: false, error: "Location registry unreachable" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -149,12 +170,15 @@ export async function GET(
    ============================================================ */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: hallId } = await params;
@@ -164,7 +188,7 @@ export async function POST(
     if (!optionId || typeof optionId !== "string") {
       return NextResponse.json(
         { success: false, error: "optionId required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -176,7 +200,7 @@ export async function POST(
     if (!ownership) {
       return NextResponse.json(
         { success: false, error: "Sovereign access denied" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -184,37 +208,36 @@ export async function POST(
     if (weight <= 0) {
       return NextResponse.json(
         { success: false, error: "Invalid voting weight" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // ── Dormancy & ban checks ──
     const isDormant = await prisma.dormancyLog.findFirst({
       where: {
-        OR: [{ accountId: user.id }, { hallId }],
+        OR: [{ userId: user.id }, { hallId }],
         type: "account",
-        status: { in: ["warning", "critical", "forfeited"] },
+        stage: { in: ["warning", "critical", "forfeited"] },
       },
     });
     if (isDormant) {
       return NextResponse.json(
         { success: false, error: "Account dormancy active. Voting suspended." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     const isBanned = await prisma.banRecord.findFirst({
       where: {
         hallId,
-        targetLedgerId: user.id,
-        status: { in: ["active", "executed"] },
+        userId: user.id,
         OR: [{ expiresAt: { gt: new Date() } }, { expiresAt: null }],
       },
     });
     if (isBanned) {
       return NextResponse.json(
         { success: false, error: "Banned from this Hall. Cannot vote." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -225,7 +248,7 @@ export async function POST(
         /* ── V3.2: Location options from relation ONLY ── */
         pool: {
           select: {
-            vertical: true,
+            verticalId: true,
             id: true,
             locationOptionsList: true,
           },
@@ -234,13 +257,19 @@ export async function POST(
     });
 
     if (!hall?.pool) {
-      return NextResponse.json({ success: false, error: "Hall not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Hall not found" },
+        { status: 404 },
+      );
     }
 
-    if (!APPLICABLE_VERTICALS.includes(hall.pool.vertical.toLowerCase())) {
+    if (!APPLICABLE_VERTICALS.includes(hall.pool.verticalId.toLowerCase())) {
       return NextResponse.json(
-        { success: false, error: `Location voting not applicable for ${hall.pool.vertical}` },
-        { status: 400 }
+        {
+          success: false,
+          error: `Location voting not applicable for ${hall.pool.verticalId}`,
+        },
+        { status: 400 },
       );
     }
 
@@ -254,7 +283,7 @@ export async function POST(
     if (!selectedOption) {
       return NextResponse.json(
         { success: false, error: "Invalid location option" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -286,7 +315,9 @@ export async function POST(
             hallId,
             proposerId: user.id,
             title: `Select Location: ${selectedOption.label}`,
-            description: reason || `Community vote to select operational location for ${hall.pool.vertical}`,
+            description:
+              reason ||
+              `Community vote to select operational location for ${hall.pool.verticalId}`,
             type: "location_select",
             locationOption: optionId,
             thresholdPercent: 51.0,
@@ -300,15 +331,21 @@ export async function POST(
 
     if (proposal!.votes.length > 0) {
       return NextResponse.json(
-        { success: false, error: "You have already voted on this location selection" },
-        { status: 409 }
+        {
+          success: false,
+          error: "You have already voted on this location selection",
+        },
+        { status: 409 },
       );
     }
 
     if (proposal!.status !== "active" && proposal!.status !== "pending") {
       return NextResponse.json(
-        { success: false, error: `Location vote is ${proposal!.status}. Voting closed.` },
-        { status: 400 }
+        {
+          success: false,
+          error: `Location vote is ${proposal!.status}. Voting closed.`,
+        },
+        { status: 400 },
       );
     }
 
@@ -318,8 +355,11 @@ export async function POST(
         data: { status: "rejected" },
       });
       return NextResponse.json(
-        { success: false, error: "Location voting period ended. Auto-rejected." },
-        { status: 400 }
+        {
+          success: false,
+          error: "Location voting period ended. Auto-rejected.",
+        },
+        { status: 400 },
       );
     }
 
@@ -355,8 +395,10 @@ export async function POST(
 
       const totalWeight = Object.values(tally).reduce((a, b) => a + b, 0);
       const winningWeight = Math.max(...Object.values(tally));
-      const winningChoice = Object.entries(tally).find(([, w]) => w === winningWeight)?.[0] || null;
-      const winningPercent = totalWeight > 0 ? (winningWeight / totalWeight) * 100 : 0;
+      const winningChoice =
+        Object.entries(tally).find(([, w]) => w === winningWeight)?.[0] || null;
+      const winningPercent =
+        totalWeight > 0 ? (winningWeight / totalWeight) * 100 : 0;
       const thresholdMet = winningPercent >= updated.thresholdPercent;
 
       let finalStatus = updated.status;
@@ -448,7 +490,7 @@ export async function POST(
     console.error("[HALL LOCATION POST]", error);
     return NextResponse.json(
       { success: false, error: "Location vote failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

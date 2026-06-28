@@ -69,8 +69,7 @@ interface DashboardStats {
   } | null;
   pirByPillar: Array<{
     pillar: string;
-    _sum: { amount: number | null };
-    _sumSpent: { spent: number | null };
+    _sum: { amount: number | null; spent: number | null };
   }>;
   recentAuditLogs: Array<{
     id: string;
@@ -135,7 +134,9 @@ function formatNumber(n: number) {
 }
 
 function timeAgo(date: Date) {
-  const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
+  const seconds = Math.floor(
+    (new Date().getTime() - new Date(date).getTime()) / 1000,
+  );
   if (seconds < 60) return "just now";
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m ago`;
@@ -147,47 +148,73 @@ function timeAgo(date: Date) {
 
 function getPhaseColor(phase: string) {
   switch (phase) {
-    case "hush": return "text-slate-400";
-    case "unveil": return "text-amber-400";
-    case "reveal": return "text-cyan-400";
-    case "forge": return "text-emerald-400";
-    case "complete": return "text-violet-400";
-    default: return "text-slate-400";
+    case "hush":
+      return "text-slate-400";
+    case "unveil":
+      return "text-amber-400";
+    case "reveal":
+      return "text-cyan-400";
+    case "forge":
+      return "text-emerald-400";
+    case "complete":
+      return "text-violet-400";
+    default:
+      return "text-slate-400";
   }
 }
 
 function getPhaseIcon(phase: string) {
   switch (phase) {
-    case "hush": return <Clock className="w-4 h-4" />;
-    case "unveil": return <Eye className="w-4 h-4" />;
-    case "reveal": return <Sparkles className="w-4 h-4" />;
-    case "forge": return <Hammer className="w-4 h-4" />;
-    case "complete": return <CheckCircle2 className="w-4 h-4" />;
-    default: return <Clock className="w-4 h-4" />;
+    case "hush":
+      return <Clock className="w-4 h-4" />;
+    case "unveil":
+      return <Eye className="w-4 h-4" />;
+    case "reveal":
+      return <Sparkles className="w-4 h-4" />;
+    case "forge":
+      return <Hammer className="w-4 h-4" />;
+    case "complete":
+      return <CheckCircle2 className="w-4 h-4" />;
+    default:
+      return <Clock className="w-4 h-4" />;
   }
 }
 
 function getPillarIcon(pillar: string) {
   switch (pillar) {
-    case "shield": return <Shield className="w-4 h-4" />;
-    case "seal": return <Lock className="w-4 h-4" />;
-    case "forge": return <Hammer className="w-4 h-4" />;
-    case "spire": return <Landmark className="w-4 h-4" />;
-    case "vanguard": return <Zap className="w-4 h-4" />;
-    case "sanctuary": return <Siren className="w-4 h-4" />;
-    default: return <Shield className="w-4 h-4" />;
+    case "shield":
+      return <Shield className="w-4 h-4" />;
+    case "seal":
+      return <Lock className="w-4 h-4" />;
+    case "forge":
+      return <Hammer className="w-4 h-4" />;
+    case "spire":
+      return <Landmark className="w-4 h-4" />;
+    case "vanguard":
+      return <Zap className="w-4 h-4" />;
+    case "sanctuary":
+      return <Siren className="w-4 h-4" />;
+    default:
+      return <Shield className="w-4 h-4" />;
   }
 }
 
 function getPillarColor(pillar: string) {
   switch (pillar) {
-    case "shield": return "bg-red-500/10 text-red-400 border-red-500/20";
-    case "seal": return "bg-blue-500/10 text-blue-400 border-blue-500/20";
-    case "forge": return "bg-orange-500/10 text-orange-400 border-orange-500/20";
-    case "spire": return "bg-violet-500/10 text-violet-400 border-violet-500/20";
-    case "vanguard": return "bg-amber-500/10 text-amber-400 border-amber-500/20";
-    case "sanctuary": return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-    default: return "bg-slate-500/10 text-slate-400 border-slate-500/20";
+    case "shield":
+      return "bg-red-500/10 text-red-400 border-red-500/20";
+    case "seal":
+      return "bg-blue-500/10 text-blue-400 border-blue-500/20";
+    case "forge":
+      return "bg-orange-500/10 text-orange-400 border-orange-500/20";
+    case "spire":
+      return "bg-violet-500/10 text-violet-400 border-violet-500/20";
+    case "vanguard":
+      return "bg-amber-500/10 text-amber-400 border-amber-500/20";
+    case "sanctuary":
+      return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+    default:
+      return "bg-slate-500/10 text-slate-400 border-slate-500/20";
   }
 }
 
@@ -267,12 +294,25 @@ async function getDashboardData(): Promise<DashboardStats> {
       where: { visibleToPublic: true },
       orderBy: { timestamp: "desc" },
       take: 6,
-      select: { id: true, eventType: true, description: true, timestamp: true, txHash: true },
+      select: {
+        id: true,
+        eventType: true,
+        description: true,
+        timestamp: true,
+        txHash: true,
+      },
     }),
     prisma.securityAuditLog.findMany({
       orderBy: { createdAt: "desc" },
       take: 6,
-      select: { id: true, action: true, ledgerId: true, success: true, createdAt: true, ipAddress: true },
+      select: {
+        id: true,
+        action: true,
+        ledgerId: true,
+        success: true,
+        createdAt: true,
+        ipAddress: true,
+      },
     }),
     prisma.hall.findMany({
       where: { status: { in: ["live", "mature"] } },
@@ -389,14 +429,17 @@ export default async function AdminDashboardPage() {
   if (!token) redirect("/enter?redirect=/admin/dashboard");
 
   const session = await verifyToken(token);
-  if (!session || session.role !== "admin") redirect("/enter?redirect=/admin/dashboard");
+  if (!session || session.role !== "admin")
+    redirect("/enter?redirect=/admin/dashboard");
 
   const primary = isPrimaryAdmin(session);
   const data = await getDashboardData();
 
   const ihcpRepaymentRate =
     data.ihcpStats.totalContributed > 0
-      ? Math.round((data.ihcpStats.totalRepaid / data.ihcpStats.totalContributed) * 100)
+      ? Math.round(
+          (data.ihcpStats.totalRepaid / data.ihcpStats.totalContributed) * 100,
+        )
       : 0;
 
   return (
@@ -425,7 +468,7 @@ export default async function AdminDashboardPage() {
               System Online
             </span>
             <span className="px-3 py-1.5 rounded-lg bg-slate-800/60 text-slate-400 text-xs font-mono">
-              {session.ledgerId}
+              {String(session.ledgerId ?? "")}
             </span>
           </div>
         </div>
@@ -679,7 +722,7 @@ export default async function AdminDashboardPage() {
                         {formatCurrency(p._sum.amount ?? 0)}
                       </p>
                       <p className="text-xs opacity-70 mt-0.5">
-                        {formatCurrency(p._sumSpent?.spent ?? 0)} spent
+                        {formatCurrency(p._sum.spent ?? 0)} spent
                       </p>
                     </div>
                   ))}
@@ -1086,7 +1129,12 @@ function StatCard({
     red: "bg-red-500/10 text-red-400 border-red-500/20",
   };
 
-  const TrendIcon = trend === "up" ? ArrowUpRight : trend === "down" ? ArrowDownRight : Activity;
+  const TrendIcon =
+    trend === "up"
+      ? ArrowUpRight
+      : trend === "down"
+        ? ArrowDownRight
+        : Activity;
 
   return (
     <div className={`p-5 rounded-2xl border ${colorMap[color]} bg-[#0f0f16]`}>
@@ -1115,9 +1163,11 @@ function AlertCard({
   color: "amber" | "cyan" | "orange" | "red";
 }) {
   const colorMap = {
-    amber: "bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20",
+    amber:
+      "bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20",
     cyan: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/20",
-    orange: "bg-orange-500/10 text-orange-400 border-orange-500/20 hover:bg-orange-500/20",
+    orange:
+      "bg-orange-500/10 text-orange-400 border-orange-500/20 hover:bg-orange-500/20",
     red: "bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20",
   };
 
@@ -1156,10 +1206,14 @@ function QuickAction({
         color === "cyan" ? "hover:border-cyan-500/30" : ""
       }`}
     >
-      <span className={`${color === "cyan" ? "text-cyan-400" : "text-slate-400"} group-hover:text-white transition-colors`}>
+      <span
+        className={`${color === "cyan" ? "text-cyan-400" : "text-slate-400"} group-hover:text-white transition-colors`}
+      >
         {icon}
       </span>
-      <span className="text-sm text-slate-300 group-hover:text-white transition-colors">{label}</span>
+      <span className="text-sm text-slate-300 group-hover:text-white transition-colors">
+        {label}
+      </span>
       {badge !== undefined && badge > 0 && (
         <span className="ml-auto px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-[10px] font-bold">
           {badge}
@@ -1199,9 +1253,14 @@ function OracleTierRow({
       </div>
       <div className="flex items-center gap-2">
         <div className="w-20 h-1.5 rounded-full bg-slate-800 overflow-hidden">
-          <div className={`h-full rounded-full ${color}`} style={{ width: `${Math.min(100, count > 0 ? 100 : 0)}%` }} />
+          <div
+            className={`h-full rounded-full ${color}`}
+            style={{ width: `${Math.min(100, count > 0 ? 100 : 0)}%` }}
+          />
         </div>
-        <span className="text-xs font-semibold text-white w-8 text-right">{count}</span>
+        <span className="text-xs font-semibold text-white w-8 text-right">
+          {count}
+        </span>
       </div>
     </div>
   );

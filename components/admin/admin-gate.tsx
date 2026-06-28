@@ -50,7 +50,8 @@ interface AdminGateProps {
 // ============================================================
 
 export default function AdminGate({ onVerified, redirectTo, requiredRole = "admin" }: AdminGateProps) {
-  const { user, isPrimaryAdmin, isAdmin, ledgerId, logout } = useAuth();
+  const { user, isPrimaryAdmin, isAdmin, logout } = useAuth();
+  const ledgerId = user?.ledgerId;
   const [currentStep, setCurrentStep] = useState<AuthStep | null>(null);
   const [totpCode, setTotpCode] = useState("");
   const [pinCode, setPinCode] = useState("");

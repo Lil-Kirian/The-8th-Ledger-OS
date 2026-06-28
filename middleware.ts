@@ -237,6 +237,12 @@ function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number): 
 }
 
 async function checkRateLimit(clientIp: string, pathname: string, method: string) {
+  const allowed = {
+    allowed: true,
+    remaining: Number.MAX_SAFE_INTEGER,
+    resetAt: Date.now(),
+    retryAfter: 0,
+  };
   try {
     const { authRateLimit, commitRateLimit, exchangeRateLimit } = await import("@/lib/rate-limit");
     if ((pathname === "/api/pools" && method === "PATCH") || (pathname.startsWith("/api/pools/") && pathname.endsWith("/commit") && method === "POST")) {
@@ -248,9 +254,9 @@ async function checkRateLimit(clientIp: string, pathname: string, method: string
     if (["POST", "PATCH", "PUT", "DELETE"].includes(method) && pathname.startsWith("/api/")) {
       return await authRateLimit(clientIp);
     }
-    return { allowed: true };
+    return allowed;
   } catch {
-    return { allowed: true };
+    return allowed;
   }
 }
 

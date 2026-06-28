@@ -44,13 +44,24 @@ interface RateLimitEntry {
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
-function checkRateLimit(adminId: string): { allowed: boolean; resetAt: number; remaining: number } {
+function checkRateLimit(adminId: string): {
+  allowed: boolean;
+  resetAt: number;
+  remaining: number;
+} {
   const now = Date.now();
   const entry = rateLimitStore.get(adminId);
 
   if (!entry || now > entry.resetAt) {
-    rateLimitStore.set(adminId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true, resetAt: now + RATE_LIMIT_WINDOW_MS, remaining: RATE_LIMIT_MAX_FORECASTS - 1 };
+    rateLimitStore.set(adminId, {
+      count: 1,
+      resetAt: now + RATE_LIMIT_WINDOW_MS,
+    });
+    return {
+      allowed: true,
+      resetAt: now + RATE_LIMIT_WINDOW_MS,
+      remaining: RATE_LIMIT_MAX_FORECASTS - 1,
+    };
   }
 
   if (entry.count >= RATE_LIMIT_MAX_FORECASTS) {
@@ -58,7 +69,11 @@ function checkRateLimit(adminId: string): { allowed: boolean; resetAt: number; r
   }
 
   entry.count += 1;
-  return { allowed: true, resetAt: entry.resetAt, remaining: RATE_LIMIT_MAX_FORECASTS - entry.count };
+  return {
+    allowed: true,
+    resetAt: entry.resetAt,
+    remaining: RATE_LIMIT_MAX_FORECASTS - entry.count,
+  };
 }
 
 //
@@ -157,12 +172,20 @@ export async function GET(req: NextRequest) {
     // 2. Parse query params
     const { searchParams } = new URL(req.url);
     const statusRaw = searchParams.get("status") || "active";
-    const status: ForecastStatus | "all" = isValidStatus(statusRaw) ? statusRaw : "active";
+    const status: ForecastStatus | "all" =
+      statusRaw === "all"
+        ? "all"
+        : isValidStatus(statusRaw)
+          ? statusRaw
+          : "active";
     const type = searchParams.get("type");
     const isLocked = searchParams.get("isLocked");
     const q = searchParams.get("q") || undefined;
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const limit = Math.min(
+      50,
+      Math.max(1, parseInt(searchParams.get("limit") || "20", 10)),
+    );
     const skip = (page - 1) * limit;
 
     // 3. Build where clause
@@ -232,19 +255,23 @@ export async function GET(req: NextRequest) {
 
     // 6. Shape response
     const enriched = forecasts.map((f) => {
-      const verticalOptions = safeJsonParse<VerticalSlug[]>(f.verticalOptions, []);
+      const verticalOptions = safeJsonParse<VerticalSlug[]>(
+        f.verticalOptions,
+        [],
+      );
       const countryOptions = safeJsonParse<string[]>(f.countryOptions, []);
       const isLockedNow = now >= new Date(f.lockDate);
-      const userPrediction = currentUserId && f.predictions?.length > 0
-        ? {
-            id: f.predictions[0].id,
-            vertical: f.predictions[0].vertical,
-            country: f.predictions[0].country,
-            status: f.predictions[0].status,
-            pointsEarned: f.predictions[0].pointsEarned,
-            predictedAt: f.predictions[0].createdAt,
-          }
-        : null;
+      const userPrediction =
+        currentUserId && f.predictions?.length > 0
+          ? {
+              id: f.predictions[0].id,
+              vertical: f.predictions[0].vertical,
+              country: f.predictions[0].country,
+              status: f.predictions[0].status,
+              pointsEarned: f.predictions[0].pointsEarned,
+              predictedAt: f.predictions[0].createdAt,
+            }
+          : null;
 
       return {
         id: f.id,
@@ -282,13 +309,16 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    response.headers.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=60, stale-while-revalidate=300",
+    );
     return response;
   } catch (error) {
     console.error("[ORACLE_FORECASTS_GET]", error);
     return NextResponse.json(
       { error: "The Oracle cannot be read.", code: "ORACLE_001" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -304,7 +334,7 @@ export async function POST(req: NextRequest) {
     const admin = await requireAdmin(req);
 
     // 2. Rate limit
-    const rateLimit = checkRateLimit(admin.id);
+    const rateLimit = checkRateLimit(admin.userId ?? admin.ledgerId ?? "admin");
     if (!rateLimit.allowed) {
       return NextResponse.json(
         {

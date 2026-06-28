@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser, verifyOwnership } from "@/lib/auth";
+import { getSessionUser } from "@/lib/auth";
 
 /* ============================================================
    POST /api/halls/[id]/proposals/[proposalId]/vote
@@ -8,12 +8,15 @@ import { getSessionUser, verifyOwnership } from "@/lib/auth";
    ============================================================ */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string; proposalId: string }> }
+  { params }: { params: Promise<{ id: string; proposalId: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: hallId, proposalId } = await params;
@@ -23,39 +26,45 @@ export async function POST(
     if (!choice || (choice !== "yes" && choice !== "no")) {
       return NextResponse.json(
         { success: false, error: "Vote must be 'yes' or 'no'" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // ── Verify ownership & get voting weight ──
-    const ownership = await verifyOwnership(hallId, user.id);
+    const ownership = await prisma.ownership.findFirst({
+      where: { hallId, userId: user.id, status: { not: "forfeited" } },
+      select: { ownershipPercent: true },
+    });
     if (!ownership) {
       return NextResponse.json(
-        { success: false, error: "Sovereign access denied. Only PAC holders can vote." },
-        { status: 403 }
+        {
+          success: false,
+          error: "Sovereign access denied. Only PAC holders can vote.",
+        },
+        { status: 403 },
       );
     }
 
-    const weight = ownership.percentage || ownership.ownershipPercent || 0;
+    const weight = ownership.ownershipPercent || 0;
     if (weight <= 0) {
       return NextResponse.json(
         { success: false, error: "Invalid voting weight" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // ── Account dormancy check ──
     const isDormant = await prisma.dormancyLog.findFirst({
       where: {
-        OR: [{ accountId: user.id }, { hallId }],
+        OR: [{ userId: user.id }, { hallId }],
         type: "account",
-        status: { in: ["warning", "critical", "forfeited"] },
+        stage: { in: ["warning", "critical", "forfeited"] },
       },
     });
     if (isDormant) {
       return NextResponse.json(
         { success: false, error: "Account dormancy active. Voting suspended." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -63,15 +72,17 @@ export async function POST(
     const isBanned = await prisma.banRecord.findFirst({
       where: {
         hallId,
-        targetLedgerId: user.ledgerId,
-        status: { in: ["active", "executed"] },
+        userId: user.id,
         OR: [{ expiresAt: { gt: new Date() } }, { expiresAt: null }],
       },
     });
     if (isBanned) {
       return NextResponse.json(
-        { success: false, error: "You are banned from this Hall. Cannot vote." },
-        { status: 403 }
+        {
+          success: false,
+          error: "You are banned from this Hall. Cannot vote.",
+        },
+        { status: 403 },
       );
     }
 
@@ -83,26 +94,33 @@ export async function POST(
     if (!proposal) {
       return NextResponse.json(
         { success: false, error: "Proposal not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // ── Self-impeachment block ──
     if (
-      (proposal.type === "impeach_manager" || proposal.type === "impeach_liaison") &&
+      (proposal.type === "impeach_manager" ||
+        proposal.type === "impeach_liaison") &&
       proposal.proposer.id === user.id
     ) {
       return NextResponse.json(
-        { success: false, error: "You cannot vote on your own impeachment proposal" },
-        { status: 403 }
+        {
+          success: false,
+          error: "You cannot vote on your own impeachment proposal",
+        },
+        { status: 403 },
       );
     }
 
     // ── Status & expiry gates ──
     if (proposal.status !== "active" && proposal.status !== "pending") {
       return NextResponse.json(
-        { success: false, error: `Proposal is ${proposal.status}. Voting closed.` },
-        { status: 400 }
+        {
+          success: false,
+          error: `Proposal is ${proposal.status}. Voting closed.`,
+        },
+        { status: 400 },
       );
     }
 
@@ -112,8 +130,11 @@ export async function POST(
         data: { status: "rejected" },
       });
       return NextResponse.json(
-        { success: false, error: "Voting period has ended. Proposal auto-rejected." },
-        { status: 400 }
+        {
+          success: false,
+          error: "Voting period has ended. Proposal auto-rejected.",
+        },
+        { status: 400 },
       );
     }
 
@@ -129,7 +150,7 @@ export async function POST(
     if (existingVote) {
       return NextResponse.json(
         { success: false, error: "You have already voted on this proposal" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -146,14 +167,23 @@ export async function POST(
 
       const updated = await tx.proposal.update({
         where: { id: proposalId },
-        data: choice === "yes"
-          ? { voteWeightYes: { increment: weight }, voteCountYes: { increment: 1 } }
-          : { voteWeightNo: { increment: weight }, voteCountNo: { increment: 1 } },
+        data:
+          choice === "yes"
+            ? {
+                voteWeightYes: { increment: weight },
+                voteCountYes: { increment: 1 },
+              }
+            : {
+                voteWeightNo: { increment: weight },
+                voteCountNo: { increment: 1 },
+              },
       });
 
       const totalWeight = updated.voteWeightYes + updated.voteWeightNo;
-      const yesPercent = totalWeight > 0 ? (updated.voteWeightYes / totalWeight) * 100 : 0;
-      const noPercent = totalWeight > 0 ? (updated.voteWeightNo / totalWeight) * 100 : 0;
+      const yesPercent =
+        totalWeight > 0 ? (updated.voteWeightYes / totalWeight) * 100 : 0;
+      const noPercent =
+        totalWeight > 0 ? (updated.voteWeightNo / totalWeight) * 100 : 0;
       const thresholdMet = yesPercent >= updated.thresholdPercent;
 
       let finalStatus = updated.status;
@@ -172,7 +202,12 @@ export async function POST(
             userId: user.id,
             type: "vote",
             description: `Proposal "${updated.title}" PASSED with ${yesPercent.toFixed(2)}% approval`,
-            metadata: JSON.stringify({ proposalId, yesPercent, totalWeight, choice }),
+            metadata: JSON.stringify({
+              proposalId,
+              yesPercent,
+              totalWeight,
+              choice,
+            }),
           },
         });
 
@@ -236,7 +271,7 @@ export async function POST(
     console.error("[HALL PROPOSAL VOTE]", error);
     return NextResponse.json(
       { success: false, error: "Vote failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

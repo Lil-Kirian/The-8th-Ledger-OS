@@ -13,7 +13,6 @@ import {
   Globe,
   Shield,
   Fingerprint,
-  Seal,
   Stamp,
   KeyRound,
   Radio,
@@ -72,7 +71,7 @@ function generateVoteHash(cyclePoolId: string, timestamp: number): string {
   let hash = 0;
   for (let i = 0; i < input.length; i++) {
     const char = input.charCodeAt(i);
-    hash = ((hash < 5) - hash + char) | 0;
+    hash = ((hash << 5) - hash + char) | 0;
   }
   const hex = Math.abs(hash).toString(16).padStart(16, "0").toUpperCase();
   return `LEDGER-${hex.slice(0, 4)}-${hex.slice(4, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}`;
@@ -171,7 +170,7 @@ function SealRing({
               exit={{ scale: 0 }}
               transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
             >
-              <Seal className="w-10 h-10 text-emerald-400" />
+              <Stamp className="w-10 h-10 text-emerald-400" />
             </motion.div>
           )}
           {step === "error" && (

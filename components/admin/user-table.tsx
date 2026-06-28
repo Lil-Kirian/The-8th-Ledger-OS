@@ -367,7 +367,7 @@ export default function UserTable({ users, onAction, isLoading }: UserTableProps
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs font-mono text-slate-400">{user.ledgerId}</span>
                           {user.isPrimaryAdmin && (
-                            <Crown size={12} className="text-amber-400" title="Primary Admin" />
+                            <Crown size={12} className="text-amber-400" aria-label="Primary Admin" />
                           )}
                         </div>
                       </td>

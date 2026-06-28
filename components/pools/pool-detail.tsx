@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PoolStatusBadge } from "./pool-status-badge";
@@ -104,9 +104,9 @@ const verticalLabels: Record<string, { name: string; emoji: string; color: strin
   ledgeraccess: { name: "LedgerAccess", emoji: "📡", color: "text-cyan-400", gradient: "from-cyan-500/30 to-cyan-400/10" },
 };
 
-const tabVariants = {
+const tabVariants: Variants = {
   hidden: { opacity: 0, y: 10, filter: "blur(4px)" },
-  visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
+  visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] as const } },
   exit: { opacity: 0, y: -10, filter: "blur(4px)", transition: { duration: 0.2 } },
 };
 

@@ -12,15 +12,18 @@ export async function POST(request: NextRequest) {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     // Only admin/founder or system webhooks can trigger bulk notifications
-    const founder = await isFounder(user.vinculumId);
+    const founder = await isFounder(user.ledgerId);
     if (!founder && user.role !== "admin") {
       return NextResponse.json(
         { success: false, error: "Admin or Founder authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -30,7 +33,7 @@ export async function POST(request: NextRequest) {
       hallId,
       poolId,
       proposalId,
-      targetVinculumId,
+      targetLedgerId,
       senderId,
       senderName,
       messageType,
@@ -40,7 +43,7 @@ export async function POST(request: NextRequest) {
     if (!eventType) {
       return NextResponse.json(
         { success: false, error: "eventType required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -52,28 +55,32 @@ export async function POST(request: NextRequest) {
       /* ===== VOTE START ===== */
       case "vote_start": {
         if (!hallId || !proposalId) {
-          return NextResponse.json({ success: false, error: "hallId and proposalId required" }, { status: 400 });
+          return NextResponse.json(
+            { success: false, error: "hallId and proposalId required" },
+            { status: 400 },
+          );
         }
         const owners = await prisma.ownership.findMany({
-          where: { hallId: Number(hallId), status: "active" },
-          select: { user: { select: { vinculumId: true } } },
+          where: { hallId: hallId, status: "active" },
+          select: { user: { select: { ledgerId: true } } },
           take: MAX_BULK,
         });
         for (const o of owners) {
-          if (!o.user?.vinculumId) continue;
+          if (!o.user?.ledgerId) continue;
           await prisma.notification.create({
             data: {
-              vinculumId: o.user.vinculumId,
+              ledgerId: o.user.ledgerId,
               poolId: poolId || null,
-              proposalId: Number(proposalId),
+              proposalId: proposalId,
               type: "vote_start",
               title: "New Vote Opened",
-              message: "A new proposal requires your sovereign vote. Review and vote before it closes.",
+              message:
+                "A new proposal requires your sovereign vote. Review and vote before it closes.",
               actionUrl: `/halls/${hallId}/governance`,
               createdAt: new Date(),
             },
           });
-          recipients.push(o.user.vinculumId);
+          recipients.push(o.user.ledgerId);
         }
         notificationsCreated = recipients.length;
         break;
@@ -83,33 +90,48 @@ export async function POST(request: NextRequest) {
       case "vote_end":
       case "proposal_passed": {
         if (!hallId || !proposalId) {
-          return NextResponse.json({ success: false, error: "hallId and proposalId required" }, { status: 400 });
+          return NextResponse.json(
+            { success: false, error: "hallId and proposalId required" },
+            { status: 400 },
+          );
         }
         const proposal = await prisma.proposal.findUnique({
-          where: { id: Number(proposalId) },
-          select: { title: true, status: true, voteCountYes: true, voteCountNo: true },
+          where: { id: proposalId },
+          select: {
+            title: true,
+            status: true,
+            voteCountYes: true,
+            voteCountNo: true,
+          },
         });
         if (!proposal) {
-          return NextResponse.json({ success: false, error: "Proposal not found" }, { status: 404 });
+          return NextResponse.json(
+            { success: false, error: "Proposal not found" },
+            { status: 404 },
+          );
         }
 
         const owners = await prisma.ownership.findMany({
-          where: { hallId: Number(hallId), status: "active" },
-          select: { user: { select: { vinculumId: true } } },
+          where: { hallId: hallId, status: "active" },
+          select: { user: { select: { ledgerId: true } } },
           take: MAX_BULK,
         });
 
         const passed = proposal.status === "passed";
-        const totalVotes = (proposal.voteCountYes || 0) + (proposal.voteCountNo || 0);
-        const yesPct = totalVotes > 0 ? ((proposal.voteCountYes || 0) / totalVotes) * 100 : 0;
+        const totalVotes =
+          (proposal.voteCountYes || 0) + (proposal.voteCountNo || 0);
+        const yesPct =
+          totalVotes > 0
+            ? ((proposal.voteCountYes || 0) / totalVotes) * 100
+            : 0;
 
         for (const o of owners) {
-          if (!o.user?.vinculumId) continue;
+          if (!o.user?.ledgerId) continue;
           await prisma.notification.create({
             data: {
-              vinculumId: o.user.vinculumId,
+              ledgerId: o.user.ledgerId,
               poolId: poolId || null,
-              proposalId: Number(proposalId),
+              proposalId: proposalId,
               type: passed ? "proposal_passed" : "vote_end",
               title: passed ? "Proposal Passed" : "Vote Closed",
               message: passed
@@ -119,7 +141,7 @@ export async function POST(request: NextRequest) {
               createdAt: new Date(),
             },
           });
-          recipients.push(o.user.vinculumId);
+          recipients.push(o.user.ledgerId);
         }
         notificationsCreated = recipients.length;
         break;
@@ -128,18 +150,24 @@ export async function POST(request: NextRequest) {
       /* ===== DIVIDEND AVAILABLE ===== */
       case "dividend": {
         if (!hallId) {
-          return NextResponse.json({ success: false, error: "hallId required" }, { status: 400 });
+          return NextResponse.json(
+            { success: false, error: "hallId required" },
+            { status: 400 },
+          );
         }
         const owners = await prisma.ownership.findMany({
-          where: { hallId: Number(hallId), status: "active" },
-          select: { user: { select: { vinculumId: true } }, ownershipPercent: true },
+          where: { hallId: hallId, status: "active" },
+          select: {
+            user: { select: { ledgerId: true } },
+            ownershipPercent: true,
+          },
           take: MAX_BULK,
         });
         for (const o of owners) {
-          if (!o.user?.vinculumId) continue;
+          if (!o.user?.ledgerId) continue;
           await prisma.notification.create({
             data: {
-              vinculumId: o.user.vinculumId,
+              ledgerId: o.user.ledgerId,
               poolId: poolId || null,
               type: "dividend",
               title: "Dividend Available",
@@ -148,7 +176,7 @@ export async function POST(request: NextRequest) {
               createdAt: new Date(),
             },
           });
-          recipients.push(o.user.vinculumId);
+          recipients.push(o.user.ledgerId);
         }
         notificationsCreated = recipients.length;
         break;
@@ -156,47 +184,55 @@ export async function POST(request: NextRequest) {
 
       /* ===== BAN ENACTED ===== */
       case "ban_enacted": {
-        if (!hallId || !targetVinculumId) {
-          return NextResponse.json({ success: false, error: "hallId and targetVinculumId required" }, { status: 400 });
+        if (!hallId || !targetLedgerId) {
+          return NextResponse.json(
+            { success: false, error: "hallId and targetLedgerId required" },
+            { status: 400 },
+          );
         }
         await prisma.notification.create({
           data: {
-            vinculumId: targetVinculumId,
+            ledgerId: targetLedgerId,
             poolId: poolId || null,
             type: "ban_enacted",
             title: "Ban Enforced",
-            message: "A ban against you has been enacted by the Hall Tribunal. You may appeal.",
+            message:
+              "A ban against you has been enacted by the Hall Tribunal. You may appeal.",
             actionUrl: `/halls/${hallId}/tribunal`,
             createdAt: new Date(),
           },
         });
-        recipients.push(targetVinculumId);
+        recipients.push(targetLedgerId);
         notificationsCreated = 1;
         break;
       }
 
       /* ===== IMPEACHMENT TRIGGERED ===== */
       case "impeachment": {
-        if (!hallId || !targetVinculumId) {
-          return NextResponse.json({ success: false, error: "hallId and targetVinculumId required" }, { status: 400 });
+        if (!hallId || !targetLedgerId) {
+          return NextResponse.json(
+            { success: false, error: "hallId and targetLedgerId required" },
+            { status: 400 },
+          );
         }
         const target = await prisma.user.findUnique({
-          where: { vinculumId: targetVinculumId },
-          select: { vinculumId: true },
+          where: { ledgerId: targetLedgerId },
+          select: { ledgerId: true },
         });
         if (target) {
           await prisma.notification.create({
             data: {
-              vinculumId: target.vinculumId,
+              ledgerId: target.ledgerId,
               poolId: poolId || null,
               type: "impeachment",
               title: "Impeachment Vote Triggered",
-              message: "An impeachment vote has been filed against your role. Prepare your defense.",
+              message:
+                "An impeachment vote has been filed against your role. Prepare your defense.",
               actionUrl: `/halls/${hallId}/governance`,
               createdAt: new Date(),
             },
           });
-          recipients.push(target.vinculumId);
+          recipients.push(target.ledgerId);
           notificationsCreated = 1;
         }
         break;
@@ -204,21 +240,25 @@ export async function POST(request: NextRequest) {
 
       /* ===== DORMANCY WARNING ===== */
       case "dormancy": {
-        if (!targetVinculumId) {
-          return NextResponse.json({ success: false, error: "targetVinculumId required" }, { status: 400 });
+        if (!targetLedgerId) {
+          return NextResponse.json(
+            { success: false, error: "targetLedgerId required" },
+            { status: 400 },
+          );
         }
         await prisma.notification.create({
           data: {
-            vinculumId: targetVinculumId,
+            ledgerId: targetLedgerId,
             poolId: poolId || null,
             type: "dormancy",
             title: "Dormancy Warning",
-            message: "Your account or asset is approaching dormancy. Activity required within 30 days to prevent forfeiture.",
+            message:
+              "Your account or asset is approaching dormancy. Activity required within 30 days to prevent forfeiture.",
             actionUrl: "/settings",
             createdAt: new Date(),
           },
         });
-        recipients.push(targetVinculumId);
+        recipients.push(targetLedgerId);
         notificationsCreated = 1;
         break;
       }
@@ -226,28 +266,32 @@ export async function POST(request: NextRequest) {
       /* ===== EXECUTION UPDATE ===== */
       case "execution": {
         if (!hallId || !proposalId) {
-          return NextResponse.json({ success: false, error: "hallId and proposalId required" }, { status: 400 });
+          return NextResponse.json(
+            { success: false, error: "hallId and proposalId required" },
+            { status: 400 },
+          );
         }
         const owners = await prisma.ownership.findMany({
-          where: { hallId: Number(hallId), status: "active" },
-          select: { user: { select: { vinculumId: true } } },
+          where: { hallId: hallId, status: "active" },
+          select: { user: { select: { ledgerId: true } } },
           take: MAX_BULK,
         });
         for (const o of owners) {
-          if (!o.user?.vinculumId) continue;
+          if (!o.user?.ledgerId) continue;
           await prisma.notification.create({
             data: {
-              vinculumId: o.user.vinculumId,
+              ledgerId: o.user.ledgerId,
               poolId: poolId || null,
-              proposalId: Number(proposalId),
+              proposalId: proposalId,
               type: "execution",
               title: "Execution Update",
-              message: "A passed proposal is being executed. Proof photos and cost tracker updated.",
+              message:
+                "A passed proposal is being executed. Proof photos and cost tracker updated.",
               actionUrl: `/halls/${hallId}/operations`,
               createdAt: new Date(),
             },
           });
-          recipients.push(o.user.vinculumId);
+          recipients.push(o.user.ledgerId);
         }
         notificationsCreated = recipients.length;
         break;
@@ -256,23 +300,25 @@ export async function POST(request: NextRequest) {
       /* ===== HALL MESSAGE ===== */
       case "hall_message": {
         if (!hallId || !senderId) {
-          return NextResponse.json({ success: false, error: "hallId and senderId required" }, { status: 400 });
+          return NextResponse.json(
+            { success: false, error: "hallId and senderId required" },
+            { status: 400 },
+          );
         }
-        const senderIdNum = Number(senderId);
         const owners = await prisma.ownership.findMany({
           where: {
-            hallId: Number(hallId),
+            hallId: hallId,
             status: "active",
-            NOT: { userId: senderIdNum },
+            NOT: { userId: senderId },
           },
-          select: { user: { select: { vinculumId: true } } },
+          select: { user: { select: { ledgerId: true } } },
           take: MAX_BULK,
         });
         for (const o of owners) {
-          if (!o.user?.vinculumId) continue;
+          if (!o.user?.ledgerId) continue;
           await prisma.notification.create({
             data: {
-              vinculumId: o.user.vinculumId,
+              ledgerId: o.user.ledgerId,
               poolId: poolId || null,
               type: "hall_message",
               title: `New ${messageType || "Message"} in Hall`,
@@ -281,7 +327,7 @@ export async function POST(request: NextRequest) {
               createdAt: new Date(),
             },
           });
-          recipients.push(o.user.vinculumId);
+          recipients.push(o.user.ledgerId);
         }
         notificationsCreated = recipients.length;
         break;
@@ -290,7 +336,7 @@ export async function POST(request: NextRequest) {
       default:
         return NextResponse.json(
           { success: false, error: `Unknown eventType: ${eventType}` },
-          { status: 400 }
+          { status: 400 },
         );
     }
 
@@ -306,14 +352,20 @@ export async function POST(request: NextRequest) {
       if (error.code === "P2025") {
         return NextResponse.json(
           { success: false, error: "Related record not found" },
-          { status: 404 }
+          { status: 404 },
         );
       }
     }
     console.error("[NOTIFICATION GENERATE]", error);
     return NextResponse.json(
-      { success: false, error: error instanceof Error ? error.message : "Notification generation failed" },
-      { status: 500 }
+      {
+        success: false,
+        error:
+          error instanceof Error
+            ? error.message
+            : "Notification generation failed",
+      },
+      { status: 500 },
     );
   }
 }

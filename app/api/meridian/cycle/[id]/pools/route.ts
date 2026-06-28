@@ -19,7 +19,10 @@ const PHASE_DURATIONS_MS = {
   forge: 6 * 60 * 60 * 1000,
 } as const;
 
-const TOTAL_CYCLE_DURATION_MS = Object.values(PHASE_DURATIONS_MS).reduce((a, b) => a + b, 0);
+const TOTAL_CYCLE_DURATION_MS = Object.values(PHASE_DURATIONS_MS).reduce(
+  (a, b) => a + b,
+  0,
+);
 const MAX_POOLS_PER_CYCLE = 5;
 const MAX_STANDARD_POOLS = 4;
 const TALLY_HIDE_DURATION_MS = 12 * 60 * 60 * 1000;
@@ -48,25 +51,44 @@ function scrambleText(text: string): string {
 
 function getContinentHint(country: string): string {
   const hints: Record<string, string> = {
-    nigeria: "West African Coast", ghana: "West African Coast",
-    kenya: "East African Plains", tanzania: "East African Plains",
-    south_africa: "Southern African Cape", egypt: "North African Delta",
-    morocco: "North African Coast", ethiopia: "East African Highlands",
-    india: "South Asian Peninsula", china: "East Asian Heartland",
-    japan: "East Asian Archipelago", singapore: "Southeast Asian Strait",
-    thailand: "Southeast Asian Basin", vietnam: "Southeast Asian Delta",
-    indonesia: "Southeast Asian Archipelago", germany: "Central European Plain",
-    france: "Western European Coast", uk: "Northwestern European Isles",
-    spain: "Southwestern European Peninsula", italy: "Southern European Peninsula",
-    poland: "Eastern European Plain", usa: "North American Atlantic",
-    canada: "North American North", mexico: "North American South",
-    brazil: "South American Atlantic", argentina: "South American South",
-    chile: "South American Pacific", colombia: "South American North",
-    uae: "Arabian Peninsula", saudi_arabia: "Arabian Peninsula",
-    qatar: "Arabian Gulf", kuwait: "Arabian Gulf",
-    israel: "Eastern Mediterranean", turkey: "Anatolian Peninsula",
-    australia: "Oceanian Continent", new_zealand: "Oceanian Isles",
-    fiji: "South Pacific Isles", papua_new_guinea: "Melanesian Coast",
+    nigeria: "West African Coast",
+    ghana: "West African Coast",
+    kenya: "East African Plains",
+    tanzania: "East African Plains",
+    south_africa: "Southern African Cape",
+    egypt: "North African Delta",
+    morocco: "North African Coast",
+    ethiopia: "East African Highlands",
+    india: "South Asian Peninsula",
+    china: "East Asian Heartland",
+    japan: "East Asian Archipelago",
+    singapore: "Southeast Asian Strait",
+    thailand: "Southeast Asian Basin",
+    vietnam: "Southeast Asian Delta",
+    indonesia: "Southeast Asian Archipelago",
+    germany: "Central European Plain",
+    france: "Western European Coast",
+    uk: "Northwestern European Isles",
+    spain: "Southwestern European Peninsula",
+    italy: "Southern European Peninsula",
+    poland: "Eastern European Plain",
+    usa: "North American Atlantic",
+    canada: "North American North",
+    mexico: "North American South",
+    brazil: "South American Atlantic",
+    argentina: "South American South",
+    chile: "South American Pacific",
+    colombia: "South American North",
+    uae: "Arabian Peninsula",
+    saudi_arabia: "Arabian Peninsula",
+    qatar: "Arabian Gulf",
+    kuwait: "Arabian Gulf",
+    israel: "Eastern Mediterranean",
+    turkey: "Anatolian Peninsula",
+    australia: "Oceanian Continent",
+    new_zealand: "Oceanian Isles",
+    fiji: "South Pacific Isles",
+    papua_new_guinea: "Melanesian Coast",
   };
   return hints[country.toLowerCase()] ?? "Unknown Region";
 }
@@ -88,7 +110,7 @@ function computeRevealElapsed(startAt: Date): number {
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: cycleId } = await params;
@@ -337,7 +359,7 @@ export async function GET(
     console.error("[MERIDIAN_POOLS_GET]", error);
     return NextResponse.json(
       { error: "Failed to fetch competing pools", code: "MERIDIAN_POOLS_001" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -349,7 +371,7 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     // 1. Auth gate
@@ -470,10 +492,7 @@ export async function POST(
 
     // 7. Wildcard guard
     if (isWildcard) {
-      const wildcardCount = await prisma.cyclePool.count({
-        where: { cycleId, isWildcard: true },
-      });
-      if (wildcardCount >= 1) {
+      if (cycle.lockStatus === "architect_hand_used") {
         return NextResponse.json(
           {
             error: "Architect's Hand already used in this cycle.",

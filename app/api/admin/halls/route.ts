@@ -11,14 +11,14 @@ function handlePrismaError(error: any): NextResponse {
     if (error.code === "P2025") {
       return NextResponse.json(
         { success: false, error: "Record not found." },
-        { status: 404 }
+        { status: 404 },
       );
     }
   }
   console.error("[ADMIN_HALLS ERROR]", error);
   return NextResponse.json(
     { success: false, error: "Hall operation failed" },
-    { status: 500 }
+    { status: 500 },
   );
 }
 
@@ -30,19 +30,25 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
     if (!isPrimaryAdmin(user.ledgerId)) {
       return NextResponse.json(
         { success: false, error: "Primary Admin authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     const { searchParams } = new URL(request.url);
     const view = searchParams.get("view") || "halls";
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const limit = Math.min(
+      100,
+      Math.max(1, parseInt(searchParams.get("limit") || "20", 10)),
+    );
 
     /* ── CHAT LOGS (Legacy) ── */
     if (view === "chat") {
@@ -50,7 +56,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       if (!hallId) {
         return NextResponse.json(
           { success: false, error: "hallId required for chat view" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -83,7 +89,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           content: m.content,
           sender: m.user,
           createdAt: m.createdAt,
-          updatedAt: m.updatedAt,
+          updatedAt: m.createdAt,
         })),
         meta: { page, limit, total, pages: Math.ceil(total / limit) },
       });
@@ -202,12 +208,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
     if (!isPrimaryAdmin(user.ledgerId)) {
       return NextResponse.json(
         { success: false, error: "Primary Admin authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -217,14 +226,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!hallId || !userId || !action) {
       return NextResponse.json(
         { success: false, error: "hallId, userId, and action required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!["ban", "unban"].includes(action)) {
       return NextResponse.json(
         { success: false, error: "action must be 'ban' or 'unban'" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -234,7 +243,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
     if (!hall) {
-      return NextResponse.json({ success: false, error: "Hall not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Hall not found" },
+        { status: 404 },
+      );
     }
 
     const targetUser = await prisma.user.findUnique({
@@ -243,14 +255,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
     if (!targetUser) {
-      return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "User not found" },
+        { status: 404 },
+      );
     }
 
     if (action === "ban") {
       if (!reason) {
         return NextResponse.json(
           { success: false, error: "reason required for ban action" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 

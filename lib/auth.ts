@@ -5,7 +5,7 @@
 
 import bcrypt from "bcryptjs";
 import { SignJWT, jwtVerify } from "jose";
-import {  randomUUID } from "crypto";
+import { randomUUID } from "crypto";
 import { cookies } from "next/headers";
 import { prisma } from "./prisma";
 import { getSessionSecret } from "./env";
@@ -24,6 +24,24 @@ export interface AuthUser {
   creditPool: number;
   forgesCompleted: number;
   referrals: number;
+  role?: string;
+  kycTier?: string | null;
+  kycStatus?: string | null;
+  identityScore?: number;
+  legalName?: string | null;
+  phone?: string | null;
+  bio?: string | null;
+  avatar?: string | null;
+  beneficiaryName?: string | null;
+  beneficiaryEmail?: string | null;
+  totalCommitted?: number;
+  reportsSubmitted?: number;
+  lastLoginAt?: string | Date | null;
+  createdAt?: string | Date | null;
+  totpEnabled?: boolean;
+  recoveryCodes?: unknown;
+  livenessVerified?: boolean;
+  addressProofUrl?: string | null;
 }
 
 export interface AuthResponse {
@@ -103,7 +121,7 @@ export async function verifyToken(token: string) {
    Use this in EVERY API route instead of inline copy-paste.
    ============================================================ */
 
-export async function getSessionUser() {
+export async function getSessionUser(_req?: Request | unknown) {
   const cookieStore = await cookies();
   const token = cookieStore.get("ledger_session")?.value;
   if (!token) return null;
@@ -117,8 +135,7 @@ export async function getSessionUser() {
         include: { kycRecord: true, wallet: true },
       });
       if (!user) return null;
-      (user as any)._sessionClaims = claims;
-      return user;
+      return withSessionCompatibility(user, claims);
     } catch {
       // JWT invalid — fall through to legacy DB lookup
     }
@@ -133,13 +150,39 @@ export async function getSessionUser() {
   if (!session || session.isRevoked || session.expiresAt < new Date())
     return null;
 
-  return prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { ledgerId: session.ledgerId },
     include: { kycRecord: true, wallet: true },
   });
+  return user ? withSessionCompatibility(user) : null;
 }
 
-export async function getSessionClaims(): Promise<SessionClaims | null> {
+function withSessionCompatibility<
+  T extends {
+    id: string;
+    kycRecord?: { status?: string | null; tier?: string | null } | null;
+  },
+>(
+  user: T,
+  claims?: Partial<SessionClaims>,
+): T & {
+  _sessionClaims?: Partial<SessionClaims>;
+  hallIds: string[];
+  nameMatchVerified: boolean;
+  userId: string;
+} {
+  return Object.assign(user, {
+    _sessionClaims: claims,
+    hallIds: claims?.hallIds ?? [],
+    nameMatchVerified:
+      claims?.nameMatchVerified ?? user.kycRecord?.status === "approved",
+    userId: user.id,
+  });
+}
+
+export async function getSessionClaims(
+  _req?: Request | unknown,
+): Promise<SessionClaims | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get("ledger_session")?.value;
   if (!token || !token.includes(".")) return null;
@@ -160,10 +203,21 @@ export async function getCurrentUser(req: Request | unknown) {
    V3.2 SOVEREIGN GATES — DEFENSIVE (accepts string or object)
    ============================================================ */
 
+function resolveLedgerId(
+  input: string | { ledgerId?: string } | unknown,
+): string | null {
+  if (typeof input === "string") return input;
+  if (input && typeof input === "object" && "ledgerId" in input) {
+    const value = (input as { ledgerId?: unknown }).ledgerId;
+    return typeof value === "string" ? value : null;
+  }
+  return null;
+}
+
 export async function isPrimaryAdmin(
   ledgerId: string | { ledgerId?: string } | unknown,
 ): Promise<boolean> {
-  const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
+  const id = resolveLedgerId(ledgerId);
   if (!id || typeof id !== "string") return false;
   const user = await prisma.user.findUnique({
     where: { ledgerId: id },
@@ -175,7 +229,7 @@ export async function isPrimaryAdmin(
 export async function isAdmin(
   ledgerId: string | { ledgerId?: string } | unknown,
 ): Promise<boolean> {
-  const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
+  const id = resolveLedgerId(ledgerId);
   if (!id || typeof id !== "string") return false;
   const user = await prisma.user.findUnique({
     where: { ledgerId: id },
@@ -187,7 +241,7 @@ export async function isAdmin(
 export async function isFounder(
   ledgerId: string | { ledgerId?: string } | unknown,
 ): Promise<boolean> {
-  const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
+  const id = resolveLedgerId(ledgerId);
   if (!id || typeof id !== "string") return false;
   const user = await prisma.user.findUnique({
     where: { ledgerId: id },
@@ -197,26 +251,39 @@ export async function isFounder(
 }
 
 export function isPrimaryAdminSync(
-  ledgerId: string,
+  ledgerId:
+    | string
+    | { role?: string; isPrimaryAdmin?: boolean }
+    | null
+    | undefined,
   userRole?: string,
   isPrimaryAdmin?: boolean,
 ): boolean {
+  if (ledgerId && typeof ledgerId === "object") {
+    return ledgerId.role === "admin" && ledgerId.isPrimaryAdmin === true;
+  }
   if (userRole === "admin" && isPrimaryAdmin === true) return true;
   return false;
 }
 
-export function isAdminSync(userRole?: string): boolean {
-  return userRole === "admin";
+export function isAdminSync(
+  userRole?: string | { role?: string } | null,
+): boolean {
+  const role = typeof userRole === "object" ? userRole?.role : userRole;
+  return role === "admin";
 }
 
-export function isFounderSync(userRole?: string): boolean {
-  return userRole === "founder";
+export function isFounderSync(
+  userRole?: string | { role?: string } | null,
+): boolean {
+  const role = typeof userRole === "object" ? userRole?.role : userRole;
+  return role === "founder";
 }
 
 export async function requirePrimaryAdmin(
   ledgerId: string | { ledgerId?: string } | unknown,
 ): Promise<void> {
-  const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
+  const id = resolveLedgerId(ledgerId);
   if (!id || typeof id !== "string") {
     throw new Error("Architect authority required. Primary admin access only.");
   }
@@ -226,15 +293,40 @@ export async function requirePrimaryAdmin(
   }
 }
 
+type AdminCheckResult = {
+  success: boolean;
+  ledgerId?: string;
+  userId?: string;
+  role?: string;
+  error?: string;
+};
+
 export async function requireAdmin(
-  ledgerId: string | { ledgerId?: string } | unknown,
-): Promise<void> {
-  const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
-  if (!id || typeof id !== "string") {
-    throw new Error("Administrative authority required");
+  ledgerId: string | { ledgerId?: string },
+): Promise<void>;
+export async function requireAdmin(req: Request): Promise<AdminCheckResult>;
+export async function requireAdmin(
+  input: string | { ledgerId?: string } | Request,
+): Promise<void | AdminCheckResult> {
+  const user =
+    typeof input === "object" && input !== null && !("ledgerId" in input)
+      ? await getSessionUser(input)
+      : null;
+
+  if (user) {
+    const allowed = user.role === "admin" || user.role === "founder";
+    return allowed
+      ? {
+          success: true,
+          ledgerId: user.ledgerId,
+          userId: user.id,
+          role: user.role,
+        }
+      : { success: false, error: "Administrative authority required" };
   }
-  const admin = await isAdmin(id);
-  if (!admin) {
+
+  const id = resolveLedgerId(input);
+  if (!id || !(await isAdmin(id))) {
     throw new Error("Administrative authority required");
   }
 }
@@ -242,7 +334,7 @@ export async function requireAdmin(
 export async function requireFounder(
   ledgerId: string | { ledgerId?: string } | unknown,
 ): Promise<void> {
-  const id = typeof ledgerId === "string" ? ledgerId : ledgerId?.ledgerId;
+  const id = resolveLedgerId(ledgerId);
   if (!id || typeof id !== "string") {
     throw new Error("Founder authority required");
   }
@@ -252,24 +344,88 @@ export async function requireFounder(
   }
 }
 
-export async function requireAuth(): Promise<
-  NonNullable<Awaited<ReturnType<typeof getSessionUser>>>
-> {
+type SessionUser = NonNullable<Awaited<ReturnType<typeof getSessionUser>>>;
+export type AuthenticatedSessionUser = SessionUser & {
+  success: true;
+  userId: string;
+  hallIds: string[];
+  nameMatchVerified: boolean;
+  kycTier: string | null;
+};
+
+export async function requireAuth(
+  _req?: Request | unknown,
+): Promise<AuthenticatedSessionUser> {
   const user = await getSessionUser();
   if (!user) throw new Error("Authentication required");
   if (user.isBanned) throw new Error("Account suspended");
-  return user;
+  const claims = (
+    user as unknown as { _sessionClaims?: Partial<SessionClaims> }
+  )._sessionClaims;
+  return Object.assign(user, {
+    success: true as const,
+    userId: user.id,
+    hallIds: claims?.hallIds ?? [],
+    nameMatchVerified:
+      claims?.nameMatchVerified ?? user.kycRecord?.status === "approved",
+    kycTier: user.kycRecord?.tier ?? null,
+  });
 }
 
-export async function requireHallAccess(hallId: string, userId: string) {
+export async function requireHallAccess(
+  hallId: string,
+  userId: string,
+): Promise<NonNullable<Awaited<ReturnType<typeof prisma.ownership.findFirst>>>>;
+export async function requireHallAccess(
+  _req: Request,
+  hallId: string,
+): Promise<{
+  success: boolean;
+  ownership?: NonNullable<
+    Awaited<ReturnType<typeof prisma.ownership.findFirst>>
+  >;
+  error?: string;
+}>;
+export async function requireHallAccess(
+  first: string | Request,
+  second: string,
+): Promise<
+  | NonNullable<Awaited<ReturnType<typeof prisma.ownership.findFirst>>>
+  | {
+      success: boolean;
+      ownership?: NonNullable<
+        Awaited<ReturnType<typeof prisma.ownership.findFirst>>
+      >;
+      error?: string;
+    }
+> {
+  if (typeof first === "string") {
+    const ownership = await prisma.ownership.findFirst({
+      where: { hallId: first, userId: second, status: { not: "forfeited" } },
+    });
+    if (!ownership) {
+      throw new Error(
+        "Sovereign access denied. Commit to earn ownership in this Hall.",
+      );
+    }
+    return ownership;
+  }
+
+  const user = await getSessionUser(first);
+  if (!user) return { success: false, error: "Authentication required" };
+  if (user.role === "admin" || user.role === "founder") {
+    return { success: true };
+  }
   const ownership = await prisma.ownership.findFirst({
-    where: { hallId, userId, status: { not: "forfeited" } },
+    where: { hallId: second, userId: user.id, status: { not: "forfeited" } },
   });
-  if (!ownership)
-    throw new Error(
-      "Sovereign access denied. Commit to earn ownership in this Hall.",
-    );
-  return ownership;
+  return ownership
+    ? { success: true, ownership }
+    : {
+        success: false,
+        error:
+          "Sovereign access denied. Commit to earn ownership in this Hall.",
+      };
 }
 
 export async function requireManagerRole(hallId: string, userId: string) {
@@ -289,11 +445,11 @@ export async function requireLiaisonRole(hallId: string, userId: string) {
 }
 
 export function requireKycTier(
-  user: { kycTier?: string | null; tier?: string | null },
+  user: { kycTier?: string | null; tier?: string | number | null },
   minTier: string,
 ) {
   const tiers = ["visitor", "sovereign", "verified", "whale"];
-  const userTier = user?.kycTier || user?.tier || "visitor";
+  const userTier = String(user?.kycTier || user?.tier || "visitor");
   const userTierIndex = tiers.indexOf(userTier);
   const minTierIndex = tiers.indexOf(minTier);
   if (userTierIndex < minTierIndex) {

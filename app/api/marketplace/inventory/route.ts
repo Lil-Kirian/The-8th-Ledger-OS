@@ -160,7 +160,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = await requireAuth(req);
-    const claims = getSessionClaims(req);
+    const claims = await getSessionClaims(req);
     const isFounder = isFounderSync(claims);
 
     const body = await req.json();

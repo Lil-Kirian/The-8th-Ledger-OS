@@ -125,7 +125,12 @@ function buildMeritScore(
     300
   );
 
-  const identityScore = Math.min((kycRecord?.verificationTier || 0) * 50, 200);
+  const tierScore: Record<string, number> = {
+    visitor: 0,
+    verified: 100,
+    sovereign: 200,
+  };
+  const identityScore = tierScore[String(kycRecord?.tier ?? "visitor").toLowerCase()] ?? 0;
 
   const streak = calculateArcStreak(userDividendEntries);
   const arcStreakScore = Math.min(streak * 35, 250);
@@ -181,7 +186,7 @@ class AuthError extends Error {
 export async function GET(request: NextRequest) {
   try {
     const user = await getSessionUser();
-    if (!user || !isPrimaryAdmin(user.ledgerId)) {
+    if (!user || !(await isPrimaryAdmin(user.ledgerId))) {
       throw new AuthError("Architect authority required. Primary admin access only.", 403);
     }
 
@@ -223,7 +228,7 @@ export async function GET(request: NextRequest) {
       }),
       prisma.kycRecord.findMany({
         where: { user: { ledgerId: { in: lids } } },
-        select: { user: { select: { ledgerId: true } }, verificationTier: true, identityScore: true },
+        select: { tier: true, user: { select: { ledgerId: true } } },
       }),
     ]);
 
@@ -286,7 +291,7 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const user = await getSessionUser();
-    if (!user || !isPrimaryAdmin(user.ledgerId)) {
+    if (!user || !(await isPrimaryAdmin(user.ledgerId))) {
       throw new AuthError("Architect authority required. Primary admin access only.", 403);
     }
 
@@ -311,7 +316,9 @@ export async function POST(request: NextRequest) {
 
       if (!pool) throw new Error("Pool not found");
       if (pool.status !== "consensus") throw new Error(`Pool status is '${pool.status}'. Must be 'consensus' to trigger merit selection.`);
-      if (pool.winnerId) throw new Error("Quantum Merit Consensus already executed for this pool.");
+      if (pool.ownerships.some((ownership) => ownership.isWinner)) {
+        throw new Error("Quantum Merit Consensus already executed for this pool.");
+      }
 
       const participants = pool.ownerships.map((o) => o.user);
       const lids = participants.map((u) => u.ledgerId);
@@ -332,7 +339,7 @@ export async function POST(request: NextRequest) {
         }),
         tx.kycRecord.findMany({
           where: { user: { ledgerId: { in: lids } } },
-          select: { user: { select: { ledgerId: true } }, verificationTier: true, identityScore: true },
+          select: { tier: true, user: { select: { ledgerId: true } } },
         }),
         tx.wallet.findMany({
           where: { ledgerId: { in: lids } },
@@ -384,11 +391,8 @@ export async function POST(request: NextRequest) {
       const updatedPool = await tx.pool.update({
         where: { id: pool.id },
         data: {
-          winnerId: winner.ledgerId,
-          winnerCountry: winner.country,
           status: "distributed",
           distributedAt: new Date(),
-          meritScoreAtWin: winner.totalMeritScore,
         },
       });
 
@@ -398,7 +402,7 @@ export async function POST(request: NextRequest) {
           where: { ledgerId: score.ledgerId },
           create: {
             ledgerId: score.ledgerId,
-            tacBase: score.ownershipBase,
+            ownershipBase: score.ownershipBase,
             poolHistoryScore: score.poolHistoryScore,
             communityScore: score.communityScore,
             reviewQualityScore: score.reviewQualityScore,
@@ -410,7 +414,7 @@ export async function POST(request: NextRequest) {
             calculatedAt: new Date(),
           },
           update: {
-            tacBase: score.ownershipBase,
+            ownershipBase: score.ownershipBase,
             poolHistoryScore: score.poolHistoryScore,
             communityScore: score.communityScore,
             reviewQualityScore: score.reviewQualityScore,

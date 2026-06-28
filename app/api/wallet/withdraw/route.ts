@@ -3,16 +3,15 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 import { debitWallet } from "@/server/services/wallet.service";
 import * as otplib from "otplib";
-const { authenticator } = otplib;
 
 /* ============================================================
    WITHDRAWAL LIMITS BY KYC TIER — 8th Ledger
    ============================================================ */
 const TIER_LIMITS: Record<string, { daily: number; delayHours: number }> = {
-  visitor: { daily: 0, delayHours: 0 },      // Cannot withdraw
-  sovereign: { daily: 500, delayHours: 0 },   // Up to $500 instant
-  verified: { daily: 5000, delayHours: 24 },  // Up to $5k, 24h delay
-  whale: { daily: Infinity, delayHours: 72 },  // Unlimited, 72h delay
+  visitor: { daily: 0, delayHours: 0 }, // Cannot withdraw
+  sovereign: { daily: 500, delayHours: 0 }, // Up to $500 instant
+  verified: { daily: 5000, delayHours: 24 }, // Up to $5k, 24h delay
+  whale: { daily: Infinity, delayHours: 72 }, // Unlimited, 72h delay
 };
 
 /* ============================================================
@@ -85,7 +84,7 @@ export async function POST(request: NextRequest) {
           { status: 403 },
         );
       }
-      const isValid = authenticator.verify({
+      const isValid = otplib.verify({
         token: totpCode,
         secret: user.totpSecret,
       });
@@ -221,7 +220,7 @@ export async function POST(request: NextRequest) {
     console.error("[WITHDRAW POST]", error);
     return NextResponse.json(
       { success: false, error: "Withdrawal request failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -233,7 +232,10 @@ export async function GET(request: NextRequest) {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { searchParams } = new URL(request.url);
@@ -266,7 +268,10 @@ export async function GET(request: NextRequest) {
       _sum: { amount: true },
     });
 
-    const remainingDaily = Math.max(0, (tierConfig?.daily || 0) - (dailyWithdrawn._sum?.amount || 0));
+    const remainingDaily = Math.max(
+      0,
+      (tierConfig?.daily || 0) - (dailyWithdrawn._sum?.amount || 0),
+    );
 
     return NextResponse.json({
       success: true,
@@ -275,14 +280,15 @@ export async function GET(request: NextRequest) {
         tier: user.kycTier || "visitor",
         dailyLimit: tierConfig?.daily || 0,
         dailyUsed: dailyWithdrawn._sum?.amount || 0,
-        remainingDaily: tierConfig?.daily === Infinity ? Infinity : remainingDaily,
+        remainingDaily:
+          tierConfig?.daily === Infinity ? Infinity : remainingDaily,
       },
     });
   } catch (error) {
     console.error("[WITHDRAW GET]", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch withdrawals" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

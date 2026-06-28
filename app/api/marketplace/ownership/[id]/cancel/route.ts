@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
+import { generateTxHash } from "@/lib/utils";
 
 /* ============================================================
    POST /api/marketplace/ownership/[id]/cancel
@@ -93,7 +94,6 @@ export async function POST(
         escrowStartedAt: null,
         escrowExpiresAt: null,
         expiresAt: new Date(), // expire immediately
-        updatedAt: new Date(),
       },
     });
 
@@ -111,7 +111,7 @@ export async function POST(
           pricePerPercent: listing.pricePerPercent,
           totalPrice: listing.totalPrice,
         }),
-        txHash: `LED-CANCEL-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+        txHash: generateTxHash("LED-CANCEL"),
         visibleToPublic: true,
       },
     });

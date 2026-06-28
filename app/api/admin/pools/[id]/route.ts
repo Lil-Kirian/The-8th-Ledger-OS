@@ -21,14 +21,14 @@ function handlePrismaError(error: any): NextResponse {
     if (error.code === "P2025") {
       return NextResponse.json(
         { success: false, error: "Record not found." },
-        { status: 404 }
+        { status: 404 },
       );
     }
   }
   console.error("[ADMIN_POOL_DETAIL GET]", error);
   return NextResponse.json(
     { success: false, error: "Pool detail unavailable" },
-    { status: 500 }
+    { status: 500 },
   );
 }
 
@@ -39,20 +39,20 @@ function handlePrismaError(error: any): NextResponse {
    ============================================================ */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
     if (!user.isPrimaryAdmin) {
       return NextResponse.json(
         { success: false, error: "Primary Admin authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -123,7 +123,7 @@ export async function GET(
           },
         },
         auditEntries: {
-          orderBy: { createdAt: "desc" },
+          orderBy: { timestamp: "desc" },
           take: 10,
           select: {
             id: true,
@@ -131,7 +131,7 @@ export async function GET(
             description: true,
             amount: true,
             txHash: true,
-            createdAt: true,
+            timestamp: true,
           },
         },
       },
@@ -140,11 +140,12 @@ export async function GET(
     if (!pool) {
       return NextResponse.json(
         { success: false, error: "Pool not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    const fillPercent = pool.target > 0 ? Math.round((pool.committed / pool.target) * 100) : 0;
+    const fillPercent =
+      pool.target > 0 ? Math.round((pool.committed / pool.target) * 100) : 0;
 
     return NextResponse.json({
       success: true,
@@ -190,7 +191,7 @@ export async function GET(
         campaignDuration: pool.campaignDuration,
         closesAt: pool.closesAt,
         createdAt: pool.createdAt,
-        updatedAt: pool.updatedAt,
+        updatedAt: pool.createdAt,
 
         // Verification
         isVerified: pool.isVerified,
@@ -242,7 +243,10 @@ export async function GET(
         revenueLogs: pool.revenueLogs,
 
         // Audit trail
-        auditEntries: pool.auditEntries,
+        auditEntries: pool.auditEntries.map((entry) => ({
+          ...entry,
+          createdAt: entry.timestamp,
+        })),
       },
     });
   } catch (error) {

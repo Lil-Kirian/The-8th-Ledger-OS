@@ -26,7 +26,7 @@ type MediaItem =
   | { type: "image"; url: string; caption?: string; alt?: string }
   | { type: "video"; url: string; caption?: string; provider?: "youtube" | "vimeo" | "direct"; thumbnail?: string }
   | { type: "tour"; url: string; caption?: string; provider?: "matterport" | "kuula" | "custom" }
-  | { type: "link"; url: string; title: string; description?: string; favicon?: string };
+  | { type: "link"; url: string; title: string; description?: string; favicon?: string; caption?: string };
 
 interface AssetGalleryProps {
   items: MediaItem[];

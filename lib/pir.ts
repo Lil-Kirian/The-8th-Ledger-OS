@@ -561,7 +561,7 @@ export async function generatePirAudit(hallId: string): Promise<{
   let hash = 0;
   for (let i = 0; i < data.length; i++) {
     const char = data.charCodeAt(i);
-    hash = ((hash < 5) - hash + char) | 0;
+    hash = ((hash << 5) - hash + char) | 0;
   }
 
   return {

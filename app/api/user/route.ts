@@ -14,14 +14,25 @@ export async function GET(): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     // ── Ownerships = AUTHORITATIVE PAC data (current ownership %) ──
     const ownerships = await prisma.ownership.findMany({
       where: { userId: user.id, status: "active" },
       include: {
-        pool: { select: { poolId: true, name: true, verticalId: true, status: true, imageUrl: true } },
+        pool: {
+          select: {
+            poolId: true,
+            name: true,
+            verticalId: true,
+            status: true,
+            imageUrl: true,
+          },
+        },
         hall: { select: { id: true, status: true } },
       },
       orderBy: { createdAt: "desc" },
@@ -95,7 +106,7 @@ export async function GET(): Promise<NextResponse> {
         lastActivityAt: user.lastActivityAt,
         beneficiaryName: user.beneficiaryName,
         beneficiaryEmail: user.beneficiaryEmail,
-        oracleStanding: user.oracleStanding,
+        oracleStanding: null,
         globalSriScore: user.globalSriScore,
         preferences,
         knot,
@@ -127,7 +138,7 @@ export async function GET(): Promise<NextResponse> {
     console.error("[USER_GET]", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch sovereign profile" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -139,7 +150,10 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const body = await request.json();
@@ -155,10 +169,13 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     } = body;
 
     // Validate displayName
-    if (displayName !== undefined && (displayName.length < 2 || displayName.length > 50)) {
+    if (
+      displayName !== undefined &&
+      (displayName.length < 2 || displayName.length > 50)
+    ) {
       return NextResponse.json(
         { success: false, error: "Display name must be 2-50 characters" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -167,7 +184,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       if (legalName.length < 2 || legalName.length > 100) {
         return NextResponse.json(
           { success: false, error: "Legal name must be 2-100 characters" },
-          { status: 400 }
+          { status: 400 },
         );
       }
     }
@@ -175,7 +192,10 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     // Serialize preferences
     let prefString = undefined;
     if (preferences !== undefined) {
-      prefString = typeof preferences === "string" ? preferences : JSON.stringify(preferences);
+      prefString =
+        typeof preferences === "string"
+          ? preferences
+          : JSON.stringify(preferences);
     }
 
     const updateData: any = {
@@ -185,8 +205,10 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       preferences: prefString,
       phone: phone !== undefined ? phone : undefined,
       legalName: legalName !== undefined ? legalName.trim() : undefined,
-      beneficiaryName: beneficiaryName !== undefined ? beneficiaryName : undefined,
-      beneficiaryEmail: beneficiaryEmail !== undefined ? beneficiaryEmail : undefined,
+      beneficiaryName:
+        beneficiaryName !== undefined ? beneficiaryName : undefined,
+      beneficiaryEmail:
+        beneficiaryEmail !== undefined ? beneficiaryEmail : undefined,
     };
 
     // Remove undefined values
@@ -216,7 +238,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     console.error("[USER_PUT]", error);
     return NextResponse.json(
       { success: false, error: "Failed to update profile" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

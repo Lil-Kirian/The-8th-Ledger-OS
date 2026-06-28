@@ -14,12 +14,14 @@ import { useWorkers } from "@/hooks/use-forge";
 
 interface WorkerRosterProps {
   hallId: string;
+  isAdmin?: boolean;
   onProposeHire?: () => void;
   onProposeFire?: (workerId: string) => void;
 }
 
 export function WorkerRoster({
   hallId,
+  isAdmin = false,
   onProposeHire,
   onProposeFire,
 }: WorkerRosterProps) {

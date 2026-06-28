@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import {
   Scroll,
   Crown,
@@ -281,7 +281,7 @@ const HALL_CLASSES = [
 ];
 
 /*  Animation Variants  */
-const fadeIn = {
+const fadeIn: Variants = {
   hidden: { opacity: 0, y: 24 },
   visible: (i: number) => ({
     opacity: 1,
@@ -416,7 +416,7 @@ function ClassCard({
           <span
             className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold border ${cls.color.replace(
               "bg-",
-              "border-"
+              "border-",
             )} ${cls.accent}`}
           >
             {cls.class}
@@ -453,7 +453,7 @@ function ClassCard({
 
 function VerticalGrid() {
   const [activeFilter, setActiveFilter] = useState<"ALL" | "I" | "II" | "III">(
-    "ALL"
+    "ALL",
   );
 
   const filtered =
@@ -506,8 +506,8 @@ function VerticalGrid() {
                     v.class === "I"
                       ? "border-emerald-500/20 text-emerald-400 bg-emerald-950/20"
                       : v.class === "II"
-                      ? "border-blue-500/20 text-blue-400 bg-blue-950/20"
-                      : "border-amber-500/20 text-amber-400 bg-amber-950/20"
+                        ? "border-blue-500/20 text-blue-400 bg-blue-950/20"
+                        : "border-amber-500/20 text-amber-400 bg-amber-950/20"
                   }`}
                 >
                   C{v.class}

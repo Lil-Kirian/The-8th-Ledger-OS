@@ -10,7 +10,7 @@ import { getSessionUser } from "@/lib/auth";
    ============================================================ */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string; proposalId: string }> }
+  { params }: { params: Promise<{ id: string; proposalId: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
@@ -21,7 +21,7 @@ export async function GET(
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -37,8 +37,11 @@ export async function GET(
 
     if (!ownership && !isAdmin) {
       return NextResponse.json(
-        { success: false, error: "Hall ownership required to view execution status" },
-        { status: 403 }
+        {
+          success: false,
+          error: "Hall ownership required to view execution status",
+        },
+        { status: 403 },
       );
     }
 
@@ -47,7 +50,7 @@ export async function GET(
       where: { id: proposalId, hallId },
       include: {
         hall: {
-          select: { name: true, vertical: true },
+          select: { name: true, pool: { select: { verticalId: true } } },
         },
         proposer: {
           select: { displayName: true, ledgerId: true },
@@ -58,7 +61,7 @@ export async function GET(
     if (!proposal) {
       return NextResponse.json(
         { success: false, error: "Proposal not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -97,7 +100,8 @@ export async function GET(
           step: "in_progress",
           label: "In Progress",
           timestamp: proposal.startedAt.toISOString(),
-          completed: proposal.status === "executing" || proposal.status === "completed",
+          completed:
+            proposal.status === "executing" || proposal.status === "completed",
         });
       } else {
         timeline.push({
@@ -126,7 +130,7 @@ export async function GET(
       timeline.push({
         step: "cancelled",
         label: "Cancelled",
-        timestamp: proposal.cancelledAt?.toISOString() || null,
+        timestamp: proposal.completedAt?.toISOString() || null,
         completed: true,
       });
     }
@@ -134,8 +138,8 @@ export async function GET(
     // ── Parse proofs ──
     let proofs: string[] = [];
     try {
-      if (proposal.proofUrls) {
-        proofs = JSON.parse(proposal.proofUrls);
+      if (proposal.executionProof) {
+        proofs = JSON.parse(proposal.executionProof);
       }
     } catch {
       proofs = [];
@@ -152,7 +156,7 @@ export async function GET(
         status: proposal.status,
         hallId: proposal.hallId,
         hallName: proposal.hall?.name,
-        vertical: proposal.hall?.vertical,
+        vertical: proposal.hall?.pool?.verticalId,
         proposer: {
           displayName: proposal.proposer?.displayName,
           ledgerId: proposal.proposer?.ledgerId,
@@ -182,7 +186,10 @@ export async function GET(
         endsAt: proposal.endsAt.toISOString(),
         startedAt: proposal.startedAt?.toISOString() || null,
         completedAt: proposal.completedAt?.toISOString() || null,
-        cancelledAt: proposal.cancelledAt?.toISOString() || null,
+        cancelledAt:
+          proposal.status === "cancelled"
+            ? proposal.completedAt?.toISOString() || null
+            : null,
       },
     };
 
@@ -191,7 +198,7 @@ export async function GET(
     console.error("[EXECUTE STATUS GET]", error);
     return NextResponse.json(
       { success: false, error: "Failed to fetch execution status" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -185,7 +185,7 @@ const DEMO_MESSAGES: StreamMessage[] = [
   },
   {
     id: "msg10", type: "chat", priority: "low",
-    authorId: "m9", authorName: "Yuki Tanaka", ledgerId: "LED-667", authorRole: "owner", authorAvatar: "YT",
+    authorId: "m9", authorName: "Yuki Tanaka", authorLedgerId: "LED-667", authorRole: "owner", authorAvatar: "YT",
     content: "First-time owner here. How do I read the Forge Ledger? I see payroll numbers but not sure what the performance metrics mean.",
     timestamp: "2026-06-18T14:00:00Z", likes: 4, replies: [
       { id: "r14", authorId: "m4", authorName: "Elena Rossi", authorLedgerId: "LED-104", authorRole: "scribe", authorAvatar: "ER", content: "Welcome Yuki. The Forge Ledger shows worker performance against targets. Green = on target. Amber = review. Red = underperformance. Hover over any metric for the benchmark.", timestamp: "2026-06-18T14:10:00Z", likes: 6 },

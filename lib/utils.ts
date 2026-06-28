@@ -128,24 +128,29 @@ export function formatCountdown(totalSeconds: number): string {
    ID & HASH GENERATORS
    ============================================================ */
 
+export function generateSecureSegment(length = 4): string {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  const bytes = randomBytes(length);
+  return Array.from(bytes, (byte) => chars[byte % chars.length]).join("");
+}
+
 export function generateLedgerId(): string {
-  const seg = () => Math.random().toString(36).substring(2, 6).toUpperCase();
-  return `LED-${seg()}-${seg()}`;
+  return `LED-${generateSecureSegment()}-${generateSecureSegment()}`;
 }
 
 export function generateTxHash(prefix: string): string {
   const ts = Date.now().toString(36).toUpperCase();
-  const rand = Math.random().toString(36).substring(2, 5).toUpperCase();
+  const rand = generateSecureSegment(6);
   return `${prefix}-${ts}-${rand}`;
 }
 
 export function generateToken(): string {
-  return `ltok_${Math.random().toString(36).substring(2)}_${Date.now()}`;
+  return `ltok_${randomBytes(24).toString("hex")}_${Date.now()}`;
 }
 
 export function generatePacToken(poolId: string, ledgerId: string): string {
   const timestamp = Date.now().toString(36).toUpperCase();
-  const hash = Math.random().toString(36).substring(2, 6).toUpperCase();
+  const hash = generateSecureSegment();
   return `PAC-${poolId.substring(0, 4)}-${ledgerId.substring(4, 8)}-${timestamp}-${hash}`;
 }
 

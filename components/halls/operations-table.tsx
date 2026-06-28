@@ -38,8 +38,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 //  Types
-export type ProposalStatus = "passed" | "ledger_review" | "in_progress" | "completed" | "cancelled" | "voting";
-export type ProposalType = "maintenance" | "upgrade" | "hire" | "fire" | "inventory_list" | "closure" | "pir_advance" | "location_select" | "sale" | "strategy";
+export type ProposalStatus =
+  | "passed"
+  | "ledger_review"
+  | "in_progress"
+  | "completed"
+  | "cancelled"
+  | "voting";
+export type ProposalType =
+  | "maintenance"
+  | "upgrade"
+  | "hire"
+  | "fire"
+  | "inventory_list"
+  | "closure"
+  | "pir_advance"
+  | "location_select"
+  | "sale"
+  | "strategy";
 export type VerticalKey =
   | "ledgerprop"
   | "ledgerauto"
@@ -90,41 +106,128 @@ export interface OperationsTableProps {
 }
 
 //  Config
-const STATUS_CONFIG: Record<ProposalStatus, { label: string; color: string; bg: string; border: string; icon: React.ElementType }> = {
-  passed:        { label: "Passed",        color: "text-emerald-400",  bg: "bg-emerald-500/10",  border: "border-emerald-500/20",  icon: CheckCircle2 },
-  ledger_review: { label: "8th Ledger Review", color: "text-amber-400",    bg: "bg-amber-500/10",    border: "border-amber-500/20",    icon: Landmark },
-  in_progress:   { label: "In Progress",   color: "text-cyan-400",     bg: "bg-cyan-500/10",     border: "border-cyan-500/20",     icon: Play },
-  completed:     { label: "Completed",     color: "text-blue-400",     bg: "bg-blue-500/10",     border: "border-blue-500/20",     icon: CheckCircle2 },
-  cancelled:     { label: "Cancelled",     color: "text-red-400",      bg: "bg-red-500/10",      border: "border-red-500/20",      icon: Ban },
-  voting:        { label: "Voting",        color: "text-violet-400",   bg: "bg-violet-500/10",   border: "border-violet-500/20",   icon: Vote },
+type DetailColor = "cyan" | "emerald" | "red" | "violet" | "amber";
+
+const STATUS_CONFIG: Record<
+  ProposalStatus,
+  {
+    label: string;
+    color: string;
+    detailColor: DetailColor;
+    bg: string;
+    border: string;
+    icon: React.ElementType;
+  }
+> = {
+  passed: {
+    label: "Passed",
+    color: "text-emerald-400",
+    detailColor: "emerald",
+    bg: "bg-emerald-500/10",
+    border: "border-emerald-500/20",
+    icon: CheckCircle2,
+  },
+  ledger_review: {
+    label: "8th Ledger Review",
+    color: "text-amber-400",
+    detailColor: "amber",
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/20",
+    icon: Landmark,
+  },
+  in_progress: {
+    label: "In Progress",
+    color: "text-cyan-400",
+    detailColor: "cyan",
+    bg: "bg-cyan-500/10",
+    border: "border-cyan-500/20",
+    icon: Play,
+  },
+  completed: {
+    label: "Completed",
+    color: "text-blue-400",
+    detailColor: "cyan",
+    bg: "bg-blue-500/10",
+    border: "border-blue-500/20",
+    icon: CheckCircle2,
+  },
+  cancelled: {
+    label: "Cancelled",
+    color: "text-red-400",
+    detailColor: "red",
+    bg: "bg-red-500/10",
+    border: "border-red-500/20",
+    icon: Ban,
+  },
+  voting: {
+    label: "Voting",
+    color: "text-violet-400",
+    detailColor: "violet",
+    bg: "bg-violet-500/10",
+    border: "border-violet-500/20",
+    icon: Vote,
+  },
 };
 
-const TYPE_CONFIG: Record<ProposalType, { label: string; icon: React.ElementType; color: string }> = {
-  maintenance:     { label: "Maintenance",     icon: Wrench,        color: "text-emerald-400" },
-  upgrade:         { label: "Upgrade",         icon: TrendingUp,    color: "text-cyan-400" },
-  hire:            { label: "Hire",            icon: Users,         color: "text-blue-400" },
-  fire:            { label: "Termination",     icon: Ban,           color: "text-red-400" },
-  inventory_list:  { label: "Inventory List",  icon: ClipboardList, color: "text-amber-400" },
-  closure:         { label: "Closure",         icon: AlertTriangle, color: "text-red-400" },
-  pir_advance:     { label: "PIR Advance",     icon: Landmark,      color: "text-violet-400" },
-  location_select: { label: "Location Vote",   icon: Landmark,      color: "text-sky-400" },
-  sale:            { label: "Asset Sale",      icon: DollarSign,    color: "text-orange-400" },
-  strategy:        { label: "Strategy",        icon: Activity,      color: "text-slate-400" },
+const TYPE_CONFIG: Record<
+  ProposalType,
+  { label: string; icon: React.ElementType; color: string }
+> = {
+  maintenance: {
+    label: "Maintenance",
+    icon: Wrench,
+    color: "text-emerald-400",
+  },
+  upgrade: { label: "Upgrade", icon: TrendingUp, color: "text-cyan-400" },
+  hire: { label: "Hire", icon: Users, color: "text-blue-400" },
+  fire: { label: "Termination", icon: Ban, color: "text-red-400" },
+  inventory_list: {
+    label: "Inventory List",
+    icon: ClipboardList,
+    color: "text-amber-400",
+  },
+  closure: { label: "Closure", icon: AlertTriangle, color: "text-red-400" },
+  pir_advance: {
+    label: "PIR Advance",
+    icon: Landmark,
+    color: "text-violet-400",
+  },
+  location_select: {
+    label: "Location Vote",
+    icon: Landmark,
+    color: "text-sky-400",
+  },
+  sale: { label: "Asset Sale", icon: DollarSign, color: "text-orange-400" },
+  strategy: { label: "Strategy", icon: Activity, color: "text-slate-400" },
 };
 
 const VERTICAL_ICONS: Record<VerticalKey, React.ElementType> = {
-  ledgerprop: Building2, ledgerauto: Car, ledgertech: Cpu, ledgeredu: GraduationCap,
-  ledgerhealth: HeartPulse, ledgerbiz: Briefcase, ledgertravel: Plane,
-  ledgeragri: Wheat, ledgerenergy: Sun, ledgeraccess: Wifi,
+  ledgerprop: Building2,
+  ledgerauto: Car,
+  ledgertech: Cpu,
+  ledgeredu: GraduationCap,
+  ledgerhealth: HeartPulse,
+  ledgerbiz: Briefcase,
+  ledgertravel: Plane,
+  ledgeragri: Wheat,
+  ledgerenergy: Sun,
+  ledgeraccess: Wifi,
 };
 
 //  Helpers
 function formatCurrency(n: number) {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(n);
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+  });
 }
 
 function timeAgo(iso: string) {
@@ -153,10 +256,14 @@ export function OperationsTable({
   showHallColumn = true,
 }: OperationsTableProps) {
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<ProposalStatus | "all">("all");
+  const [statusFilter, setStatusFilter] = useState<ProposalStatus | "all">(
+    "all",
+  );
   const [typeFilter, setTypeFilter] = useState<ProposalType | "all">("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<"newest" | "oldest" | "cost_high" | "cost_low">("newest");
+  const [sortBy, setSortBy] = useState<
+    "newest" | "oldest" | "cost_high" | "cost_low"
+  >("newest");
 
   const filtered = useMemo(() => {
     let result = [...proposals];
@@ -169,7 +276,7 @@ export function OperationsTable({
           p.description.toLowerCase().includes(q) ||
           p.hallName.toLowerCase().includes(q) ||
           p.proposedBy.toLowerCase().includes(q) ||
-          String(p.hallNumber).includes(q)
+          String(p.hallNumber).includes(q),
       );
     }
 
@@ -183,11 +290,20 @@ export function OperationsTable({
 
     result.sort((a, b) => {
       switch (sortBy) {
-        case "newest": return new Date(b.proposedAt).getTime() - new Date(a.proposedAt).getTime();
-        case "oldest": return new Date(a.proposedAt).getTime() - new Date(b.proposedAt).getTime();
-        case "cost_high": return b.estimatedCost - a.estimatedCost;
-        case "cost_low": return a.estimatedCost - b.estimatedCost;
-        default: return 0;
+        case "newest":
+          return (
+            new Date(b.proposedAt).getTime() - new Date(a.proposedAt).getTime()
+          );
+        case "oldest":
+          return (
+            new Date(a.proposedAt).getTime() - new Date(b.proposedAt).getTime()
+          );
+        case "cost_high":
+          return b.estimatedCost - a.estimatedCost;
+        case "cost_low":
+          return a.estimatedCost - b.estimatedCost;
+        default:
+          return 0;
       }
     });
 
@@ -544,7 +660,7 @@ export function OperationsTable({
                             <DetailBox
                               label="Status"
                               value={status.label}
-                              color={status.color}
+                              color={status.detailColor}
                             />
                             <DetailBox label="Type" value={type.label} />
 
@@ -663,7 +779,9 @@ function StatPill({
     <div className={`rounded-xl border p-3 ${colorMap[color]}`}>
       <div className="flex items-center gap-2 mb-1.5">
         <Icon className="w-3.5 h-3.5" />
-        <span className="text-[10px] uppercase tracking-wider font-medium opacity-70">{label}</span>
+        <span className="text-[10px] uppercase tracking-wider font-medium opacity-70">
+          {label}
+        </span>
       </div>
       <div className="text-lg font-bold font-mono">{value}</div>
     </div>
@@ -679,7 +797,7 @@ function DetailBox({
 }: {
   label: string;
   value: string;
-  color?: "cyan" | "emerald" | "red" | "violet" | "amber";
+  color?: DetailColor;
   fullWidth?: boolean;
 }) {
   const colorMap: Record<string, string> = {
@@ -692,8 +810,12 @@ function DetailBox({
 
   return (
     <div className={fullWidth ? "sm:col-span-2 lg:col-span-4" : ""}>
-      <div className="text-[10px] text-slate-500 uppercase tracking-wider">{label}</div>
-      <div className={`text-sm font-medium mt-0.5 ${color ? colorMap[color] : "text-slate-200"} ${fullWidth ? "leading-relaxed" : ""}`}>
+      <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+        {label}
+      </div>
+      <div
+        className={`text-sm font-medium mt-0.5 ${color ? colorMap[color] : "text-slate-200"} ${fullWidth ? "leading-relaxed" : ""}`}
+      >
         {value}
       </div>
     </div>

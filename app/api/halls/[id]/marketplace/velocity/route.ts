@@ -18,7 +18,7 @@ export async function GET(
 ) {
   try {
     const user = await requireAuth(request);
-    const claims = getSessionClaims(request);
+    const claims = await getSessionClaims(request);
     const isFounder = isFounderSync(claims) || user.role === "founder";
 
     const { id: hallId } = await params;
@@ -199,7 +199,7 @@ export async function POST(
 ) {
   try {
     const user = await requireAuth(request);
-    const claims = getSessionClaims(request);
+    const claims = await getSessionClaims(request);
     const isFounder = isFounderSync(claims) || user.role === "founder";
 
     if (!isFounder && user.role !== "admin") {

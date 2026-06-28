@@ -963,7 +963,7 @@ export default function OperationDetailPage() {
                 {
                   stage: "Passed",
                   date: proposal.endsAt,
-                  completed: proposal.status !== "active",
+                  completed: true,
                 },
                 {
                   stage: "8th Ledger Review",

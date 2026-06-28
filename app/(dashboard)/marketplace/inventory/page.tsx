@@ -700,7 +700,7 @@ export default function InventoryMarketplacePage() {
   }, [items, searchQuery, selectedVertical, sortBy, priceRange, onlyInStock, showWatchlistOnly, showMyHallsOnly, watchlist, userHallIds]);
 
   const hasActiveFilters =
-    searchQuery || selectedVertical !== "all" || onlyInStock || sortBy !== "newest" || priceRange[1] < 100000 || showWatchlistOnly || showMyHallsOnly;
+    Boolean(searchQuery.trim()) || selectedVertical !== "all" || onlyInStock || sortBy !== "newest" || priceRange[1] < 100000 || showWatchlistOnly || showMyHallsOnly;
 
   const totalValue = useMemo(() => items.reduce((a, b) => a + b.price * (b.quantity - b.quantitySold), 0), [items]);
   const totalSold = useMemo(() => items.reduce((a, b) => a + b.quantitySold, 0), [items]);

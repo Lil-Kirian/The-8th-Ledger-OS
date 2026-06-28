@@ -402,7 +402,15 @@ export default function OperationsPage() {
       if (!files) return;
       setExecForms((prev) => ({
         ...prev,
-        [proposalId]: { ...prev[proposalId], uploading: true },
+        [proposalId]: {
+          ...(prev[proposalId] || {
+            result: "",
+            cost: "",
+            proofs: [],
+            uploading: false,
+          }),
+          uploading: true,
+        },
       }));
       const proofs: string[] = [];
       for (const file of Array.from(files)) {
@@ -418,6 +426,8 @@ export default function OperationsPage() {
         ...prev,
         [proposalId]: {
           ...prev[proposalId],
+          result: prev[proposalId]?.result || "",
+          cost: prev[proposalId]?.cost || "",
           proofs: [...(prev[proposalId]?.proofs || []), ...proofs],
           uploading: false,
         },
@@ -434,7 +444,12 @@ export default function OperationsPage() {
     setExecForms((prev) => ({
       ...prev,
       [proposalId]: {
-        ...(prev[proposalId] || { proofs: [], uploading: false }),
+        ...(prev[proposalId] || {
+          result: "",
+          cost: "",
+          proofs: [],
+          uploading: false,
+        }),
         [field]: value,
       },
     }));
@@ -444,7 +459,12 @@ export default function OperationsPage() {
     setExecForms((prev) => ({
       ...prev,
       [proposalId]: {
-        ...prev[proposalId],
+        ...(prev[proposalId] || {
+          result: "",
+          cost: "",
+          proofs: [],
+          uploading: false,
+        }),
         proofs: prev[proposalId]?.proofs.filter((_, i) => i !== index) || [],
       },
     }));

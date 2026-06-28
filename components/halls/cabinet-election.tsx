@@ -52,7 +52,7 @@ export interface CabinetElectionProps {
   yourLedgerId?: string;
   yourOwnershipPercent: number;
   hasVoted: boolean;
-  yourVotes?: Record<CabinetRole, string>; // role -> candidateId
+  yourVotes?: Partial<Record<CabinetRole, string>>; // role -> candidateId
   isLoading?: boolean;
   onNominate?: (role: CabinetRole, statement: string) => void;
   onVote?: (candidateId: string, role: CabinetRole) => void;
@@ -60,31 +60,64 @@ export interface CabinetElectionProps {
 }
 
 //  Config
-const ROLE_CONFIG: Record<CabinetRole, {
-  label: string; short: string; color: string; bg: string; border: string;
-  icon: React.ElementType; description: string;
-}> = {
+const ROLE_CONFIG: Record<
+  CabinetRole,
+  {
+    label: string;
+    short: string;
+    color: string;
+    bg: string;
+    border: string;
+    icon: React.ElementType;
+    description: string;
+  }
+> = {
   speaker: {
-    label: "The Speaker", short: "SPK", color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20",
-    icon: MessageSquare, description: "Voice of the hall. Proposes strategies.",
+    label: "The Speaker",
+    short: "SPK",
+    color: "text-violet-400",
+    bg: "bg-violet-500/10",
+    border: "border-violet-500/20",
+    icon: MessageSquare,
+    description: "Voice of the hall. Proposes strategies.",
   },
   treasurer: {
-    label: "The Treasurer", short: "TR", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20",
-    icon: FileText, description: "Financial oversight. Revenue reports.",
+    label: "The Treasurer",
+    short: "TR",
+    color: "text-emerald-400",
+    bg: "bg-emerald-500/10",
+    border: "border-emerald-500/20",
+    icon: FileText,
+    description: "Financial oversight. Revenue reports.",
   },
   warden: {
-    label: "The Warden", short: "WRD", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20",
-    icon: Shield, description: "Asset protection. Insurance & maintenance.",
+    label: "The Warden",
+    short: "WRD",
+    color: "text-amber-400",
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/20",
+    icon: Shield,
+    description: "Asset protection. Insurance & maintenance.",
   },
   scribe: {
-    label: "The Scribe", short: "SCR", color: "text-sky-400", bg: "bg-sky-500/10", border: "border-sky-500/20",
-    icon: FileText, description: "Communications. Reports & messaging.",
+    label: "The Scribe",
+    short: "SCR",
+    color: "text-sky-400",
+    bg: "bg-sky-500/10",
+    border: "border-sky-500/20",
+    icon: FileText,
+    description: "Communications. Reports & messaging.",
   },
 };
 
 //  Helpers
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  return new Date(iso).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 function timeRemaining(deadline: string) {
@@ -126,14 +159,21 @@ export function CabinetElection({
   const [showNominate, setShowNominate] = useState(false);
   const [nominationStatement, setNominationStatement] = useState("");
   const [expandedRole, setExpandedRole] = useState<CabinetRole | null>(null);
-  const [confirmVote, setConfirmVote] = useState<{ candidateId: string; role: CabinetRole } | null>(null);
+  const [confirmVote, setConfirmVote] = useState<{
+    candidateId: string;
+    role: CabinetRole;
+  } | null>(null);
 
   const timer = timeRemaining(phaseDeadline);
-  const quorumPct = totalVotingPower > 0 ? (votesCast / totalVotingPower) * 100 : 0;
+  const quorumPct =
+    totalVotingPower > 0 ? (votesCast / totalVotingPower) * 100 : 0;
 
   const roleCandidates = useMemo(() => {
     const byRole: Record<CabinetRole, ElectionCandidate[]> = {
-      speaker: [], treasurer: [], warden: [], scribe: [],
+      speaker: [],
+      treasurer: [],
+      warden: [],
+      scribe: [],
     };
     candidates.forEach((c) => byRole[c.role].push(c));
     Object.keys(byRole).forEach((r) => {
@@ -531,7 +571,7 @@ export function CabinetElection({
                                           Your Vote
                                         </Badge>
                                       )}
-                                      {isLeading && status !== "closed" && (
+                                      {isLeading && (
                                         <Badge className="text-[9px] bg-cyan-500/10 text-cyan-400 border-0">
                                           <TrendingUp className="w-2.5 h-2.5 mr-1" />
                                           Leading

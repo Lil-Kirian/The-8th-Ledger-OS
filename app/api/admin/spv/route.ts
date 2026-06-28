@@ -8,7 +8,16 @@ import { Prisma } from "@prisma/client";
    Special Purpose Vehicle registry & creation
    ============================================================ */
 
-const ENTITY_TYPES = ["llc", "ltd", "corporation", "trust", "foundation", "partnership", "cooperative", "spv"] as const;
+const ENTITY_TYPES = [
+  "llc",
+  "ltd",
+  "corporation",
+  "trust",
+  "foundation",
+  "partnership",
+  "cooperative",
+  "spv",
+] as const;
 type EntityType = (typeof ENTITY_TYPES)[number];
 
 /* ============================================================
@@ -18,21 +27,24 @@ function handlePrismaError(error: any): NextResponse {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2002") {
       return NextResponse.json(
-        { success: false, error: "Duplicate entry. SPV may already exist for this pool." },
-        { status: 409 }
+        {
+          success: false,
+          error: "Duplicate entry. SPV may already exist for this pool.",
+        },
+        { status: 409 },
       );
     }
     if (error.code === "P2025") {
       return NextResponse.json(
         { success: false, error: "Record not found." },
-        { status: 404 }
+        { status: 404 },
       );
     }
   }
   console.error("[ADMIN_SPV ERROR]", error);
   return NextResponse.json(
     { success: false, error: "SPV operation failed" },
-    { status: 500 }
+    { status: 500 },
   );
 }
 
@@ -43,12 +55,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
     if (!isPrimaryAdmin(user)) {
       return NextResponse.json(
         { success: false, error: "Primary admin authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -57,11 +72,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const entityType = searchParams.get("entityType");
     const search = searchParams.get("search");
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const limit = Math.min(
+      50,
+      Math.max(1, parseInt(searchParams.get("limit") || "20", 10)),
+    );
 
     const where: Prisma.SpvEntityWhereInput = {};
-    if (jurisdiction) where.jurisdiction = { equals: jurisdiction, mode: "insensitive" };
-    if (entityType && ENTITY_TYPES.includes(entityType as EntityType)) where.entityType = entityType as EntityType;
+    if (jurisdiction)
+      where.jurisdiction = { equals: jurisdiction, mode: "insensitive" };
+    if (entityType && ENTITY_TYPES.includes(entityType as EntityType))
+      where.entityType = entityType as EntityType;
 
     if (search) {
       where.OR = [
@@ -146,12 +166,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
     if (!isPrimaryAdmin(user)) {
       return NextResponse.json(
         { success: false, error: "Primary admin authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -171,15 +194,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     if (!poolId || !name || !entityType || !jurisdiction) {
       return NextResponse.json(
-        { success: false, error: "poolId, name, entityType, and jurisdiction required" },
-        { status: 400 }
+        {
+          success: false,
+          error: "poolId, name, entityType, and jurisdiction required",
+        },
+        { status: 400 },
       );
     }
 
     if (!ENTITY_TYPES.includes(entityType as EntityType)) {
       return NextResponse.json(
-        { success: false, error: `entityType must be one of: ${ENTITY_TYPES.join(", ")}` },
-        { status: 400 }
+        {
+          success: false,
+          error: `entityType must be one of: ${ENTITY_TYPES.join(", ")}`,
+        },
+        { status: 400 },
       );
     }
 
@@ -190,7 +219,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     });
 
     if (!pool) {
-      return NextResponse.json({ success: false, error: "Pool not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Pool not found" },
+        { status: 404 },
+      );
     }
 
     // Prevent duplicate SPV per pool (one SPV per pool rule)
@@ -201,7 +233,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           error: `Pool ${poolId} already has an SPV (#${pool.spv.id}). Use PATCH to update.`,
           existingSpvId: pool.spv.id,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -211,14 +243,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (!Array.isArray(documents)) {
         return NextResponse.json(
           { success: false, error: "documents must be an array" },
-          { status: 400 }
+          { status: 400 },
         );
       }
-      const invalid = documents.filter((u: any) => typeof u !== "string" || !u.startsWith("https://"));
+      const invalid = documents.filter(
+        (u: any) => typeof u !== "string" || !u.startsWith("https://"),
+      );
       if (invalid.length > 0) {
         return NextResponse.json(
-          { success: false, error: "All document URLs must be valid HTTPS strings" },
-          { status: 400 }
+          {
+            success: false,
+            error: "All document URLs must be valid HTTPS strings",
+          },
+          { status: 400 },
         );
       }
       docs = documents;
@@ -235,7 +272,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         documents: docs.length > 0 ? JSON.stringify(docs) : null,
         bankAccount: bankAccount?.trim() || null,
         taxId: taxId?.trim() || null,
-        notes: notes?.trim() || null,
       },
     });
 
@@ -264,13 +300,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           documentCount: docs.length,
           bankAccount: spv.bankAccount,
           taxId: spv.taxId,
-          notes: spv.notes,
           poolId: pool.poolId,
           createdAt: spv.createdAt,
         },
         message: `SPV "${spv.name}" created and linked to pool ${poolId}.`,
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error) {
     return handlePrismaError(error);

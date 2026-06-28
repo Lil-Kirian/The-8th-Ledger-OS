@@ -4,6 +4,7 @@ import { hashPassword, verifyPassword, getSessionUser } from "@/lib/auth";
 import { getSessionSecret } from "@/lib/env";
 import crypto from "crypto";
 import { SignJWT, jwtVerify } from "jose";
+import { generateSecureSegment } from "@/lib/utils";
 
 /* ============================================================
    OPTIONAL IMPORTS — Graceful fallback if modules missing
@@ -152,8 +153,7 @@ function isQuantumKeyStrong(password: string): {
    CRYPTO / ID UTILS
    ============================================================ */
 function generateLedgerId(): string {
-  const seg = () => Math.random().toString(36).substring(2, 6).toUpperCase();
-  return `LED-${seg()}-${seg()}`;
+  return `LED-${generateSecureSegment()}-${generateSecureSegment()}`;
 }
 
 function generateToken(): string {

@@ -19,16 +19,21 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { searchParams } = new URL(request.url);
     const eventType = searchParams.get("type");
     const poolId = searchParams.get("poolId");
-    const vinculumId = searchParams.get("vinculumId");
+    const ledgerId =
+      searchParams.get("ledgerId") || searchParams.get("vinculumId");
     const page = Math.max(1, Number(searchParams.get("page") || 1));
-    const limit = Math.min(100, Math.max(1, Number(searchParams.get("limit") || 50)));
+    const limit = Math.min(
+      100,
+      Math.max(1, Number(searchParams.get("limit") || 50)),
+    );
     const skip = (page - 1) * limit;
 
     // Build where clause — public only
     const where: any = { visibleToPublic: true };
-    if (eventType) where.eventType = { contains: eventType, mode: "insensitive" };
+    if (eventType)
+      where.eventType = { contains: eventType, mode: "insensitive" };
     if (poolId) where.poolId = poolId;
-    if (vinculumId) where.vinculumId = vinculumId;
+    if (ledgerId) where.ledgerId = ledgerId;
 
     const [events, total] = await prisma.$transaction([
       prisma.auditLog.findMany({
@@ -42,12 +47,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
               poolId: true,
               name: true,
               status: true,
-              winnerCountry: true,
+              country: true,
             },
           },
           user: {
             select: {
-              vinculumId: true,
+              ledgerId: true,
               displayName: true,
               country: true,
             },
@@ -66,7 +71,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     console.error("[AUDIT STREAM]", error);
     return NextResponse.json<AuditResponse>(
       { success: false, error: "Failed to fetch audit trail" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

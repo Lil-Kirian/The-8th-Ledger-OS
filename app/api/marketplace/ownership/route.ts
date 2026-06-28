@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 import crypto from "crypto";
+import { generateTxHash } from "@/lib/utils";
 
 /* ============================================================
    GET /api/marketplace/ownership
@@ -13,7 +14,10 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const limit = Math.min(
+      50,
+      Math.max(1, parseInt(searchParams.get("limit") || "20", 10)),
+    );
     const hallId = searchParams.get("hallId");
     const verticalId = searchParams.get("verticalId");
     const sellerId = searchParams.get("sellerId");
@@ -27,10 +31,7 @@ export async function GET(req: NextRequest) {
     };
 
     // ExpiresAt: either null (never expires) or in the future
-    where.OR = [
-      { expiresAt: null },
-      { expiresAt: { gt: new Date() } },
-    ];
+    where.OR = [{ expiresAt: null }, { expiresAt: { gt: new Date() } }];
 
     if (hallId) where.hallId = hallId;
     if (sellerId) where.sellerId = sellerId;
@@ -99,8 +100,8 @@ export async function GET(req: NextRequest) {
           sortBy === "price_asc"
             ? { pricePerPercent: "asc" }
             : sortBy === "price_desc"
-            ? { pricePerPercent: "desc" }
-            : { listedAt: "desc" },
+              ? { pricePerPercent: "desc" }
+              : { listedAt: "desc" },
         skip,
         take: limit,
       }),
@@ -111,24 +112,26 @@ export async function GET(req: NextRequest) {
     const enriched = listings.map((listing) => {
       const dynamicVal = listing.hall.dynamicValuations[0];
       const floorPrice =
-        dynamicVal?.valuePerPercent ||
-        listing.ownership.dynamicValue ||
-        0;
+        dynamicVal?.valuePerPercent || listing.ownership.dynamicValue || 0;
 
       const timeRemainingMs = listing.expiresAt
         ? listing.expiresAt.getTime() - now.getTime()
         : Infinity;
-      const timeRemaining = timeRemainingMs === Infinity
-        ? null
-        : Math.max(0, Math.ceil(timeRemainingMs / (1000 * 60 * 60 * 24)));
+      const timeRemaining =
+        timeRemainingMs === Infinity
+          ? null
+          : Math.max(0, Math.ceil(timeRemainingMs / (1000 * 60 * 60 * 24)));
 
-      const isAboveFloor = floorPrice > 0
-        ? listing.pricePerPercent >= floorPrice || listing.belowFloorApproved
-        : true;
+      const isAboveFloor =
+        floorPrice > 0
+          ? listing.pricePerPercent >= floorPrice || listing.belowFloorApproved
+          : true;
 
       const premiumPercent =
         floorPrice > 0
-          ? Math.round(((listing.pricePerPercent - floorPrice) / floorPrice) * 100)
+          ? Math.round(
+              ((listing.pricePerPercent - floorPrice) / floorPrice) * 100,
+            )
           : 0;
 
       return {
@@ -193,7 +196,7 @@ export async function GET(req: NextRequest) {
     console.error("[OWNERSHIP_MARKETPLACE_GET]", err);
     return NextResponse.json(
       { success: false, error: "Failed to fetch listings" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -206,14 +209,20 @@ export async function POST(req: NextRequest) {
   try {
     const user = await requireAuth(req);
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     // KYC gate — visitors cannot list
     if (user.kycTier === "visitor") {
       return NextResponse.json(
-        { success: false, error: "KYC verification required to list PACs on the marketplace" },
-        { status: 403 }
+        {
+          success: false,
+          error: "KYC verification required to list PACs on the marketplace",
+        },
+        { status: 403 },
       );
     }
 
@@ -221,10 +230,18 @@ export async function POST(req: NextRequest) {
     const { ownershipId, percentListed, pricePerPercent, expiresAt } = body;
 
     // Validation
-    if (!ownershipId || percentListed === undefined || pricePerPercent === undefined) {
+    if (
+      !ownershipId ||
+      percentListed === undefined ||
+      pricePerPercent === undefined
+    ) {
       return NextResponse.json(
-        { success: false, error: "Missing required fields: ownershipId, percentListed, pricePerPercent" },
-        { status: 400 }
+        {
+          success: false,
+          error:
+            "Missing required fields: ownershipId, percentListed, pricePerPercent",
+        },
+        { status: 400 },
       );
     }
 
@@ -233,15 +250,21 @@ export async function POST(req: NextRequest) {
 
     if (!Number.isFinite(percent) || percent <= 0 || percent > 100) {
       return NextResponse.json(
-        { success: false, error: "Invalid percentListed. Must be between 0 and 100." },
-        { status: 400 }
+        {
+          success: false,
+          error: "Invalid percentListed. Must be between 0 and 100.",
+        },
+        { status: 400 },
       );
     }
 
     if (!Number.isFinite(price) || price <= 0) {
       return NextResponse.json(
-        { success: false, error: "Invalid pricePerPercent. Must be greater than 0." },
-        { status: 400 }
+        {
+          success: false,
+          error: "Invalid pricePerPercent. Must be greater than 0.",
+        },
+        { status: 400 },
       );
     }
 
@@ -271,15 +294,24 @@ export async function POST(req: NextRequest) {
     });
 
     if (!ownership) {
-      return NextResponse.json({ success: false, error: "Ownership not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Ownership not found" },
+        { status: 404 },
+      );
     }
 
     if (ownership.userId !== user.id) {
-      return NextResponse.json({ success: false, error: "You do not own this PAC" }, { status: 403 });
+      return NextResponse.json(
+        { success: false, error: "You do not own this PAC" },
+        { status: 403 },
+      );
     }
 
     if (ownership.status !== "active") {
-      return NextResponse.json({ success: false, error: "Ownership is not active" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Ownership is not active" },
+        { status: 400 },
+      );
     }
 
     // Dormancy check
@@ -287,13 +319,23 @@ export async function POST(req: NextRequest) {
       where: { ownershipId: ownership.id, status: "vaulted" },
     });
     if (isDormant) {
-      return NextResponse.json({ success: false, error: "Cannot list dormant ownership" }, { status: 403 });
+      return NextResponse.json(
+        { success: false, error: "Cannot list dormant ownership" },
+        { status: 403 },
+      );
     }
 
-    if (!ownership.hallId || !ownership.hall || ownership.hall.status !== "live") {
+    if (
+      !ownership.hallId ||
+      !ownership.hall ||
+      ownership.hall.status !== "live"
+    ) {
       return NextResponse.json(
-        { success: false, error: "Hall is not live. Listings only allowed for live halls." },
-        { status: 400 }
+        {
+          success: false,
+          error: "Hall is not live. Listings only allowed for live halls.",
+        },
+        { status: 400 },
       );
     }
 
@@ -308,12 +350,15 @@ export async function POST(req: NextRequest) {
     if (userActiveListings >= 3) {
       return NextResponse.json(
         { success: false, error: "Maximum 3 active listings allowed per user" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Total listed percent for this ownership cannot exceed owned percent
-    const alreadyListed = ownership.ownershipListings.reduce((sum, l) => sum + l.percentListed, 0);
+    const alreadyListed = ownership.ownershipListings.reduce(
+      (sum, l) => sum + l.percentListed,
+      0,
+    );
     const remainingOwnership = ownership.ownershipPercent - alreadyListed;
 
     if (alreadyListed + percent > ownership.ownershipPercent) {
@@ -322,7 +367,7 @@ export async function POST(req: NextRequest) {
           success: false,
           error: `Total listed percent (${(alreadyListed + percent).toFixed(2)}%) exceeds your ownership (${ownership.ownershipPercent}%)`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -334,7 +379,7 @@ export async function POST(req: NextRequest) {
           success: false,
           error: `Cannot list more than 25% of your ownership in a single listing. Max: ${maxListablePercent.toFixed(2)}%`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -346,13 +391,15 @@ export async function POST(req: NextRequest) {
           success: false,
           error: `Remaining ownership after this listing would be ${afterListing.toFixed(2)}%. Minimum remaining is 0.1% or sell entire stake.`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Floor price check — 8th Ledger Dynamic Valuation
     const floorPrice =
-      ownership.hall.dynamicValuations[0]?.valuePerPercent || ownership.dynamicValue || 0;
+      ownership.hall.dynamicValuations[0]?.valuePerPercent ||
+      ownership.dynamicValue ||
+      0;
 
     // Below floor is NEVER allowed on creation. Admin must approve via PATCH.
     if (floorPrice > 0 && price < floorPrice) {
@@ -361,7 +408,7 @@ export async function POST(req: NextRequest) {
           success: false,
           error: `Price cannot be below 8th Ledger floor valuation of $${floorPrice.toFixed(2)} per 1%. Request hall vote (51%) and admin approval to list below floor.`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -376,15 +423,18 @@ export async function POST(req: NextRequest) {
       const parsed = new Date(expiresAt);
       if (isNaN(parsed.getTime()) || parsed <= new Date()) {
         return NextResponse.json(
-          { success: false, error: "Invalid expiresAt. Must be a future date." },
-          { status: 400 }
+          {
+            success: false,
+            error: "Invalid expiresAt. Must be a future date.",
+          },
+          { status: 400 },
         );
       }
       const maxExpiry = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000);
       if (parsed > maxExpiry) {
         return NextResponse.json(
           { success: false, error: "Listing duration cannot exceed 90 days" },
-          { status: 400 }
+          { status: 400 },
         );
       }
       listingExpiry = parsed;
@@ -392,7 +442,10 @@ export async function POST(req: NextRequest) {
 
     // Generate audit hash
     const hashPayload = `${ownershipId}-${user.id}-${percent}-${price}-${Date.now()}`;
-    const auditHash = crypto.createHash("sha256").update(hashPayload).digest("hex");
+    const auditHash = crypto
+      .createHash("sha256")
+      .update(hashPayload)
+      .digest("hex");
 
     // Create listing
     const listing = await prisma.ownershipListing.create({
@@ -444,7 +497,7 @@ export async function POST(req: NextRequest) {
         description: `User ${user.ledgerId} listed ${percent}% of Hall ${ownership.hallId} at $${price.toFixed(2)}/1% (Total: $${(percent * price).toFixed(2)}). Floor: $${floorPrice.toFixed(2)}. Full sale: ${isFullSale}.`,
         ledgerId: user.ledgerId,
         poolId: ownership.hall.pool?.poolId,
-        txHash: `LED-LIST-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+        txHash: generateTxHash("LED-LIST"),
         visibleToPublic: true,
       },
     });
@@ -477,7 +530,7 @@ export async function POST(req: NextRequest) {
     console.error("[OWNERSHIP_MARKETPLACE_POST]", err);
     return NextResponse.json(
       { success: false, error: "Failed to create listing" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

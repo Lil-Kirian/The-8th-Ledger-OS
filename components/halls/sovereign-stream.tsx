@@ -291,7 +291,6 @@ export function SovereignStream({
         ledgerId: currentUserLedgerId,
         amount: composerAmount ? parseFloat(composerAmount) : undefined,
         status: composerType === "proposal" || composerType === "appeal" ? "active" : undefined,
-        replies: [],
       });
       setComposerTitle("");
       setComposerContent("");

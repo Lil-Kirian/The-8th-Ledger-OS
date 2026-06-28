@@ -14,14 +14,14 @@ function handlePrismaError(error: any): NextResponse {
     if (error.code === "P2025") {
       return NextResponse.json(
         { success: false, error: "Record not found." },
-        { status: 404 }
+        { status: 404 },
       );
     }
   }
   console.error("[ADMIN_AUDIT ERROR]", error);
   return NextResponse.json(
     { success: false, error: "Audit operation failed" },
-    { status: 500 }
+    { status: 500 },
   );
 }
 
@@ -31,14 +31,15 @@ function generateEntryHash(entry: {
   description: string | null;
   amount: number | null;
   txHash: string | null;
-  createdAt: Date;
+  timestamp: Date;
 }): string {
-  const payload = `${entry.id}|${entry.type}|${entry.description || ""}|${entry.amount || 0}|${entry.txHash || ""}|${entry.createdAt.toISOString()}`;
+  const payload = `${entry.id}|${entry.type}|${entry.description || ""}|${entry.amount || 0}|${entry.txHash || ""}|${entry.timestamp.toISOString()}`;
   return createHash("sha256").update(payload).digest("hex").slice(0, 16);
 }
 
 function entriesToCsv(entries: Array<Record<string, unknown>>): string {
-  if (entries.length === 0) return "id,type,description,amount,txHash,createdAt,hash\n";
+  if (entries.length === 0)
+    return "id,type,description,amount,txHash,timestamp,hash\n";
 
   const headers = Object.keys(entries[0]);
   const rows = entries.map((e) =>
@@ -52,7 +53,7 @@ function entriesToCsv(entries: Array<Record<string, unknown>>): string {
         }
         return str;
       })
-      .join(",")
+      .join(","),
   );
   return [headers.join(","), ...rows].join("\n");
 }
@@ -64,10 +65,10 @@ function entriesToCsv(entries: Array<Record<string, unknown>>): string {
 export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
-    if (!user || !isPrimaryAdmin(user)) {
+    if (!user || !(await isPrimaryAdmin(user))) {
       return NextResponse.json(
         { success: false, error: "Primary admin authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -78,7 +79,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const from = searchParams.get("from");
     const to = searchParams.get("to");
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(500, Math.max(1, parseInt(searchParams.get("limit") || "50", 10)));
+    const limit = Math.min(
+      500,
+      Math.max(1, parseInt(searchParams.get("limit") || "50", 10)),
+    );
     const format = searchParams.get("format") || "json"; // json | csv
 
     const where: Prisma.AuditEntryWhereInput = {};
@@ -87,28 +91,28 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (ledgerId) where.ledgerId = ledgerId;
 
     if (from || to) {
-      where.createdAt = {};
-      if (from) where.createdAt.gte = new Date(from);
-      if (to) where.createdAt.lte = new Date(to);
+      where.timestamp = {};
+      if (from) where.timestamp.gte = new Date(from);
+      if (to) where.timestamp.lte = new Date(to);
     }
 
     const [entries, total, typeBreakdown] = await prisma.$transaction([
       prisma.auditEntry.findMany({
         where,
-        orderBy: { createdAt: "desc" },
+        orderBy: { timestamp: "desc" },
         skip: (page - 1) * limit,
         take: limit,
         include: {
-          user: { select: { ledgerId: true, displayName: true, country: true } },
+          user: {
+            select: { ledgerId: true, displayName: true, country: true },
+          },
           pool: { select: { poolId: true, name: true, status: true } },
         },
       }),
       prisma.auditEntry.count({ where }),
-      prisma.auditEntry.groupBy({
-        by: ["type"],
-        where: from ? { createdAt: { gte: new Date(from) } } : undefined,
-        _count: { id: true },
-        orderBy: { _count: { id: "desc" } },
+      prisma.auditEntry.findMany({
+        where,
+        select: { type: true },
       }),
     ]);
 
@@ -126,14 +130,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         pool: e.pool,
         ledgerId: e.ledgerId,
         user: e.user,
-        createdAt: e.createdAt,
+        timestamp: e.timestamp,
         hash,
       };
     });
 
     // Type summary
     const summary = typeBreakdown.reduce<Record<string, number>>((acc, t) => {
-      acc[t.type] = t._count.id;
+      acc[t.type] = (acc[t.type] ?? 0) + 1;
       return acc;
     }, {});
 
@@ -174,10 +178,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
-    if (!user || !isPrimaryAdmin(user)) {
+    if (!user || !(await isPrimaryAdmin(user))) {
       return NextResponse.json(
         { success: false, error: "Primary admin authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -187,17 +191,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!entryIds || !Array.isArray(entryIds) || entryIds.length === 0) {
       return NextResponse.json(
         { success: false, error: "entryIds array required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     if (entryIds.length > 100) {
       return NextResponse.json(
         { success: false, error: "Maximum 100 entries per verification batch" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const ids = entryIds.filter((id: any): id is string => typeof id === "string" && id.length > 0);
+    const ids = entryIds.filter(
+      (id: any): id is string => typeof id === "string" && id.length > 0,
+    );
 
     const entries = await prisma.auditEntry.findMany({
       where: { id: { in: ids } },
@@ -207,7 +213,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         description: true,
         amount: true,
         txHash: true,
-        createdAt: true,
+        timestamp: true,
       },
     });
 
@@ -217,11 +223,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         id: e.id,
         expectedHash,
         verified: true,
-        createdAt: e.createdAt,
+        timestamp: e.timestamp,
       };
     });
 
-    const missing = ids.filter((id: string) => !entries.some((e) => e.id === id));
+    const missing = ids.filter(
+      (id: string) => !entries.some((e) => e.id === id),
+    );
 
     return NextResponse.json({
       success: true,
@@ -243,14 +251,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
    ============================================================ */
 export async function PATCH(): Promise<NextResponse> {
   return NextResponse.json(
-    { success: false, error: "Audit log is immutable. No modifications allowed." },
-    { status: 405 }
+    {
+      success: false,
+      error: "Audit log is immutable. No modifications allowed.",
+    },
+    { status: 405 },
   );
 }
 
 export async function DELETE(): Promise<NextResponse> {
   return NextResponse.json(
     { success: false, error: "Audit log is immutable. No deletions allowed." },
-    { status: 405 }
+    { status: 405 },
   );
 }

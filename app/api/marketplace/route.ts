@@ -3,8 +3,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth, isFounderSync, getSessionClaims } from "@/lib/auth";
 
-const PLATFORMS = ["tiktok", "instagram", "whatsapp", "twitter", "telegram"] as const;
-type Platform = typeof PLATFORMS[number];
+const PLATFORMS = [
+  "tiktok",
+  "instagram",
+  "whatsapp",
+  "twitter",
+  "telegram",
+] as const;
+type Platform = (typeof PLATFORMS)[number];
 
 /* ============================================================
    GET — Fetch or generate share link for an inventory item
@@ -19,7 +25,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (!itemId) {
       return NextResponse.json(
         { success: false, error: "itemId required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -85,8 +91,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       }
     }
 
-    const title = shareLink.item?.title || shareLink.item?.hall?.name || "8th Ledger Asset";
-    const price = shareLink.item?.price ? `$${Number(shareLink.item.price).toFixed(2)}` : "";
+    const title =
+      shareLink.item?.title || shareLink.item?.hall?.name || "8th Ledger Asset";
+    const price = shareLink.item?.price
+      ? `$${Number(shareLink.item.price).toFixed(2)}`
+      : "";
     const vertical = shareLink.item?.hall?.pool?.verticalId || "";
 
     const deepLinks = {
@@ -122,7 +131,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     console.error("[MARKETPLACE SHARE GET]", error);
     return NextResponse.json(
       { success: false, error: "Share link generation failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -138,7 +147,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!refCode || typeof refCode !== "string") {
       return NextResponse.json(
         { success: false, error: "refCode required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -150,11 +159,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (!shareLink) {
       return NextResponse.json(
         { success: false, error: "Invalid ref code" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    const validPlatform = PLATFORMS.includes(platform as Platform) ? (platform as Platform) : "other";
+    const validPlatform = PLATFORMS.includes(platform as Platform)
+      ? (platform as Platform)
+      : "other";
 
     await prisma.socialShare.update({
       where: { id: shareLink.id },
@@ -174,7 +185,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     console.error("[MARKETPLACE SHARE POST]", error);
     return NextResponse.json(
       { success: false, error: "Click tracking failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -185,13 +196,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 export async function PATCH(request: NextRequest): Promise<NextResponse> {
   try {
     const user = await requireAuth(request);
-    const claims = getSessionClaims(request);
+    const claims = await getSessionClaims(request);
     const isFounder = isFounderSync(claims);
 
     if (!isFounder && user.role !== "admin") {
       return NextResponse.json(
         { success: false, error: "8th Ledger authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -201,17 +212,25 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     if (!refCode || !orderId) {
       return NextResponse.json(
         { success: false, error: "refCode and orderId required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const shareLink = await prisma.socialShare.findUnique({
       where: { refCode },
-      select: { id: true, userId: true, conversions: true, commissionEarned: true },
+      select: {
+        id: true,
+        userId: true,
+        conversions: true,
+        commissionEarned: true,
+      },
     });
 
     if (!shareLink) {
-      return NextResponse.json({ success: false, error: "Ref code not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Ref code not found" },
+        { status: 404 },
+      );
     }
 
     await prisma.socialShare.update({
@@ -230,7 +249,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     console.error("[MARKETPLACE SHARE PATCH]", error);
     return NextResponse.json(
       { success: false, error: "Conversion tracking failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

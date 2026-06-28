@@ -47,7 +47,9 @@ interface ArchitectHandProps {
   tiedPools: TiedPool[];
   selectedPoolId?: string | null;
   onSelect: (poolId: string) => void;
-  onForge: (cyclePoolId: string) => Promise<{ success: boolean; error?: string }>;
+  onForge: (
+    cyclePoolId: string,
+  ) => Promise<{ success: boolean; error?: string }>;
   isPrimaryAdmin: boolean;
   architectLedgerId?: string;
   lastDecisionAt?: Date | string | null;
@@ -57,29 +59,86 @@ interface ArchitectHandProps {
 // DESIGN SYSTEM — The Throne Room Palette
 //
 
-const VERTICAL_CONFIG: Record<string, { label: string; color: string; emoji: string; bg: string }> = {
-  ledgerprop: { label: "LedgerProp", color: "text-blue-400", emoji: "🏠", bg: "bg-blue-400/10" },
-  ledgerauto: { label: "LedgerAuto", color: "text-red-400", emoji: "🚗", bg: "bg-red-400/10" },
-  ledgertech: { label: "LedgerTech", color: "text-purple-400", emoji: "📱", bg: "bg-purple-400/10" },
-  ledgeredu: { label: "LedgerEdu", color: "text-indigo-400", emoji: "🎓", bg: "bg-indigo-400/10" },
-  ledgerhealth: { label: "LedgerHealth", color: "text-rose-400", emoji: "🏥", bg: "bg-rose-400/10" },
-  ledgerbiz: { label: "LedgerBiz", color: "text-amber-400", emoji: "🏗️", bg: "bg-amber-400/10" },
-  ledgertravel: { label: "LedgerTravel", color: "text-sky-400", emoji: "✈️", bg: "bg-sky-400/10" },
-  ledgeragri: { label: "LedgerAgri", color: "text-emerald-400", emoji: "🌾", bg: "bg-emerald-400/10" },
-  ledgerenergy: { label: "LedgerEnergy", color: "text-yellow-400", emoji: "⚡", bg: "bg-yellow-400/10" },
-  ledgeraccess: { label: "LedgerAccess", color: "text-teal-400", emoji: "📡", bg: "bg-teal-400/10" },
+const VERTICAL_CONFIG: Record<
+  string,
+  { label: string; color: string; emoji: string; bg: string }
+> = {
+  ledgerprop: {
+    label: "LedgerProp",
+    color: "text-blue-400",
+    emoji: "🏠",
+    bg: "bg-blue-400/10",
+  },
+  ledgerauto: {
+    label: "LedgerAuto",
+    color: "text-red-400",
+    emoji: "🚗",
+    bg: "bg-red-400/10",
+  },
+  ledgertech: {
+    label: "LedgerTech",
+    color: "text-purple-400",
+    emoji: "📱",
+    bg: "bg-purple-400/10",
+  },
+  ledgeredu: {
+    label: "LedgerEdu",
+    color: "text-indigo-400",
+    emoji: "🎓",
+    bg: "bg-indigo-400/10",
+  },
+  ledgerhealth: {
+    label: "LedgerHealth",
+    color: "text-rose-400",
+    emoji: "🏥",
+    bg: "bg-rose-400/10",
+  },
+  ledgerbiz: {
+    label: "LedgerBiz",
+    color: "text-amber-400",
+    emoji: "🏗️",
+    bg: "bg-amber-400/10",
+  },
+  ledgertravel: {
+    label: "LedgerTravel",
+    color: "text-sky-400",
+    emoji: "✈️",
+    bg: "bg-sky-400/10",
+  },
+  ledgeragri: {
+    label: "LedgerAgri",
+    color: "text-emerald-400",
+    emoji: "🌾",
+    bg: "bg-emerald-400/10",
+  },
+  ledgerenergy: {
+    label: "LedgerEnergy",
+    color: "text-yellow-400",
+    emoji: "⚡",
+    bg: "bg-yellow-400/10",
+  },
+  ledgeraccess: {
+    label: "LedgerAccess",
+    color: "text-teal-400",
+    emoji: "📡",
+    bg: "bg-teal-400/10",
+  },
 };
 
 //
 // HELPERS
 //
 
-function generateDecisionHash(cycleId: string, poolId: string, timestamp: number): string {
+function generateDecisionHash(
+  cycleId: string,
+  poolId: string,
+  timestamp: number,
+): string {
   const input = `ARCHITECT-HAND:${cycleId}:${poolId}:${timestamp}`;
   let hash = 0;
   for (let i = 0; i < input.length; i++) {
     const char = input.charCodeAt(i);
-    hash = ((hash < 5) - hash + char) | 0;
+    hash = ((hash << 5) - hash + char) | 0;
   }
   const hex = Math.abs(hash).toString(16).padStart(16, "0").toUpperCase();
   return `AH-${hex.slice(0, 4)}-${hex.slice(4, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}`;
@@ -122,9 +181,10 @@ function CandidateCard({
       disabled={!isPrimaryAdmin}
       className={`
         group relative w-full text-left rounded-xl border transition-all duration-300
-        ${isSelected
-          ? "bg-amber-950/20 border-amber-500/40 shadow-lg shadow-amber-500/10"
-          : "bg-slate-900/30 border-slate-800/60 hover:border-slate-700/60 hover:bg-slate-800/20"
+        ${
+          isSelected
+            ? "bg-amber-950/20 border-amber-500/40 shadow-lg shadow-amber-500/10"
+            : "bg-slate-900/30 border-slate-800/60 hover:border-slate-700/60 hover:bg-slate-800/20"
         }
         ${!isPrimaryAdmin ? "cursor-default" : "cursor-pointer"}
       `}
@@ -144,9 +204,10 @@ function CandidateCard({
           className={`
             w-12 h-12 rounded-xl flex items-center justify-center text-lg font-black shrink-0
             transition-all duration-300
-            ${isSelected
-              ? "bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20"
-              : "bg-slate-800 text-slate-600 group-hover:bg-slate-700 group-hover:text-slate-500"
+            ${
+              isSelected
+                ? "bg-amber-500 text-slate-950 shadow-lg shadow-amber-500/20"
+                : "bg-slate-800 text-slate-600 group-hover:bg-slate-700 group-hover:text-slate-500"
             }
           `}
         >
@@ -156,7 +217,9 @@ function CandidateCard({
         {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2 mb-1">
-            <h3 className={`text-sm font-bold truncate ${isSelected ? "text-amber-100" : "text-slate-200"}`}>
+            <h3
+              className={`text-sm font-bold truncate ${isSelected ? "text-amber-100" : "text-slate-200"}`}
+            >
               {pool.title}
             </h3>
             {isSelected && (
@@ -191,7 +254,9 @@ function CandidateCard({
           <div className="mt-2.5">
             <div className="flex items-center justify-between text-[10px] mb-1">
               <span className="text-slate-600">Vote share</span>
-              <span className="text-slate-500 font-mono">{votePct.toFixed(1)}%</span>
+              <span className="text-slate-500 font-mono">
+                {votePct.toFixed(1)}%
+              </span>
             </div>
             <div className="h-1.5 rounded-full bg-slate-800 overflow-hidden">
               <motion.div
@@ -223,7 +288,15 @@ function CandidateCard({
   );
 }
 
-function CompactReceipt({ cycleId, pool, hash }: { cycleId: string; pool: TiedPool; hash: string }) {
+function CompactReceipt({
+  cycleId,
+  pool,
+  hash,
+}: {
+  cycleId: string;
+  pool: TiedPool;
+  hash: string;
+}) {
   return (
     <div className="p-4 rounded-xl bg-slate-900/40 border border-slate-800/60 space-y-2">
       <div className="flex items-center gap-2 mb-3">
@@ -234,19 +307,31 @@ function CompactReceipt({ cycleId, pool, hash }: { cycleId: string; pool: TiedPo
       </div>
       <div className="grid grid-cols-2 gap-2 text-xs">
         <div>
-          <span className="text-slate-600 block text-[10px] uppercase tracking-wider">Cycle</span>
-          <span className="text-slate-300 font-mono">{cycleId.slice(0, 12)}...</span>
+          <span className="text-slate-600 block text-[10px] uppercase tracking-wider">
+            Cycle
+          </span>
+          <span className="text-slate-300 font-mono">
+            {cycleId.slice(0, 12)}...
+          </span>
         </div>
         <div>
-          <span className="text-slate-600 block text-[10px] uppercase tracking-wider">Pool</span>
+          <span className="text-slate-600 block text-[10px] uppercase tracking-wider">
+            Pool
+          </span>
           <span className="text-slate-300 font-medium">{pool.title}</span>
         </div>
         <div>
-          <span className="text-slate-600 block text-[10px] uppercase tracking-wider">Vertical</span>
-          <span className="text-slate-300">{VERTICAL_CONFIG[pool.verticalId]?.label || pool.verticalId}</span>
+          <span className="text-slate-600 block text-[10px] uppercase tracking-wider">
+            Vertical
+          </span>
+          <span className="text-slate-300">
+            {VERTICAL_CONFIG[pool.verticalId]?.label || pool.verticalId}
+          </span>
         </div>
         <div>
-          <span className="text-slate-600 block text-[10px] uppercase tracking-wider">Country</span>
+          <span className="text-slate-600 block text-[10px] uppercase tracking-wider">
+            Country
+          </span>
           <span className="text-slate-300">{pool.country}</span>
         </div>
       </div>
@@ -276,13 +361,15 @@ export default function ArchitectHand({
   architectLedgerId,
   lastDecisionAt,
 }: ArchitectHandProps) {
-  const [step, setStep] = useState<"select" | "confirm" | "forging" | "forged" | "error">("select");
+  const [step, setStep] = useState<
+    "select" | "confirm" | "forging" | "forged" | "error"
+  >("select");
   const [errorMessage, setErrorMessage] = useState("");
   const [decisionHash, setDecisionHash] = useState("");
 
   const totalVotes = useMemo(
     () => tiedPools.reduce((sum, p) => sum + p.voteCount, 0),
-    [tiedPools]
+    [tiedPools],
   );
 
   const isTie = useMemo(() => {
@@ -299,7 +386,7 @@ export default function ArchitectHand({
       onSelect(poolId);
       setStep("select");
     },
-    [isPrimaryAdmin, onSelect]
+    [isPrimaryAdmin, onSelect],
   );
 
   const handleInitiateForge = useCallback(() => {
@@ -364,9 +451,13 @@ export default function ArchitectHand({
               The Architect&apos;s Hand
             </h2>
             <p className="text-xs text-slate-500 mt-1">
-              Cycle <span className="font-mono text-slate-400">{cycleId.slice(0, 8)}</span> • {" "}
-              <span className="capitalize">{continent.replace("_", " ")}</span> • {" "}
-              Tiebreaker Protocol
+              Cycle{" "}
+              <span className="font-mono text-slate-400">
+                {cycleId.slice(0, 8)}
+              </span>{" "}
+              •{" "}
+              <span className="capitalize">{continent.replace("_", " ")}</span>{" "}
+              • Tiebreaker Protocol
             </p>
             {lastDecisionAt && (
               <p className="text-[10px] text-slate-700 mt-1 font-mono">
@@ -399,11 +490,13 @@ export default function ArchitectHand({
                   </span>
                 </div>
                 <div className="text-3xl font-black text-slate-100">
-                  {tiedPools.length}-WAY <span className="text-amber-400">TIE</span>
+                  {tiedPools.length}-WAY{" "}
+                  <span className="text-amber-400">TIE</span>
                 </div>
                 <p className="text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
-                  {totalVotes.toLocaleString()} total votes. The Meridian requires a single winner.
-                  The Architect must select the forge candidate.
+                  {totalVotes.toLocaleString()} total votes. The Meridian
+                  requires a single winner. The Architect must select the forge
+                  candidate.
                 </p>
               </div>
 
@@ -446,9 +539,10 @@ export default function ArchitectHand({
                         Override Authority Active
                       </div>
                       <p className="text-xs text-amber-400/60 mt-1 leading-relaxed">
-                        You hold the Architect&apos;s Hand. Select one candidate above, then strike the forge.
-                        This decision is logged, hashed, and broadcast to all subjects.
-                        Requires 6-factor authentication.
+                        You hold the Architect&apos;s Hand. Select one candidate
+                        above, then strike the forge. This decision is logged,
+                        hashed, and broadcast to all subjects. Requires 6-factor
+                        authentication.
                       </p>
                     </div>
                   </div>
@@ -461,9 +555,10 @@ export default function ArchitectHand({
                     className={`
                       w-full py-4 rounded-xl font-bold text-sm uppercase tracking-wider transition-all
                       flex items-center justify-center gap-2.5
-                      ${selectedPoolId
-                        ? "bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/50 shadow-lg shadow-amber-950/20"
-                        : "bg-slate-800/30 border border-slate-800/50 text-slate-600 cursor-not-allowed"
+                      ${
+                        selectedPoolId
+                          ? "bg-amber-500/10 border border-amber-500/30 text-amber-400 hover:bg-amber-500/20 hover:border-amber-500/50 shadow-lg shadow-amber-950/20"
+                          : "bg-slate-800/30 border border-slate-800/50 text-slate-600 cursor-not-allowed"
                       }
                     `}
                   >
@@ -477,7 +572,8 @@ export default function ArchitectHand({
                 <div className="p-6 rounded-xl bg-slate-900/30 border border-slate-800/50 text-center space-y-3">
                   <Shield className="w-6 h-6 text-slate-600 mx-auto" />
                   <p className="text-sm text-slate-500">
-                    The Architect is deliberating. The Meridian awaits their hand.
+                    The Architect is deliberating. The Meridian awaits their
+                    hand.
                   </p>
                   {architectLedgerId && (
                     <p className="text-[10px] text-slate-700 font-mono">
@@ -502,20 +598,26 @@ export default function ArchitectHand({
             >
               <div className="p-5 rounded-xl bg-amber-950/20 border border-amber-500/20 text-center space-y-3">
                 <AlertTriangle className="w-8 h-8 text-amber-400 mx-auto" />
-                <h3 className="text-lg font-bold text-amber-400">Strike the Forge?</h3>
+                <h3 className="text-lg font-bold text-amber-400">
+                  Strike the Forge?
+                </h3>
                 <p className="text-sm text-slate-400">
                   You are about to override the Meridian and crown:
                 </p>
                 <div className="p-3 rounded-lg bg-slate-900/60 border border-slate-800">
-                  <div className="text-base font-bold text-slate-100">{selectedPool.title}</div>
+                  <div className="text-base font-bold text-slate-100">
+                    {selectedPool.title}
+                  </div>
                   <div className="text-xs text-slate-500 mt-1">
-                    {VERTICAL_CONFIG[selectedPool.verticalId]?.label || selectedPool.verticalId} • {" "}
-                    {selectedPool.country} • {" "}
+                    {VERTICAL_CONFIG[selectedPool.verticalId]?.label ||
+                      selectedPool.verticalId}{" "}
+                    • {selectedPool.country} •{" "}
                     {selectedPool.voteCount.toLocaleString()} votes
                   </div>
                 </div>
                 <p className="text-xs text-amber-400/60">
-                  This action is irreversible. The cycle will advance to FORGE immediately.
+                  This action is irreversible. The cycle will advance to FORGE
+                  immediately.
                 </p>
               </div>
 
@@ -573,7 +675,11 @@ export default function ArchitectHand({
               <div className="w-full max-w-xs h-1 rounded-full bg-slate-800 overflow-hidden">
                 <motion.div
                   animate={{ width: ["0%", "25%", "60%", "90%", "100%"] }}
-                  transition={{ duration: 4, times: [0, 0.2, 0.5, 0.8, 1], ease: "easeInOut" }}
+                  transition={{
+                    duration: 4,
+                    times: [0, 0.2, 0.5, 0.8, 1],
+                    ease: "easeInOut",
+                  }}
                   className="h-full bg-amber-400 rounded-full"
                 />
               </div>
@@ -608,18 +714,24 @@ export default function ArchitectHand({
                   <Award className="w-8 h-8 text-emerald-400" />
                 </motion.div>
                 <div className="text-center">
-                  <h3 className="text-lg font-bold text-emerald-400">Winner Crowned</h3>
+                  <h3 className="text-lg font-bold text-emerald-400">
+                    Winner Crowned
+                  </h3>
                   <p className="text-sm text-slate-400 mt-1">
                     The Architect has spoken. The Meridian obeys.
                   </p>
                 </div>
               </div>
 
-              <CompactReceipt cycleId={cycleId} pool={selectedPool} hash={decisionHash} />
+              <CompactReceipt
+                cycleId={cycleId}
+                pool={selectedPool}
+                hash={decisionHash}
+              />
 
               <p className="text-xs text-slate-600 text-center leading-relaxed">
-                This decree is now part of the permanent ledger. The pool is LIVE.
-                Subjects may commit. The cycle turns.
+                This decree is now part of the permanent ledger. The pool is
+                LIVE. Subjects may commit. The cycle turns.
               </p>
 
               <motion.button

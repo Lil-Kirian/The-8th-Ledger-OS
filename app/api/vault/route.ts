@@ -4,10 +4,8 @@
    ============================================================ */
 
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { getSessionUser } from "@/lib/auth";
-
-const prisma = new PrismaClient();
+import { prisma } from "@/lib/prisma";
 
 /*  VERTICAL META  */
 const VERTICAL_META: Record<string, { name: string; emoji: string }> = {
@@ -27,7 +25,10 @@ function getVerticalMeta(key: string) {
   return VERTICAL_META[key.toLowerCase()] || { name: key, emoji: "◎" };
 }
 
-function mapStatus(ownStatus: string, lastDiv: Date | null): "active" | "maturing" | "dormant" {
+function mapStatus(
+  ownStatus: string,
+  lastDiv: Date | null,
+): "active" | "maturing" | "dormant" {
   if (ownStatus === "forfeited" || ownStatus === "revoked") return "dormant";
   if (ownStatus === "pending") return "maturing";
   if (!lastDiv) return "maturing";
@@ -38,7 +39,11 @@ function mapStatus(ownStatus: string, lastDiv: Date | null): "active" | "maturin
 /*  ESTIMATE MONTHLY INCOME
    Real dividends preferred. Falls back to asset-value × ownership% × 0.25% monthly.
 */
-function estimateMonthlyIncome(dividends: { amount: number; periodEnd: Date }[], assetValue: number, ownershipPct: number): number {
+function estimateMonthlyIncome(
+  dividends: { amount: number; periodEnd: Date }[],
+  assetValue: number,
+  ownershipPct: number,
+): number {
   if (dividends.length > 0) {
     const recent = dividends.slice(0, Math.min(3, dividends.length));
     return recent.reduce((s, d) => s + d.amount, 0) / recent.length;
@@ -51,7 +56,7 @@ function estimateMonthlyIncome(dividends: { amount: number; periodEnd: Date }[],
    Missing months are forward-filled from the most recent known month.
 */
 function buildMonthlyHistory(
-  allDividends: { amount: number; periodEnd: Date }[]
+  allDividends: { amount: number; periodEnd: Date }[],
 ): number[] {
   const now = new Date();
   const buckets: number[] = new Array(12).fill(0);
@@ -59,7 +64,9 @@ function buildMonthlyHistory(
 
   for (let i = 11; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    bucketLabels.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+    bucketLabels.push(
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+    );
   }
 
   for (const div of allDividends) {
@@ -72,14 +79,6 @@ function buildMonthlyHistory(
   for (let i = 1; i < 12; i++) {
     if (buckets[i] === 0 && buckets[i - 1] > 0) {
       buckets[i] = buckets[i - 1];
-    }
-  }
-
-  if (buckets.every((v) => v === 0)) {
-    let base = 5000;
-    for (let i = 0; i < 12; i++) {
-      base = base * (1 + (Math.random() * 0.08 - 0.02));
-      buckets[i] = Math.round(base);
     }
   }
 
@@ -125,10 +124,16 @@ export async function GET(req: NextRequest) {
 
     /* ── Fetch all dividends for these ownerships ── */
     const ownershipIds = ownerships.map((o) => o.id);
-    const allDividends = await prisma.dividend.findMany({
+    const dividendEntries = await prisma.dividendEntry.findMany({
       where: { ownershipId: { in: ownershipIds } },
-      orderBy: { periodEnd: "desc" },
+      orderBy: { distribution: { distributedAt: "desc" } },
+      include: { distribution: { select: { distributedAt: true } } },
     });
+    const allDividends = dividendEntries.map((entry) => ({
+      ownershipId: entry.ownershipId,
+      amount: entry.amount,
+      periodEnd: entry.claimedAt ?? entry.distribution.distributedAt,
+    }));
 
     const divByOwnership: Record<string, typeof allDividends> = {};
     for (const d of allDividends) {
@@ -201,7 +206,10 @@ export async function GET(req: NextRequest) {
         eventType: "vault_viewed",
         ledgerId: user.ledgerId,
         description: JSON.stringify({ assets: assets.length }),
-        ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+        txHash: `VAULT-VIEW-${user.ledgerId}-${Date.now()}`,
+        metadata: JSON.stringify({
+          ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+        }),
       },
     });
 
