@@ -28,7 +28,10 @@ export function formatNumber(n: number): string {
 }
 
 export function formatCompact(n: number): string {
-  return Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(n);
+  return Intl.NumberFormat("en-US", {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  }).format(n);
 }
 
 /* ============================================================
@@ -91,17 +94,29 @@ export function truncateHash(hash: string, chars: number = 8): string {
 
 export function formatDate(d: string | Date): string {
   const date = typeof d === "string" ? new Date(d) : d;
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
 export function formatDateTime(d: string | Date): string {
   const date = typeof d === "string" ? new Date(d) : d;
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export function formatTime(d: string | Date): string {
   const date = typeof d === "string" ? new Date(d) : d;
-  return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
+  return date.toLocaleTimeString("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 }
 
 export function timeAgo(d: string | Date): string {
@@ -241,7 +256,10 @@ export function percentage(part: number, whole: number): number {
 }
 
 /** Safe fill percent calculation */
-export function calculateFillPercent(committed: number, target: number): number {
+export function calculateFillPercent(
+  committed: number,
+  target: number,
+): number {
   if (!target || target <= 0) return 0;
   return Math.min(100, Math.round((committed / target) * 100));
 }
@@ -260,12 +278,15 @@ export function shuffle<T>(array: T[]): T[] {
 }
 
 export function groupBy<T>(array: T[], key: keyof T): Record<string, T[]> {
-  return array.reduce((acc, item) => {
-    const k = String(item[key]);
-    if (!acc[k]) acc[k] = [];
-    acc[k].push(item);
-    return acc;
-  }, {} as Record<string, T[]>);
+  return array.reduce(
+    (acc, item) => {
+      const k = String(item[key]);
+      if (!acc[k]) acc[k] = [];
+      acc[k].push(item);
+      return acc;
+    },
+    {} as Record<string, T[]>,
+  );
 }
 
 /* ============================================================
@@ -276,7 +297,10 @@ export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): (...args: Parameters<T>) => void {
+export function debounce<T extends (...args: any[]) => void>(
+  fn: T,
+  delay: number,
+): (...args: Parameters<T>) => void {
   let timer: ReturnType<typeof setTimeout>;
   return (...args: Parameters<T>) => {
     clearTimeout(timer);
@@ -288,7 +312,11 @@ export function debounce<T extends (...args: any[]) => void>(fn: T, delay: numbe
    8TH LEDGER — STATUS FORMATTERS
    ============================================================ */
 
-export function formatDormancyStatus(status: string): { label: string; color: string; icon: string } {
+export function formatDormancyStatus(status: string): {
+  label: string;
+  color: string;
+  icon: string;
+} {
   const map: Record<string, { label: string; color: string; icon: string }> = {
     active: { label: "Active", color: "text-green-400", icon: "●" },
     warning: { label: "Warning", color: "text-yellow-400", icon: "▲" },
@@ -300,7 +328,10 @@ export function formatDormancyStatus(status: string): { label: string; color: st
   return map[status] || { label: status, color: "text-slate-400", icon: "?" };
 }
 
-export function formatProposalStatus(status: string): { label: string; color: string } {
+export function formatProposalStatus(status: string): {
+  label: string;
+  color: string;
+} {
   const map: Record<string, { label: string; color: string }> = {
     active: { label: "Voting Open", color: "text-blue-400" },
     pending: { label: "Pending", color: "text-slate-400" },
@@ -313,7 +344,10 @@ export function formatProposalStatus(status: string): { label: string; color: st
   return map[status] || { label: status, color: "text-slate-400" };
 }
 
-export function formatEscrowStatus(status: string): { label: string; color: string } {
+export function formatEscrowStatus(status: string): {
+  label: string;
+  color: string;
+} {
   const map: Record<string, { label: string; color: string }> = {
     held: { label: "In Escrow", color: "text-amber-400" },
     released: { label: "Released", color: "text-green-400" },
@@ -323,56 +357,195 @@ export function formatEscrowStatus(status: string): { label: string; color: stri
   return map[status] || { label: status, color: "text-slate-400" };
 }
 
-export function formatPoolStatus(status: string): { label: string; color: string; badge: string } {
+export function formatPoolStatus(status: string): {
+  label: string;
+  color: string;
+  badge: string;
+} {
   const map: Record<string, { label: string; color: string; badge: string }> = {
-    filling: { label: "Filling", color: "text-blue-400", badge: "bg-blue-500/10 border-blue-500/20" },
-    filled: { label: "Filled", color: "text-emerald-400", badge: "bg-emerald-500/10 border-emerald-500/20" },
-    forged: { label: "Forged", color: "text-violet-400", badge: "bg-violet-500/10 border-violet-500/20" },
-    active: { label: "Active", color: "text-green-400", badge: "bg-green-500/10 border-green-500/20" },
-    dormant: { label: "Dormant", color: "text-yellow-400", badge: "bg-yellow-500/10 border-yellow-500/20" },
-    sold: { label: "Sold", color: "text-amber-400", badge: "bg-amber-500/10 border-amber-500/20" },
-    dissolved: { label: "Dissolved", color: "text-red-500", badge: "bg-red-500/10 border-red-500/20" },
+    filling: {
+      label: "Filling",
+      color: "text-blue-400",
+      badge: "bg-blue-500/10 border-blue-500/20",
+    },
+    filled: {
+      label: "Filled",
+      color: "text-emerald-400",
+      badge: "bg-emerald-500/10 border-emerald-500/20",
+    },
+    forged: {
+      label: "Forged",
+      color: "text-violet-400",
+      badge: "bg-violet-500/10 border-violet-500/20",
+    },
+    active: {
+      label: "Active",
+      color: "text-green-400",
+      badge: "bg-green-500/10 border-green-500/20",
+    },
+    dormant: {
+      label: "Dormant",
+      color: "text-yellow-400",
+      badge: "bg-yellow-500/10 border-yellow-500/20",
+    },
+    sold: {
+      label: "Sold",
+      color: "text-amber-400",
+      badge: "bg-amber-500/10 border-amber-500/20",
+    },
+    dissolved: {
+      label: "Dissolved",
+      color: "text-red-500",
+      badge: "bg-red-500/10 border-red-500/20",
+    },
   };
-  return map[status] || { label: status, color: "text-slate-400", badge: "bg-slate-500/10 border-slate-500/20" };
+  return (
+    map[status] || {
+      label: status,
+      color: "text-slate-400",
+      badge: "bg-slate-500/10 border-slate-500/20",
+    }
+  );
 }
 
-export function formatHallStatus(status: string): { label: string; color: string; badge: string } {
+export function formatHallStatus(status: string): {
+  label: string;
+  color: string;
+  badge: string;
+} {
   const map: Record<string, { label: string; color: string; badge: string }> = {
-    ghost: { label: "Ghost", color: "text-slate-400", badge: "bg-slate-500/10 border-slate-500/20" },
-    live: { label: "Live", color: "text-green-400", badge: "bg-green-500/10 border-green-500/20" },
-    mature: { label: "Mature", color: "text-violet-400", badge: "bg-violet-500/10 border-violet-500/20" },
-    dormant: { label: "Dormant", color: "text-yellow-400", badge: "bg-yellow-500/10 border-yellow-500/20" },
-    dissolved: { label: "Dissolved", color: "text-red-500", badge: "bg-red-500/10 border-red-500/20" },
+    ghost: {
+      label: "Ghost",
+      color: "text-slate-400",
+      badge: "bg-slate-500/10 border-slate-500/20",
+    },
+    live: {
+      label: "Live",
+      color: "text-green-400",
+      badge: "bg-green-500/10 border-green-500/20",
+    },
+    mature: {
+      label: "Mature",
+      color: "text-violet-400",
+      badge: "bg-violet-500/10 border-violet-500/20",
+    },
+    dormant: {
+      label: "Dormant",
+      color: "text-yellow-400",
+      badge: "bg-yellow-500/10 border-yellow-500/20",
+    },
+    dissolved: {
+      label: "Dissolved",
+      color: "text-red-500",
+      badge: "bg-red-500/10 border-red-500/20",
+    },
   };
-  return map[status] || { label: status, color: "text-slate-400", badge: "bg-slate-500/10 border-slate-500/20" };
+  return (
+    map[status] || {
+      label: status,
+      color: "text-slate-400",
+      badge: "bg-slate-500/10 border-slate-500/20",
+    }
+  );
 }
 
-export function formatSriTier(score: number): { label: string; icon: string; color: string; feeReduction: string } {
-  if (score >= 90) return { label: "Platinum", icon: "👑", color: "text-amber-400", feeReduction: "0.25%" };
-  if (score >= 75) return { label: "Gold", icon: "🥇", color: "text-yellow-400", feeReduction: "0.5%" };
-  if (score >= 60) return { label: "Silver", icon: "🥈", color: "text-slate-300", feeReduction: "Standard" };
-  if (score >= 40) return { label: "Bronze", icon: "🥉", color: "text-orange-400", feeReduction: "Restricted" };
-  return { label: "At Risk", icon: "⚠️", color: "text-red-400", feeReduction: "Paused" };
+export function formatSriTier(score: number): {
+  label: string;
+  icon: string;
+  color: string;
+  feeReduction: string;
+} {
+  if (score >= 90)
+    return {
+      label: "Platinum",
+      icon: "👑",
+      color: "text-amber-400",
+      feeReduction: "0.25%",
+    };
+  if (score >= 75)
+    return {
+      label: "Gold",
+      icon: "🥇",
+      color: "text-yellow-400",
+      feeReduction: "0.5%",
+    };
+  if (score >= 60)
+    return {
+      label: "Silver",
+      icon: "🥈",
+      color: "text-slate-300",
+      feeReduction: "Standard",
+    };
+  if (score >= 40)
+    return {
+      label: "Bronze",
+      icon: "🥉",
+      color: "text-orange-400",
+      feeReduction: "Restricted",
+    };
+  return {
+    label: "At Risk",
+    icon: "⚠️",
+    color: "text-red-400",
+    feeReduction: "Paused",
+  };
 }
 
-export function formatAhgiStatus(score: number): { label: string; color: string; canExpand: boolean } {
-  if (score >= 80) return { label: "Thriving", color: "text-green-400", canExpand: true };
-  if (score >= 60) return { label: "Healthy", color: "text-emerald-400", canExpand: false };
-  if (score >= 40) return { label: "Stagnant", color: "text-yellow-400", canExpand: false };
-  if (score >= 20) return { label: "Declining", color: "text-orange-400", canExpand: false };
+export function formatAhgiStatus(score: number): {
+  label: string;
+  color: string;
+  canExpand: boolean;
+} {
+  if (score >= 80)
+    return { label: "Thriving", color: "text-green-400", canExpand: true };
+  if (score >= 60)
+    return { label: "Healthy", color: "text-emerald-400", canExpand: false };
+  if (score >= 40)
+    return { label: "Stagnant", color: "text-yellow-400", canExpand: false };
+  if (score >= 20)
+    return { label: "Declining", color: "text-orange-400", canExpand: false };
   return { label: "Critical", color: "text-red-500", canExpand: false };
 }
 
-export function formatHallClass(hallClass: string): { label: string; description: string; color: string } {
-  const map: Record<string, { label: string; description: string; color: string }> = {
-    I: { label: "Class I — Passive", description: "8th Ledger manages everything. Minimal hall input.", color: "text-blue-400" },
-    II: { label: "Class II — Managed", description: "Hall hires/approves operators. 8th Ledger executes.", color: "text-violet-400" },
-    III: { label: "Class III — Active", description: "Hall runs operations daily. Full staffing.", color: "text-amber-400" },
+export function formatHallClass(hallClass: string): {
+  label: string;
+  description: string;
+  color: string;
+} {
+  const map: Record<
+    string,
+    { label: string; description: string; color: string }
+  > = {
+    I: {
+      label: "Class I — Passive",
+      description: "8th Ledger manages everything. Minimal hall input.",
+      color: "text-blue-400",
+    },
+    II: {
+      label: "Class II — Managed",
+      description: "Hall hires/approves operators. 8th Ledger executes.",
+      color: "text-violet-400",
+    },
+    III: {
+      label: "Class III — Active",
+      description: "Hall runs operations daily. Full staffing.",
+      color: "text-amber-400",
+    },
   };
-  return map[hallClass] || { label: "Unknown", description: "", color: "text-slate-400" };
+  return (
+    map[hallClass] || {
+      label: "Unknown",
+      description: "",
+      color: "text-slate-400",
+    }
+  );
 }
 
-export function formatClosureStatus(status: string): { label: string; color: string; icon: string } {
+export function formatClosureStatus(status: string): {
+  label: string;
+  color: string;
+  icon: string;
+} {
   const map: Record<string, { label: string; color: string; icon: string }> = {
     active: { label: "Active", color: "text-green-400", icon: "●" },
     warning: { label: "Warning", color: "text-yellow-400", icon: "▲" },
@@ -383,37 +556,157 @@ export function formatClosureStatus(status: string): { label: string; color: str
   return map[status] || { label: status, color: "text-slate-400", icon: "?" };
 }
 
-export function formatOracleTier(tier: string): { label: string; icon: string; color: string; privileges: string } {
-  const map: Record<string, { label: string; icon: string; color: string; privileges: string }> = {
-    novice: { label: "Novice", icon: "🔮", color: "text-slate-400", privileges: "Basic forecasting" },
-    seer: { label: "Seer", icon: "🥉", color: "text-orange-400", privileges: "Bronze icon, Codex access" },
-    oracle: { label: "Oracle", icon: "🥈", color: "text-slate-300", privileges: "Silver icon, early pool access (24h)" },
-    prophet: { label: "Prophet", icon: "🥇", color: "text-amber-400", privileges: "Gold icon, name on pool cards, Council invitation" },
+export function formatOracleTier(tier: string): {
+  label: string;
+  icon: string;
+  color: string;
+  privileges: string;
+} {
+  const map: Record<
+    string,
+    { label: string; icon: string; color: string; privileges: string }
+  > = {
+    novice: {
+      label: "Novice",
+      icon: "🔮",
+      color: "text-slate-400",
+      privileges: "Basic forecasting",
+    },
+    seer: {
+      label: "Seer",
+      icon: "🥉",
+      color: "text-orange-400",
+      privileges: "Bronze icon, Codex access",
+    },
+    oracle: {
+      label: "Oracle",
+      icon: "🥈",
+      color: "text-slate-300",
+      privileges: "Silver icon, early pool access (24h)",
+    },
+    prophet: {
+      label: "Prophet",
+      icon: "🥇",
+      color: "text-amber-400",
+      privileges: "Gold icon, name on pool cards, Council invitation",
+    },
   };
-  return map[tier] || { label: "Unknown", icon: "?", color: "text-slate-400", privileges: "" };
+  return (
+    map[tier] || {
+      label: "Unknown",
+      icon: "?",
+      color: "text-slate-400",
+      privileges: "",
+    }
+  );
 }
 
-export function formatPirPillar(pillar: string): { label: string; icon: string; color: string; description: string } {
-  const map: Record<string, { label: string; icon: string; color: string; description: string }> = {
-    shield: { label: "The Shield", icon: "🛡️", color: "text-red-400", description: "Insurance — Lloyd's coverage, casualty, liability" },
-    seal: { label: "The Seal", icon: "🔏", color: "text-blue-400", description: "Legal — SPV formation, deeds, operating agreements" },
-    forge: { label: "The Forge", icon: "🔨", color: "text-orange-400", description: "Maintenance — repairs, vendor contracts, payroll" },
-    spire: { label: "The Spire", icon: "🏗️", color: "text-violet-400", description: "Protocol — infrastructure, API, audits, security" },
-    vanguard: { label: "The Vanguard", icon: "🚀", color: "text-cyan-400", description: "R&D — new verticals, geographic expansion" },
-    sanctuary: { label: "The Sanctuary", icon: "🏛️", color: "text-emerald-400", description: "Reserve — vacancy, dividend smoothing, closure" },
+export function formatPirPillar(pillar: string): {
+  label: string;
+  icon: string;
+  color: string;
+  description: string;
+} {
+  const map: Record<
+    string,
+    { label: string; icon: string; color: string; description: string }
+  > = {
+    shield: {
+      label: "The Shield",
+      icon: "🛡️",
+      color: "text-red-400",
+      description: "Insurance — Lloyd's coverage, casualty, liability",
+    },
+    seal: {
+      label: "The Seal",
+      icon: "🔏",
+      color: "text-blue-400",
+      description: "Legal — SPV formation, deeds, operating agreements",
+    },
+    forge: {
+      label: "The Forge",
+      icon: "🔨",
+      color: "text-orange-400",
+      description: "Maintenance — repairs, vendor contracts, payroll",
+    },
+    spire: {
+      label: "The Spire",
+      icon: "🏗️",
+      color: "text-violet-400",
+      description: "Protocol — infrastructure, API, audits, security",
+    },
+    vanguard: {
+      label: "The Vanguard",
+      icon: "🚀",
+      color: "text-cyan-400",
+      description: "R&D — new verticals, geographic expansion",
+    },
+    sanctuary: {
+      label: "The Sanctuary",
+      icon: "🏛️",
+      color: "text-emerald-400",
+      description: "Reserve — vacancy, dividend smoothing, closure",
+    },
   };
-  return map[pillar] || { label: pillar, icon: "?", color: "text-slate-400", description: "" };
+  return (
+    map[pillar] || {
+      label: pillar,
+      icon: "?",
+      color: "text-slate-400",
+      description: "",
+    }
+  );
 }
 
-export function formatMeridianPhase(phase: string): { label: string; color: string; icon: string; duration: string } {
-  const map: Record<string, { label: string; color: string; icon: string; duration: string }> = {
-    hush: { label: "The Hush", color: "text-slate-400", icon: "●", duration: "48 hours" },
-    unveil: { label: "The Unveil", color: "text-blue-400", icon: "🔒", duration: "24 hours" },
-    reveal: { label: "The Reveal", color: "text-violet-400", icon: "✨", duration: "24 hours" },
-    forge: { label: "The Forge", color: "text-amber-400", icon: "🔥", duration: "6 hours" },
-    complete: { label: "Complete", color: "text-green-400", icon: "✓", duration: "—" },
+export function formatMeridianPhase(phase: string): {
+  label: string;
+  color: string;
+  icon: string;
+  duration: string;
+} {
+  const map: Record<
+    string,
+    { label: string; color: string; icon: string; duration: string }
+  > = {
+    hush: {
+      label: "The Hush",
+      color: "text-slate-400",
+      icon: "●",
+      duration: "48 hours",
+    },
+    unveil: {
+      label: "The Unveil",
+      color: "text-blue-400",
+      icon: "🔒",
+      duration: "24 hours",
+    },
+    reveal: {
+      label: "The Reveal",
+      color: "text-violet-400",
+      icon: "✨",
+      duration: "24 hours",
+    },
+    forge: {
+      label: "The Forge",
+      color: "text-amber-400",
+      icon: "🔥",
+      duration: "6 hours",
+    },
+    complete: {
+      label: "Complete",
+      color: "text-green-400",
+      icon: "✓",
+      duration: "—",
+    },
   };
-  return map[phase] || { label: phase, color: "text-slate-400", icon: "?", duration: "—" };
+  return (
+    map[phase] || {
+      label: phase,
+      color: "text-slate-400",
+      icon: "?",
+      duration: "—",
+    }
+  );
 }
 
 /* ============================================================

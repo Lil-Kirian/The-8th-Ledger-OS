@@ -10,7 +10,7 @@ import { generateTxHash } from "@/lib/utils";
    ============================================================ */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -19,7 +19,7 @@ export async function POST(
     if (user.isBanned) {
       return NextResponse.json(
         { success: false, error: "Account suspended" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -38,7 +38,7 @@ export async function POST(
     if (!listing) {
       return NextResponse.json(
         { success: false, error: "Listing not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -46,7 +46,7 @@ export async function POST(
     if (listing.sellerId !== user.id) {
       return NextResponse.json(
         { success: false, error: "Only the seller can cancel this listing" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -54,7 +54,7 @@ export async function POST(
     if (listing.status === "cancelled" || listing.status === "deleted") {
       return NextResponse.json(
         { success: false, error: "Listing is already cancelled" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -62,7 +62,7 @@ export async function POST(
     if (listing.status === "sold" || listing.soldAt) {
       return NextResponse.json(
         { success: false, error: "Listing is already sold. Cannot cancel." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -71,17 +71,21 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error: "Purchase is in escrow. Seller cannot cancel once a buyer has committed funds. Buyer may cancel for refund, or funds will auto-release after 48 hours.",
+          error:
+            "Purchase is in escrow. Seller cannot cancel once a buyer has committed funds. Buyer may cancel for refund, or funds will auto-release after 48 hours.",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Only active listings can be cancelled
     if (listing.status !== "active") {
       return NextResponse.json(
-        { success: false, error: `Listing cannot be cancelled. Current status: ${listing.status}` },
-        { status: 400 }
+        {
+          success: false,
+          error: `Listing cannot be cancelled. Current status: ${listing.status}`,
+        },
+        { status: 400 },
       );
     }
 
@@ -132,7 +136,7 @@ export async function POST(
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
       { success: false, error: message || "Failed to cancel listing" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

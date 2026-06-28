@@ -62,7 +62,8 @@ const fetcher = async (url: string) => {
     throw new Error(err.error || err.message || `HTTP ${res.status}`);
   }
   const json = await res.json();
-  if (json.success === false) throw new Error(json.error || json.message || "Request failed");
+  if (json.success === false)
+    throw new Error(json.error || json.message || "Request failed");
   return json.success !== undefined ? json : { success: true, ...json };
 };
 
@@ -88,10 +89,18 @@ function enrichStockItem(raw: Record<string, unknown>): InventoryStockItem {
     quantity: qty,
     quantitySold: sold,
     quantityAvailable: Math.max(0, qty - sold),
-    reorderThreshold: Number(raw.reorderThreshold || raw.reorder_threshold || 0),
+    reorderThreshold: Number(
+      raw.reorderThreshold || raw.reorder_threshold || 0,
+    ),
     status: String(raw.status || "active") as InventoryStockItem["status"],
     listedAt: String(raw.listedAt || raw.listed_at || new Date().toISOString()),
-    createdAt: String(raw.createdAt || raw.created_at || raw.listedAt || raw.listed_at || new Date().toISOString()),
+    createdAt: String(
+      raw.createdAt ||
+        raw.created_at ||
+        raw.listedAt ||
+        raw.listed_at ||
+        new Date().toISOString(),
+    ),
     imageUrl: (raw.imageUrl || raw.image_url) as string | undefined,
     images: (raw.images as string | null | undefined) ?? null,
     tags: (raw.tags as string | null | undefined) ?? null,
@@ -108,7 +117,7 @@ export function useHallInventory(hallId: string | null | undefined) {
   const { data, error, isLoading, mutate } = useSWR(
     hallId ? `/api/halls/${hallId}/inventory` : null,
     fetcher,
-    SWR_CONFIG
+    SWR_CONFIG,
   );
 
   const items = useMemo((): InventoryStockItem[] => {
@@ -119,9 +128,12 @@ export function useHallInventory(hallId: string | null | undefined) {
   const metrics = useMemo((): InventoryMetrics => {
     const totalStockValue = items.reduce((s, i) => s + i.price * i.quantity, 0);
     const totalCOGS = items.reduce((s, i) => s + i.costOfGoods * i.quantity, 0);
-    const totalRevenue = items.reduce((s, i) => s + i.price * i.quantitySold, 0);
+    const totalRevenue = items.reduce(
+      (s, i) => s + i.price * i.quantitySold,
+      0,
+    );
     const itemsNeedingReorder = items.filter(
-      (i) => i.quantityAvailable <= i.reorderThreshold && i.status === "active"
+      (i) => i.quantityAvailable <= i.reorderThreshold && i.status === "active",
     ).length;
 
     return {
@@ -165,7 +177,7 @@ export function useInventoryOrders(hallId: string | null | undefined) {
   const { data, error, isLoading, mutate } = useSWR(
     hallId ? `/api/halls/${hallId}/inventory/orders` : null,
     fetcher,
-    SWR_CONFIG
+    SWR_CONFIG,
   );
 
   const orders = useMemo((): InventoryOrderInternal[] => {
@@ -176,14 +188,20 @@ export function useInventoryOrders(hallId: string | null | undefined) {
       buyerId: String(raw.buyerId || raw.buyer_id),
       buyerLedgerId: String(
         (raw.buyer as Record<string, unknown>)?.ledgerId ||
-        (raw.buyer as Record<string, unknown>)?.vinculumId ||
-        ""
+          (raw.buyer as Record<string, unknown>)?.vinculumId ||
+          "",
       ),
       amount: Number(raw.amount || 0),
       quantity: Number(raw.quantity || 1),
-      status: String(raw.status || "pending") as InventoryOrderInternal["status"],
-      escrowReleasedAt: (raw.escrowReleasedAt || raw.escrow_released_at) as string | null,
-      createdAt: String(raw.createdAt || raw.created_at || new Date().toISOString()),
+      status: String(
+        raw.status || "pending",
+      ) as InventoryOrderInternal["status"],
+      escrowReleasedAt: (raw.escrowReleasedAt || raw.escrow_released_at) as
+        | string
+        | null,
+      createdAt: String(
+        raw.createdAt || raw.created_at || new Date().toISOString(),
+      ),
       completedAt: (raw.completedAt || raw.completed_at) as string | null,
     }));
   }, [data]);
@@ -202,25 +220,38 @@ export function useInventoryOrders(hallId: string | null | undefined) {
    ============================================================ */
 export function useToggleInventoryItem() {
   const toggle = useCallback(
-    async (itemId: string, hallId: string, newStatus: "active" | "inactive"): Promise<{ success: boolean; error?: string }> => {
+    async (
+      itemId: string,
+      hallId: string,
+      newStatus: "active" | "inactive",
+    ): Promise<{ success: boolean; error?: string }> => {
       try {
-        const res = await fetch(`/api/halls/${hallId}/inventory/${itemId}/toggle`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ status: newStatus }),
-        });
+        const res = await fetch(
+          `/api/halls/${hallId}/inventory/${itemId}/toggle`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ status: newStatus }),
+          },
+        );
 
         const json = await res.json();
         if (!res.ok || json.success === false) {
-          return { success: false, error: json.error || json.message || "Toggle failed" };
+          return {
+            success: false,
+            error: json.error || json.message || "Toggle failed",
+          };
         }
         return { success: true };
       } catch (err) {
-        return { success: false, error: err instanceof Error ? err.message : "Network error" };
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : "Network error",
+        };
       }
     },
-    []
+    [],
   );
 
   return toggle;
@@ -231,7 +262,10 @@ export function useToggleInventoryItem() {
    ============================================================ */
 export function useInventoryActions() {
   const toggleInventory = useCallback(
-    async (hallId: string, enabled: boolean): Promise<{ success: boolean; error?: string }> => {
+    async (
+      hallId: string,
+      enabled: boolean,
+    ): Promise<{ success: boolean; error?: string }> => {
       try {
         const res = await fetch(`/api/halls/${hallId}/inventory/toggle`, {
           method: "POST",
@@ -242,14 +276,20 @@ export function useInventoryActions() {
 
         const json = await res.json();
         if (!res.ok || json.success === false) {
-          return { success: false, error: json.error || json.message || "Toggle failed" };
+          return {
+            success: false,
+            error: json.error || json.message || "Toggle failed",
+          };
         }
         return { success: true };
       } catch (err) {
-        return { success: false, error: err instanceof Error ? err.message : "Network error" };
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : "Network error",
+        };
       }
     },
-    []
+    [],
   );
 
   const proposeStockOrder = useCallback(
@@ -263,7 +303,7 @@ export function useInventoryActions() {
         quantity: number;
         reorderThreshold: number;
         imageUrl?: string;
-      }
+      },
     ): Promise<{ success: boolean; itemId?: string; error?: string }> => {
       try {
         const res = await fetch(`/api/halls/${hallId}/inventory`, {
@@ -275,14 +315,20 @@ export function useInventoryActions() {
 
         const json = await res.json();
         if (!res.ok || json.success === false) {
-          return { success: false, error: json.error || json.message || "Stock order failed" };
+          return {
+            success: false,
+            error: json.error || json.message || "Stock order failed",
+          };
         }
         return { success: true, itemId: json.itemId || json.id };
       } catch (err) {
-        return { success: false, error: err instanceof Error ? err.message : "Network error" };
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : "Network error",
+        };
       }
     },
-    []
+    [],
   );
 
   const updateStock = useCallback(
@@ -296,7 +342,7 @@ export function useInventoryActions() {
         reorderThreshold?: number;
         status?: string;
         imageUrl?: string;
-      }
+      },
     ): Promise<{ success: boolean; error?: string }> => {
       try {
         const res = await fetch(`/api/halls/${hallId}/inventory/${itemId}`, {
@@ -308,14 +354,20 @@ export function useInventoryActions() {
 
         const json = await res.json();
         if (!res.ok || json.success === false) {
-          return { success: false, error: json.error || json.message || "Update failed" };
+          return {
+            success: false,
+            error: json.error || json.message || "Update failed",
+          };
         }
         return { success: true };
       } catch (err) {
-        return { success: false, error: err instanceof Error ? err.message : "Network error" };
+        return {
+          success: false,
+          error: err instanceof Error ? err.message : "Network error",
+        };
       }
     },
-    []
+    [],
   );
 
   return {

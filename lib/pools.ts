@@ -10,15 +10,15 @@ import { generatePacToken as generateSharedPacToken, round2 } from "./utils";
    ============================================================ */
 
 export const POOL_CONSTANTS = {
-  PIR_MULTIPLIER: 1,        // PIR = trueCost (1:1 model)
-  MIN_COMMITMENT: 1,        // USD — 8th Ledger minimum
+  PIR_MULTIPLIER: 1, // PIR = trueCost (1:1 model)
+  MIN_COMMITMENT: 1, // USD — 8th Ledger minimum
   MAX_COMMITMENT_TIER_1: 500,
   MAX_COMMITMENT_TIER_5: 999999,
-  CONSENSUS_WEIGHT_CAP: 1000,    // Max $ commitment weight in consensus
+  CONSENSUS_WEIGHT_CAP: 1000, // Max $ commitment weight in consensus
   TRUST_WEIGHT_MULTIPLIER: 0.1, // 10% boost per 100 trust points
-  MIN_PARTICIPANTS: 2,           // Need at least 2 for live pool
-  POOL_DURATION_DAYS: 30,        // Default fill window
-  EARLY_LEDGER_COUNT: 100,       // First 100 committers get Early Ledger status
+  MIN_PARTICIPANTS: 2, // Need at least 2 for live pool
+  POOL_DURATION_DAYS: 30, // Default fill window
+  EARLY_LEDGER_COUNT: 100, // First 100 committers get Early Ledger status
 };
 
 /* ============================================================
@@ -35,15 +35,22 @@ export interface PoolCommitment {
 
 export interface PoolState {
   id: string;
-  assetValue: number;      // trueCost (hidden from public)
+  assetValue: number; // trueCost (hidden from public)
   committed: number;
-  target: number;          // listedPrice = trueCost + PIR
+  target: number; // listedPrice = trueCost + PIR
   participants: number;
   maxParticipants: number;
-  status: "filling" | "filled" | "forged" | "active" | "dormant" | "sold" | "dissolved";
+  status:
+    | "filling"
+    | "filled"
+    | "forged"
+    | "active"
+    | "dormant"
+    | "sold"
+    | "dissolved";
   commitments: PoolCommitment[];
-  winnerId?: string;       // Legacy field — kept for compat, now null in cooperative model
-  pirGenerated: number;    // Protocol Infrastructure Reserve
+  winnerId?: string; // Legacy field — kept for compat, now null in cooperative model
+  pirGenerated: number; // Protocol Infrastructure Reserve
   distributedAt?: string;
   closesAt?: string;
   hallClass?: "I" | "II" | "III";
@@ -89,7 +96,10 @@ export function getPoolTarget(trueCost: number): number {
  * Check if pool has reached 100% fill
  */
 export function isPoolFilled(pool: PoolState): boolean {
-  return pool.committed >= pool.target && pool.participants >= POOL_CONSTANTS.MIN_PARTICIPANTS;
+  return (
+    pool.committed >= pool.target &&
+    pool.participants >= POOL_CONSTANTS.MIN_PARTICIPANTS
+  );
 }
 
 /**
@@ -98,19 +108,28 @@ export function isPoolFilled(pool: PoolState): boolean {
 export function validateCommitment(
   amount: number,
   tier: number,
-  userLedgerBalance: number
+  userLedgerBalance: number,
 ): { valid: boolean; error?: string } {
   if (amount < POOL_CONSTANTS.MIN_COMMITMENT) {
-    return { valid: false, error: `Minimum commitment is $${POOL_CONSTANTS.MIN_COMMITMENT}` };
+    return {
+      valid: false,
+      error: `Minimum commitment is $${POOL_CONSTANTS.MIN_COMMITMENT}`,
+    };
   }
 
   const tierMax = getTierMaxCommitment(tier);
   if (amount > tierMax) {
-    return { valid: false, error: `Tier ${tier} max commitment is $${tierMax.toLocaleString()}` };
+    return {
+      valid: false,
+      error: `Tier ${tier} max commitment is $${tierMax.toLocaleString()}`,
+    };
   }
 
   if (amount > userLedgerBalance) {
-    return { valid: false, error: `Insufficient Ledger balance: $${userLedgerBalance}` };
+    return {
+      valid: false,
+      error: `Insufficient Ledger balance: $${userLedgerBalance}`,
+    };
   }
 
   return { valid: true };
@@ -121,7 +140,7 @@ export function validateCommitment(
  */
 export function checkPoolCapacity(
   pool: PoolState,
-  newAmount: number
+  newAmount: number,
 ): { valid: boolean; error?: string } {
   if (pool.participants >= pool.maxParticipants) {
     return { valid: false, error: "Pool has reached maximum participants" };
@@ -230,14 +249,14 @@ export function getProtocolPir(pool: PoolState): number {
  * Calculate 8th Ledger Tithe from revenue (20%)
  */
 export function calculateLedgerTithe(revenue: number): number {
-  return round2(revenue * 0.20);
+  return round2(revenue * 0.2);
 }
 
 /**
  * Calculate net hall revenue after tithe
  */
 export function calculateNetRevenue(revenue: number): number {
-  return round2(revenue * 0.80);
+  return round2(revenue * 0.8);
 }
 
 /* ============================================================
@@ -247,10 +266,7 @@ export function calculateNetRevenue(revenue: number): number {
 /**
  * Add commitment to pool state
  */
-export function addCommitment(
-  pool: PoolState,
-  commitment: PoolCommitment
-): PoolState {
+export function addCommitment(pool: PoolState, commitment: PoolCommitment): PoolState {
   const newPool = {
     ...pool,
     committed: pool.committed + commitment.amount,
@@ -269,7 +285,9 @@ export function addCommitment(
 /**
  * Forge pool — convert to ownership and unlock Ghost Hall
  */
-export function forgePool(pool: PoolState): PoolState & { distribution: PoolDistributionResult } {
+export function forgePool(
+  pool: PoolState,
+): PoolState & { distribution: PoolDistributionResult } {
   if (pool.status === "forged" || pool.status === "active") {
     throw new Error("Pool already forged");
   }
@@ -326,19 +344,23 @@ export interface PoolMetrics {
 
 export function getPoolMetrics(pool: PoolState): PoolMetrics {
   const fillPercentage = round2((pool.committed / pool.target) * 100);
-  const participantPercentage = round2((pool.participants / pool.maxParticipants) * 100);
-  const avgCommitment = pool.participants > 0 ? round2(pool.committed / pool.participants) : 0;
-  
+  const participantPercentage = round2(
+    (pool.participants / pool.maxParticipants) * 100,
+  );
+  const avgCommitment =
+    pool.participants > 0 ? round2(pool.committed / pool.participants) : 0;
+
   const trustWeighted = pool.commitments.reduce(
     (sum, c) => sum + c.amount * (c.trustScore / 1000),
-    0
+    0,
   );
-  const trustWeightedAvg = pool.participants > 0 ? round2(trustWeighted / pool.participants) : 0;
+  const trustWeightedAvg =
+    pool.participants > 0 ? round2(trustWeighted / pool.participants) : 0;
 
   // Calculate time remaining from closesAt if available
   let timeRemaining = 0;
   const estimatedCloseDate = pool.closesAt || "TBD";
-  
+
   if (pool.closesAt) {
     const closeTime = new Date(pool.closesAt).getTime();
     const now = Date.now();
@@ -365,19 +387,19 @@ export function getPoolMetrics(pool: PoolState): PoolMetrics {
    ============================================================ */
 
 export interface PirPillarAllocation {
-  shield: number;    // 25% — Insurance
-  seal: number;      // 20% — Legal/SPV
-  forge: number;     // 20% — Maintenance
-  spire: number;     // 15% — Protocol
-  vanguard: number;  // 12% — R&D
+  shield: number; // 25% — Insurance
+  seal: number; // 20% — Legal/SPV
+  forge: number; // 20% — Maintenance
+  spire: number; // 15% — Protocol
+  vanguard: number; // 12% — R&D
   sanctuary: number; // 8%  — Reserve
 }
 
 export function calculatePirAllocation(pirAmount: number): PirPillarAllocation {
   return {
     shield: round2(pirAmount * 0.25),
-    seal: round2(pirAmount * 0.20),
-    forge: round2(pirAmount * 0.20),
+    seal: round2(pirAmount * 0.2),
+    forge: round2(pirAmount * 0.2),
     spire: round2(pirAmount * 0.15),
     vanguard: round2(pirAmount * 0.12),
     sanctuary: round2(pirAmount * 0.08),
@@ -390,24 +412,25 @@ export function calculatePirAllocation(pirAmount: number): PirPillarAllocation {
 
 export interface RevenueDistribution {
   grossRevenue: number;
-  ledgerTithe: number;      // 20% to 8th Ledger
-  netHallRevenue: number;   // 80% to hall
-  payrollDeducted: number;  // Pre-dividend expense
-  netAfterPayroll: number;  // After payroll
+  ledgerTithe: number; // 20% to 8th Ledger
+  netHallRevenue: number; // 80% to hall
+  payrollDeducted: number; // Pre-dividend expense
+  netAfterPayroll: number; // After payroll
   dividendPerPercent: number;
 }
 
 export function calculateRevenueDistribution(
   grossRevenue: number,
   totalOwnershipPercent: number,
-  payrollAmount: number = 0
+  payrollAmount: number = 0,
 ): RevenueDistribution {
   const ledgerTithe = calculateLedgerTithe(grossRevenue);
   const netHallRevenue = grossRevenue - ledgerTithe;
   const netAfterPayroll = Math.max(0, netHallRevenue - payrollAmount);
-  const dividendPerPercent = totalOwnershipPercent > 0
-    ? round2(netAfterPayroll / totalOwnershipPercent)
-    : 0;
+  const dividendPerPercent =
+    totalOwnershipPercent > 0
+      ? round2(netAfterPayroll / totalOwnershipPercent)
+      : 0;
 
   return {
     grossRevenue,
@@ -425,7 +448,7 @@ export function calculateRevenueDistribution(
 
 export function calculateOwnerDividend(
   ownershipPercent: number,
-  dividendPerPercent: number
+  dividendPerPercent: number,
 ): number {
   return round2(ownershipPercent * dividendPerPercent);
 }
@@ -443,10 +466,12 @@ export interface DynamicValuationInput {
   pirDebtPerPercent: number;
 }
 
-export function calculateDynamicValuation(input: DynamicValuationInput): number {
+export function calculateDynamicValuation(
+  input: DynamicValuationInput,
+): number {
   const baseValue = input.assetBookValue / 100;
   const ahgiPremium = Math.max(0, (input.ahgiScore - 50) * 10);
-  
+
   const sriBonuses: Record<string, number> = {
     platinum: 50,
     gold: 30,
@@ -456,11 +481,12 @@ export function calculateDynamicValuation(input: DynamicValuationInput): number 
   };
   const sriBonus = sriBonuses[input.sriTier] || 0;
 
-  const value = baseValue
-    + input.accumulatedDividendsPerPercent
-    + ahgiPremium
-    + sriBonus
-    - input.pirDebtPerPercent;
+  const value =
+    baseValue +
+    input.accumulatedDividendsPerPercent +
+    ahgiPremium +
+    sriBonus -
+    input.pirDebtPerPercent;
 
   return Math.max(0, round2(value));
 }
@@ -474,7 +500,11 @@ export function calculateDynamicValuation(input: DynamicValuationInput): number 
  * Now used for governance voting weight only
  */
 export function getGovernanceWeight(commitment: PoolCommitment): number {
-  const cappedCommitment = Math.min(commitment.amount, POOL_CONSTANTS.CONSENSUS_WEIGHT_CAP);
-  const trustBonus = 1 + (commitment.trustScore / 100) * POOL_CONSTANTS.TRUST_WEIGHT_MULTIPLIER;
+  const cappedCommitment = Math.min(
+    commitment.amount,
+    POOL_CONSTANTS.CONSENSUS_WEIGHT_CAP,
+  );
+  const trustBonus =
+    1 + (commitment.trustScore / 100) * POOL_CONSTANTS.TRUST_WEIGHT_MULTIPLIER;
   return cappedCommitment * trustBonus;
 }

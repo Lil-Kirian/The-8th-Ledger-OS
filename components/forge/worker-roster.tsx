@@ -25,10 +25,15 @@ export function WorkerRoster({
   onProposeHire,
   onProposeFire,
 }: WorkerRosterProps) {
-  const { workers, count, hallClass, canProposeHire, showSalaries, isLoading } = useWorkers(hallId);
-  const [filter, setFilter] = useState<"ALL" | "ACTIVE" | "PROBATION" | "TERMINATED" | "SUSPENDED">("ALL");
+  const { workers, count, hallClass, canProposeHire, showSalaries, isLoading } =
+    useWorkers(hallId);
+  const [filter, setFilter] = useState<
+    "ALL" | "ACTIVE" | "PROBATION" | "TERMINATED" | "SUSPENDED"
+  >("ALL");
   const [search, setSearch] = useState("");
-  const [sortBy, setSortBy] = useState<"salary" | "performance" | "hired">("hired");
+  const [sortBy, setSortBy] = useState<"salary" | "performance" | "hired">(
+    "hired",
+  );
 
   if (isLoading) {
     return (
@@ -39,15 +44,18 @@ export function WorkerRoster({
   }
 
   const filtered = workers
-    .filter((w) => (filter === "ALL" ? true : w.status.toUpperCase() === filter))
+    .filter((w) =>
+      filter === "ALL" ? true : w.status.toUpperCase() === filter,
+    )
     .filter(
       (w) =>
         w.role.toLowerCase().includes(search.toLowerCase()) ||
-        w.workerNumber.toLowerCase().includes(search.toLowerCase())
+        w.workerNumber.toLowerCase().includes(search.toLowerCase()),
     )
     .sort((a, b) => {
       if (sortBy === "salary") return (b.salary || 0) - (a.salary || 0);
-      if (sortBy === "performance") return b.performanceScore - a.performanceScore;
+      if (sortBy === "performance")
+        return b.performanceScore - a.performanceScore;
       return new Date(b.hiredAt).getTime() - new Date(a.hiredAt).getTime();
     });
 
@@ -68,23 +76,33 @@ export function WorkerRoster({
 
         <div className="flex items-center gap-2">
           <div className="flex items-center bg-slate-900 border border-slate-800 rounded-lg p-1">
-            {(["ALL", "ACTIVE", "PROBATION", "TERMINATED"] as const).map((f) => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
-                  filter === f
-                    ? "bg-slate-800 text-cyan-400 shadow-sm"
-                    : "text-slate-500 hover:text-slate-300"
-                }`}
-              >
-                {f}
-              </button>
-            ))}
+            {(["ALL", "ACTIVE", "PROBATION", "TERMINATED"] as const).map(
+              (f) => (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                    filter === f
+                      ? "bg-slate-800 text-cyan-400 shadow-sm"
+                      : "text-slate-500 hover:text-slate-300"
+                  }`}
+                >
+                  {f}
+                </button>
+              ),
+            )}
           </div>
 
           <button
-            onClick={() => setSortBy(sortBy === "salary" ? "performance" : sortBy === "performance" ? "hired" : "salary")}
+            onClick={() =>
+              setSortBy(
+                sortBy === "salary"
+                  ? "performance"
+                  : sortBy === "performance"
+                    ? "hired"
+                    : "salary",
+              )
+            }
             className="p-2.5 bg-slate-900 border border-slate-800 rounded-lg text-slate-500 hover:text-slate-300 transition-colors"
             title="Sort"
           >
@@ -107,7 +125,8 @@ export function WorkerRoster({
       <div className="flex items-center justify-between text-xs text-slate-500">
         <span className="flex items-center gap-1.5">
           <Users className="w-3.5 h-3.5" />
-          {filtered.length} worker{filtered.length !== 1 ? "s" : ""} shown of {count}
+          {filtered.length} worker{filtered.length !== 1 ? "s" : ""} shown of{" "}
+          {count}
         </span>
         <span>Sorted by {sortBy}</span>
       </div>
@@ -144,7 +163,9 @@ export function WorkerRoster({
           className="py-12 text-center border border-dashed border-slate-800 rounded-xl"
         >
           <SlidersHorizontal className="w-8 h-8 text-slate-700 mx-auto mb-3" />
-          <p className="text-slate-500 text-sm">No workers match your filters.</p>
+          <p className="text-slate-500 text-sm">
+            No workers match your filters.
+          </p>
           {canProposeHire && (
             <p className="text-slate-600 text-xs mt-2">
               Propose a new hire to build your team.

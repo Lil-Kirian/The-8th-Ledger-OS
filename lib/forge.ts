@@ -99,7 +99,9 @@ export function buildTerminationProposal(input: TerminationProposalInput): {
   };
 }
 
-export function getHallClassWorkerRules(hallClass?: string | null): HallClassWorkerRules {
+export function getHallClassWorkerRules(
+  hallClass?: string | null,
+): HallClassWorkerRules {
   switch (hallClass) {
     case "III":
       return {
@@ -125,13 +127,17 @@ export function getHallClassWorkerRules(hallClass?: string | null): HallClassWor
   }
 }
 
-export function calculatePerformanceScore(metrics: Record<string, unknown>): number {
+export function calculatePerformanceScore(
+  metrics: Record<string, unknown>,
+): number {
   const numericValues = Object.values(metrics)
     .map((value) => Number(value))
     .filter((value) => Number.isFinite(value));
 
   if (numericValues.length === 0) return 50;
-  return numericValues.reduce((sum, value) => sum + value, 0) / numericValues.length;
+  return (
+    numericValues.reduce((sum, value) => sum + value, 0) / numericValues.length
+  );
 }
 
 /* ============================================================
@@ -154,17 +160,27 @@ export async function proposeHire(input: HireProposalInput): Promise<{
 
   if (!hall) return { success: false, error: "Hall not found" };
   if (!hall.forgeEnabled) {
-    return { success: false, error: "Forge not enabled for this hall. Propose enablement via vote." };
+    return {
+      success: false,
+      error: "Forge not enabled for this hall. Propose enablement via vote.",
+    };
   }
 
   const assetType = hall.pool?.assetType;
   const validRoles = assetType ? getWorkerRoles(assetType) : [];
   if (validRoles.length > 0 && !validRoles.includes(input.role)) {
-    return { success: false, error: `Invalid role for this asset type. Valid: ${validRoles.join(", ")}` };
+    return {
+      success: false,
+      error: `Invalid role for this asset type. Valid: ${validRoles.join(", ")}`,
+    };
   }
 
-  const dept = input.department || (assetType ? getDepartmentForRole(assetType, input.role) : "General");
-  const salaryRange = assetType ? getWorkerSalaryRange(input.role, assetType) : { min: 500, max: 1000 };
+  const dept =
+    input.department ||
+    (assetType ? getDepartmentForRole(assetType, input.role) : "General");
+  const salaryRange = assetType
+    ? getWorkerSalaryRange(input.role, assetType)
+    : { min: 500, max: 1000 };
 
   if (input.salary < salaryRange.min || input.salary > salaryRange.max) {
     return {
@@ -173,7 +189,9 @@ export async function proposeHire(input: HireProposalInput): Promise<{
     };
   }
 
-  const workerCount = await prisma.worker.count({ where: { hallId: input.hallId } });
+  const workerCount = await prisma.worker.count({
+    where: { hallId: input.hallId },
+  });
   const workerNumber = generateWorkerNumber(input.hallId, workerCount);
 
   const worker = await prisma.worker.create({
@@ -194,17 +212,27 @@ export async function proposeHire(input: HireProposalInput): Promise<{
       hallId: input.hallId,
       type: "hire_proposed",
       description: `Hire proposed: ${input.role} (${workerNumber}) at $${input.salary}/mo. ${input.justification}`,
-      metadata: JSON.stringify({ workerId: worker.id, proposedBy: input.proposedBy, salary: input.salary }),
+      metadata: JSON.stringify({
+        workerId: worker.id,
+        proposedBy: input.proposedBy,
+        salary: input.salary,
+      }),
     },
   });
 
-  return { success: true, worker: { id: worker.id, workerNumber, status: worker.status } };
+  return {
+    success: true,
+    worker: { id: worker.id, workerNumber, status: worker.status },
+  };
 }
 
 /**
  * Activate a pending worker (8th Ledger executes after hall vote).
  */
-export async function activateWorker(workerId: string, activatedBy: string): Promise<{
+export async function activateWorker(
+  workerId: string,
+  activatedBy: string,
+): Promise<{
   success: boolean;
   error?: string;
 }> {
@@ -214,7 +242,8 @@ export async function activateWorker(workerId: string, activatedBy: string): Pro
   });
 
   if (!worker) return { success: false, error: "Worker not found" };
-  if (worker.status !== "pending") return { success: false, error: `Worker is ${worker.status}` };
+  if (worker.status !== "pending")
+    return { success: false, error: `Worker is ${worker.status}` };
 
   await prisma.worker.update({
     where: { id: workerId },
@@ -238,7 +267,7 @@ export async function activateWorker(workerId: string, activatedBy: string): Pro
 export async function terminateWorker(
   workerId: string,
   reason: string,
-  terminatedBy: string
+  terminatedBy: string,
 ): Promise<{ success: boolean; severance?: number; error?: string }> {
   const worker = await prisma.worker.findUnique({
     where: { id: workerId },
@@ -251,10 +280,17 @@ export async function terminateWorker(
   }
 
   const monthsEmployed = worker.hiredAt
-    ? Math.max(0, Math.floor((Date.now() - worker.hiredAt.getTime()) / (1000 * 60 * 60 * 24 * 30)))
+    ? Math.max(
+        0,
+        Math.floor(
+          (Date.now() - worker.hiredAt.getTime()) / (1000 * 60 * 60 * 24 * 30),
+        ),
+      )
     : 0;
   const yearsEmployed = monthsEmployed / 12;
-  const severance = Math.round(worker.salary * getSeveranceMonthsPerYear() * yearsEmployed);
+  const severance = Math.round(
+    worker.salary * getSeveranceMonthsPerYear() * yearsEmployed,
+  );
 
   await prisma.worker.update({
     where: { id: workerId },
@@ -280,7 +316,9 @@ export async function terminateWorker(
    PERFORMANCE
    ============================================================ */
 
-export async function recordPerformance(input: WorkerPerformanceInput): Promise<{
+export async function recordPerformance(
+  input: WorkerPerformanceInput,
+): Promise<{
   success: boolean;
   performance?: { id: string; score: number; status: string };
   error?: string;
@@ -319,7 +357,10 @@ export async function recordPerformance(input: WorkerPerformanceInput): Promise<
     data: { performanceScore: allScores._avg.score ?? input.score },
   });
 
-  return { success: true, performance: { id: performance.id, score: input.score, status } };
+  return {
+    success: true,
+    performance: { id: performance.id, score: input.score, status },
+  };
 }
 
 /* ============================================================
@@ -334,7 +375,7 @@ export async function executePayroll(
   hallId: string,
   monthOrExecutorId?: string,
   executorId?: string,
-  isAdmin: boolean = true
+  isAdmin: boolean = true,
 ): Promise<{
   success: boolean;
   payroll?: PayrollExecution;
@@ -343,7 +384,8 @@ export async function executePayroll(
   workerCount?: number;
   error?: string;
 }> {
-  if (!isAdmin) return { success: false, error: "8th Ledger authority required" };
+  if (!isAdmin)
+    return { success: false, error: "8th Ledger authority required" };
   const month =
     monthOrExecutorId && /^\d{4}-\d{2}$/.test(monthOrExecutorId)
       ? monthOrExecutorId
@@ -351,7 +393,7 @@ export async function executePayroll(
   const executedBy =
     monthOrExecutorId && !/^\d{4}-\d{2}$/.test(monthOrExecutorId)
       ? monthOrExecutorId
-      : executorId ?? "system";
+      : (executorId ?? "system");
 
   const hall = await prisma.hall.findUnique({
     where: { id: hallId },
@@ -366,7 +408,8 @@ export async function executePayroll(
   if (!hall.forgeEnabled) return { success: false, error: "Forge not enabled" };
 
   const workers = hall.workers;
-  if (workers.length === 0) return { success: false, error: "No active workers" };
+  if (workers.length === 0)
+    return { success: false, error: "No active workers" };
 
   const totalPayroll = workers.reduce((s, w) => s + w.salary, 0);
 
@@ -398,7 +441,10 @@ export async function executePayroll(
     if (fromTreasury > 0) {
       await tx.hallTreasury.update({
         where: { hallId },
-        data: { balance: { decrement: fromTreasury }, payrollReserve: { increment: fromTreasury } },
+        data: {
+          balance: { decrement: fromTreasury },
+          payrollReserve: { increment: fromTreasury },
+        },
       });
       remaining -= fromTreasury;
     }
@@ -463,7 +509,10 @@ export async function executePayroll(
 /**
  * Get payroll history for a hall.
  */
-export async function getPayrollHistory(hallId: string, limit: number = 12): Promise<PayrollExecution[]> {
+export async function getPayrollHistory(
+  hallId: string,
+  limit: number = 12,
+): Promise<PayrollExecution[]> {
   const ledgers = await prisma.forgeLedger.findMany({
     where: { hallId },
     orderBy: { createdAt: "desc" },
@@ -498,8 +547,10 @@ export async function sendRelayMessage(input: RelayMessageInput): Promise<{
   });
 
   if (!worker) return { success: false, error: "Worker not found" };
-  if (worker.hallId !== input.hallId) return { success: false, error: "Worker not in this hall" };
-  if (worker.status === "terminated") return { success: false, error: "Worker is terminated" };
+  if (worker.hallId !== input.hallId)
+    return { success: false, error: "Worker not in this hall" };
+  if (worker.status === "terminated")
+    return { success: false, error: "Worker is terminated" };
 
   const message = await prisma.relayMessage.create({
     data: {
@@ -512,20 +563,28 @@ export async function sendRelayMessage(input: RelayMessageInput): Promise<{
     },
   });
 
-  return { success: true, message: { id: message.id, relayedAt: message.relayedAt } };
+  return {
+    success: true,
+    message: { id: message.id, relayedAt: message.relayedAt },
+  };
 }
 
 /**
  * Get relay conversation for a worker.
  */
-export async function getRelayConversation(workerId: string, limit: number = 50): Promise<Array<{
-  id: string;
-  direction: string;
-  content: string;
-  relayedAt: Date;
-  loggedBy: string;
-  status: string;
-}>> {
+export async function getRelayConversation(
+  workerId: string,
+  limit: number = 50,
+): Promise<
+  Array<{
+    id: string;
+    direction: string;
+    content: string;
+    relayedAt: Date;
+    loggedBy: string;
+    status: string;
+  }>
+> {
   const messages = await prisma.relayMessage.findMany({
     where: { workerId },
     orderBy: { relayedAt: "desc" },
@@ -545,7 +604,7 @@ export async function getRelayConversation(workerId: string, limit: number = 50)
 export async function getRelayHistory(
   hallId: string,
   workerId: string,
-  limit: number = 50
+  limit: number = 50,
 ) {
   const messages = await prisma.relayMessage.findMany({
     where: { hallId, workerId },
@@ -570,12 +629,17 @@ export async function getRelayHistory(
 export function getEnableForgeProposalTemplate(assetTypeId: string): string {
   const asset = getAssetTypeById(assetTypeId);
   const roles = asset?.workerRoles ?? [];
-  const rolesText = roles.length > 0 ? `Default roles: ${roles.slice(0, 5).join(", ")}${roles.length > 5 ? "..." : ""}.` : "No default worker roles for this asset type.";
+  const rolesText =
+    roles.length > 0
+      ? `Default roles: ${roles.slice(0, 5).join(", ")}${roles.length > 5 ? "..." : ""}.`
+      : "No default worker roles for this asset type.";
 
   return `Proposal to enable the Forge for this hall. The Forge allows hiring workers, managing payroll, and communicating via the 8th Ledger Relay. ${rolesText} Once enabled, the hall can propose hires, performance reviews, and terminations. Workers are employed by the 8th Ledger, not the hall. Payroll is executed monthly from treasury or IHCP funds.`;
 }
 
-export function getEnableInventoryProposalTemplate(assetTypeId: string): string {
+export function getEnableInventoryProposalTemplate(
+  assetTypeId: string,
+): string {
   const asset = getAssetTypeById(assetTypeId);
   const capable = asset?.inventoryCapable ?? false;
 
@@ -590,17 +654,19 @@ export function getEnableInventoryProposalTemplate(assetTypeId: string): string 
    WORKER ROSTER QUERIES
    ============================================================ */
 
-export async function getWorkerRoster(hallId: string): Promise<Array<{
-  id: string;
-  workerNumber: string;
-  role: string;
-  department: string;
-  salary: number;
-  status: string;
-  performanceScore: number;
-  hiredAt: Date;
-  contractMonths: number;
-}>> {
+export async function getWorkerRoster(hallId: string): Promise<
+  Array<{
+    id: string;
+    workerNumber: string;
+    role: string;
+    department: string;
+    salary: number;
+    status: string;
+    performanceScore: number;
+    hiredAt: Date;
+    contractMonths: number;
+  }>
+> {
   const workers = await prisma.worker.findMany({
     where: { hallId },
     orderBy: [{ status: "asc" }, { hiredAt: "desc" }],
@@ -629,7 +695,13 @@ export async function getWorkerDetail(workerId: string): Promise<{
   performanceScore: number;
   hiredAt: Date;
   contractMonths: number;
-  performances: Array<{ id: string; score: number; metrics: string; reviewedAt: Date; reviewerId: string }>;
+  performances: Array<{
+    id: string;
+    score: number;
+    metrics: string;
+    reviewedAt: Date;
+    reviewerId: string;
+  }>;
 } | null> {
   const worker = await prisma.worker.findUnique({
     where: { id: workerId },
@@ -664,14 +736,19 @@ export async function getWorkerDetail(workerId: string): Promise<{
    FORGE LEDGER QUERIES
    ============================================================ */
 
-export async function getForgeLedger(hallId: string, limit: number = 12): Promise<Array<{
-  month: string;
-  totalPayroll: number;
-  workerCount: number;
-  businessRevenue: number;
-  costOfGoodsSold: number;
-  createdAt: Date;
-}>> {
+export async function getForgeLedger(
+  hallId: string,
+  limit: number = 12,
+): Promise<
+  Array<{
+    month: string;
+    totalPayroll: number;
+    workerCount: number;
+    businessRevenue: number;
+    costOfGoodsSold: number;
+    createdAt: Date;
+  }>
+> {
   const ledgers = await prisma.forgeLedger.findMany({
     where: { hallId },
     orderBy: { createdAt: "desc" },
@@ -694,16 +771,25 @@ export async function getHallStaffingSummary(hallId: string) {
     select: { status: true, salary: true, performanceScore: true },
   });
 
-  const activeWorkers = workers.filter((worker) => worker.status === "active").length;
-  const probationWorkers = workers.filter((worker) => worker.status === "probation").length;
+  const activeWorkers = workers.filter(
+    (worker) => worker.status === "active",
+  ).length;
+  const probationWorkers = workers.filter(
+    (worker) => worker.status === "probation",
+  ).length;
   const payrollWorkers = workers.filter(
-    (worker) => worker.status === "active" || worker.status === "probation"
+    (worker) => worker.status === "active" || worker.status === "probation",
   );
-  const totalMonthlyPayroll = payrollWorkers.reduce((sum, worker) => sum + worker.salary, 0);
+  const totalMonthlyPayroll = payrollWorkers.reduce(
+    (sum, worker) => sum + worker.salary,
+    0,
+  );
   const avgPerformanceScore =
     workers.length > 0
       ? Math.round(
-          (workers.reduce((sum, worker) => sum + worker.performanceScore, 0) / workers.length) * 100
+          (workers.reduce((sum, worker) => sum + worker.performanceScore, 0) /
+            workers.length) *
+            100,
         ) / 100
       : 0;
 
@@ -736,7 +822,13 @@ export async function checkPayrollShortfall(hallId: string): Promise<{
   });
 
   if (!hall) {
-    return { projectedPayroll: 0, treasuryBalance: 0, ihcpBalance: 0, shortfall: 0, needsIhcp: false };
+    return {
+      projectedPayroll: 0,
+      treasuryBalance: 0,
+      ihcpBalance: 0,
+      shortfall: 0,
+      needsIhcp: false,
+    };
   }
 
   const projectedPayroll = hall.workers.reduce((s, w) => s + w.salary, 0);
@@ -745,5 +837,11 @@ export async function checkPayrollShortfall(hallId: string): Promise<{
   const shortfall = Math.max(0, projectedPayroll - treasuryBalance);
   const needsIhcp = shortfall > 0 && ihcpBalance < shortfall;
 
-  return { projectedPayroll, treasuryBalance, ihcpBalance, shortfall, needsIhcp };
+  return {
+    projectedPayroll,
+    treasuryBalance,
+    ihcpBalance,
+    shortfall,
+    needsIhcp,
+  };
 }

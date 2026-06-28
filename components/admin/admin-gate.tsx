@@ -49,7 +49,11 @@ interface AdminGateProps {
 // COMPONENT
 // ============================================================
 
-export default function AdminGate({ onVerified, redirectTo, requiredRole = "admin" }: AdminGateProps) {
+export default function AdminGate({
+  onVerified,
+  redirectTo,
+  requiredRole = "admin",
+}: AdminGateProps) {
   const { user, isPrimaryAdmin, isAdmin, logout } = useAuth();
   const ledgerId = user?.ledgerId;
   const [currentStep, setCurrentStep] = useState<AuthStep | null>(null);
@@ -182,7 +186,7 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
 
   const updateGateStatus = (step: AuthStep, verified: boolean) => {
     setGateStatus((prev) =>
-      prev.map((g) => (g.step === step ? { ...g, verified } : g))
+      prev.map((g) => (g.step === step ? { ...g, verified } : g)),
     );
   };
 
@@ -279,7 +283,9 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
 
       if (!res.ok) {
         if (data.lockedUntil) {
-          const mins = Math.ceil((new Date(data.lockedUntil).getTime() - Date.now()) / 60000);
+          const mins = Math.ceil(
+            (new Date(data.lockedUntil).getTime() - Date.now()) / 60000,
+          );
           setLockoutMinutes(mins);
           setError(`Locked out. Retry in ${mins} minutes.`);
         } else {
@@ -333,9 +339,15 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
       }
 
       // Convert base64url challenge
-      const challenge = Uint8Array.from(atob(options.challenge.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
+      const challenge = Uint8Array.from(
+        atob(options.challenge.replace(/-/g, "+").replace(/_/g, "/")),
+        (c) => c.charCodeAt(0),
+      );
       const allowCredentials = options.allowCredentials?.map((cred: any) => ({
-        id: Uint8Array.from(atob(cred.id.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0)),
+        id: Uint8Array.from(
+          atob(cred.id.replace(/-/g, "+").replace(/_/g, "/")),
+          (c) => c.charCodeAt(0),
+        ),
         type: cred.type,
       }));
 
@@ -360,18 +372,42 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           step: "finish",
-          id: btoa(String.fromCharCode(...new Uint8Array((assertion as any).rawId))),
-          rawId: btoa(String.fromCharCode(...new Uint8Array((assertion as any).rawId))),
+          id: btoa(
+            String.fromCharCode(...new Uint8Array((assertion as any).rawId)),
+          ),
+          rawId: btoa(
+            String.fromCharCode(...new Uint8Array((assertion as any).rawId)),
+          ),
           response: {
-            authenticatorData: btoa(String.fromCharCode(...new Uint8Array((assertion as any).response.authenticatorData))),
-            clientDataJSON: btoa(String.fromCharCode(...new Uint8Array((assertion as any).response.clientDataJSON))),
-            signature: btoa(String.fromCharCode(...new Uint8Array((assertion as any).response.signature))),
+            authenticatorData: btoa(
+              String.fromCharCode(
+                ...new Uint8Array(
+                  (assertion as any).response.authenticatorData,
+                ),
+              ),
+            ),
+            clientDataJSON: btoa(
+              String.fromCharCode(
+                ...new Uint8Array((assertion as any).response.clientDataJSON),
+              ),
+            ),
+            signature: btoa(
+              String.fromCharCode(
+                ...new Uint8Array((assertion as any).response.signature),
+              ),
+            ),
             userHandle: (assertion as any).response.userHandle
-              ? btoa(String.fromCharCode(...new Uint8Array((assertion as any).response.userHandle)))
+              ? btoa(
+                  String.fromCharCode(
+                    ...new Uint8Array((assertion as any).response.userHandle),
+                  ),
+                )
               : null,
           },
           type: "public-key",
-          clientExtensionResults: (assertion as any).getClientExtensionResults(),
+          clientExtensionResults: (
+            assertion as any
+          ).getClientExtensionResults(),
         }),
       });
 
@@ -401,12 +437,14 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
     setError(null);
 
     try {
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, {
-          enableHighAccuracy: true,
-          timeout: 10000,
-        });
-      });
+      const position = await new Promise<GeolocationPosition>(
+        (resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+          });
+        },
+      );
 
       const res = await fetch("/api/auth/geo-check", {
         method: "POST",
@@ -472,7 +510,9 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
       const inWindow = hour >= 8 && hour <= 23;
 
       if (!inWindow) {
-        setError(`Access window closed. Available 08:00–23:00 UTC. Current: ${hour}:00 UTC.`);
+        setError(
+          `Access window closed. Available 08:00–23:00 UTC. Current: ${hour}:00 UTC.`,
+        );
         return;
       }
 
@@ -495,8 +535,12 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
       <div className="min-h-screen bg-[#0a0a12] flex items-center justify-center p-6">
         <div className="text-center space-y-4">
           <ShieldAlert size={48} className="text-red-500 mx-auto" />
-          <h2 className="text-xl font-bold text-slate-200">Authentication Required</h2>
-          <p className="text-sm text-slate-500">Login to access the 8th Ledger Command Center.</p>
+          <h2 className="text-xl font-bold text-slate-200">
+            Authentication Required
+          </h2>
+          <p className="text-sm text-slate-500">
+            Login to access the 8th Ledger Command Center.
+          </p>
         </div>
       </div>
     );
@@ -509,7 +553,8 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
           <ShieldAlert size={48} className="text-red-500 mx-auto" />
           <h2 className="text-xl font-bold text-slate-200">Access Denied</h2>
           <p className="text-sm text-slate-500">
-            This fortress requires {isPrimary ? "Primary Admin" : "Admin"} clearance. Your current role does not grant access.
+            This fortress requires {isPrimary ? "Primary Admin" : "Admin"}{" "}
+            clearance. Your current role does not grant access.
           </p>
           <button
             onClick={logout}
@@ -540,8 +585,13 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
           </p>
           {ledgerId && (
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-800/40 border border-slate-700/30">
-              <Crown size={12} className={isPrimary ? "text-amber-400" : "text-slate-500"} />
-              <span className="text-[11px] font-mono text-slate-400">{ledgerId}</span>
+              <Crown
+                size={12}
+                className={isPrimary ? "text-amber-400" : "text-slate-500"}
+              />
+              <span className="text-[11px] font-mono text-slate-400">
+                {ledgerId}
+              </span>
             </div>
           )}
         </div>
@@ -549,9 +599,12 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
         {/* Gate Progress */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] text-slate-500 uppercase tracking-wider">Fortress Progress</span>
+            <span className="text-[10px] text-slate-500 uppercase tracking-wider">
+              Fortress Progress
+            </span>
             <span className="text-[10px] font-mono text-slate-400">
-              {gateStatus.filter((g) => g.verified).length} / {gateStatus.length} Gates
+              {gateStatus.filter((g) => g.verified).length} /{" "}
+              {gateStatus.length} Gates
             </span>
           </div>
           <div className="h-2 bg-slate-800/40 rounded-full overflow-hidden">
@@ -579,8 +632,8 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
                   isDone
                     ? "bg-emerald-950/10 border-emerald-800/20"
                     : isActive
-                    ? "bg-slate-800/30 border-cyan-700/30 shadow-lg shadow-cyan-900/5"
-                    : "bg-slate-800/10 border-slate-800/20 opacity-60"
+                      ? "bg-slate-800/30 border-cyan-700/30 shadow-lg shadow-cyan-900/5"
+                      : "bg-slate-800/10 border-slate-800/20 opacity-60",
                 )}
               >
                 <div className="flex items-center gap-4">
@@ -590,14 +643,17 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
                       isDone
                         ? "bg-emerald-900/20 border-emerald-700/30"
                         : isActive
-                        ? "bg-cyan-900/20 border-cyan-700/30"
-                        : "bg-slate-800/30 border-slate-700/30"
+                          ? "bg-cyan-900/20 border-cyan-700/30"
+                          : "bg-slate-800/30 border-slate-700/30",
                     )}
                   >
                     {isDone ? (
                       <CheckCircle2 size={20} className="text-emerald-400" />
                     ) : (
-                      <Icon size={20} className={isActive ? gate.color : "text-slate-600"} />
+                      <Icon
+                        size={20}
+                        className={isActive ? gate.color : "text-slate-600"}
+                      />
                     )}
                   </div>
 
@@ -606,7 +662,11 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
                       <span
                         className={cn(
                           "text-sm font-bold",
-                          isDone ? "text-emerald-400" : isActive ? "text-slate-200" : "text-slate-600"
+                          isDone
+                            ? "text-emerald-400"
+                            : isActive
+                              ? "text-slate-200"
+                              : "text-slate-600",
                         )}
                       >
                         {gate.label}
@@ -617,7 +677,9 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-slate-500 mt-0.5">{gate.description}</p>
+                    <p className="text-[11px] text-slate-500 mt-0.5">
+                      {gate.description}
+                    </p>
                   </div>
 
                   {isActive && !isDone && (
@@ -641,7 +703,9 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
                             inputMode="numeric"
                             maxLength={6}
                             value={totpCode}
-                            onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))}
+                            onChange={(e) =>
+                              setTotpCode(e.target.value.replace(/\D/g, ""))
+                            }
                             placeholder="000000"
                             className="flex-1 px-4 py-3 rounded-lg bg-slate-900/60 border border-slate-700/40 text-slate-200 text-center text-lg font-mono tracking-[0.5em] placeholder:text-slate-700 focus:outline-none focus:border-cyan-600/50 focus:ring-1 focus:ring-cyan-600/20 transition-all"
                             onKeyDown={(e) => e.key === "Enter" && handleTOTP()}
@@ -651,7 +715,11 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
                             disabled={loading || totpCode.length !== 6}
                             className="px-5 py-3 rounded-lg bg-cyan-600 border border-cyan-500 text-white text-sm font-bold hover:bg-cyan-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                           >
-                            {loading ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />}
+                            {loading ? (
+                              <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                              <ArrowRight size={16} />
+                            )}
                           </button>
                         </div>
                         {attemptsRemaining < 3 && (
@@ -674,24 +742,38 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
                               inputMode="numeric"
                               maxLength={isPrimary ? 6 : 4}
                               value={pinCode}
-                              onChange={(e) => setPinCode(e.target.value.replace(/\D/g, ""))}
+                              onChange={(e) =>
+                                setPinCode(e.target.value.replace(/\D/g, ""))
+                              }
                               placeholder={isPrimary ? "••••••" : "••••"}
                               className="w-full px-4 py-3 rounded-lg bg-slate-900/60 border border-slate-700/40 text-slate-200 text-center text-lg font-mono tracking-[0.5em] placeholder:text-slate-700 focus:outline-none focus:border-amber-600/50 focus:ring-1 focus:ring-amber-600/20 transition-all"
-                              onKeyDown={(e) => e.key === "Enter" && handlePIN()}
+                              onKeyDown={(e) =>
+                                e.key === "Enter" && handlePIN()
+                              }
                             />
                             <button
                               onClick={() => setShowPin(!showPin)}
                               className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-400"
                             >
-                              {showPin ? <EyeOff size={16} /> : <Eye size={16} />}
+                              {showPin ? (
+                                <EyeOff size={16} />
+                              ) : (
+                                <Eye size={16} />
+                              )}
                             </button>
                           </div>
                           <button
                             onClick={handlePIN}
-                            disabled={loading || pinCode.length !== (isPrimary ? 6 : 4)}
+                            disabled={
+                              loading || pinCode.length !== (isPrimary ? 6 : 4)
+                            }
                             className="px-5 py-3 rounded-lg bg-amber-600 border border-amber-500 text-white text-sm font-bold hover:bg-amber-500 disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-2"
                           >
-                            {loading ? <Loader2 size={16} className="animate-spin" /> : <ArrowRight size={16} />}
+                            {loading ? (
+                              <Loader2 size={16} className="animate-spin" />
+                            ) : (
+                              <ArrowRight size={16} />
+                            )}
                           </button>
                         </div>
                         {lockoutMinutes > 0 && (
@@ -705,14 +787,19 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
                     {gate.step === "webauthn" && (
                       <div className="space-y-3">
                         <p className="text-[11px] text-slate-500">
-                          Touch your hardware security key or use biometric authentication.
+                          Touch your hardware security key or use biometric
+                          authentication.
                         </p>
                         <button
                           onClick={handleWebAuthn}
                           disabled={loading}
                           className="w-full px-4 py-3.5 rounded-lg bg-emerald-600 border border-emerald-500 text-white text-sm font-bold hover:bg-emerald-500 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
                         >
-                          {loading ? <Loader2 size={16} className="animate-spin" /> : <Fingerprint size={16} />}
+                          {loading ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            <Fingerprint size={16} />
+                          )}
                           Verify Hardware Key
                         </button>
                       </div>
@@ -721,14 +808,19 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
                     {gate.step === "geo" && (
                       <div className="space-y-3">
                         <p className="text-[11px] text-slate-500">
-                          Allow location access to verify you are within the trusted geographic radius.
+                          Allow location access to verify you are within the
+                          trusted geographic radius.
                         </p>
                         <button
                           onClick={handleGeo}
                           disabled={loading}
                           className="w-full px-4 py-3.5 rounded-lg bg-violet-600 border border-violet-500 text-white text-sm font-bold hover:bg-violet-500 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
                         >
-                          {loading ? <Loader2 size={16} className="animate-spin" /> : <Globe size={16} />}
+                          {loading ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            <Globe size={16} />
+                          )}
                           Verify Location
                         </button>
                       </div>
@@ -737,14 +829,19 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
                     {gate.step === "device" && (
                       <div className="space-y-3">
                         <p className="text-[11px] text-slate-500">
-                          Device fingerprint verification is automatic. Click to confirm.
+                          Device fingerprint verification is automatic. Click to
+                          confirm.
                         </p>
                         <button
                           onClick={handleDeviceCheck}
                           disabled={loading}
                           className="w-full px-4 py-3.5 rounded-lg bg-rose-600 border border-rose-500 text-white text-sm font-bold hover:bg-rose-500 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
                         >
-                          {loading ? <Loader2 size={16} className="animate-spin" /> : <Cpu size={16} />}
+                          {loading ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            <Cpu size={16} />
+                          )}
                           Verify Device
                         </button>
                       </div>
@@ -753,14 +850,19 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
                     {gate.step === "timewindow" && (
                       <div className="space-y-3">
                         <p className="text-[11px] text-slate-500">
-                          Access is restricted to authorized hours (08:00–23:00 UTC).
+                          Access is restricted to authorized hours (08:00–23:00
+                          UTC).
                         </p>
                         <button
                           onClick={handleTimeWindow}
                           disabled={loading}
                           className="w-full px-4 py-3.5 rounded-lg bg-orange-600 border border-orange-500 text-white text-sm font-bold hover:bg-orange-500 disabled:opacity-40 transition-all flex items-center justify-center gap-2"
                         >
-                          {loading ? <Loader2 size={16} className="animate-spin" /> : <Clock size={16} />}
+                          {loading ? (
+                            <Loader2 size={16} className="animate-spin" />
+                          ) : (
+                            <Clock size={16} />
+                          )}
                           Verify Time Window
                         </button>
                       </div>
@@ -791,9 +893,12 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
             <div className="w-12 h-12 mx-auto rounded-full bg-emerald-900/20 flex items-center justify-center border border-emerald-700/30">
               <ShieldCheck size={24} className="text-emerald-400" />
             </div>
-            <h3 className="text-lg font-bold text-emerald-400">Fortress Cleared</h3>
+            <h3 className="text-lg font-bold text-emerald-400">
+              Fortress Cleared
+            </h3>
             <p className="text-sm text-emerald-300/70">
-              All {gateStatus.length} gates verified. Welcome to the 8th Ledger Command Center.
+              All {gateStatus.length} gates verified. Welcome to the 8th Ledger
+              Command Center.
             </p>
             {sessionExpiry && (
               <p className="text-[11px] text-emerald-400/50 font-mono">
@@ -815,7 +920,8 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-[10px] text-slate-700">
-            8th Ledger Security Fortress v3.2 • All actions are immutable and auditable.
+            8th Ledger Security Fortress v3.2 • All actions are immutable and
+            auditable.
           </p>
         </div>
       </div>

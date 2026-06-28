@@ -60,7 +60,8 @@ const tiers: TierConfig[] = [
       { label: "Email verified", completed: true },
       { label: "Phone verified", completed: true },
     ],
-    description: "Basic account. Can browse pools and commit capital, but cannot withdraw or access Hall governance.",
+    description:
+      "Basic account. Can browse pools and commit capital, but cannot withdraw or access Hall governance.",
   },
   {
     tier: "sovereign",
@@ -79,7 +80,8 @@ const tiers: TierConfig[] = [
       { label: "Face match verified", completed: false },
       { label: "Legal name confirmed", completed: false },
     ],
-    description: "Verified identity. Full Hall access, governance voting, and limited instant withdrawals.",
+    description:
+      "Verified identity. Full Hall access, governance voting, and limited instant withdrawals.",
   },
   {
     tier: "verified",
@@ -98,7 +100,8 @@ const tiers: TierConfig[] = [
       { label: "Enhanced due diligence", completed: false },
       { label: "Source of funds declared", completed: false },
     ],
-    description: "Enhanced verification. Higher withdrawal limits, priority support, and full platform privileges.",
+    description:
+      "Enhanced verification. Higher withdrawal limits, priority support, and full platform privileges.",
   },
   {
     tier: "whale",
@@ -117,7 +120,8 @@ const tiers: TierConfig[] = [
       { label: "Priority support enrolled", completed: false },
       { label: "Council recognition", completed: false },
     ],
-    description: "Maximum verification tier. Unlimited withdrawals, OTC marketplace access, and Council consideration.",
+    description:
+      "Maximum verification tier. Unlimited withdrawals, OTC marketplace access, and Council consideration.",
   },
 ];
 
@@ -138,9 +142,14 @@ export default function TierProgress({
     return "locked";
   };
 
-  const completedRequirements = tiers[currentTierIndex].requirements.filter((r) => r.completed).length;
+  const completedRequirements = tiers[currentTierIndex].requirements.filter(
+    (r) => r.completed,
+  ).length;
   const totalRequirements = tiers[currentTierIndex].requirements.length;
-  const tierProgress = totalRequirements > 0 ? (completedRequirements / totalRequirements) * 100 : 100;
+  const tierProgress =
+    totalRequirements > 0
+      ? (completedRequirements / totalRequirements) * 100
+      : 100;
 
   return (
     <div className="bg-[#0a0a12] border border-slate-800/60 rounded-xl overflow-hidden shadow-2xl">
@@ -152,9 +161,14 @@ export default function TierProgress({
               <Crown size={20} className="text-cyan-400" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-100">SIV / KYC Tier Progress</h3>
+              <h3 className="text-sm font-bold text-slate-100">
+                SIV / KYC Tier Progress
+              </h3>
               <p className="text-[10px] text-slate-500 mt-0.5">
-                Current: <span className={tiers[currentTierIndex].color}>{tiers[currentTierIndex].label}</span>
+                Current:{" "}
+                <span className={tiers[currentTierIndex].color}>
+                  {tiers[currentTierIndex].label}
+                </span>
               </p>
             </div>
           </div>
@@ -165,12 +179,14 @@ export default function TierProgress({
                 kycStatus === "approved"
                   ? "bg-emerald-900/20 border-emerald-700/30 text-emerald-400"
                   : kycStatus === "pending"
-                  ? "bg-amber-900/20 border-amber-700/30 text-amber-400"
-                  : "bg-red-900/20 border-red-700/30 text-red-400"
+                    ? "bg-amber-900/20 border-amber-700/30 text-amber-400"
+                    : "bg-red-900/20 border-red-700/30 text-red-400",
               )}
             >
               {kycStatus === "approved" && <CheckCircle2 size={10} />}
-              {kycStatus === "pending" && <Loader2 size={10} className="animate-spin" />}
+              {kycStatus === "pending" && (
+                <Loader2 size={10} className="animate-spin" />
+              )}
               {kycStatus === "rejected" && <AlertTriangle size={10} />}
               {kycStatus === "needs_review" && <FileCheck size={10} />}
               {kycStatus.replace("_", " ")}
@@ -218,8 +234,8 @@ export default function TierProgress({
                       status === "completed"
                         ? "bg-emerald-900/20 border-emerald-500/50"
                         : status === "current"
-                        ? `${tier.bg} ${tier.border} ring-2 ring-cyan-500/20`
-                        : "bg-slate-800/30 border-slate-700/30"
+                          ? `${tier.bg} ${tier.border} ring-2 ring-cyan-500/20`
+                          : "bg-slate-800/30 border-slate-700/30",
                     )}
                   >
                     {status === "completed" ? (
@@ -227,7 +243,9 @@ export default function TierProgress({
                     ) : (
                       <TierIcon
                         size={18}
-                        className={status === "current" ? tier.color : "text-slate-600"}
+                        className={
+                          status === "current" ? tier.color : "text-slate-600"
+                        }
                       />
                     )}
                   </div>
@@ -238,14 +256,16 @@ export default function TierProgress({
                         status === "completed"
                           ? "text-emerald-400"
                           : status === "current"
-                          ? tier.color
-                          : "text-slate-600"
+                            ? tier.color
+                            : "text-slate-600",
                       )}
                     >
                       {tier.label}
                     </div>
                     {status === "current" && (
-                      <div className="text-[9px] text-slate-500 mt-0.5">You are here</div>
+                      <div className="text-[9px] text-slate-500 mt-0.5">
+                        You are here
+                      </div>
                     )}
                   </div>
                 </button>
@@ -269,7 +289,9 @@ export default function TierProgress({
                     key={tier.tier}
                     className={cn(
                       "p-4 rounded-xl border space-y-4",
-                      status === "current" ? `${tier.bg} ${tier.border}` : "bg-slate-800/10 border-slate-800/20"
+                      status === "current"
+                        ? `${tier.bg} ${tier.border}`
+                        : "bg-slate-800/10 border-slate-800/20",
                     )}
                   >
                     {/* Tier Header */}
@@ -278,16 +300,32 @@ export default function TierProgress({
                         className={cn(
                           "w-12 h-12 rounded-xl flex items-center justify-center border",
                           status === "current" ? tier.bg : "bg-slate-800/30",
-                          status === "current" ? tier.border : "border-slate-700/30"
+                          status === "current"
+                            ? tier.border
+                            : "border-slate-700/30",
                         )}
                       >
-                        <TierIcon size={24} className={status === "current" ? tier.color : "text-slate-500"} />
+                        <TierIcon
+                          size={24}
+                          className={
+                            status === "current" ? tier.color : "text-slate-500"
+                          }
+                        />
                       </div>
                       <div>
-                        <div className={cn("text-sm font-bold", status === "current" ? tier.color : "text-slate-400")}>
+                        <div
+                          className={cn(
+                            "text-sm font-bold",
+                            status === "current"
+                              ? tier.color
+                              : "text-slate-400",
+                          )}
+                        >
                           {tier.label}
                         </div>
-                        <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{tier.description}</p>
+                        <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">
+                          {tier.description}
+                        </p>
                       </div>
                     </div>
 
@@ -298,37 +336,60 @@ export default function TierProgress({
                           <Wallet size={10} />
                           Withdrawal
                         </div>
-                        <div className="text-xs font-bold text-slate-200">{tier.withdrawalLimit}</div>
-                        <div className="text-[9px] text-slate-600">{tier.withdrawalDelay}</div>
+                        <div className="text-xs font-bold text-slate-200">
+                          {tier.withdrawalLimit}
+                        </div>
+                        <div className="text-[9px] text-slate-600">
+                          {tier.withdrawalDelay}
+                        </div>
                       </div>
                       <div className="p-3 rounded-lg bg-slate-800/20 border border-slate-700/30">
                         <div className="flex items-center gap-1.5 text-[10px] text-slate-500 uppercase mb-1">
                           <Globe size={10} />
                           Hall Access
                         </div>
-                        <div className="text-xs font-bold text-slate-200">{tier.hallAccess}</div>
+                        <div className="text-xs font-bold text-slate-200">
+                          {tier.hallAccess}
+                        </div>
                       </div>
                       <div className="p-3 rounded-lg bg-slate-800/20 border border-slate-700/30">
                         <div className="flex items-center gap-1.5 text-[10px] text-slate-500 uppercase mb-1">
                           <Fingerprint size={10} />
                           Marketplace
                         </div>
-                        <div className="text-xs font-bold text-slate-200">{tier.marketplaceAccess}</div>
+                        <div className="text-xs font-bold text-slate-200">
+                          {tier.marketplaceAccess}
+                        </div>
                       </div>
                       <div className="p-3 rounded-lg bg-slate-800/20 border border-slate-700/30">
                         <div className="flex items-center gap-1.5 text-[10px] text-slate-500 uppercase mb-1">
                           <Shield size={10} />
                           Status
                         </div>
-                        <div className={cn("text-xs font-bold", status === "completed" ? "text-emerald-400" : status === "current" ? tier.color : "text-slate-500")}>
-                          {status === "completed" ? "Unlocked" : status === "current" ? "In Progress" : "Locked"}
+                        <div
+                          className={cn(
+                            "text-xs font-bold",
+                            status === "completed"
+                              ? "text-emerald-400"
+                              : status === "current"
+                                ? tier.color
+                                : "text-slate-500",
+                          )}
+                        >
+                          {status === "completed"
+                            ? "Unlocked"
+                            : status === "current"
+                              ? "In Progress"
+                              : "Locked"}
                         </div>
                       </div>
                     </div>
 
                     {/* Requirements */}
                     <div className="space-y-2">
-                      <div className="text-[10px] text-slate-500 uppercase tracking-wider">Requirements</div>
+                      <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                        Requirements
+                      </div>
                       {tier.requirements.map((req, i) => (
                         <div
                           key={i}
@@ -336,7 +397,7 @@ export default function TierProgress({
                             "flex items-center gap-3 p-2.5 rounded-lg border transition-all",
                             req.completed
                               ? "bg-emerald-950/10 border-emerald-800/20"
-                              : "bg-slate-800/10 border-slate-800/20"
+                              : "bg-slate-800/10 border-slate-800/20",
                           )}
                         >
                           <div
@@ -344,16 +405,26 @@ export default function TierProgress({
                               "w-6 h-6 rounded-md flex items-center justify-center border",
                               req.completed
                                 ? "bg-emerald-900/20 border-emerald-700/30"
-                                : "bg-slate-800/30 border-slate-700/30"
+                                : "bg-slate-800/30 border-slate-700/30",
                             )}
                           >
                             {req.completed ? (
-                              <CheckCircle2 size={12} className="text-emerald-400" />
+                              <CheckCircle2
+                                size={12}
+                                className="text-emerald-400"
+                              />
                             ) : (
                               <Lock size={12} className="text-slate-600" />
                             )}
                           </div>
-                          <span className={cn("text-xs", req.completed ? "text-emerald-300" : "text-slate-500")}>
+                          <span
+                            className={cn(
+                              "text-xs",
+                              req.completed
+                                ? "text-emerald-300"
+                                : "text-slate-500",
+                            )}
+                          >
                             {req.label}
                           </span>
                         </div>
@@ -369,7 +440,7 @@ export default function TierProgress({
                           "w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border text-sm font-bold transition-all",
                           tierProgress >= 100
                             ? "bg-cyan-600 border-cyan-500 text-white hover:bg-cyan-500 shadow-lg shadow-cyan-900/20"
-                            : "bg-slate-800/20 border-slate-800/20 text-slate-600 cursor-not-allowed"
+                            : "bg-slate-800/20 border-slate-800/20 text-slate-600 cursor-not-allowed",
                         )}
                       >
                         {isProcessing ? (
@@ -380,8 +451,8 @@ export default function TierProgress({
                         {isProcessing
                           ? "Processing..."
                           : tierProgress >= 100
-                          ? `Upgrade to ${nextTier.label}`
-                          : `Complete ${Math.round(100 - tierProgress)}% more requirements`}
+                            ? `Upgrade to ${nextTier.label}`
+                            : `Complete ${Math.round(100 - tierProgress)}% more requirements`}
                       </button>
                     )}
 
@@ -404,9 +475,12 @@ export default function TierProgress({
               <nextTier.icon size={20} className="text-cyan-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-bold text-cyan-300">Next: {nextTier.label}</div>
+              <div className="text-sm font-bold text-cyan-300">
+                Next: {nextTier.label}
+              </div>
               <p className="text-xs text-cyan-400/70 mt-0.5 leading-relaxed">
-                Unlock {nextTier.withdrawalLimit} withdrawals and {nextTier.hallAccess.toLowerCase()} hall privileges.
+                Unlock {nextTier.withdrawalLimit} withdrawals and{" "}
+                {nextTier.hallAccess.toLowerCase()} hall privileges.
               </p>
             </div>
             <button
@@ -424,9 +498,12 @@ export default function TierProgress({
             <div className="w-12 h-12 mx-auto rounded-xl bg-purple-900/20 border border-purple-700/30 flex items-center justify-center mb-2">
               <Gem size={24} className="text-purple-400" />
             </div>
-            <div className="text-sm font-bold text-purple-300">Maximum Tier Reached</div>
+            <div className="text-sm font-bold text-purple-300">
+              Maximum Tier Reached
+            </div>
             <p className="text-xs text-purple-400/70 mt-1">
-              You have full 8th Ledger privileges. No further verification required.
+              You have full 8th Ledger privileges. No further verification
+              required.
             </p>
           </div>
         )}

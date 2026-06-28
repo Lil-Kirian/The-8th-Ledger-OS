@@ -9,7 +9,7 @@ const KYC_THRESHOLD = 500;
 /* ── GET — Public product detail  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string; marketplaceId: string }> }
+  { params }: { params: Promise<{ id: string; marketplaceId: string }> },
 ): Promise<NextResponse> {
   try {
     const { marketplaceId } = await params;
@@ -24,7 +24,9 @@ export async function GET(
             hallClass: true,
             inventoryEnabled: true,
             status: true,
-            pool: { select: { id: true, verticalId: true, country: true, name: true } },
+            pool: {
+              select: { id: true, verticalId: true, country: true, name: true },
+            },
           },
         },
         _count: {
@@ -36,15 +38,18 @@ export async function GET(
     if (!item || item.status !== "active") {
       return NextResponse.json(
         { success: false, error: "Item not available" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Universal inventory gate: hall must have inventory enabled and be live
     if (!item.hall?.inventoryEnabled || item.hall.status !== "live") {
       return NextResponse.json(
-        { success: false, error: "Inventory market not available for this hall" },
-        { status: 400 }
+        {
+          success: false,
+          error: "Inventory market not available for this hall",
+        },
+        { status: 400 },
       );
     }
 
@@ -80,7 +85,7 @@ export async function GET(
     console.error("[INVENTORY ITEM GET]", error);
     return NextResponse.json(
       { success: false, error: "Item detail unreachable" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -88,7 +93,7 @@ export async function GET(
 /* ── POST — Buy inventory item ─ */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string; marketplaceId: string }> }
+  { params }: { params: Promise<{ id: string; marketplaceId: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await requireAuth(request);
@@ -100,7 +105,7 @@ export async function POST(
     if (!quantity || quantity < 1) {
       return NextResponse.json(
         { success: false, error: "Quantity must be at least 1" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -124,7 +129,7 @@ export async function POST(
     if (!item || item.status !== "active") {
       return NextResponse.json(
         { success: false, error: "Item not available" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -132,15 +137,18 @@ export async function POST(
     if (!item.hall?.inventoryEnabled || item.hall.status !== "live") {
       return NextResponse.json(
         { success: false, error: "This hall does not sell inventory publicly" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const availableQty = item.quantity - (item.quantitySold || 0);
     if (quantity > availableQty) {
       return NextResponse.json(
-        { success: false, error: `Only ${availableQty} available. You requested ${quantity}.` },
-        { status: 409 }
+        {
+          success: false,
+          error: `Only ${availableQty} available. You requested ${quantity}.`,
+        },
+        { status: 409 },
       );
     }
 
@@ -155,8 +163,12 @@ export async function POST(
       });
       if (!kyc || kyc.tier === "visitor" || kyc.status !== "verified") {
         return NextResponse.json(
-          { success: false, error: "KYC verification required for purchases $500+. Complete SIV/KYC to continue." },
-          { status: 403 }
+          {
+            success: false,
+            error:
+              "KYC verification required for purchases $500+. Complete SIV/KYC to continue.",
+          },
+          { status: 403 },
         );
       }
     }
@@ -168,14 +180,17 @@ export async function POST(
     const balance = Number(wallet?.balance || 0);
     if (balance < totalPrice) {
       return NextResponse.json(
-        { success: false, error: `Insufficient balance. Required: $${totalPrice.toFixed(2)}. Available: $${balance.toFixed(2)}` },
-        { status: 409 }
+        {
+          success: false,
+          error: `Insufficient balance. Required: $${totalPrice.toFixed(2)}. Available: $${balance.toFixed(2)}`,
+        },
+        { status: 409 },
       );
     }
 
     // Fee breakdown
     const platformFee = Math.round(totalPrice * PLATFORM_FEE_PCT);
-    const fulfillmentCost = Math.round(totalPrice * 0.30);
+    const fulfillmentCost = Math.round(totalPrice * 0.3);
     const netToHall = totalPrice - platformFee - fulfillmentCost;
 
     // Atomic purchase + escrow
@@ -183,7 +198,10 @@ export async function POST(
       // 1. Debit buyer wallet
       await tx.wallet.update({
         where: { ledgerId: user.ledgerId },
-        data: { balance: { decrement: totalPrice }, lockedBalance: { increment: totalPrice } },
+        data: {
+          balance: { decrement: totalPrice },
+          lockedBalance: { increment: totalPrice },
+        },
       });
 
       // 2. Create order (pending escrow)
@@ -286,7 +304,7 @@ export async function POST(
     console.error("[INVENTORY ITEM POST]", error);
     return NextResponse.json(
       { success: false, error: "Purchase failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -294,7 +312,7 @@ export async function POST(
 /* ── PATCH — Fulfillment & escrow release (8th Ledger only) ─ */
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string; marketplaceId: string }> }
+  { params }: { params: Promise<{ id: string; marketplaceId: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await requireAuth(request);
@@ -304,7 +322,7 @@ export async function PATCH(
     if (!isFounder && user.role !== "admin") {
       return NextResponse.json(
         { success: false, error: "8th Ledger authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -312,11 +330,17 @@ export async function PATCH(
     const body = await request.json();
     const { stage, trackingNumber, fulfillmentCost, notes } = body;
 
-    const validStages = ["processing", "shipped", "delivered", "completed", "cancelled"];
+    const validStages = [
+      "processing",
+      "shipped",
+      "delivered",
+      "completed",
+      "cancelled",
+    ];
     if (!stage || !validStages.includes(stage)) {
       return NextResponse.json(
         { success: false, error: `Stage must be: ${validStages.join(", ")}` },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -344,14 +368,17 @@ export async function PATCH(
     });
 
     if (!item) {
-      return NextResponse.json({ success: false, error: "Item not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Item not found" },
+        { status: 404 },
+      );
     }
 
     const order = item.orders[0];
     if (!order) {
       return NextResponse.json(
         { success: false, error: "No active order for this item" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -370,8 +397,11 @@ export async function PATCH(
 
     if (!validTransitions[order.status]?.includes(stage)) {
       return NextResponse.json(
-        { success: false, error: `Cannot transition from '${order.status}' to '${stage}'` },
-        { status: 400 }
+        {
+          success: false,
+          error: `Cannot transition from '${order.status}' to '${stage}'`,
+        },
+        { status: 400 },
       );
     }
 
@@ -387,7 +417,10 @@ export async function PATCH(
         where: { id: order.id },
         data: {
           status: stage,
-          completedAt: stage === "completed" || stage === "delivered" ? new Date() : undefined,
+          completedAt:
+            stage === "completed" || stage === "delivered"
+              ? new Date()
+              : undefined,
         },
       });
 
@@ -412,7 +445,10 @@ export async function PATCH(
       if (stage === "cancelled") {
         await tx.wallet.update({
           where: { ledgerId: order.buyer.ledgerId },
-          data: { balance: { increment: totalPrice }, lockedBalance: { decrement: totalPrice } },
+          data: {
+            balance: { increment: totalPrice },
+            lockedBalance: { decrement: totalPrice },
+          },
         });
 
         await tx.inventoryItem.update({
@@ -452,9 +488,13 @@ export async function PATCH(
 
       // 4. COMPLETED → Revenue distribution
       if (stage === "completed" && totalPrice > 0) {
-        const estFulfillmentCost = fulfillmentCost || order.fulfillmentCost || totalPrice * 0.30;
-        const platformFee = order.platformFee || Math.floor(totalPrice * PLATFORM_FEE_PCT * 100) / 100;
-        const netToTreasury = order.netToHall || (totalPrice - estFulfillmentCost - platformFee);
+        const estFulfillmentCost =
+          fulfillmentCost || order.fulfillmentCost || totalPrice * 0.3;
+        const platformFee =
+          order.platformFee ||
+          Math.floor(totalPrice * PLATFORM_FEE_PCT * 100) / 100;
+        const netToTreasury =
+          order.netToHall || totalPrice - estFulfillmentCost - platformFee;
 
         const safeNet = Math.max(0, netToTreasury);
         const safeFulfillment = Math.max(0, estFulfillmentCost);
@@ -588,17 +628,18 @@ export async function PATCH(
         completedAt: result.updatedOrder.completedAt,
       },
       distribution: result.distribution,
-      message: stage === "completed" && result.distribution
-        ? `Order complete. $${result.distribution.total.toFixed(2)} distributed: $${result.distribution.netToTreasury.toFixed(2)} to hall treasury, $${result.distribution.platformFee.toFixed(2)} 8th Ledger fee, $${result.distribution.fulfillmentCost.toFixed(2)} fulfillment.`
-        : stage === "cancelled"
-        ? `Order cancelled. Buyer refunded $${totalPrice.toFixed(2)}. Inventory restored.`
-        : `Fulfillment updated to ${stage}.`,
+      message:
+        stage === "completed" && result.distribution
+          ? `Order complete. $${result.distribution.total.toFixed(2)} distributed: $${result.distribution.netToTreasury.toFixed(2)} to hall treasury, $${result.distribution.platformFee.toFixed(2)} 8th Ledger fee, $${result.distribution.fulfillmentCost.toFixed(2)} fulfillment.`
+          : stage === "cancelled"
+            ? `Order cancelled. Buyer refunded $${totalPrice.toFixed(2)}. Inventory restored.`
+            : `Fulfillment updated to ${stage}.`,
     });
   } catch (error) {
     console.error("[INVENTORY ITEM PATCH]", error);
     return NextResponse.json(
       { success: false, error: "Fulfillment update failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

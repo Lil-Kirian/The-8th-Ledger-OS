@@ -3,7 +3,11 @@ import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { getSessionUser, isPrimaryAdmin } from "@/lib/auth";
-import { sanitizeDisplayName, sanitizeEmail, sanitizeCountry } from "@/lib/sanitize";
+import {
+  sanitizeDisplayName,
+  sanitizeEmail,
+  sanitizeCountry,
+} from "@/lib/sanitize";
 import { createAuditEntry } from "@/lib/audit";
 import { createTempToken } from "@/lib/totp";
 import { generateSecureSegment } from "@/lib/utils";
@@ -41,15 +45,24 @@ const TOKEN_LIFETIME_MS = 7 * 24 * 60 * 60 * 1000;
 /* ============================================================
    PASSWORD STRENGTH VALIDATOR
    ============================================================ */
-function isQuantumKeyStrong(password: string): { valid: boolean; error?: string } {
+function isQuantumKeyStrong(password: string): {
+  valid: boolean;
+  error?: string;
+} {
   if (password.length < 10) {
     return { valid: false, error: "Quantum Key must exceed 10 characters" };
   }
   if (!/\d/.test(password)) {
-    return { valid: false, error: "Quantum Key must contain at least 1 number" };
+    return {
+      valid: false,
+      error: "Quantum Key must contain at least 1 number",
+    };
   }
   if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
-    return { valid: false, error: "Quantum Key must contain at least 1 symbol" };
+    return {
+      valid: false,
+      error: "Quantum Key must contain at least 1 symbol",
+    };
   }
   return { valid: true };
 }
@@ -105,7 +118,10 @@ async function enforceSessionCap(ledgerId: string) {
   }
 }
 
-async function rotateSession(session: any, request: NextRequest): Promise<string> {
+async function rotateSession(
+  session: any,
+  request: NextRequest,
+): Promise<string> {
   const newToken = generateToken();
   const ip = getClientIP(request);
   const ua = getUserAgent(request);
@@ -173,7 +189,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (!ledgerId || !password) {
         return NextResponse.json(
           { success: false, error: "Ledger ID and Quantum Key required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -191,7 +207,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
         return NextResponse.json(
           { success: false, error: "Invalid Ledger ID or Quantum Key" },
-          { status: 401 }
+          { status: 401 },
         );
       }
 
@@ -273,7 +289,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (!nameResult.valid) {
         return NextResponse.json(
           { success: false, error: nameResult.error },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -281,7 +297,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (!emailResult.valid) {
         return NextResponse.json(
           { success: false, error: emailResult.error },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -289,7 +305,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (!countryResult.valid) {
         return NextResponse.json(
           { success: false, error: countryResult.error },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -300,7 +316,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (!password) {
         return NextResponse.json(
           { success: false, error: "Quantum Key required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -308,21 +324,21 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (!strength.valid) {
         return NextResponse.json(
           { success: false, error: strength.error },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (password !== confirmPassword) {
         return NextResponse.json(
           { success: false, error: "Quantum Keys do not match" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (!agreeTerms || !agreePir) {
         return NextResponse.json(
           { success: false, error: "Protocol terms must be accepted" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -332,8 +348,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       if (existing) {
         return NextResponse.json(
-          { success: false, error: "Sovereign identity already exists with this email" },
-          { status: 409 }
+          {
+            success: false,
+            error: "Sovereign identity already exists with this email",
+          },
+          { status: 409 },
         );
       }
 
@@ -404,14 +423,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     return NextResponse.json(
-      { success: false, error: 'Invalid mode. Expected "access" or "initiate"' },
-      { status: 400 }
+      {
+        success: false,
+        error: 'Invalid mode. Expected "access" or "initiate"',
+      },
+      { status: 400 },
     );
   } catch (error) {
     console.error("[AUTH POST]", error);
     return NextResponse.json(
       { success: false, error: "Protocol gate malfunction" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -425,7 +447,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -435,12 +457,19 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
     if (!currentPassword || !newPassword || !confirmNewPassword) {
       return NextResponse.json(
-        { success: false, error: "Current Quantum Key, new Quantum Key, and confirmation required" },
-        { status: 400 }
+        {
+          success: false,
+          error:
+            "Current Quantum Key, new Quantum Key, and confirmation required",
+        },
+        { status: 400 },
       );
     }
 
-    const validCurrent = await bcrypt.compare(currentPassword, user.passwordHash);
+    const validCurrent = await bcrypt.compare(
+      currentPassword,
+      user.passwordHash,
+    );
     if (!validCurrent) {
       await createAuditEntry({
         type: "password_change_failed",
@@ -451,7 +480,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
       return NextResponse.json(
         { success: false, error: "Current Quantum Key is incorrect" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -459,21 +488,21 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     if (!strength.valid) {
       return NextResponse.json(
         { success: false, error: strength.error },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (newPassword !== confirmNewPassword) {
       return NextResponse.json(
         { success: false, error: "New Quantum Keys do not match" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (newPassword === currentPassword) {
       return NextResponse.json(
         { success: false, error: "New Quantum Key must differ from current" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -524,7 +553,8 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
     const response = NextResponse.json({
       success: true,
-      message: "Quantum Key rotated. All other sessions severed. Re-authenticate on other devices.",
+      message:
+        "Quantum Key rotated. All other sessions severed. Re-authenticate on other devices.",
     });
 
     setSessionCookie(response, newToken);
@@ -533,7 +563,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     console.error("[AUTH PATCH]", error);
     return NextResponse.json(
       { success: false, error: "Quantum Key rotation failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -548,7 +578,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (!user) {
       const response = NextResponse.json(
         { success: false, error: "No active session" },
-        { status: 401 }
+        { status: 401 },
       );
       response.cookies.delete("ledger_session");
       return response;
@@ -566,7 +596,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (!session) {
       const response = NextResponse.json(
         { success: false, error: "Session expired. Re-authenticate." },
-        { status: 401 }
+        { status: 401 },
       );
       response.cookies.delete("ledger_session");
       return response;
@@ -625,7 +655,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     console.error("[AUTH GET]", error);
     return NextResponse.json(
       { success: false, error: "Session verification failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
