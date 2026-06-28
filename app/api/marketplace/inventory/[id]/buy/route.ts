@@ -284,7 +284,7 @@ export async function POST(
         message: "Funds held in escrow for 48 hours. You may cancel anytime before release.",
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[INVENTORY_BUY_POST]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
 

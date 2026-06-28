@@ -25,7 +25,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-// ─── Types ───
+//  Types
 export type VerticalKey =
   | "ledgerprop"
   | "ledgerauto"
@@ -78,7 +78,7 @@ export interface LocationVoterProps {
   onViewMap?: () => void;
 }
 
-// ─── Config ───
+//  Config
 const QUORUM_PERCENT = 51;
 
 const RISK_CONFIG = {
@@ -102,7 +102,7 @@ const VERTICAL_LABELS: Record<VerticalKey, string> = {
   ledgeraccess: "LedgerAccess",
 };
 
-// ─── Helpers ───
+//  Helpers
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 }
@@ -124,7 +124,7 @@ function timeRemaining(deadline: string) {
   return { expired: false, text: `${mins}m remaining` };
 }
 
-// ─── Component ───
+//  Component
 export function LocationVoter({
   hallId,
   hallName,
@@ -158,12 +158,15 @@ export function LocationVoter({
   return (
     <TooltipProvider delayDuration={200}>
       <div className="space-y-5">
-        {/* ─── Header ─── */}
+        {/*  Header  */}
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold text-slate-100">Location Selection</h2>
+            <h2 className="text-xl font-semibold text-slate-100">
+              Location Selection
+            </h2>
             <p className="text-sm text-slate-500 mt-0.5">
-              {VERTICAL_LABELS[vertical]} · {options.length} options · Vote by ownership weight
+              {VERTICAL_LABELS[vertical]} · {options.length} options · Vote by
+              ownership weight
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -175,7 +178,9 @@ export function LocationVoter({
               }`}
             >
               <Vote className="w-3 h-3 mr-1" />
-              {quorumReached ? "Quorum Reached" : `Quorum: ${quorumPercent.toFixed(1)}% / ${QUORUM_PERCENT}%`}
+              {quorumReached
+                ? "Quorum Reached"
+                : `Quorum: ${quorumPercent.toFixed(1)}% / ${QUORUM_PERCENT}%`}
             </Badge>
             <Badge
               className={`text-xs ${
@@ -188,7 +193,12 @@ export function LocationVoter({
               {timer.text}
             </Badge>
             {onViewMap && (
-              <Button variant="outline" size="sm" onClick={onViewMap} className="text-xs border-slate-700 text-slate-400 hover:text-slate-200">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={onViewMap}
+                className="text-xs border-slate-700 text-slate-400 hover:text-slate-200"
+              >
                 <Globe className="w-3.5 h-3.5 mr-1.5" />
                 Map
               </Button>
@@ -196,11 +206,13 @@ export function LocationVoter({
           </div>
         </div>
 
-        {/* ─── Quorum Progress ─── */}
+        {/*  Quorum Progress  */}
         <Card className="border-slate-800 bg-slate-950/50">
           <CardContent className="p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-medium text-slate-400">Vote Progress</span>
+              <span className="text-xs font-medium text-slate-400">
+                Vote Progress
+              </span>
               <span className="text-xs font-mono text-slate-300">
                 {totalVotesCast.toFixed(1)}% / {QUORUM_PERCENT}% required
               </span>
@@ -223,18 +235,23 @@ export function LocationVoter({
               </div>
             </div>
             <div className="flex items-center justify-between mt-2 text-[10px] text-slate-500">
-              <span>{options.reduce((s, o) => s + o.totalVoters, 0)} sovereigns voted</span>
+              <span>
+                {options.reduce((s, o) => s + o.totalVoters, 0)} sovereigns
+                voted
+              </span>
               <span>Your weight: {yourOwnershipPercent.toFixed(2)}%</span>
             </div>
           </CardContent>
         </Card>
 
-        {/* ─── Live Tally ─── */}
+        {/*  Live Tally  */}
         <Card className="border-slate-800 bg-slate-950/50">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-cyan-400" />
-              <h3 className="text-sm font-semibold text-slate-200">Live Vote Tally</h3>
+              <h3 className="text-sm font-semibold text-slate-200">
+                Live Vote Tally
+              </h3>
               {leadingOption && (
                 <Badge className="text-[10px] bg-cyan-500/10 text-cyan-400 border-0 ml-auto">
                   <TrendingUp className="w-2.5 h-2.5 mr-1" />
@@ -245,7 +262,10 @@ export function LocationVoter({
           </CardHeader>
           <CardContent className="space-y-3">
             {options.map((option) => {
-              const votePct = totalOwnershipVotingPower > 0 ? (option.voteWeight / totalOwnershipVotingPower) * 100 : 0;
+              const votePct =
+                totalOwnershipVotingPower > 0
+                  ? (option.voteWeight / totalOwnershipVotingPower) * 100
+                  : 0;
               const isLeading = leadingOption?.id === option.id;
               const isYourVote = yourVote === option.id;
 
@@ -253,7 +273,9 @@ export function LocationVoter({
                 <div key={option.id} className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-slate-300">{option.name}</span>
+                      <span className="font-medium text-slate-300">
+                        {option.name}
+                      </span>
                       {isLeading && (
                         <Badge className="text-[9px] bg-cyan-500/10 text-cyan-400 border-0">
                           <TrendingUp className="w-2.5 h-2.5 mr-1" />
@@ -268,8 +290,12 @@ export function LocationVoter({
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-slate-300">{votePct.toFixed(1)}%</span>
-                      <span className="text-slate-500">({option.totalVoters} voters)</span>
+                      <span className="font-mono text-slate-300">
+                        {votePct.toFixed(1)}%
+                      </span>
+                      <span className="text-slate-500">
+                        ({option.totalVoters} voters)
+                      </span>
                     </div>
                   </div>
                   <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
@@ -281,8 +307,8 @@ export function LocationVoter({
                         isYourVote
                           ? "bg-emerald-400"
                           : isLeading
-                          ? "bg-cyan-400"
-                          : "bg-slate-500"
+                            ? "bg-cyan-400"
+                            : "bg-slate-500"
                       }`}
                     />
                   </div>
@@ -292,7 +318,7 @@ export function LocationVoter({
           </CardContent>
         </Card>
 
-        {/* ─── Location Options ─── */}
+        {/*  Location Options  */}
         <div className="space-y-4">
           <h3 className="text-sm font-semibold text-slate-200 flex items-center gap-2">
             <MapPin className="w-4 h-4 text-cyan-400" />
@@ -304,7 +330,10 @@ export function LocationVoter({
               const isExpanded = expandedOption === option.id;
               const isYourVote = yourVote === option.id;
               const risk = RISK_CONFIG[option.riskLevel];
-              const votePct = totalOwnershipVotingPower > 0 ? (option.voteWeight / totalOwnershipVotingPower) * 100 : 0;
+              const votePct =
+                totalOwnershipVotingPower > 0
+                  ? (option.voteWeight / totalOwnershipVotingPower) * 100
+                  : 0;
 
               return (
                 <motion.div
@@ -323,18 +352,25 @@ export function LocationVoter({
                     {/* Header */}
                     <div
                       className="p-4 cursor-pointer"
-                      onClick={() => setExpandedOption(isExpanded ? null : option.id)}
+                      onClick={() =>
+                        setExpandedOption(isExpanded ? null : option.id)
+                      }
                     >
                       <div className="flex items-start gap-4">
                         {/* Image or Map Placeholder */}
                         <div className="w-20 h-20 rounded-xl bg-slate-800 flex items-center justify-center shrink-0 overflow-hidden relative">
                           {option.image ? (
-                            <img src={option.image} alt={option.name} className="w-full h-full object-cover" />
+                            <img
+                              src={option.image}
+                              alt={option.name}
+                              className="w-full h-full object-cover"
+                            />
                           ) : (
                             <div className="flex flex-col items-center gap-1">
                               <MapPin className="w-6 h-6 text-slate-600" />
                               <span className="text-[9px] text-slate-600 font-mono">
-                                {option.coordinates.lat.toFixed(2)}, {option.coordinates.lng.toFixed(2)}
+                                {option.coordinates.lat.toFixed(2)},{" "}
+                                {option.coordinates.lng.toFixed(2)}
                               </span>
                             </div>
                           )}
@@ -348,13 +384,19 @@ export function LocationVoter({
                         {/* Info */}
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <h4 className="text-base font-semibold text-slate-200">{option.name}</h4>
-                            <Badge className={`text-[10px] ${risk.bg} ${risk.color} border-0`}>
+                            <h4 className="text-base font-semibold text-slate-200">
+                              {option.name}
+                            </h4>
+                            <Badge
+                              className={`text-[10px] ${risk.bg} ${risk.color} border-0`}
+                            >
                               <AlertTriangle className="w-2.5 h-2.5 mr-1" />
                               {risk.label} Risk
                             </Badge>
                           </div>
-                          <p className="text-xs text-slate-500 mt-1">{option.description}</p>
+                          <p className="text-xs text-slate-500 mt-1">
+                            {option.description}
+                          </p>
                           <div className="flex items-center gap-3 mt-2 text-xs text-slate-500 flex-wrap">
                             <span className="flex items-center gap-1">
                               <Globe className="w-3 h-3" />
@@ -362,11 +404,13 @@ export function LocationVoter({
                             </span>
                             <span className="flex items-center gap-1">
                               <Landmark className="w-3 h-3" />
-                              {formatCompact(option.estimatedAssetValue)} est. value
+                              {formatCompact(option.estimatedAssetValue)} est.
+                              value
                             </span>
                             <span className="flex items-center gap-1">
                               <TrendingUp className="w-3 h-3" />
-                              {formatCompact(option.estimatedRevenue)} est. revenue
+                              {formatCompact(option.estimatedRevenue)} est.
+                              revenue
                             </span>
                           </div>
                         </div>
@@ -377,7 +421,9 @@ export function LocationVoter({
                             <div className="text-lg font-mono font-bold text-slate-200">
                               {votePct.toFixed(1)}%
                             </div>
-                            <div className="text-[10px] text-slate-500">{option.totalVoters} votes</div>
+                            <div className="text-[10px] text-slate-500">
+                              {option.totalVoters} votes
+                            </div>
                           </div>
                           {!timer.expired && (
                             <Button
@@ -385,7 +431,9 @@ export function LocationVoter({
                               onClick={(e) => {
                                 e.stopPropagation();
                                 if (isYourVote) return;
-                                setConfirmVote(confirmVote === option.id ? null : option.id);
+                                setConfirmVote(
+                                  confirmVote === option.id ? null : option.id,
+                                );
                               }}
                               className={`text-xs ${
                                 isYourVote
@@ -433,8 +481,12 @@ export function LocationVoter({
                                   Confirm your vote for {option.name}
                                 </div>
                                 <p className="text-xs text-slate-500 mt-1">
-                                  Your vote carries <span className="font-mono text-cyan-400">{yourOwnershipPercent.toFixed(2)}%</span> weight.
-                                  This vote is final and cannot be changed.
+                                  Your vote carries{" "}
+                                  <span className="font-mono text-cyan-400">
+                                    {yourOwnershipPercent.toFixed(2)}%
+                                  </span>{" "}
+                                  weight. This vote is final and cannot be
+                                  changed.
                                 </p>
                                 <div className="flex gap-2 mt-3">
                                   <Button
@@ -488,7 +540,9 @@ export function LocationVoter({
                                     <TooltipTrigger asChild>
                                       <div className="rounded-lg border border-slate-800 bg-slate-900/50 p-3 cursor-help hover:border-slate-700 transition-colors">
                                         <div className="flex items-center gap-2 mb-2">
-                                          <MetricIcon className={`w-4 h-4 ${rating.color}`} />
+                                          <MetricIcon
+                                            className={`w-4 h-4 ${rating.color}`}
+                                          />
                                           <span className="text-[10px] text-slate-500 uppercase tracking-wider">
                                             {metric.label}
                                           </span>
@@ -498,7 +552,9 @@ export function LocationVoter({
                                             {metric.value}
                                           </span>
                                           {metric.unit && (
-                                            <span className="text-xs text-slate-500">{metric.unit}</span>
+                                            <span className="text-xs text-slate-500">
+                                              {metric.unit}
+                                            </span>
                                           )}
                                         </div>
                                         <div className="mt-2">
@@ -510,14 +566,16 @@ export function LocationVoter({
                                                   metric.rating === "excellent"
                                                     ? "100%"
                                                     : metric.rating === "good"
-                                                    ? "75%"
-                                                    : metric.rating === "fair"
-                                                    ? "50%"
-                                                    : "25%",
+                                                      ? "75%"
+                                                      : metric.rating === "fair"
+                                                        ? "50%"
+                                                        : "25%",
                                               }}
                                             />
                                           </div>
-                                          <div className={`text-[10px] mt-1 ${rating.color}`}>
+                                          <div
+                                            className={`text-[10px] mt-1 ${rating.color}`}
+                                          >
                                             {metric.rating}
                                           </div>
                                         </div>
@@ -528,10 +586,14 @@ export function LocationVoter({
                                       className="bg-slate-900 border-slate-800 p-3 max-w-xs"
                                     >
                                       <div className="text-xs text-slate-300">
-                                        <span className="font-semibold">{metric.label}:</span>{" "}
+                                        <span className="font-semibold">
+                                          {metric.label}:
+                                        </span>{" "}
                                         {metric.value} {metric.unit || ""}
                                       </div>
-                                      <div className={`text-xs mt-1 ${rating.color}`}>
+                                      <div
+                                        className={`text-xs mt-1 ${rating.color}`}
+                                      >
                                         Rating: {metric.rating}
                                       </div>
                                     </TooltipContent>
@@ -543,20 +605,30 @@ export function LocationVoter({
                             {/* Financial Summary */}
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-4">
                               <div className="rounded-lg border border-slate-800 bg-slate-900/50 p-3">
-                                <div className="text-[10px] text-slate-500 uppercase tracking-wider">Est. Asset Value</div>
+                                <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                                  Est. Asset Value
+                                </div>
                                 <div className="text-lg font-mono font-bold text-slate-200 mt-1">
                                   {formatCurrency(option.estimatedAssetValue)}
                                 </div>
                               </div>
                               <div className="rounded-lg border border-slate-800 bg-slate-900/50 p-3">
-                                <div className="text-[10px] text-slate-500 uppercase tracking-wider">Est. Annual Revenue</div>
+                                <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                                  Est. Annual Revenue
+                                </div>
                                 <div className="text-lg font-mono font-bold text-emerald-400 mt-1">
                                   {formatCurrency(option.estimatedRevenue)}
                                 </div>
                               </div>
                               <div className="rounded-lg border border-slate-800 bg-slate-900/50 p-3">
-                                <div className="text-[10px] text-slate-500 uppercase tracking-wider">Risk Level</div>
-                                <div className={`text-lg font-bold mt-1 ${risk.color}`}>{risk.label}</div>
+                                <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                                  Risk Level
+                                </div>
+                                <div
+                                  className={`text-lg font-bold mt-1 ${risk.color}`}
+                                >
+                                  {risk.label}
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -570,7 +642,7 @@ export function LocationVoter({
           </div>
         </div>
 
-        {/* ─── Closed State ─── */}
+        {/*  Closed State  */}
         {timer.expired && leadingOption && (
           <Card className="border-emerald-500/20 bg-emerald-950/5">
             <CardContent className="p-4">
@@ -581,10 +653,17 @@ export function LocationVoter({
                     Voting Complete — Winner Selected
                   </div>
                   <p className="text-xs text-slate-500 mt-1">
-                    <span className="font-medium text-slate-300">{leadingOption.name}</span> won with{" "}
+                    <span className="font-medium text-slate-300">
+                      {leadingOption.name}
+                    </span>{" "}
+                    won with{" "}
                     <span className="font-mono text-cyan-400">
                       {totalOwnershipVotingPower > 0
-                        ? ((leadingOption.voteWeight / totalOwnershipVotingPower) * 100).toFixed(1)
+                        ? (
+                            (leadingOption.voteWeight /
+                              totalOwnershipVotingPower) *
+                            100
+                          ).toFixed(1)
                         : "0"}
                       %
                     </span>{" "}
@@ -603,7 +682,7 @@ export function LocationVoter({
   );
 }
 
-// ─── Skeleton ───
+//  Skeleton
 function LocationVoterSkeleton() {
   return (
     <div className="space-y-5">

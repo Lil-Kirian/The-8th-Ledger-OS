@@ -748,7 +748,7 @@ export default function HallMembersPage() {
                 </div>
                 <select
                   value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value as unknown)}
+                  onChange={(e) => setFilterStatus(e.target.value as any)}
                   className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white outline-none focus:border-cyan-500/30 transition-all"
                 >
                   <option value="all" className="bg-[#0a0a14]">All Status</option>

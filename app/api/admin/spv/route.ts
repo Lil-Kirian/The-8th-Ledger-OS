@@ -14,7 +14,7 @@ type EntityType = (typeof ENTITY_TYPES)[number];
 /* ============================================================
    HELPERS
    ============================================================ */
-function handlePrismaError(error: unknown): NextResponse {
+function handlePrismaError(error: any): NextResponse {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2002") {
       return NextResponse.json(
@@ -214,7 +214,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           { status: 400 }
         );
       }
-      const invalid = documents.filter((u: unknown) => typeof u !== "string" || !u.startsWith("https://"));
+      const invalid = documents.filter((u: any) => typeof u !== "string" || !u.startsWith("https://"));
       if (invalid.length > 0) {
         return NextResponse.json(
           { success: false, error: "All document URLs must be valid HTTPS strings" },

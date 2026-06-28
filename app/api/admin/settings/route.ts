@@ -7,7 +7,7 @@ import { getSessionUser, isPrimaryAdmin } from "@/lib/auth";
    ============================================================ */
 interface SettingsResponse {
   success: boolean;
-  settings?: unknown;
+  settings?: any;
   error?: string;
   message?: string;
 }
@@ -116,7 +116,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const updateData: unknown = { updatedBy: user.ledgerId };
+    const updateData: any = { updatedBy: user.ledgerId };
     if (platformFee !== undefined) updateData.platformFee = Number(platformFee);
     if (minCommitment !== undefined) updateData.minCommitment = Number(minCommitment);
     if (maxCommitment !== undefined) updateData.maxCommitment = Number(maxCommitment);

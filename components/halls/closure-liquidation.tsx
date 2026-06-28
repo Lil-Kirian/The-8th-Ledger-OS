@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ─────────────────────────────────────────────────────────
+//  Types
 
 export interface LiquidationWorker {
   id: string;
@@ -81,7 +81,7 @@ export interface ClosureLiquidationProps {
   className?: string;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────
+//  Helpers
 
 function formatCurrency(n: number): string {
   return `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -97,7 +97,7 @@ function formatDate(date: Date): string {
   });
 }
 
-// ─── Payout Status Badge ────────────────────────────────────────────
+//  Payout Status Badge
 
 function PayoutStatusBadge({ status }: { status: OwnerPayout["status"] }) {
   const map = {
@@ -116,7 +116,7 @@ function PayoutStatusBadge({ status }: { status: OwnerPayout["status"] }) {
   );
 }
 
-// ─── Main Component ────────────────────────────────────────────────
+//  Main Component
 
 export function ClosureLiquidation({
   data,
@@ -646,7 +646,7 @@ export function ClosureLiquidation({
   );
 }
 
-// ─── Skeleton ────────────────────────────────────────────────────────
+//  Skeleton ─
 
 export function ClosureLiquidationSkeleton() {
   return (

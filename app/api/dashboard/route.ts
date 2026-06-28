@@ -7,14 +7,14 @@ import { getSessionUser } from "@/lib/auth";
    ============================================================ */
 interface DashboardResponse {
   success: boolean;
-  sovereign?: unknown;
-  pools?: unknown;
-  exchange?: unknown;
-  activity?: unknown[];
-  tierProgress?: unknown;
-  knot?: unknown;
-  halls?: unknown[];
-  oracle?: unknown[];
+  sovereign?: any;
+  pools?: any;
+  exchange?: any;
+  activity?: any[];
+  tierProgress?: any;
+  knot?: any;
+  halls?: any[];
+  oracle?: any[];
   error?: string;
 }
 

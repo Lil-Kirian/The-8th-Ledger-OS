@@ -26,9 +26,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES — Schema-Aligned
-// ─────────────────────────────────────────────────────────────
+//
 
 export interface StoaSuggestion {
   id: string;
@@ -56,9 +56,9 @@ interface StoaCardProps {
   index?: number;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // DESIGN SYSTEM — The Petition Palette
-// ─────────────────────────────────────────────────────────────
+//
 
 const STATUS_CONFIG = {
   pending: {
@@ -125,9 +125,9 @@ const CONTINENT_CONFIG: Record<string, { emoji: string; label: string }> = {
   oceania: { emoji: "🌏", label: "Oceania" },
 };
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function timeAgo(date: string): string {
   const diff = Date.now() - new Date(date).getTime();
@@ -147,9 +147,9 @@ function formatScore(score: number): string {
   return "0";
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // SUB-COMPONENTS
-// ─────────────────────────────────────────────────────────────
+//
 
 function VoteButton({
   direction,
@@ -246,9 +246,9 @@ function MetaTag({
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────
+//
 
 export function StoaCard({ suggestion, onVote, index = 0 }: StoaCardProps) {
   const { user } = useAuth();

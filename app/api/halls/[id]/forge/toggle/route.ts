@@ -191,7 +191,7 @@ export async function POST(
           : `Proposal created. You voted YES (${userOwnership}%). Need 51% total to ${enable ? "enable" : "disable"} the Forge. 48 hours remaining.`,
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[FORGE_TOGGLE_POST]", err);
     if (err.message === "Unauthorized") {
       return NextResponse.json({ error: "Login required" }, { status: 401 });

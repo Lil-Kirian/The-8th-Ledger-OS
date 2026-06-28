@@ -25,7 +25,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const primaryAdminView = await isPrimaryAdmin(user.ledgerId);
 
-    // ── 1. Halls where user has ownership ────────────────────
+    // ── 1. Halls where user has ownership
     const ownerships = await prisma.ownership.findMany({
       where: { userId: user.id, status: { not: "forfeited" } },
       include: {
@@ -92,8 +92,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const ownedHallIds = ownerships.map((o) => o.hallId).filter(Boolean);
 
-    // ── 2. Discovery halls (live/mature, not owned) ───────────
-    const discoveryWhere: unknown = {
+    // ── 2. Discovery halls (live/mature, not owned)
+    const discoveryWhere: any = {
       status: { in: ["live", "mature"] },
       ...(ownedHallIds.length > 0 ? { id: { notIn: ownedHallIds } } : {}),
     };
@@ -155,7 +155,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     const allHallIds = [...ownedHallIds, ...discoveryHalls.map((h) => h.id)];
 
-    // ── 3. Active proposal counts ─────────────────────────────
+    // ── 3. Active proposal counts
     let proposalCountMap: Record<string, number> = {};
     try {
       const activeProposals = await prisma.proposal.groupBy({
@@ -173,7 +173,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       /* ignore */
     }
 
-    // ── 4. Message activity (24h) ────────────────────────────
+    // ── 4. Message activity (24h) ─
     let messageCountMap: Record<string, number> = {};
     try {
       const oneDayAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -189,8 +189,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       /* ignore */
     }
 
-    // ── 5. Format helper ─────────────────────────────────────
-    function formatHall(hall: unknown, ownership?: unknown) {
+    // ── 5. Format helper
+    function formatHall(hall: any, ownership?: any) {
       const pool = hall.pool;
       const treasury = hall.hallTreasury;
       const sri = hall.sriSnapshots?.[0];

@@ -36,8 +36,9 @@ export interface IhcpStatus {
 export interface IhcpProposalInput {
   hallId: string;
   amount: number;
-  purpose: "payroll" | "inventory" | "marketing" | "upgrade" | "emergency";
-  justification: string;
+  purpose: "payroll" | "inventory" | "stock" | "marketing" | "upgrade" | "emergency";
+  justification?: string;
+  description?: string;
 }
 
 export interface IhcpRepaymentSchedule {
@@ -95,6 +96,12 @@ export function useIhcpStatus(hallId: string | null | undefined) {
 
   return {
     status,
+    data: status
+      ? {
+          ...status,
+          contributions: status.activeContributions,
+        }
+      : undefined,
     isLoading,
     isError: !!error,
     error: error?.message || null,
@@ -119,7 +126,7 @@ export function useIhcpActions() {
           body: JSON.stringify({
             amount: input.amount,
             purpose: input.purpose,
-            justification: input.justification,
+            justification: input.justification || input.description || "",
           }),
         });
 
@@ -163,5 +170,26 @@ export function useIhcpActions() {
   return {
     proposeIhcp,
     contributeIhcp,
+  };
+}
+
+export function useProposeIhcp() {
+  const { proposeIhcp } = useIhcpActions();
+  return {
+    mutateAsync: proposeIhcp,
+  };
+}
+
+export function useContributeIhcp() {
+  const { contributeIhcp } = useIhcpActions();
+  return {
+    mutateAsync: ({
+      hallId,
+      amount,
+    }: {
+      hallId: string;
+      amount: number;
+      purpose?: string;
+    }) => contributeIhcp(hallId, amount),
   };
 }

@@ -17,9 +17,9 @@ import {
   Loader2,
 } from "lucide-react";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES — Aligned with CyclePool + Pool schema
-// ─────────────────────────────────────────────────────────────
+//
 
 type Phase = "hush" | "unveil" | "reveal" | "forge" | "complete";
 type RiskLevel = "LOW" | "MODERATE" | "HIGH";
@@ -58,9 +58,9 @@ interface PoolRevealCardProps {
   totalCompetingPools: number;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // VERTICAL CONFIG — Matches schema lowercase slugs
-// ─────────────────────────────────────────────────────────────
+//
 
 const VERTICAL_CONFIG: Record<string, { label: string; color: string; emoji: string }> = {
   ledgerprop: { label: "LedgerProp", color: "text-blue-400", emoji: "🏠" },
@@ -93,9 +93,9 @@ const RISK_CONFIG: Record<RiskLevel, { label: string; classes: string; icon: Rea
   },
 };
 
-// ─────────────────────────────────────────────────────────────
+//
 // SCRAMBLE EFFECT — Glitch text decryption for UNVEIL
-// ─────────────────────────────────────────────────────────────
+//
 
 function ScrambleText({
   text,
@@ -143,9 +143,9 @@ function ScrambleText({
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // VOTE BAR — Hidden for first 12h of REVEAL
-// ─────────────────────────────────────────────────────────────
+//
 
 function VoteBar({
   voteCount,
@@ -212,9 +212,9 @@ function VoteBar({
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────
+//
 
 export default function PoolRevealCard({
   cyclePool,

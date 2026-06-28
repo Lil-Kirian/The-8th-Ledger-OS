@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const sort = searchParams.get("sort") || "createdAt";
   const dir = searchParams.get("dir") === "asc" ? "asc" : "desc";
 
-  const where: unknown = {};
+  const where: any = {};
   if (verified === "pending") where.isVerified = false;
   if (verified === "verified") where.isVerified = true;
   if (q) {
@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
     ];
   }
 
-  const orderBy: unknown = {};
+  const orderBy: any = {};
   if (["assetValue", "committed", "participants", "createdAt", "reportedCount"].includes(sort)) {
     orderBy[sort] = dir;
   } else {
@@ -129,7 +129,7 @@ export async function PATCH(req: NextRequest) {
   if (!user) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   if (!isPrimaryAdmin(user)) return NextResponse.json({ success: false, error: "Primary admin authority required" }, { status: 403 });
 
-  let body: unknown;
+  let body: any;
   try {
     body = await req.json();
   } catch {

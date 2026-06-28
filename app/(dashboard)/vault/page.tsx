@@ -3,9 +3,9 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// ───────────────────────────────────────────
+// ─
 // TYPES — 8TH LEDGER VAULT SYSTEM
-// ───────────────────────────────────────────
+// ─
 interface VaultAsset {
   id: string;
   hallName: string;
@@ -43,9 +43,9 @@ interface VaultStats {
   riskExposure: number;
 }
 
-// ───────────────────────────────────────────
+// ─
 // MOCK DATA — 11 VERTICALS, GLOBAL NEUTRAL
-// ───────────────────────────────────────────
+// ─
 const ASSETS: VaultAsset[] = [
   {
     id: "v-2847", hallName: "Solar Array Alpha", vertical: "LedgerEnergy", emoji: "⚡", continent: "Africa",
@@ -115,9 +115,9 @@ const ASSETS: VaultAsset[] = [
 
 const MONTHLY_AGGREGATE = [12400, 13200, 12800, 14500, 15100, 14800, 16200, 15800, 17500, 18200, 17800, 19240];
 
-// ───────────────────────────────────────────
+// ─
 // UTILITIES
-// ───────────────────────────────────────────
+// ─
 const formatMoney = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
@@ -154,9 +154,9 @@ const AnimatedCounter = ({ value, prefix = "", suffix = "", duration = 1800 }: {
   );
 };
 
-// ───────────────────────────────────────────
+// ─
 // FUTURISTIC UI COMPONENTS
-// ───────────────────────────────────────────
+// ─
 
 const HologramCard = ({ children, className = "", accent = "cyan", glow = false }: { children: React.ReactNode; className?: string; accent?: "cyan" | "amber" | "violet" | "emerald" | "rose" | "slate"; glow?: boolean }) => {
   const accentMap = {
@@ -306,9 +306,9 @@ const HexBadge = ({ value, label, color = "cyan" }: { value: string; label: stri
   );
 };
 
-// ───────────────────────────────────────────
+// ─
 // MAIN PAGE
-// ───────────────────────────────────────────
+// ─
 export default function VaultPage() {
   const [assets, setAssets] = useState<VaultAsset[]>(ASSETS);
   const [filter, setFilter] = useState<"all" | "active" | "maturing" | "dormant" | "closure-warning">("all");
@@ -385,17 +385,20 @@ export default function VaultPage() {
 
   return (
     <div className="min-h-screen bg-[#020205] text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-100 overflow-x-hidden">
-      {/* ─── AMBIENT BACKGROUND ─── */}
+      {/*  AMBIENT BACKGROUND  */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-5%] w-[50%] h-[50%] bg-cyan-500/[0.025] rounded-full blur-[180px] animate-pulse-slow" />
-        <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-amber-500/[0.025] rounded-full blur-[180px] animate-pulse-slow" style={{ animationDelay: "3s" }} />
+        <div
+          className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-amber-500/[0.025] rounded-full blur-[180px] animate-pulse-slow"
+          style={{ animationDelay: "3s" }}
+        />
         <div className="absolute top-[30%] right-[20%] w-[25%] h-[25%] bg-violet-500/[0.02] rounded-full blur-[140px]" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[size:48px_48px]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(6,182,212,0.03),_transparent_60%)]" />
       </div>
 
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 py-10">
-        {/* ─── HEADER ─── */}
+        {/*  HEADER  */}
         <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
@@ -403,14 +406,20 @@ export default function VaultPage() {
                 <div className="h-2 w-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_15px_rgba(251,191,36,0.8)]" />
                 <div className="absolute inset-0 h-2 w-2 rounded-full bg-amber-400 animate-ping opacity-30" />
               </div>
-              <span className="text-[10px] font-mono text-amber-400 uppercase tracking-[0.3em]">Sovereign Asset Vault</span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono uppercase tracking-wider">{stats.totalAssets} Assets</span>
+              <span className="text-[10px] font-mono text-amber-400 uppercase tracking-[0.3em]">
+                Sovereign Asset Vault
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono uppercase tracking-wider">
+                {stats.totalAssets} Assets
+              </span>
             </div>
             <h1 className="text-4xl md:text-6xl font-black tracking-tighter bg-gradient-to-r from-white via-amber-100 to-amber-300 bg-clip-text text-transparent">
               VAULT<span className="text-amber-400">.</span>COMMAND
             </h1>
             <p className="text-slate-400 text-sm max-w-2xl leading-relaxed font-light">
-              Perpetual Asset Contract registry. Real-time valuation, yield trajectory, and systematic risk analysis across all sovereign Halls.
+              Perpetual Asset Contract registry. Real-time valuation, yield
+              trajectory, and systematic risk analysis across all sovereign
+              Halls.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -419,117 +428,214 @@ export default function VaultPage() {
               className="group relative px-5 py-3 rounded-xl bg-slate-800/40 border border-slate-700 text-slate-300 font-semibold text-sm overflow-hidden transition-all hover:border-cyan-500/40 hover:text-cyan-300 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] backdrop-blur-md"
             >
               <span className="relative z-10 flex items-center gap-2 font-mono text-xs">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 3v18h18"/><path d="M7 16l4-8 4 4 4-6"/></svg>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path d="M3 3v18h18" />
+                  <path d="M7 16l4-8 4 4 4-6" />
+                </svg>
                 Yield Simulator
               </span>
             </button>
             <button className="group relative px-6 py-3 rounded-xl bg-gradient-to-r from-amber-600/80 to-yellow-600/80 border border-amber-500/30 text-white font-semibold text-sm overflow-hidden transition-all hover:shadow-[0_0_40px_rgba(245,158,11,0.3)] hover:scale-105 active:scale-95 backdrop-blur-md">
               <span className="relative z-10 flex items-center gap-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
                 Export Ledger
               </span>
             </button>
           </div>
         </header>
 
-        {/* ─── TOP COMMAND STATS ─── */}
+        {/*  TOP COMMAND STATS  */}
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 mb-10">
           <HologramCard accent="amber" className="col-span-2">
             <div className="p-5">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[9px] font-mono text-amber-400 uppercase tracking-[0.2em]">Portfolio Value</span>
-                <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono">LIVE</span>
+                <span className="text-[9px] font-mono text-amber-400 uppercase tracking-[0.2em]">
+                  Portfolio Value
+                </span>
+                <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono">
+                  LIVE
+                </span>
               </div>
               <div className="text-3xl font-bold text-white mb-1">
                 <AnimatedCounter value={stats.totalValue} prefix="$" />
               </div>
-              <div className="text-[10px] text-slate-500 font-mono">{stats.totalAssets} PAC certificates · Dynamic valuation</div>
+              <div className="text-[10px] text-slate-500 font-mono">
+                {stats.totalAssets} PAC certificates · Dynamic valuation
+              </div>
             </div>
           </HologramCard>
 
           <HologramCard accent="emerald" className="col-span-2">
             <div className="p-5">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[9px] font-mono text-emerald-400 uppercase tracking-[0.2em]">Monthly Yield</span>
-                <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono">NET</span>
+                <span className="text-[9px] font-mono text-emerald-400 uppercase tracking-[0.2em]">
+                  Monthly Yield
+                </span>
+                <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono">
+                  NET
+                </span>
               </div>
               <div className="text-3xl font-bold text-white mb-1">
                 <AnimatedCounter value={stats.totalMonthly} prefix="$" />
               </div>
-              <div className="text-[10px] text-slate-500 font-mono">After 8th Ledger Tithe (20%)</div>
+              <div className="text-[10px] text-slate-500 font-mono">
+                After 8th Ledger Tithe (20%)
+              </div>
             </div>
           </HologramCard>
 
           <HologramCard accent="cyan" className="col-span-2">
             <div className="p-5">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[9px] font-mono text-cyan-400 uppercase tracking-[0.2em]">Annual Projection</span>
-                <span className="text-[9px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-mono">APY</span>
+                <span className="text-[9px] font-mono text-cyan-400 uppercase tracking-[0.2em]">
+                  Annual Projection
+                </span>
+                <span className="text-[9px] px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-mono">
+                  APY
+                </span>
               </div>
               <div className="text-3xl font-bold text-white mb-1">
                 <AnimatedCounter value={stats.totalAnnual} prefix="$" />
               </div>
-              <div className="text-[10px] text-slate-500 font-mono">{stats.avgYield.toFixed(1)}% avg yield · 12-mo</div>
+              <div className="text-[10px] text-slate-500 font-mono">
+                {stats.avgYield.toFixed(1)}% avg yield · 12-mo
+              </div>
             </div>
           </HologramCard>
 
           <HologramCard accent="violet" className="col-span-2">
             <div className="p-5">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-[9px] font-mono text-violet-400 uppercase tracking-[0.2em]">Diversification</span>
-                <span className="text-[9px] px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-300 border border-violet-500/20 font-mono">SCORE</span>
+                <span className="text-[9px] font-mono text-violet-400 uppercase tracking-[0.2em]">
+                  Diversification
+                </span>
+                <span className="text-[9px] px-1.5 py-0.5 rounded bg-violet-500/10 text-violet-300 border border-violet-500/20 font-mono">
+                  SCORE
+                </span>
               </div>
               <div className="text-3xl font-bold text-white mb-1">
-                <AnimatedCounter value={stats.diversificationScore} suffix="/100" />
+                <AnimatedCounter
+                  value={stats.diversificationScore}
+                  suffix="/100"
+                />
               </div>
-              <div className="text-[10px] text-slate-500 font-mono">{new Set(assets.map(a => a.vertical)).size} of 11 verticals</div>
+              <div className="text-[10px] text-slate-500 font-mono">
+                {new Set(assets.map((a) => a.vertical)).size} of 11 verticals
+              </div>
             </div>
           </HologramCard>
         </div>
 
-        {/* ─── SYSTEM HEALTH ROW ─── */}
+        {/*  SYSTEM HEALTH ROW  */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-10">
-          <HologramCard accent="emerald" className="flex items-center gap-4 p-4">
-            <HexBadge value={stats.sriWeighted.toFixed(0)} label="SRI" color="emerald" />
+          <HologramCard
+            accent="emerald"
+            className="flex items-center gap-4 p-4"
+          >
+            <HexBadge
+              value={stats.sriWeighted.toFixed(0)}
+              label="SRI"
+              color="emerald"
+            />
             <div className="flex-1">
               <div className="flex justify-between items-center mb-1">
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider">Weighted Sovereign Reputation</span>
-                <span className="text-[10px] font-mono text-emerald-400">{stats.sriWeighted.toFixed(1)}</span>
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider">
+                  Weighted Sovereign Reputation
+                </span>
+                <span className="text-[10px] font-mono text-emerald-400">
+                  {stats.sriWeighted.toFixed(1)}
+                </span>
               </div>
               <div className="w-full bg-slate-800/50 rounded-full h-1.5 overflow-hidden">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${stats.sriWeighted}%` }} transition={{ duration: 1.5, ease: "easeOut" }} className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${stats.sriWeighted}%` }}
+                  transition={{ duration: 1.5, ease: "easeOut" }}
+                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.4)]"
+                />
               </div>
             </div>
           </HologramCard>
 
           <HologramCard accent="cyan" className="flex items-center gap-4 p-4">
-            <HexBadge value={stats.ahgiWeighted.toFixed(0)} label="AHGI" color="cyan" />
+            <HexBadge
+              value={stats.ahgiWeighted.toFixed(0)}
+              label="AHGI"
+              color="cyan"
+            />
             <div className="flex-1">
               <div className="flex justify-between items-center mb-1">
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider">Weighted Asset Health Growth</span>
-                <span className="text-[10px] font-mono text-cyan-400">{stats.ahgiWeighted.toFixed(1)}</span>
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider">
+                  Weighted Asset Health Growth
+                </span>
+                <span className="text-[10px] font-mono text-cyan-400">
+                  {stats.ahgiWeighted.toFixed(1)}
+                </span>
               </div>
               <div className="w-full bg-slate-800/50 rounded-full h-1.5 overflow-hidden">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${stats.ahgiWeighted}%` }} transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }} className="h-full bg-gradient-to-r from-cyan-500 to-blue-400 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.4)]" />
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${stats.ahgiWeighted}%` }}
+                  transition={{ duration: 1.5, ease: "easeOut", delay: 0.2 }}
+                  className="h-full bg-gradient-to-r from-cyan-500 to-blue-400 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.4)]"
+                />
               </div>
             </div>
           </HologramCard>
 
-          <HologramCard accent={stats.riskExposure > 10 ? "rose" : "slate"} className="flex items-center gap-4 p-4">
-            <HexBadge value={`${stats.riskExposure.toFixed(1)}%`} label="RISK" color={stats.riskExposure > 10 ? "rose" : "slate"} />
+          <HologramCard
+            accent={stats.riskExposure > 10 ? "rose" : "slate"}
+            className="flex items-center gap-4 p-4"
+          >
+            <HexBadge
+              value={`${stats.riskExposure.toFixed(1)}%`}
+              label="RISK"
+              color={stats.riskExposure > 10 ? "rose" : "slate"}
+            />
             <div className="flex-1">
               <div className="flex justify-between items-center mb-1">
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider">Closure-Exposure Capital</span>
-                <span className={`text-[10px] font-mono ${stats.riskExposure > 10 ? "text-rose-400" : "text-slate-400"}`}>{stats.riskExposure.toFixed(1)}%</span>
+                <span className="text-[10px] text-slate-400 uppercase tracking-wider">
+                  Closure-Exposure Capital
+                </span>
+                <span
+                  className={`text-[10px] font-mono ${stats.riskExposure > 10 ? "text-rose-400" : "text-slate-400"}`}
+                >
+                  {stats.riskExposure.toFixed(1)}%
+                </span>
               </div>
               <div className="w-full bg-slate-800/50 rounded-full h-1.5 overflow-hidden">
-                <motion.div initial={{ width: 0 }} animate={{ width: `${stats.riskExposure}%` }} transition={{ duration: 1.5, ease: "easeOut", delay: 0.4 }} className={`h-full rounded-full shadow-[0_0_8px_rgba(244,63,94,0.4)] ${stats.riskExposure > 10 ? "bg-gradient-to-r from-rose-500 to-red-400" : "bg-gradient-to-r from-slate-500 to-slate-400"}`} />
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${stats.riskExposure}%` }}
+                  transition={{ duration: 1.5, ease: "easeOut", delay: 0.4 }}
+                  className={`h-full rounded-full shadow-[0_0_8px_rgba(244,63,94,0.4)] ${stats.riskExposure > 10 ? "bg-gradient-to-r from-rose-500 to-red-400" : "bg-gradient-to-r from-slate-500 to-slate-400"}`}
+                />
               </div>
             </div>
           </HologramCard>
         </div>
 
-        {/* ─── YIELD SIMULATOR (EXPANDABLE) ─── */}
+        {/*  YIELD SIMULATOR (EXPANDABLE)  */}
         <AnimatePresence>
           {showSimulator && (
             <motion.div
@@ -543,20 +649,30 @@ export default function VaultPage() {
                 <div className="flex flex-col lg:flex-row gap-8">
                   <div className="lg:w-1/3 space-y-6">
                     <div>
-                      <h3 className="text-lg font-bold text-white tracking-tight mb-1">Reinvestment Simulator</h3>
-                      <p className="text-[10px] text-slate-400 font-mono uppercase tracking-wider">Compound projection over 12 months</p>
+                      <h3 className="text-lg font-bold text-white tracking-tight mb-1">
+                        Reinvestment Simulator
+                      </h3>
+                      <p className="text-[10px] text-slate-400 font-mono uppercase tracking-wider">
+                        Compound projection over 12 months
+                      </p>
                     </div>
                     <div>
                       <div className="flex justify-between items-center mb-3">
-                        <span className="text-xs text-slate-300">Reinvestment Rate</span>
-                        <span className="text-sm font-bold text-violet-400 font-mono">{reinvestRate}%</span>
+                        <span className="text-xs text-slate-300">
+                          Reinvestment Rate
+                        </span>
+                        <span className="text-sm font-bold text-violet-400 font-mono">
+                          {reinvestRate}%
+                        </span>
                       </div>
                       <input
                         type="range"
                         min="0"
                         max="100"
                         value={reinvestRate}
-                        onChange={(e) => setReinvestRate(Number(e.target.value))}
+                        onChange={(e) =>
+                          setReinvestRate(Number(e.target.value))
+                        }
                         className="w-full h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer accent-violet-500"
                       />
                       <div className="flex justify-between text-[9px] text-slate-600 font-mono mt-1">
@@ -567,52 +683,101 @@ export default function VaultPage() {
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="p-3 rounded-xl bg-slate-900/40 border border-slate-800">
-                        <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Monthly Cash</div>
-                        <div className="text-sm font-bold text-emerald-400 font-mono">{formatMoneyPrecise(simulatorProjection.cash)}</div>
+                        <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">
+                          Monthly Cash
+                        </div>
+                        <div className="text-sm font-bold text-emerald-400 font-mono">
+                          {formatMoneyPrecise(simulatorProjection.cash)}
+                        </div>
                       </div>
                       <div className="p-3 rounded-xl bg-slate-900/40 border border-slate-800">
-                        <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Monthly Reinvest</div>
-                        <div className="text-sm font-bold text-violet-400 font-mono">{formatMoneyPrecise(simulatorProjection.reinvest)}</div>
+                        <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">
+                          Monthly Reinvest
+                        </div>
+                        <div className="text-sm font-bold text-violet-400 font-mono">
+                          {formatMoneyPrecise(simulatorProjection.reinvest)}
+                        </div>
                       </div>
                     </div>
                   </div>
                   <div className="lg:w-2/3">
                     <div className="flex items-end justify-between mb-4">
                       <div>
-                        <div className="text-[9px] text-slate-500 uppercase tracking-wider">Projected Value (12mo)</div>
-                        <div className="text-2xl font-bold text-white font-mono">{formatMoney(simulatorProjection.projectedValue)}</div>
+                        <div className="text-[9px] text-slate-500 uppercase tracking-wider">
+                          Projected Value (12mo)
+                        </div>
+                        <div className="text-2xl font-bold text-white font-mono">
+                          {formatMoney(simulatorProjection.projectedValue)}
+                        </div>
                       </div>
                       <div className="text-right">
-                        <div className="text-[9px] text-slate-500 uppercase tracking-wider">Projected Monthly</div>
-                        <div className="text-2xl font-bold text-violet-400 font-mono">{formatMoney(simulatorProjection.projectedMonthly)}</div>
+                        <div className="text-[9px] text-slate-500 uppercase tracking-wider">
+                          Projected Monthly
+                        </div>
+                        <div className="text-2xl font-bold text-violet-400 font-mono">
+                          {formatMoney(simulatorProjection.projectedMonthly)}
+                        </div>
                       </div>
                     </div>
                     <div className="h-40 w-full">
-                      <svg width="100%" height="100%" viewBox="0 0 600 160" preserveAspectRatio="none">
+                      <svg
+                        width="100%"
+                        height="100%"
+                        viewBox="0 0 600 160"
+                        preserveAspectRatio="none"
+                      >
                         <defs>
-                          <linearGradient id="simGrad" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#a855f7" stopOpacity="0.2" />
-                            <stop offset="100%" stopColor="#a855f7" stopOpacity="0" />
+                          <linearGradient
+                            id="simGrad"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="0%"
+                              stopColor="#a855f7"
+                              stopOpacity="0.2"
+                            />
+                            <stop
+                              offset="100%"
+                              stopColor="#a855f7"
+                              stopOpacity="0"
+                            />
                           </linearGradient>
                         </defs>
                         <path
-                          d={`M0,160 ${simulatorProjection.data.map((v, i) => {
-                            const x = (i / (simulatorProjection.data.length - 1)) * 600;
-                            const minVal = Math.min(...simulatorProjection.data) * 0.9;
-                            const maxVal = Math.max(...simulatorProjection.data) * 1.1;
-                            const y = 160 - ((v - minVal) / (maxVal - minVal)) * 160;
-                            return `L${x},${y}`;
-                          }).join(" ")} L600,160 Z`}
+                          d={`M0,160 ${simulatorProjection.data
+                            .map((v, i) => {
+                              const x =
+                                (i / (simulatorProjection.data.length - 1)) *
+                                600;
+                              const minVal =
+                                Math.min(...simulatorProjection.data) * 0.9;
+                              const maxVal =
+                                Math.max(...simulatorProjection.data) * 1.1;
+                              const y =
+                                160 - ((v - minVal) / (maxVal - minVal)) * 160;
+                              return `L${x},${y}`;
+                            })
+                            .join(" ")} L600,160 Z`}
                           fill="url(#simGrad)"
                         />
                         <path
-                          d={`M0,${160 - ((simulatorProjection.data[0] - Math.min(...simulatorProjection.data) * 0.9) / (Math.max(...simulatorProjection.data) * 1.1 - Math.min(...simulatorProjection.data) * 0.9)) * 160} ${simulatorProjection.data.map((v, i) => {
-                            const x = (i / (simulatorProjection.data.length - 1)) * 600;
-                            const minVal = Math.min(...simulatorProjection.data) * 0.9;
-                            const maxVal = Math.max(...simulatorProjection.data) * 1.1;
-                            const y = 160 - ((v - minVal) / (maxVal - minVal)) * 160;
-                            return `L${x},${y}`;
-                          }).join(" ")}`}
+                          d={`M0,${160 - ((simulatorProjection.data[0] - Math.min(...simulatorProjection.data) * 0.9) / (Math.max(...simulatorProjection.data) * 1.1 - Math.min(...simulatorProjection.data) * 0.9)) * 160} ${simulatorProjection.data
+                            .map((v, i) => {
+                              const x =
+                                (i / (simulatorProjection.data.length - 1)) *
+                                600;
+                              const minVal =
+                                Math.min(...simulatorProjection.data) * 0.9;
+                              const maxVal =
+                                Math.max(...simulatorProjection.data) * 1.1;
+                              const y =
+                                160 - ((v - minVal) / (maxVal - minVal)) * 160;
+                              return `L${x},${y}`;
+                            })
+                            .join(" ")}`}
                           fill="none"
                           stroke="#a855f7"
                           strokeWidth="2"
@@ -621,7 +786,9 @@ export default function VaultPage() {
                       </svg>
                     </div>
                     <div className="flex justify-between text-[9px] font-mono text-slate-600 mt-1 uppercase tracking-wider">
-                      {Array.from({ length: 12 }, (_, i) => <span key={i}>M{i + 1}</span>)}
+                      {Array.from({ length: 12 }, (_, i) => (
+                        <span key={i}>M{i + 1}</span>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -630,26 +797,38 @@ export default function VaultPage() {
           )}
         </AnimatePresence>
 
-        {/* ─── MAIN DASHBOARD: CHART + ALLOCATION + GEO ─── */}
+        {/*  MAIN DASHBOARD: CHART + ALLOCATION + GEO  */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 mb-10">
           {/* INCOME VELOCITY CHART */}
           <HologramCard className="lg:col-span-7" accent="amber">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-bold text-white tracking-tight">Income Velocity</h3>
-                  <p className="text-[10px] text-slate-400 mt-1 font-mono uppercase tracking-wider">12-month aggregate dividend trend</p>
+                  <h3 className="text-lg font-bold text-white tracking-tight">
+                    Income Velocity
+                  </h3>
+                  <p className="text-[10px] text-slate-400 mt-1 font-mono uppercase tracking-wider">
+                    12-month aggregate dividend trend
+                  </p>
                 </div>
                 <div className="flex gap-1">
                   {["1M", "3M", "6M", "1Y", "ALL"].map((range) => (
-                    <button key={range} className={`px-3 py-1 rounded-lg text-[10px] font-mono border transition-all ${range === "1Y" ? "bg-amber-500/15 border-amber-500/40 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.2)]" : "bg-transparent border-slate-700 text-slate-500 hover:border-slate-500 hover:text-slate-300"}`}>
+                    <button
+                      key={range}
+                      className={`px-3 py-1 rounded-lg text-[10px] font-mono border transition-all ${range === "1Y" ? "bg-amber-500/15 border-amber-500/40 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.2)]" : "bg-transparent border-slate-700 text-slate-500 hover:border-slate-500 hover:text-slate-300"}`}
+                    >
                       {range}
                     </button>
                   ))}
                 </div>
               </div>
               <div className="h-52 w-full relative">
-                <svg width="100%" height="100%" viewBox="0 0 900 220" preserveAspectRatio="none">
+                <svg
+                  width="100%"
+                  height="100%"
+                  viewBox="0 0 900 220"
+                  preserveAspectRatio="none"
+                >
                   <defs>
                     <linearGradient id="vaultArea" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="#f59e0b" stopOpacity="0.2" />
@@ -662,10 +841,23 @@ export default function VaultPage() {
                     </linearGradient>
                     <filter id="vaultGlow">
                       <feGaussianBlur stdDeviation="3" result="blur" />
-                      <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                      <feMerge>
+                        <feMergeNode in="blur" />
+                        <feMergeNode in="SourceGraphic" />
+                      </feMerge>
                     </filter>
                   </defs>
-                  {[0, 1, 2, 3, 4].map(i => <line key={i} x1="0" y1={i * 55} x2="900" y2={i * 55} stroke="rgba(255,255,255,0.03)" strokeWidth="1" />)}
+                  {[0, 1, 2, 3, 4].map((i) => (
+                    <line
+                      key={i}
+                      x1="0"
+                      y1={i * 55}
+                      x2="900"
+                      y2={i * 55}
+                      stroke="rgba(255,255,255,0.03)"
+                      strokeWidth="1"
+                    />
+                  ))}
                   <path
                     d={`M0,220 ${MONTHLY_AGGREGATE.map((v, i) => {
                       const x = (i / (MONTHLY_AGGREGATE.length - 1)) * 900;
@@ -675,11 +867,13 @@ export default function VaultPage() {
                     fill="url(#vaultArea)"
                   />
                   <path
-                    d={`M0,${220 - ((MONTHLY_AGGREGATE[0] - 12000) / 8000) * 220} ${MONTHLY_AGGREGATE.map((v, i) => {
-                      const x = (i / (MONTHLY_AGGREGATE.length - 1)) * 900;
-                      const y = 220 - ((v - 12000) / 8000) * 220;
-                      return `L${x},${y}`;
-                    }).join(" ")}`}
+                    d={`M0,${220 - ((MONTHLY_AGGREGATE[0] - 12000) / 8000) * 220} ${MONTHLY_AGGREGATE.map(
+                      (v, i) => {
+                        const x = (i / (MONTHLY_AGGREGATE.length - 1)) * 900;
+                        const y = 220 - ((v - 12000) / 8000) * 220;
+                        return `L${x},${y}`;
+                      },
+                    ).join(" ")}`}
                     fill="none"
                     stroke="url(#vaultLine)"
                     strokeWidth="2.5"
@@ -692,14 +886,49 @@ export default function VaultPage() {
                     const y = 220 - ((v - 12000) / 8000) * 220;
                     return (
                       <g key={i}>
-                        <circle cx={x} cy={y} r="3" fill="#020205" stroke="#fbbf24" strokeWidth="1.5" />
+                        <circle
+                          cx={x}
+                          cy={y}
+                          r="3"
+                          fill="#020205"
+                          stroke="#fbbf24"
+                          strokeWidth="1.5"
+                        />
                         {i === MONTHLY_AGGREGATE.length - 1 && (
                           <>
-                            <circle cx={x} cy={y} r="10" fill="none" stroke="#fbbf24" strokeWidth="1" opacity="0.3">
-                              <animate attributeName="r" values="10;16;10" dur="2.5s" repeatCount="indefinite" />
-                              <animate attributeName="opacity" values="0.3;0;0.3" dur="2.5s" repeatCount="indefinite" />
+                            <circle
+                              cx={x}
+                              cy={y}
+                              r="10"
+                              fill="none"
+                              stroke="#fbbf24"
+                              strokeWidth="1"
+                              opacity="0.3"
+                            >
+                              <animate
+                                attributeName="r"
+                                values="10;16;10"
+                                dur="2.5s"
+                                repeatCount="indefinite"
+                              />
+                              <animate
+                                attributeName="opacity"
+                                values="0.3;0;0.3"
+                                dur="2.5s"
+                                repeatCount="indefinite"
+                              />
                             </circle>
-                            <text x={x} y={y - 14} textAnchor="middle" fill="#fff" fontSize="10" fontFamily="monospace" fontWeight="bold">${(v / 1000).toFixed(1)}k</text>
+                            <text
+                              x={x}
+                              y={y - 14}
+                              textAnchor="middle"
+                              fill="#fff"
+                              fontSize="10"
+                              fontFamily="monospace"
+                              fontWeight="bold"
+                            >
+                              ${(v / 1000).toFixed(1)}k
+                            </text>
                           </>
                         )}
                       </g>
@@ -708,8 +937,18 @@ export default function VaultPage() {
                 </svg>
               </div>
               <div className="flex justify-between text-[9px] font-mono text-slate-600 mt-2 px-2 uppercase tracking-wider">
-                <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
-                <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+                <span>Jan</span>
+                <span>Feb</span>
+                <span>Mar</span>
+                <span>Apr</span>
+                <span>May</span>
+                <span>Jun</span>
+                <span>Jul</span>
+                <span>Aug</span>
+                <span>Sep</span>
+                <span>Oct</span>
+                <span>Nov</span>
+                <span>Dec</span>
               </div>
             </div>
           </HologramCard>
@@ -718,18 +957,35 @@ export default function VaultPage() {
           <div className="lg:col-span-5 space-y-4">
             <HologramCard accent="violet">
               <div className="p-6">
-                <h3 className="text-sm font-bold text-white tracking-tight mb-1">Vertical Allocation</h3>
-                <p className="text-[10px] text-slate-400 mb-4 font-mono uppercase tracking-wider">Portfolio by asset class</p>
+                <h3 className="text-sm font-bold text-white tracking-tight mb-1">
+                  Vertical Allocation
+                </h3>
+                <p className="text-[10px] text-slate-400 mb-4 font-mono uppercase tracking-wider">
+                  Portfolio by asset class
+                </p>
                 <div className="flex items-center gap-6">
                   <DonutChart data={allocation} size={120} />
                   <div className="flex-1 space-y-1.5">
                     {allocation.map((item) => (
-                      <div key={item.label} className="flex items-center justify-between group cursor-pointer">
+                      <div
+                        key={item.label}
+                        className="flex items-center justify-between group cursor-pointer"
+                      >
                         <div className="flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color, boxShadow: `0 0 6px ${item.color}` }} />
-                          <span className="text-[10px] text-slate-300">{VERTICAL_LABELS[item.label] || item.label}</span>
+                          <div
+                            className="w-2 h-2 rounded-full"
+                            style={{
+                              backgroundColor: item.color,
+                              boxShadow: `0 0 6px ${item.color}`,
+                            }}
+                          />
+                          <span className="text-[10px] text-slate-300">
+                            {VERTICAL_LABELS[item.label] || item.label}
+                          </span>
                         </div>
-                        <span className="text-[10px] font-mono text-slate-400 group-hover:text-white transition-colors">{((item.value / stats.totalValue) * 100).toFixed(1)}%</span>
+                        <span className="text-[10px] font-mono text-slate-400 group-hover:text-white transition-colors">
+                          {((item.value / stats.totalValue) * 100).toFixed(1)}%
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -739,16 +995,29 @@ export default function VaultPage() {
 
             <HologramCard accent="cyan">
               <div className="p-6">
-                <h3 className="text-sm font-bold text-white tracking-tight mb-1">Geographic Spread</h3>
-                <p className="text-[10px] text-slate-400 mb-4 font-mono uppercase tracking-wider">Capital distribution by continent</p>
+                <h3 className="text-sm font-bold text-white tracking-tight mb-1">
+                  Geographic Spread
+                </h3>
+                <p className="text-[10px] text-slate-400 mb-4 font-mono uppercase tracking-wider">
+                  Capital distribution by continent
+                </p>
                 <div className="space-y-2">
                   {continentSpread.map((c) => (
                     <div key={c.name} className="flex items-center gap-3">
-                      <span className="text-[10px] text-slate-400 w-20 font-mono">{c.name}</span>
+                      <span className="text-[10px] text-slate-400 w-20 font-mono">
+                        {c.name}
+                      </span>
                       <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                        <motion.div initial={{ width: 0 }} animate={{ width: `${c.percent}%` }} transition={{ duration: 1, ease: "easeOut" }} className="h-full bg-gradient-to-r from-cyan-500 to-blue-400 rounded-full" />
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${c.percent}%` }}
+                          transition={{ duration: 1, ease: "easeOut" }}
+                          className="h-full bg-gradient-to-r from-cyan-500 to-blue-400 rounded-full"
+                        />
                       </div>
-                      <span className="text-[10px] font-mono text-slate-300 w-10 text-right">{c.percent}%</span>
+                      <span className="text-[10px] font-mono text-slate-300 w-10 text-right">
+                        {c.percent}%
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -757,16 +1026,35 @@ export default function VaultPage() {
           </div>
         </div>
 
-        {/* ─── FILTER & CONTROL BAR ─── */}
+        {/*  FILTER & CONTROL BAR  */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider mr-2">Filter:</span>
-              {[
+            <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider mr-2">
+              Filter:
+            </span>
+            {[
               { id: "all" as const, label: "All", count: assets.length },
-              { id: "active" as const, label: "Active", count: assets.filter(a => a.status === "active").length },
-              { id: "maturing" as const, label: "Maturing", count: assets.filter(a => a.status === "maturing").length },
-              { id: "dormant" as const, label: "Dormant", count: assets.filter(a => a.status === "dormant").length },
-              { id: "closure-warning" as const, label: "Critical", count: assets.filter(a => a.status === "closure-warning").length },
+              {
+                id: "active" as const,
+                label: "Active",
+                count: assets.filter((a) => a.status === "active").length,
+              },
+              {
+                id: "maturing" as const,
+                label: "Maturing",
+                count: assets.filter((a) => a.status === "maturing").length,
+              },
+              {
+                id: "dormant" as const,
+                label: "Dormant",
+                count: assets.filter((a) => a.status === "dormant").length,
+              },
+              {
+                id: "closure-warning" as const,
+                label: "Critical",
+                count: assets.filter((a) => a.status === "closure-warning")
+                  .length,
+              },
             ].map((f) => (
               <button
                 key={f.id}
@@ -782,7 +1070,9 @@ export default function VaultPage() {
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">Sort:</span>
+            <span className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">
+              Sort:
+            </span>
             {[
               { id: "value" as const, label: "Value" },
               { id: "yield" as const, label: "Yield" },
@@ -807,18 +1097,41 @@ export default function VaultPage() {
               onClick={() => setViewMode("grid")}
               className={`p-1.5 rounded-lg border transition-all ${viewMode === "grid" ? "bg-slate-800 border-slate-600 text-white" : "border-transparent text-slate-500 hover:text-slate-300"}`}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <rect x="3" y="3" width="7" height="7" />
+                <rect x="14" y="3" width="7" height="7" />
+                <rect x="3" y="14" width="7" height="7" />
+                <rect x="14" y="14" width="7" height="7" />
+              </svg>
             </button>
             <button
               onClick={() => setViewMode("table")}
               className={`p-1.5 rounded-lg border transition-all ${viewMode === "table" ? "bg-slate-800 border-slate-600 text-white" : "border-transparent text-slate-500 hover:text-slate-300"}`}
             >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
             </button>
           </div>
         </div>
 
-        {/* ─── ASSET GRID VIEW ─── */}
+        {/*  ASSET GRID VIEW  */}
         <AnimatePresence mode="wait">
           {viewMode === "grid" && (
             <motion.div
@@ -832,19 +1145,40 @@ export default function VaultPage() {
               {filtered.map((asset) => (
                 <HologramCard
                   key={asset.id}
-                  accent={asset.status === "active" ? "amber" : asset.status === "maturing" ? "cyan" : asset.status === "closure-warning" ? "rose" : "slate"}
+                  accent={
+                    asset.status === "active"
+                      ? "amber"
+                      : asset.status === "maturing"
+                        ? "cyan"
+                        : asset.status === "closure-warning"
+                          ? "rose"
+                          : "slate"
+                  }
                   className={`cursor-pointer transition-all ${selectedAsset === asset.id ? "ring-1 ring-cyan-500/40" : ""}`}
                 >
-                  <div className="p-5" onClick={() => setSelectedAsset(selectedAsset === asset.id ? null : asset.id)}>
+                  <div
+                    className="p-5"
+                    onClick={() =>
+                      setSelectedAsset(
+                        selectedAsset === asset.id ? null : asset.id,
+                      )
+                    }
+                  >
                     {/* HEADER */}
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{asset.emoji}</span>
                         <div>
-                          <div className="text-sm font-bold text-white leading-tight">{asset.hallName}</div>
+                          <div className="text-sm font-bold text-white leading-tight">
+                            {asset.hallName}
+                          </div>
                           <div className="flex items-center gap-2 mt-0.5">
-                            <span className="text-[9px] text-slate-500 font-mono uppercase tracking-wider">{asset.pacToken}</span>
-                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 font-mono">{asset.continent}</span>
+                            <span className="text-[9px] text-slate-500 font-mono uppercase tracking-wider">
+                              {asset.pacToken}
+                            </span>
+                            <span className="text-[9px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700 font-mono">
+                              {asset.continent}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -854,16 +1188,28 @@ export default function VaultPage() {
                     {/* METRICS ROW */}
                     <div className="grid grid-cols-3 gap-2 mb-4">
                       <div className="p-2.5 rounded-xl bg-slate-900/40 border border-slate-800/80">
-                        <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Ownership</div>
-                        <div className="text-base font-bold text-white font-mono">{asset.ownershipPercent}%</div>
+                        <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">
+                          Ownership
+                        </div>
+                        <div className="text-base font-bold text-white font-mono">
+                          {asset.ownershipPercent}%
+                        </div>
                       </div>
                       <div className="p-2.5 rounded-xl bg-slate-900/40 border border-slate-800/80">
-                        <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Monthly</div>
-                        <div className="text-base font-bold text-emerald-400 font-mono">{formatMoneyPrecise(asset.monthlyIncome)}</div>
+                        <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">
+                          Monthly
+                        </div>
+                        <div className="text-base font-bold text-emerald-400 font-mono">
+                          {formatMoneyPrecise(asset.monthlyIncome)}
+                        </div>
                       </div>
                       <div className="p-2.5 rounded-xl bg-slate-900/40 border border-slate-800/80">
-                        <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Yield</div>
-                        <div className="text-base font-bold text-amber-400 font-mono">{asset.annualYield}%</div>
+                        <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">
+                          Yield
+                        </div>
+                        <div className="text-base font-bold text-amber-400 font-mono">
+                          {asset.annualYield}%
+                        </div>
                       </div>
                     </div>
 
@@ -871,19 +1217,37 @@ export default function VaultPage() {
                     <div className="flex items-center gap-3 mb-3">
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
-                          <SRIBadge tier={asset.sriTier} score={asset.sriScore} />
-                          <AHGIBar score={asset.ahgiScore} trend={asset.ahgiTrend} />
+                          <SRIBadge
+                            tier={asset.sriTier}
+                            score={asset.sriScore}
+                          />
+                          <AHGIBar
+                            score={asset.ahgiScore}
+                            trend={asset.ahgiTrend}
+                          />
                         </div>
                       </div>
                     </div>
 
                     <div className="h-10 mb-3 opacity-60">
-                      <MiniSparkline data={asset.monthlyHistory} color={asset.ahgiTrend === "up" ? "#34d399" : asset.ahgiTrend === "down" ? "#f43f5e" : "#94a3b8"} />
+                      <MiniSparkline
+                        data={asset.monthlyHistory}
+                        color={
+                          asset.ahgiTrend === "up"
+                            ? "#34d399"
+                            : asset.ahgiTrend === "down"
+                              ? "#f43f5e"
+                              : "#94a3b8"
+                        }
+                      />
                     </div>
 
                     {/* FOOTER */}
                     <div className="flex items-center justify-between text-[9px] text-slate-600 font-mono">
-                      <span>Val: {formatMoney(asset.value)} · Dyn: {formatMoney(asset.dynamicValuePerPercent)}/1%</span>
+                      <span>
+                        Val: {formatMoney(asset.value)} · Dyn:{" "}
+                        {formatMoney(asset.dynamicValuePerPercent)}/1%
+                      </span>
                       <span className="flex items-center gap-1">
                         <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
                         {asset.lastPayout}
@@ -904,20 +1268,43 @@ export default function VaultPage() {
                         <div className="p-5 bg-slate-900/20">
                           <div className="grid grid-cols-2 gap-3 mb-4">
                             <div className="p-3 rounded-lg bg-slate-900/40 border border-slate-800">
-                              <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Accumulated</div>
-                              <div className="text-sm font-bold text-violet-300 font-mono">{formatMoney(asset.accumulatedDividends)}</div>
+                              <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">
+                                Accumulated
+                              </div>
+                              <div className="text-sm font-bold text-violet-300 font-mono">
+                                {formatMoney(asset.accumulatedDividends)}
+                              </div>
                             </div>
                             <div className="p-3 rounded-lg bg-slate-900/40 border border-slate-800">
-                              <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Dynamic Value</div>
-                              <div className="text-sm font-bold text-cyan-300 font-mono">{formatMoney(asset.dynamicValuePerPercent * asset.ownershipPercent)}</div>
+                              <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">
+                                Dynamic Value
+                              </div>
+                              <div className="text-sm font-bold text-cyan-300 font-mono">
+                                {formatMoney(
+                                  asset.dynamicValuePerPercent *
+                                    asset.ownershipPercent,
+                                )}
+                              </div>
                             </div>
                             <div className="p-3 rounded-lg bg-slate-900/40 border border-slate-800">
-                              <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">PIR Debt</div>
-                              <div className={`text-sm font-bold font-mono ${asset.pirDebt > 0 ? "text-rose-400" : "text-slate-400"}`}>{formatMoney(asset.pirDebt)}</div>
+                              <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">
+                                PIR Debt
+                              </div>
+                              <div
+                                className={`text-sm font-bold font-mono ${asset.pirDebt > 0 ? "text-rose-400" : "text-slate-400"}`}
+                              >
+                                {formatMoney(asset.pirDebt)}
+                              </div>
                             </div>
                             <div className="p-3 rounded-lg bg-slate-900/40 border border-slate-800">
-                              <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">IHCP Debt</div>
-                              <div className={`text-sm font-bold font-mono ${asset.ihcpDebt > 0 ? "text-rose-400" : "text-slate-400"}`}>{formatMoney(asset.ihcpDebt)}</div>
+                              <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">
+                                IHCP Debt
+                              </div>
+                              <div
+                                className={`text-sm font-bold font-mono ${asset.ihcpDebt > 0 ? "text-rose-400" : "text-slate-400"}`}
+                              >
+                                {formatMoney(asset.ihcpDebt)}
+                              </div>
                             </div>
                           </div>
                           <div className="flex gap-2">
@@ -940,7 +1327,7 @@ export default function VaultPage() {
             </motion.div>
           )}
 
-          {/* ─── TABLE VIEW ─── */}
+          {/*  TABLE VIEW  */}
           {viewMode === "table" && (
             <motion.div
               key="table"
@@ -955,15 +1342,33 @@ export default function VaultPage() {
                   <table className="w-full text-left border-collapse">
                     <thead>
                       <tr className="border-b border-slate-800/80">
-                        <th className="pb-3 pt-4 pl-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider">Asset</th>
-                        <th className="pb-3 pt-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-center">Health</th>
-                        <th className="pb-3 pt-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-right">Ownership</th>
-                        <th className="pb-3 pt-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-right">Value</th>
-                        <th className="pb-3 pt-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-right">Monthly</th>
-                        <th className="pb-3 pt-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-right">Yield</th>
-                        <th className="pb-3 pt-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-right">Accum</th>
-                        <th className="pb-3 pt-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-center">Status</th>
-                        <th className="pb-3 pt-4 pr-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-right">Trend</th>
+                        <th className="pb-3 pt-4 pl-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider">
+                          Asset
+                        </th>
+                        <th className="pb-3 pt-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-center">
+                          Health
+                        </th>
+                        <th className="pb-3 pt-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-right">
+                          Ownership
+                        </th>
+                        <th className="pb-3 pt-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-right">
+                          Value
+                        </th>
+                        <th className="pb-3 pt-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-right">
+                          Monthly
+                        </th>
+                        <th className="pb-3 pt-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-right">
+                          Yield
+                        </th>
+                        <th className="pb-3 pt-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-right">
+                          Accum
+                        </th>
+                        <th className="pb-3 pt-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-center">
+                          Status
+                        </th>
+                        <th className="pb-3 pt-4 pr-4 text-[9px] font-mono text-slate-500 uppercase tracking-wider text-right">
+                          Trend
+                        </th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800/40">
@@ -971,44 +1376,77 @@ export default function VaultPage() {
                         <tr
                           key={asset.id}
                           className="group hover:bg-slate-800/20 transition-colors cursor-pointer"
-                          onClick={() => setSelectedAsset(selectedAsset === asset.id ? null : asset.id)}
+                          onClick={() =>
+                            setSelectedAsset(
+                              selectedAsset === asset.id ? null : asset.id,
+                            )
+                          }
                         >
                           <td className="py-3 pl-4">
                             <div className="flex items-center gap-2.5">
                               <span className="text-lg">{asset.emoji}</span>
                               <div>
-                                <div className="text-sm font-semibold text-white group-hover:text-cyan-300 transition-colors">{asset.hallName}</div>
-                                <div className="text-[9px] text-slate-500 font-mono">{asset.pacToken}</div>
+                                <div className="text-sm font-semibold text-white group-hover:text-cyan-300 transition-colors">
+                                  {asset.hallName}
+                                </div>
+                                <div className="text-[9px] text-slate-500 font-mono">
+                                  {asset.pacToken}
+                                </div>
                               </div>
                             </div>
                           </td>
                           <td className="py-3 text-center">
                             <div className="flex flex-col items-center gap-1">
-                              <SRIBadge tier={asset.sriTier} score={asset.sriScore} />
-                              <AHGIBar score={asset.ahgiScore} trend={asset.ahgiTrend} />
+                              <SRIBadge
+                                tier={asset.sriTier}
+                                score={asset.sriScore}
+                              />
+                              <AHGIBar
+                                score={asset.ahgiScore}
+                                trend={asset.ahgiTrend}
+                              />
                             </div>
                           </td>
                           <td className="py-3 text-right">
-                            <div className="text-sm font-mono text-white">{asset.ownershipPercent}%</div>
+                            <div className="text-sm font-mono text-white">
+                              {asset.ownershipPercent}%
+                            </div>
                           </td>
                           <td className="py-3 text-right">
-                            <div className="text-sm font-mono text-slate-200">{formatMoney(asset.value)}</div>
+                            <div className="text-sm font-mono text-slate-200">
+                              {formatMoney(asset.value)}
+                            </div>
                           </td>
                           <td className="py-3 text-right">
-                            <div className="text-sm font-mono text-emerald-400">{formatMoneyPrecise(asset.monthlyIncome)}</div>
+                            <div className="text-sm font-mono text-emerald-400">
+                              {formatMoneyPrecise(asset.monthlyIncome)}
+                            </div>
                           </td>
                           <td className="py-3 text-right">
-                            <div className="text-sm font-mono text-amber-400">{asset.annualYield}%</div>
+                            <div className="text-sm font-mono text-amber-400">
+                              {asset.annualYield}%
+                            </div>
                           </td>
                           <td className="py-3 text-right">
-                            <div className="text-sm font-mono text-violet-300">{formatMoney(asset.accumulatedDividends)}</div>
+                            <div className="text-sm font-mono text-violet-300">
+                              {formatMoney(asset.accumulatedDividends)}
+                            </div>
                           </td>
                           <td className="py-3 text-center">
                             <StatusBadge status={asset.status} />
                           </td>
                           <td className="py-3 pr-4 text-right">
                             <div className="w-20 ml-auto h-8 opacity-50">
-                              <MiniSparkline data={asset.monthlyHistory} color={asset.ahgiTrend === "up" ? "#34d399" : asset.ahgiTrend === "down" ? "#f43f5e" : "#94a3b8"} />
+                              <MiniSparkline
+                                data={asset.monthlyHistory}
+                                color={
+                                  asset.ahgiTrend === "up"
+                                    ? "#34d399"
+                                    : asset.ahgiTrend === "down"
+                                      ? "#f43f5e"
+                                      : "#94a3b8"
+                                }
+                              />
                             </div>
                           </td>
                         </tr>
@@ -1016,13 +1454,33 @@ export default function VaultPage() {
                     </tbody>
                     <tfoot>
                       <tr className="border-t-2 border-slate-700/50 bg-slate-800/5">
-                        <td className="py-3 pl-4 text-sm font-bold text-white">AGGREGATE</td>
+                        <td className="py-3 pl-4 text-sm font-bold text-white">
+                          AGGREGATE
+                        </td>
                         <td className="py-3" />
-                        <td className="py-3 text-right text-sm font-mono text-cyan-400">{assets.reduce((s, a) => s + a.ownershipPercent, 0).toFixed(1)}%</td>
-                        <td className="py-3 text-right text-sm font-mono text-white font-bold">{formatMoney(stats.totalValue)}</td>
-                        <td className="py-3 text-right text-sm font-mono text-emerald-400 font-bold">{formatMoneyPrecise(stats.totalMonthly)}</td>
-                        <td className="py-3 text-right text-sm font-mono text-amber-400 font-bold">{stats.avgYield.toFixed(1)}%</td>
-                        <td className="py-3 text-right text-sm font-mono text-violet-300 font-bold">{formatMoney(assets.reduce((s, a) => s + a.accumulatedDividends, 0))}</td>
+                        <td className="py-3 text-right text-sm font-mono text-cyan-400">
+                          {assets
+                            .reduce((s, a) => s + a.ownershipPercent, 0)
+                            .toFixed(1)}
+                          %
+                        </td>
+                        <td className="py-3 text-right text-sm font-mono text-white font-bold">
+                          {formatMoney(stats.totalValue)}
+                        </td>
+                        <td className="py-3 text-right text-sm font-mono text-emerald-400 font-bold">
+                          {formatMoneyPrecise(stats.totalMonthly)}
+                        </td>
+                        <td className="py-3 text-right text-sm font-mono text-amber-400 font-bold">
+                          {stats.avgYield.toFixed(1)}%
+                        </td>
+                        <td className="py-3 text-right text-sm font-mono text-violet-300 font-bold">
+                          {formatMoney(
+                            assets.reduce(
+                              (s, a) => s + a.accumulatedDividends,
+                              0,
+                            ),
+                          )}
+                        </td>
                         <td className="py-3" />
                         <td className="py-3 pr-4" />
                       </tr>
@@ -1034,7 +1492,7 @@ export default function VaultPage() {
           )}
         </AnimatePresence>
 
-        {/* ─── BOTTOM COMMAND STRIP ─── */}
+        {/*  BOTTOM COMMAND STRIP  */}
         <HologramCard accent="amber" className="mb-10">
           <div className="p-6 flex flex-col lg:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-4">
@@ -1042,7 +1500,9 @@ export default function VaultPage() {
                 👑
               </div>
               <div>
-                <div className="text-sm text-slate-400 font-mono uppercase tracking-wider">Sovereign Portfolio Command</div>
+                <div className="text-sm text-slate-400 font-mono uppercase tracking-wider">
+                  Sovereign Portfolio Command
+                </div>
                 <div className="text-2xl font-bold text-white font-mono">
                   <AnimatedCounter value={stats.totalValue} prefix="$" />
                 </div>
@@ -1050,20 +1510,36 @@ export default function VaultPage() {
             </div>
             <div className="flex gap-6 text-center">
               <div>
-                <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Monthly</div>
-                <div className="text-lg font-bold text-emerald-400 font-mono">{formatMoneyPrecise(stats.totalMonthly)}</div>
+                <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">
+                  Monthly
+                </div>
+                <div className="text-lg font-bold text-emerald-400 font-mono">
+                  {formatMoneyPrecise(stats.totalMonthly)}
+                </div>
               </div>
               <div>
-                <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Annual</div>
-                <div className="text-lg font-bold text-cyan-400 font-mono">{formatMoney(stats.totalAnnual)}</div>
+                <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">
+                  Annual
+                </div>
+                <div className="text-lg font-bold text-cyan-400 font-mono">
+                  {formatMoney(stats.totalAnnual)}
+                </div>
               </div>
               <div>
-                <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Yield</div>
-                <div className="text-lg font-bold text-amber-400 font-mono">{stats.avgYield.toFixed(1)}%</div>
+                <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">
+                  Yield
+                </div>
+                <div className="text-lg font-bold text-amber-400 font-mono">
+                  {stats.avgYield.toFixed(1)}%
+                </div>
               </div>
               <div>
-                <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">Assets</div>
-                <div className="text-lg font-bold text-white font-mono">{stats.totalAssets}</div>
+                <div className="text-[9px] text-slate-500 uppercase tracking-wider mb-1">
+                  Assets
+                </div>
+                <div className="text-lg font-bold text-white font-mono">
+                  {stats.totalAssets}
+                </div>
               </div>
             </div>
             <button className="px-8 py-3 rounded-xl bg-gradient-to-r from-amber-600 to-yellow-600 text-white font-bold text-sm hover:shadow-[0_0_40px_rgba(245,158,11,0.4)] transition-all hover:scale-105 active:scale-95 uppercase tracking-wider">
@@ -1073,11 +1549,16 @@ export default function VaultPage() {
         </HologramCard>
       </div>
 
-      {/* ─── CSS ANIMATIONS ─── */}
+      {/*  CSS ANIMATIONS  */}
       <style jsx global>{`
         @keyframes pulse-slow {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 0.7; }
+          0%,
+          100% {
+            opacity: 0.3;
+          }
+          50% {
+            opacity: 0.7;
+          }
         }
         .animate-pulse-slow {
           animation: pulse-slow 5s ease-in-out infinite;

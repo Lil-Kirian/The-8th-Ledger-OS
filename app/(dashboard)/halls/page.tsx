@@ -91,7 +91,7 @@ interface ApiHall {
   sriScore?: number;
   ahgiScore?: number;
   pool?: { name?: string; verticalId?: string };
-  [key: string]: unknown;
+  [key: string]: any;
 }
 
 interface DividendSnapshot {
@@ -261,7 +261,7 @@ function mapApiHall(api: ApiHall): Hall {
   };
 }
 
-const STATUS_CONFIG: Record<HallStatus, { label: string; icon: unknown; color: string; bg: string; border: string; pulse: boolean; description: string }> = {
+const STATUS_CONFIG: Record<HallStatus, { label: string; icon: any; color: string; bg: string; border: string; pulse: boolean; description: string }> = {
   ghost: { label: "Ghost", icon: Lock, color: "text-slate-400", bg: "bg-slate-500/10", border: "border-slate-500/20", pulse: false, description: "Invisible to public. Only committers see this hall." },
   live: { label: "Live", icon: Radio, color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", pulse: true, description: "Active governance. Revenue generating. Open proposals." },
   mature: { label: "Mature", icon: CheckCircle2, color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20", pulse: false, description: "Fully filled. Stable revenue. Minimal proposals." },
@@ -719,7 +719,7 @@ function HallCard({ hall, index }: { hall: Hall; index: number }) {
 /* ============================================================
    STAT CARD
    ============================================================ */
-function StatCard({ label, value, sub, icon: Icon, color, delay }: { label: string; value: string; sub: string; icon: unknown; color: string; delay: number }) {
+function StatCard({ label, value, sub, icon: Icon, color, delay }: { label: string; value: string; sub: string; icon: any; color: string; delay: number }) {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay, duration: 0.5 }} className="rounded-2xl border border-white/[0.04] bg-[#0c0c18]/80 backdrop-blur-sm p-4 relative overflow-hidden group hover:border-white/[0.08] transition-colors">
       <div className={cn("absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-[0.07] blur-2xl transition-opacity group-hover:opacity-[0.12]", color.replace("text-", "bg-").replace("400", "500"))} />
@@ -1029,7 +1029,7 @@ export default function HallsPage() {
               { id: "ghost", label: "Ghost", count: halls.filter((h) => h.status === "ghost").length },
               { id: "dormant", label: "Dormant", count: halls.filter((h) => h.status === "dormant").length },
             ].map((tab) => (
-              <button key={tab.id} onClick={() => setFilter(tab.id as unknown)} className={cn("flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all whitespace-nowrap border", filter === tab.id ? "bg-white/[0.08] text-white border-white/15 shadow-lg shadow-white/[0.03]" : "bg-transparent text-white/25 border-white/[0.04] hover:bg-white/[0.03] hover:text-white/45")}>
+              <button key={tab.id} onClick={() => setFilter(tab.id as any)} className={cn("flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all whitespace-nowrap border", filter === tab.id ? "bg-white/[0.08] text-white border-white/15 shadow-lg shadow-white/[0.03]" : "bg-transparent text-white/25 border-white/[0.04] hover:bg-white/[0.03] hover:text-white/45")}>
                 {tab.label}
                 <span className={cn("rounded-full px-1.5 py-0.5 text-[9px]", filter === tab.id ? "bg-white/10 text-white/50" : "bg-white/[0.03] text-white/15")}>{tab.count}</span>
               </button>

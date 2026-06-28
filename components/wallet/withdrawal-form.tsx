@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ───
+//  Types
 
 interface KycTierConfig {
   tier: "visitor" | "sovereign" | "verified" | "whale";
@@ -67,7 +67,7 @@ interface WithdrawalResult {
   delayHours?: number;
 }
 
-// ─── Tier Config ───
+//  Tier Config
 
 const TIER_CONFIG: Record<string, KycTierConfig> = {
   visitor: {
@@ -120,7 +120,7 @@ const TIER_CONFIG: Record<string, KycTierConfig> = {
   },
 };
 
-// ─── Component ───
+//  Component
 
 export default function WithdrawalForm({
   ledgerId,
@@ -133,10 +133,14 @@ export default function WithdrawalForm({
   onSubmit,
   onCancel,
 }: WithdrawalFormProps) {
-  const [step, setStep] = useState<"form" | "verify" | "processing" | "success" | "error">("form");
+  const [step, setStep] = useState<
+    "form" | "verify" | "processing" | "success" | "error"
+  >("form");
   const [amount, setAmount] = useState("");
   const [destination, setDestination] = useState("");
-  const [destinationType, setDestinationType] = useState<"bank" | "crypto" | "mobile_money">("bank");
+  const [destinationType, setDestinationType] = useState<
+    "bank" | "crypto" | "mobile_money"
+  >("bank");
   const [currency, setCurrency] = useState("USD");
   const [totpCode, setTotpCode] = useState("");
   const [nameMatchConfirmed, setNameMatchConfirmed] = useState(false);
@@ -150,14 +154,17 @@ export default function WithdrawalForm({
 
   const numericAmount = parseFloat(amount) || 0;
   const isDormant = lastActivityAt
-    ? Date.now() - new Date(lastActivityAt).getTime() > 365 * 24 * 60 * 60 * 1000
+    ? Date.now() - new Date(lastActivityAt).getTime() >
+      365 * 24 * 60 * 60 * 1000
     : false;
 
   const canWithdraw = kycTier !== "visitor" && !isDormant && ledgerBalance > 0;
-  const exceedsLimit = numericAmount > tierCfg.dailyLimit && tierCfg.dailyLimit !== Infinity;
+  const exceedsLimit =
+    numericAmount > tierCfg.dailyLimit && tierCfg.dailyLimit !== Infinity;
   const exceedsBalance = numericAmount > ledgerBalance;
   const isValidAmount = numericAmount > 0 && !exceedsLimit && !exceedsBalance;
-  const canProceed = isValidAmount && destination.trim().length > 5 && nameMatchConfirmed;
+  const canProceed =
+    isValidAmount && destination.trim().length > 5 && nameMatchConfirmed;
 
   const formatCurrency = (val: number) =>
     new Intl.NumberFormat("en-US", {
@@ -199,13 +206,22 @@ export default function WithdrawalForm({
         setStep("error");
         setError(res.message || "Withdrawal failed");
       }
-    } catch (err: unknown) {
+    } catch (err: any) {
       setStep("error");
       setError(err?.message || "Network error. Please retry.");
     } finally {
       setIsSubmitting(false);
     }
-  }, [numericAmount, destination, destinationType, currency, totpCode, nameMatchConfirmed, totpEnabled, onSubmit]);
+  }, [
+    numericAmount,
+    destination,
+    destinationType,
+    currency,
+    totpCode,
+    nameMatchConfirmed,
+    totpEnabled,
+    onSubmit,
+  ]);
 
   const reset = () => {
     setStep("form");
@@ -217,7 +233,7 @@ export default function WithdrawalForm({
     setResult(null);
   };
 
-  // ─── RENDER: FORM ───
+  //  RENDER: FORM
   if (step === "form") {
     return (
       <div className="w-full max-w-lg mx-auto">
@@ -230,11 +246,22 @@ export default function WithdrawalForm({
                   <Wallet size={20} className="text-cyan-400" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-slate-100">Withdraw Ledger</h2>
-                  <p className="text-[10px] text-slate-500 font-mono mt-0.5">{ledgerId}</p>
+                  <h2 className="text-base font-bold text-slate-100">
+                    Withdraw Ledger
+                  </h2>
+                  <p className="text-[10px] text-slate-500 font-mono mt-0.5">
+                    {ledgerId}
+                  </p>
                 </div>
               </div>
-              <div className={cn("px-2.5 py-1 rounded-lg text-[10px] font-bold border flex items-center gap-1.5", tierCfg.bg, tierCfg.border, tierCfg.color)}>
+              <div
+                className={cn(
+                  "px-2.5 py-1 rounded-lg text-[10px] font-bold border flex items-center gap-1.5",
+                  tierCfg.bg,
+                  tierCfg.border,
+                  tierCfg.color,
+                )}
+              >
                 <TierIcon size={10} />
                 {tierCfg.label}
               </div>
@@ -245,7 +272,9 @@ export default function WithdrawalForm({
             {/* Balance Display */}
             <div className="p-4 rounded-xl bg-slate-800/20 border border-slate-700/30 flex items-center justify-between">
               <div>
-                <div className="text-[10px] text-slate-500 uppercase tracking-wider">Available Balance</div>
+                <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                  Available Balance
+                </div>
                 <div className="text-2xl font-bold text-slate-100 mt-1 font-mono">
                   {showBalance ? formatCurrency(ledgerBalance) : "••••••"}
                 </div>
@@ -261,15 +290,20 @@ export default function WithdrawalForm({
             {/* KYC Tier Gate */}
             {!canWithdraw && (
               <div className="p-4 rounded-xl bg-red-950/10 border border-red-800/20 flex items-start gap-3">
-                <AlertTriangle size={18} className="text-red-400 shrink-0 mt-0.5" />
+                <AlertTriangle
+                  size={18}
+                  className="text-red-400 shrink-0 mt-0.5"
+                />
                 <div>
-                  <div className="text-sm font-bold text-red-300">Withdrawal Blocked</div>
+                  <div className="text-sm font-bold text-red-300">
+                    Withdrawal Blocked
+                  </div>
                   <p className="text-xs text-red-300/70 mt-1 leading-relaxed">
                     {kycTier === "visitor"
                       ? "Visitors cannot withdraw. Complete KYC to unlock withdrawals."
                       : isDormant
-                      ? "Account dormant for 365+ days. Reclaim required before withdrawal."
-                      : "Insufficient balance."}
+                        ? "Account dormant for 365+ days. Reclaim required before withdrawal."
+                        : "Insufficient balance."}
                   </p>
                 </div>
               </div>
@@ -278,10 +312,15 @@ export default function WithdrawalForm({
             {/* Amount Input */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Amount</label>
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Amount
+                </label>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] text-slate-500">
-                    Limit: {tierCfg.dailyLimit === Infinity ? "∞" : formatCurrency(tierCfg.dailyLimit)}
+                    Limit:{" "}
+                    {tierCfg.dailyLimit === Infinity
+                      ? "∞"
+                      : formatCurrency(tierCfg.dailyLimit)}
                   </span>
                   {tierCfg.delayHours > 0 && (
                     <span className="text-[10px] text-amber-400 flex items-center gap-1">
@@ -292,7 +331,9 @@ export default function WithdrawalForm({
                 </div>
               </div>
               <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-mono text-sm">$</div>
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-mono text-sm">
+                  $
+                </div>
                 <input
                   type="number"
                   value={amount}
@@ -304,26 +345,32 @@ export default function WithdrawalForm({
                     exceedsLimit || exceedsBalance
                       ? "border-red-700/40 focus:ring-red-500/20"
                       : "border-slate-700/40 focus:ring-cyan-500/20 focus:border-cyan-600/40",
-                    !canWithdraw && "opacity-50 cursor-not-allowed"
+                    !canWithdraw && "opacity-50 cursor-not-allowed",
                   )}
                 />
                 <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
                   <button
-                    onClick={() => setAmount(Math.floor(ledgerBalance / 4).toString())}
+                    onClick={() =>
+                      setAmount(Math.floor(ledgerBalance / 4).toString())
+                    }
                     disabled={!canWithdraw}
                     className="px-2 py-1 rounded-md bg-slate-800/60 border border-slate-700/40 text-[10px] text-slate-400 hover:text-slate-200 transition-colors disabled:opacity-30"
                   >
                     25%
                   </button>
                   <button
-                    onClick={() => setAmount(Math.floor(ledgerBalance / 2).toString())}
+                    onClick={() =>
+                      setAmount(Math.floor(ledgerBalance / 2).toString())
+                    }
                     disabled={!canWithdraw}
                     className="px-2 py-1 rounded-md bg-slate-800/60 border border-slate-700/40 text-[10px] text-slate-400 hover:text-slate-200 transition-colors disabled:opacity-30"
                   >
                     50%
                   </button>
                   <button
-                    onClick={() => setAmount(Math.floor(ledgerBalance).toString())}
+                    onClick={() =>
+                      setAmount(Math.floor(ledgerBalance).toString())
+                    }
                     disabled={!canWithdraw}
                     className="px-2 py-1 rounded-md bg-slate-800/60 border border-slate-700/40 text-[10px] text-slate-400 hover:text-slate-200 transition-colors disabled:opacity-30"
                   >
@@ -334,7 +381,8 @@ export default function WithdrawalForm({
               {exceedsLimit && (
                 <div className="text-[10px] text-red-400 flex items-center gap-1">
                   <AlertTriangle size={10} />
-                  Exceeds {tierCfg.label} daily limit of {formatCurrency(tierCfg.dailyLimit)}
+                  Exceeds {tierCfg.label} daily limit of{" "}
+                  {formatCurrency(tierCfg.dailyLimit)}
                 </div>
               )}
               {exceedsBalance && (
@@ -347,12 +395,22 @@ export default function WithdrawalForm({
 
             {/* Destination */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Destination</label>
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                Destination
+              </label>
               <div className="grid grid-cols-3 gap-2 mb-2">
                 {(["bank", "crypto", "mobile_money"] as const).map((type) => {
-                  const icons = { bank: Landmark, crypto: Globe, mobile_money: CreditCard };
+                  const icons = {
+                    bank: Landmark,
+                    crypto: Globe,
+                    mobile_money: CreditCard,
+                  };
                   const Icon = icons[type];
-                  const labels = { bank: "Bank", crypto: "Crypto", mobile_money: "Mobile" };
+                  const labels = {
+                    bank: "Bank",
+                    crypto: "Crypto",
+                    mobile_money: "Mobile",
+                  };
                   return (
                     <button
                       key={type}
@@ -363,7 +421,7 @@ export default function WithdrawalForm({
                         destinationType === type
                           ? "bg-cyan-950/20 border-cyan-600/40 text-cyan-400"
                           : "bg-slate-900/20 border-slate-700/30 text-slate-500 hover:text-slate-300",
-                        !canWithdraw && "opacity-50 cursor-not-allowed"
+                        !canWithdraw && "opacity-50 cursor-not-allowed",
                       )}
                     >
                       <Icon size={14} />
@@ -380,20 +438,22 @@ export default function WithdrawalForm({
                   destinationType === "bank"
                     ? "IBAN / Account Number"
                     : destinationType === "crypto"
-                    ? "Wallet Address (0x...)"
-                    : "Mobile Money Number"
+                      ? "Wallet Address (0x...)"
+                      : "Mobile Money Number"
                 }
                 disabled={!canWithdraw}
                 className={cn(
                   "w-full px-4 py-3.5 rounded-xl bg-slate-900/40 border border-slate-700/40 text-sm text-slate-100 placeholder:text-slate-700 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-600/40 transition-all",
-                  !canWithdraw && "opacity-50 cursor-not-allowed"
+                  !canWithdraw && "opacity-50 cursor-not-allowed",
                 )}
               />
             </div>
 
             {/* Currency */}
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Currency</label>
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                Currency
+              </label>
               <div className="flex gap-2">
                 {["USD", "EUR", "GBP"].map((c) => (
                   <button
@@ -405,7 +465,7 @@ export default function WithdrawalForm({
                       currency === c
                         ? "bg-cyan-950/20 border-cyan-600/40 text-cyan-400"
                         : "bg-slate-900/20 border-slate-700/30 text-slate-500 hover:text-slate-300",
-                      !canWithdraw && "opacity-50 cursor-not-allowed"
+                      !canWithdraw && "opacity-50 cursor-not-allowed",
                     )}
                   >
                     {c}
@@ -419,11 +479,16 @@ export default function WithdrawalForm({
               <div className="p-4 rounded-xl bg-slate-800/20 border border-slate-700/30 space-y-3">
                 <div className="flex items-center gap-2">
                   <Fingerprint size={14} className="text-cyan-400" />
-                  <span className="text-xs font-bold text-slate-300">Identity Verification</span>
+                  <span className="text-xs font-bold text-slate-300">
+                    Identity Verification
+                  </span>
                 </div>
                 <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Withdrawals require the destination account to match your verified legal name:
-                  <span className="text-slate-300 font-bold ml-1">{legalName}</span>
+                  Withdrawals require the destination account to match your
+                  verified legal name:
+                  <span className="text-slate-300 font-bold ml-1">
+                    {legalName}
+                  </span>
                 </p>
                 <label className="flex items-center gap-3 cursor-pointer group">
                   <div
@@ -431,10 +496,12 @@ export default function WithdrawalForm({
                       "w-5 h-5 rounded-md border flex items-center justify-center transition-all",
                       nameMatchConfirmed
                         ? "bg-cyan-600 border-cyan-500"
-                        : "bg-slate-900/40 border-slate-700/40 group-hover:border-slate-600"
+                        : "bg-slate-900/40 border-slate-700/40 group-hover:border-slate-600",
                     )}
                   >
-                    {nameMatchConfirmed && <CheckCircle2 size={12} className="text-white" />}
+                    {nameMatchConfirmed && (
+                      <CheckCircle2 size={12} className="text-white" />
+                    )}
                   </div>
                   <input
                     type="checkbox"
@@ -444,7 +511,8 @@ export default function WithdrawalForm({
                     className="sr-only"
                   />
                   <span className="text-xs text-slate-400">
-                    I confirm the destination account is registered under <span className="text-slate-300">{legalName}</span>
+                    I confirm the destination account is registered under{" "}
+                    <span className="text-slate-300">{legalName}</span>
                   </span>
                 </label>
               </div>
@@ -455,9 +523,12 @@ export default function WithdrawalForm({
               <div className="p-4 rounded-xl bg-amber-950/10 border border-amber-800/20 flex items-start gap-3">
                 <Timer size={16} className="text-amber-400 shrink-0 mt-0.5" />
                 <div>
-                  <div className="text-xs font-bold text-amber-300">Dormancy Flag Active</div>
+                  <div className="text-xs font-bold text-amber-300">
+                    Dormancy Flag Active
+                  </div>
                   <p className="text-[10px] text-amber-300/70 mt-1 leading-relaxed">
-                    Account inactive for 365+ days. Withdrawals suspended. Reclaim account to resume.
+                    Account inactive for 365+ days. Withdrawals suspended.
+                    Reclaim account to resume.
                   </p>
                 </div>
               </div>
@@ -480,7 +551,7 @@ export default function WithdrawalForm({
                   "flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold transition-all shadow-lg",
                   canProceed
                     ? "bg-cyan-600 border border-cyan-500 text-white hover:bg-cyan-500 shadow-cyan-900/20"
-                    : "bg-slate-800/40 border border-slate-700/30 text-slate-600 cursor-not-allowed"
+                    : "bg-slate-800/40 border border-slate-700/30 text-slate-600 cursor-not-allowed",
                 )}
               >
                 {isSubmitting ? (
@@ -502,7 +573,7 @@ export default function WithdrawalForm({
     );
   }
 
-  // ─── RENDER: TOTP VERIFY ───
+  //  RENDER: TOTP VERIFY
   if (step === "verify") {
     return (
       <div className="w-full max-w-lg mx-auto">
@@ -513,15 +584,21 @@ export default function WithdrawalForm({
                 <Shield size={20} className="text-cyan-400" />
               </div>
               <div>
-                <h2 className="text-base font-bold text-slate-100">Security Verification</h2>
-                <p className="text-[10px] text-slate-500">6-factor authentication required</p>
+                <h2 className="text-base font-bold text-slate-100">
+                  Security Verification
+                </h2>
+                <p className="text-[10px] text-slate-500">
+                  6-factor authentication required
+                </p>
               </div>
             </div>
           </div>
 
           <div className="p-6 space-y-6">
             <div className="p-4 rounded-xl bg-slate-800/20 border border-slate-700/30 text-center space-y-3">
-              <div className="text-sm text-slate-400">Enter TOTP code from your authenticator</div>
+              <div className="text-sm text-slate-400">
+                Enter TOTP code from your authenticator
+              </div>
               <div className="flex justify-center gap-2">
                 {Array.from({ length: 6 }).map((_, i) => (
                   <input
@@ -535,7 +612,9 @@ export default function WithdrawalForm({
                       newCode[i] = val;
                       setTotpCode(newCode.join("").slice(0, 6));
                       if (val && i < 5) {
-                        const next = document.getElementById(`totp-${i + 1}`) as HTMLInputElement;
+                        const next = document.getElementById(
+                          `totp-${i + 1}`,
+                        ) as HTMLInputElement;
                         next?.focus();
                       }
                     }}
@@ -560,10 +639,14 @@ export default function WithdrawalForm({
                   "flex-1 flex items-center justify-center gap-2 px-5 py-3.5 rounded-xl text-sm font-bold transition-all shadow-lg",
                   totpCode.length === 6
                     ? "bg-cyan-600 border border-cyan-500 text-white hover:bg-cyan-500 shadow-cyan-900/20"
-                    : "bg-slate-800/40 border border-slate-700/30 text-slate-600 cursor-not-allowed"
+                    : "bg-slate-800/40 border border-slate-700/30 text-slate-600 cursor-not-allowed",
                 )}
               >
-                {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Lock size={16} />}
+                {isSubmitting ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <Lock size={16} />
+                )}
                 Confirm Withdrawal
               </button>
             </div>
@@ -573,7 +656,7 @@ export default function WithdrawalForm({
     );
   }
 
-  // ─── RENDER: PROCESSING ───
+  //  RENDER: PROCESSING
   if (step === "processing") {
     return (
       <div className="w-full max-w-lg mx-auto">
@@ -586,7 +669,9 @@ export default function WithdrawalForm({
             </div>
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-100">Processing Withdrawal</h3>
+            <h3 className="text-lg font-bold text-slate-100">
+              Processing Withdrawal
+            </h3>
             <p className="text-sm text-slate-500 mt-2">
               {tierCfg.delayHours > 0
                 ? `This withdrawal will be held for ${tierCfg.delayHours} hours for security review.`
@@ -599,7 +684,7 @@ export default function WithdrawalForm({
     );
   }
 
-  // ─── RENDER: SUCCESS ───
+  //  RENDER: SUCCESS
   if (step === "success" && result) {
     return (
       <div className="w-full max-w-lg mx-auto">
@@ -609,27 +694,38 @@ export default function WithdrawalForm({
               <CheckCircle2 size={36} className="text-emerald-400" />
             </div>
             <div>
-              <h3 className="text-xl font-bold text-slate-100">Withdrawal Initiated</h3>
+              <h3 className="text-xl font-bold text-slate-100">
+                Withdrawal Initiated
+              </h3>
               <p className="text-sm text-slate-500 mt-2">{result.message}</p>
             </div>
 
             <div className="p-4 rounded-xl bg-slate-800/20 border border-slate-700/30 space-y-3 text-left">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">Amount</span>
-                <span className="text-slate-100 font-mono font-bold">{formatCurrency(numericAmount)}</span>
+                <span className="text-slate-100 font-mono font-bold">
+                  {formatCurrency(numericAmount)}
+                </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">Reference</span>
-                <span className="text-slate-300 font-mono text-xs">{result.reference}</span>
+                <span className="text-slate-300 font-mono text-xs">
+                  {result.reference}
+                </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-slate-500">Status</span>
-                <span className={cn(
-                  "text-xs font-bold uppercase px-2 py-0.5 rounded",
-                  result.status === "pending" && "bg-amber-950/20 text-amber-400",
-                  result.status === "processing" && "bg-cyan-950/20 text-cyan-400",
-                  result.status === "completed" && "bg-emerald-950/20 text-emerald-400"
-                )}>
+                <span
+                  className={cn(
+                    "text-xs font-bold uppercase px-2 py-0.5 rounded",
+                    result.status === "pending" &&
+                      "bg-amber-950/20 text-amber-400",
+                    result.status === "processing" &&
+                      "bg-cyan-950/20 text-cyan-400",
+                    result.status === "completed" &&
+                      "bg-emerald-950/20 text-emerald-400",
+                  )}
+                >
                   {result.status}
                 </span>
               </div>
@@ -657,7 +753,7 @@ export default function WithdrawalForm({
     );
   }
 
-  // ─── RENDER: ERROR ───
+  //  RENDER: ERROR
   return (
     <div className="w-full max-w-lg mx-auto">
       <div className="bg-[#0a0a12] border border-slate-800/60 rounded-2xl overflow-hidden shadow-2xl">
@@ -666,7 +762,9 @@ export default function WithdrawalForm({
             <AlertTriangle size={36} className="text-red-400" />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-slate-100">Withdrawal Failed</h3>
+            <h3 className="text-xl font-bold text-slate-100">
+              Withdrawal Failed
+            </h3>
             <p className="text-sm text-red-300/70 mt-2">{error}</p>
           </div>
           <div className="flex gap-3">

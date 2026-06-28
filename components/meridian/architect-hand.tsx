@@ -25,9 +25,9 @@ import {
   Award,
 } from "lucide-react";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES — Schema-Aligned
-// ─────────────────────────────────────────────────────────────
+//
 
 interface TiedPool {
   id: string;
@@ -53,9 +53,9 @@ interface ArchitectHandProps {
   lastDecisionAt?: Date | string | null;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // DESIGN SYSTEM — The Throne Room Palette
-// ─────────────────────────────────────────────────────────────
+//
 
 const VERTICAL_CONFIG: Record<string, { label: string; color: string; emoji: string; bg: string }> = {
   ledgerprop: { label: "LedgerProp", color: "text-blue-400", emoji: "🏠", bg: "bg-blue-400/10" },
@@ -70,9 +70,9 @@ const VERTICAL_CONFIG: Record<string, { label: string; color: string; emoji: str
   ledgeraccess: { label: "LedgerAccess", color: "text-teal-400", emoji: "📡", bg: "bg-teal-400/10" },
 };
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function generateDecisionHash(cycleId: string, poolId: string, timestamp: number): string {
   const input = `ARCHITECT-HAND:${cycleId}:${poolId}:${timestamp}`;
@@ -85,9 +85,9 @@ function generateDecisionHash(cycleId: string, poolId: string, timestamp: number
   return `AH-${hex.slice(0, 4)}-${hex.slice(4, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}`;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // SUB-COMPONENTS
-// ─────────────────────────────────────────────────────────────
+//
 
 function CandidateCard({
   pool,
@@ -260,9 +260,9 @@ function CompactReceipt({ cycleId, pool, hash }: { cycleId: string; pool: TiedPo
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────
+//
 
 export default function ArchitectHand({
   cycleId,
@@ -318,11 +318,15 @@ export default function ArchitectHand({
         setDecisionHash(hash);
         setStep("forged");
       } else {
-        setErrorMessage(result.error || "The forge failed. The cycle is unchanged.");
+        setErrorMessage(
+          result.error || "The forge failed. The cycle is unchanged.",
+        );
         setStep("error");
       }
-    } catch (err: unknown) {
-      setErrorMessage(err.message || "Network failure. The seal could not be struck.");
+    } catch (err: any) {
+      setErrorMessage(
+        err.message || "Network failure. The seal could not be struck.",
+      );
       setStep("error");
     }
   }, [selectedPoolId, onForge, cycleId]);

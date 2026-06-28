@@ -7,7 +7,7 @@ import { requireAuth } from "@/lib/auth";
 // 48-hour vote window. 51% threshold. Only owners or admin can trigger.
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth(req);
@@ -181,7 +181,7 @@ export async function POST(
       nominees,
       message: "Election called. Owners must vote within 48 hours.",
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[CABINET ELECT]", error);
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

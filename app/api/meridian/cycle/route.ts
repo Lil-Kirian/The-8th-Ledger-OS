@@ -8,9 +8,9 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS & CONFIG
-// ─────────────────────────────────────────────────────────────
+//
 
 const VALID_CONTINENTS = [
   "africa",
@@ -41,9 +41,9 @@ const PHASE_ORDER: Array<keyof typeof PHASE_DURATIONS_MS> = [
 
 const CONTINENT_LOCK_CYCLES = 2; // Winner continent locked for N cycles
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function isValidContinent(c: string): c is Continent {
   return VALID_CONTINENTS.includes(c as Continent);
@@ -87,10 +87,10 @@ async function logAudit(props: {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/meridian/cycle
 // Public. Returns the active (non-complete) cycle. Cached 30s.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(req: NextRequest) {
   try {
@@ -327,10 +327,10 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST /api/meridian/cycle
 // Admin-only. Spawns a new cycle. Validates continent lock. Atomic.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function POST(req: NextRequest) {
   try {
@@ -338,8 +338,11 @@ export async function POST(req: NextRequest) {
     const user = await requireAuth(req);
     if (user.role !== "admin") {
       return NextResponse.json(
-        { error: "The Architect only. Admin role required.", code: "FORBIDDEN" },
-        { status: 403 }
+        {
+          error: "The Architect only. Admin role required.",
+          code: "FORBIDDEN",
+        },
+        { status: 403 },
       );
     }
 
@@ -357,7 +360,7 @@ export async function POST(req: NextRequest) {
           error: `Continent must be one of: ${VALID_CONTINENTS.join(", ")}`,
           code: "VALIDATION_CONTINENT",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -374,7 +377,7 @@ export async function POST(req: NextRequest) {
           code: "CYCLE_ACTIVE",
           activeCycleId: existingActive.id,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -394,9 +397,11 @@ export async function POST(req: NextRequest) {
           error: `${continent} is locked for ${CONTINENT_LOCK_CYCLES} cycles. Choose another continent.`,
           code: "CONTINENT_LOCKED",
           lockedContinents,
-          availableContinents: VALID_CONTINENTS.filter((c) => !lockedContinents.includes(c)),
+          availableContinents: VALID_CONTINENTS.filter(
+            (c) => !lockedContinents.includes(c),
+          ),
         },
-        { status: 423 }
+        { status: 423 },
       );
     }
 
@@ -405,8 +410,11 @@ export async function POST(req: NextRequest) {
     if (poolIds && Array.isArray(poolIds) && poolIds.length > 0) {
       if (poolIds.length > 6) {
         return NextResponse.json(
-          { error: "Max 6 competing pools per cycle", code: "VALIDATION_POOL_LIMIT" },
-          { status: 400 }
+          {
+            error: "Max 6 competing pools per cycle",
+            code: "VALIDATION_POOL_LIMIT",
+          },
+          { status: 400 },
         );
       }
 
@@ -419,8 +427,11 @@ export async function POST(req: NextRequest) {
       const missing = poolIds.filter((id) => !foundIds.has(id));
       if (missing.length > 0) {
         return NextResponse.json(
-          { error: `Pools not found: ${missing.join(", ")}`, code: "VALIDATION_POOLS" },
-          { status: 400 }
+          {
+            error: `Pools not found: ${missing.join(", ")}`,
+            code: "VALIDATION_POOLS",
+          },
+          { status: 400 },
         );
       }
 
@@ -437,7 +448,7 @@ export async function POST(req: NextRequest) {
       if (!handPool) {
         return NextResponse.json(
           { error: "Architect's Hand pool not found", code: "VALIDATION_HAND" },
-          { status: 400 }
+          { status: 400 },
         );
       }
       validatedArchitectHandId = handPool.id;
@@ -545,24 +556,29 @@ export async function POST(req: NextRequest) {
           createdBy: user.ledgerId,
           phaseDuration: PHASE_DURATIONS_MS.hush,
           nextPhase: "unveil",
-          architectHand: validatedArchitectHandId ? maskPoolId(validatedArchitectHandId) : null,
+          architectHand: validatedArchitectHandId
+            ? maskPoolId(validatedArchitectHandId)
+            : null,
         },
       },
-      { status: 201 }
+      { status: 201 },
     );
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[MERIDIAN_CYCLE_POST]", error);
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
         { error: "Authentication required", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     return NextResponse.json(
       { error: "Failed to create Meridian Cycle", code: "MERIDIAN_002" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

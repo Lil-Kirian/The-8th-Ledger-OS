@@ -66,7 +66,7 @@ export async function GET(req: NextRequest) {
       lockMinutesRemaining: remaining,
       attempts: user.adminPinAttempts || 0,
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[ADMIN PIN GET]", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
@@ -145,7 +145,7 @@ export async function POST(req: NextRequest) {
 
       if (!isValid) {
         const newAttempts = (user.adminPinAttempts || 0) + 1;
-        const lockoutData: unknown = { adminPinAttempts: newAttempts };
+        const lockoutData: any = { adminPinAttempts: newAttempts };
 
         if (newAttempts >= 3) {
           lockoutData.adminLockedUntil = new Date(Date.now() + 15 * 60 * 1000);
@@ -280,7 +280,7 @@ export async function POST(req: NextRequest) {
       { error: "Invalid action. Use set, verify, or change" },
       { status: 400 },
     );
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[ADMIN PIN]", err);
     return NextResponse.json(
       { error: err.message || "Admin PIN failed" },

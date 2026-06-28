@@ -205,7 +205,7 @@ export default function AdminAuditPage() {
   }
 
   function getEventBadge(eventType: string) {
-    const map: Record<string, { color: string; icon: unknown }> = {
+    const map: Record<string, { color: string; icon: any }> = {
       marketplace_listing: { color: "bg-sky-500/10 text-sky-400 border-sky-500/20", icon: ShoppingCart },
       marketplace_sale: { color: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", icon: ShoppingCart },
       treasury_deposit: { color: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20", icon: Wallet },
@@ -261,7 +261,7 @@ export default function AdminAuditPage() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             className={`rounded-xl border border-${s.color}-500/10 bg-${s.color}-500/[0.04] p-4 backdrop-blur-sm cursor-pointer transition-all hover:bg-${s.color}-500/[0.08]`}
-            onClick={() => setActiveTab(s.label === "Total Logs" ? "all" : s.label.toLowerCase().split(" ")[0] as unknown)}
+            onClick={() => setActiveTab(s.label === "Total Logs" ? "all" : s.label.toLowerCase().split(" ")[0] as any)}
           >
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-wider text-slate-500">
               <s.icon className={`h-3.5 w-3.5 text-${s.color}-400`} />
@@ -287,7 +287,7 @@ export default function AdminAuditPage() {
             return (
               <button
                 key={t.key}
-                onClick={() => setActiveTab(t.key as unknown)}
+                onClick={() => setActiveTab(t.key as any)}
                 className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold transition-all ${
                   active
                     ? "border-amber-500/20 bg-amber-500/10 text-amber-300 ring-1 ring-amber-500/20"

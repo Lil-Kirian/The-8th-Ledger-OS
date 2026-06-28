@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
     const offset = parseInt(searchParams.get("offset") || "0", 10);
 
     /* ── Build where clause ── */
-    const where: unknown = {
+    const where: any = {
       type: "withdrawal",
     };
     if (statusFilter) {
@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
     });
 
     /* ── Map to expected shape ── */
-    const mapped = withdrawals.map((w: unknown) => ({
+    const mapped = withdrawals.map((w: any) => ({
       id: w.id,
       userId: w.userId,
       displayName: w.user?.displayName || "Unknown",
@@ -114,14 +114,14 @@ export async function GET(req: NextRequest) {
 
     const stats = {
       total: allWithdrawals.length,
-      pending: allWithdrawals.filter((w: unknown) => w.status === "pending").length,
-      processing: allWithdrawals.filter((w: unknown) => w.status === "processing").length,
-      completed: allWithdrawals.filter((w: unknown) => w.status === "completed").length,
-      rejected: allWithdrawals.filter((w: unknown) => w.status === "rejected").length,
+      pending: allWithdrawals.filter((w: any) => w.status === "pending").length,
+      processing: allWithdrawals.filter((w: any) => w.status === "processing").length,
+      completed: allWithdrawals.filter((w: any) => w.status === "completed").length,
+      rejected: allWithdrawals.filter((w: any) => w.status === "rejected").length,
       pendingAmount: allWithdrawals
-        .filter((w: unknown) => w.status === "pending")
-        .reduce((s: number, w: unknown) => s + Number(w.amount), 0),
-      totalAmount: allWithdrawals.reduce((s: number, w: unknown) => s + Number(w.amount), 0),
+        .filter((w: any) => w.status === "pending")
+        .reduce((s: number, w: any) => s + Number(w.amount), 0),
+      totalAmount: allWithdrawals.reduce((s: number, w: any) => s + Number(w.amount), 0),
     };
 
     /* ── Audit ── */
@@ -144,7 +144,7 @@ export async function GET(req: NextRequest) {
         hasMore: mapped.length === limit,
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[API/admin/withdrawals GET]", err);
     return NextResponse.json(
       { success: false, error: "Failed to fetch withdrawals" },
@@ -264,7 +264,7 @@ export async function PATCH(req: NextRequest) {
     }
 
     /* ── Update withdrawal status ── */
-    const updateData: unknown = {
+    const updateData: any = {
       status,
       processedAt: new Date(),
       processedBy: admin.id,
@@ -317,7 +317,7 @@ export async function PATCH(req: NextRequest) {
       },
       message: `Withdrawal ${withdrawalId} marked as ${status}`,
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[API/admin/withdrawals PATCH]", err);
     return NextResponse.json(
       { success: false, error: "Action failed: " + err.message },

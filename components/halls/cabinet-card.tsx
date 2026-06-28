@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ─────────────────────────────────────────────────────────
+//  Types
 
 export type CabinetRole = "speaker" | "treasurer" | "warden" | "scribe";
 
@@ -47,7 +47,7 @@ export interface CabinetCardProps {
   className?: string;
 }
 
-// ─── Role Config ───────────────────────────────────────────────────────
+//  Role Config
 
 const ROLE_CONFIG: Record<
   CabinetRole,
@@ -124,7 +124,7 @@ const ROLE_CONFIG: Record<
   },
 };
 
-// ─── Helpers ─────────────────────────────────────────────────────────
+//  Helpers
 
 function getTermProgress(electedAt: Date, expiresAt: Date): number {
   const now = Date.now();
@@ -150,7 +150,7 @@ function daysRemaining(expiresAt: Date): number {
   return Math.max(0, Math.ceil(diff / (1000 * 60 * 60 * 24)));
 }
 
-// ─── Component ───────────────────────────────────────────────────────
+//  Component
 
 export function CabinetCard({
   member,
@@ -392,7 +392,7 @@ export function CabinetCard({
   );
 }
 
-// ─── Skeleton Loader ─────────────────────────────────────────────────
+//  Skeleton Loader
 
 export function CabinetCardSkeleton() {
   return (

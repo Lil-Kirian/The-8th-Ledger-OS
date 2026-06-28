@@ -757,7 +757,7 @@ export default function VerticalsPage() {
         const res = await fetch("/api/pools?status=all");
         const data = await res.json();
         if (data.success && data.pools) {
-          setPools(data.pools.map((p: unknown) => ({
+          setPools(data.pools.map((p: any) => ({
             ...p,
             target: p.target || p.accessThreshold || 0,
             id: p.poolId || p.id,

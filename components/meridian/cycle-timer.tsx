@@ -5,9 +5,9 @@ import { useEffect, useMemo, useState } from "react";
 import { motion, useMotionValue, useTransform, animate } from "framer-motion";
 import { Globe, Clock, Lock, Sparkles, Shield, Flame } from "lucide-react";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES — Schema-aligned with MeridianCycle model
-// ─────────────────────────────────────────────────────────────
+//
 
 type Phase = "hush" | "unveil" | "reveal" | "forge" | "complete";
 
@@ -33,9 +33,9 @@ interface PhaseConfig {
   durationHours: number;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // PHASE CONFIGURATION — Matches Meridian Cycle spec
-// ─────────────────────────────────────────────────────────────
+//
 
 const PHASE_MAP: Record<Phase, PhaseConfig> = {
   hush: {
@@ -85,9 +85,9 @@ const PHASE_MAP: Record<Phase, PhaseConfig> = {
   },
 };
 
-// ─────────────────────────────────────────────────────────────
+//
 // TIME UTILITIES
-// ─────────────────────────────────────────────────────────────
+//
 
 function parseDate(input: Date | string): Date {
   return input instanceof Date ? input : new Date(input);
@@ -107,9 +107,9 @@ function formatDuration(ms: number): string {
   return days > 0 ? `${days}d ${hh}:${mm}:${ss}` : `${hh}:${mm}:${ss}`;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GLITCH TEXT — Memoized character animation
-// ─────────────────────────────────────────────────────────────
+//
 
 function GlitchText({ text, colorClass }: { text: string; colorClass: string }) {
   const chars = useMemo(() => text.split(""), [text]);
@@ -136,9 +136,9 @@ function GlitchText({ text, colorClass }: { text: string; colorClass: string }) 
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────
+//
 
 export default function CycleTimer({
   phase,
@@ -155,23 +155,28 @@ export default function CycleTimer({
   const startAt = useMemo(() => parseDate(startAtRaw), [startAtRaw]);
   const config = PHASE_MAP[phase];
 
-  // ── Timer state ───────────────────────────────────────────
-  const [timeLeft, setTimeLeft] = useState(() => Math.max(0, endAt.getTime() - Date.now()));
+  // ── Timer state ─
+  const [timeLeft, setTimeLeft] = useState(() =>
+    Math.max(0, endAt.getTime() - Date.now()),
+  );
   const [isExpired, setIsExpired] = useState(false);
 
-  // ── Motion values for smooth progress (no re-render) ──────
+  // ── Motion values for smooth progress (no re-render) ──
   const progressValue = useMotionValue(0);
   const progressWidth = useTransform(progressValue, [0, 100], ["0%", "100%"]);
 
-  // ── Calculate progress percentage ─────────────────────────
-  const totalDuration = useMemo(() => endAt.getTime() - startAt.getTime(), [endAt, startAt]);
+  // ── Calculate progress percentage ─
+  const totalDuration = useMemo(
+    () => endAt.getTime() - startAt.getTime(),
+    [endAt, startAt],
+  );
   const progressPercent = useMemo(() => {
     if (totalDuration <= 0) return 100;
     const elapsed = totalDuration - timeLeft;
     return Math.min(100, Math.max(0, (elapsed / totalDuration) * 100));
   }, [totalDuration, timeLeft]);
 
-  // ── Animate progress bar smoothly ─────────────────────────
+  // ── Animate progress bar smoothly ─
   useEffect(() => {
     const controls = animate(progressValue, progressPercent, {
       duration: 0.8,
@@ -180,7 +185,7 @@ export default function CycleTimer({
     return controls.stop;
   }, [progressPercent, progressValue]);
 
-  // ── Tick every second ─────────────────────────────────────
+  // ── Tick every second
   useEffect(() => {
     const tick = () => {
       const remaining = Math.max(0, endAt.getTime() - Date.now());
@@ -193,12 +198,12 @@ export default function CycleTimer({
     return () => clearInterval(interval);
   }, [endAt]);
 
-  // ── Hydration-safe mount ──────────────────────────────────
+  // ── Hydration-safe mount ─
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
   if (!mounted) return <CycleTimerSkeleton phase={phase} />;
 
-  // ── Derived display values ────────────────────────────────
+  // ── Derived display values
   const displayPools = competingPools ?? totalPools;
   const isLocked = lockStatus === "locked" || phase === "complete" || isExpired;
 
@@ -224,7 +229,7 @@ export default function CycleTimer({
       </div>
 
       <div className="relative z-10 p-8 md:p-12 text-center space-y-8">
-        {/* ── Phase Badge ─────────────────────────────────── */}
+        {/* ── Phase Badge  */}
         <div className="flex items-center justify-center gap-3">
           <motion.div
             animate={phase === "hush" ? { scale: [1, 1.3, 1] } : {}}
@@ -246,18 +251,26 @@ export default function CycleTimer({
           )}
         </div>
 
-        {/* ── Continent ────────────────────────────────────── */}
+        {/* ── Continent  */}
         <div className="space-y-3">
           <h2 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight">
-            <GlitchText text={continent.toUpperCase()} colorClass={config.color} />
+            <GlitchText
+              text={continent.toUpperCase()}
+              colorClass={config.color}
+            />
           </h2>
           <p className="text-sm md:text-base text-slate-500 font-medium max-w-md mx-auto">
             {config.subtitle}
           </p>
         </div>
 
-        {/* ── Timer ────────────────────────────────────────── */}
-        <div className="space-y-4" role="timer" aria-live="polite" aria-atomic="true">
+        {/* ── Timer  */}
+        <div
+          className="space-y-4"
+          role="timer"
+          aria-live="polite"
+          aria-atomic="true"
+        >
           <div
             className={`font-mono font-bold tracking-wider ${
               isExpired ? "text-slate-600" : "text-slate-100"
@@ -312,7 +325,7 @@ export default function CycleTimer({
           </div>
         </div>
 
-        {/* ── Phase-specific CTA / Status ──────────────────── */}
+        {/* ── Phase-specific CTA / Status  */}
         {phase === "hush" && (
           <motion.p
             animate={{ opacity: [0.4, 0.8, 0.4] }}
@@ -340,7 +353,9 @@ export default function CycleTimer({
         {phase === "complete" && (
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-slate-800/40 border border-slate-700/50 rounded-xl">
             <Shield className="w-4 h-4 text-slate-400" />
-            <span className="text-sm text-slate-400">Awaiting next rotation</span>
+            <span className="text-sm text-slate-400">
+              Awaiting next rotation
+            </span>
           </div>
         )}
       </div>
@@ -348,9 +363,9 @@ export default function CycleTimer({
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // SKELETON — Prevents hydration mismatch
-// ─────────────────────────────────────────────────────────────
+//
 
 function CycleTimerSkeleton({ phase }: { phase: Phase }) {
   const config = PHASE_MAP[phase];

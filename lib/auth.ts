@@ -111,13 +111,13 @@ export async function getSessionUser() {
   /* ── Fast path: JWT token (no DB hit) ── */
   if (token.includes(".")) {
     try {
-      const claims = (await verifyToken(token)) as unknown as SessionClaims;
+      const claims = (await verifyToken(token)) as any as SessionClaims;
       const user = await prisma.user.findUnique({
         where: { ledgerId: claims.ledgerId },
         include: { kycRecord: true, wallet: true },
       });
       if (!user) return null;
-      (user as unknown)._sessionClaims = claims;
+      (user as any)._sessionClaims = claims;
       return user;
     } catch {
       // JWT invalid — fall through to legacy DB lookup
@@ -145,7 +145,7 @@ export async function getSessionClaims(): Promise<SessionClaims | null> {
   if (!token || !token.includes(".")) return null;
 
   try {
-    const claims = (await verifyToken(token)) as unknown as SessionClaims;
+    const claims = (await verifyToken(token)) as any as SessionClaims;
     return claims;
   } catch {
     return null;
@@ -492,7 +492,7 @@ export function calculatePirAllocation(
 
 const API_BASE = "";
 
-async function post<T>(path: string, body: unknown): Promise<T> {
+async function post<T>(path: string, body: any): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -518,7 +518,7 @@ async function del<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
-async function patch<T>(path: string, body: unknown): Promise<T> {
+async function patch<T>(path: string, body: any): Promise<T> {
   const res = await fetch(`${API_BASE}${path}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -551,11 +551,11 @@ export async function severConnection(): Promise<AuthResponse> {
 
 /* === V3.2 KYC Client Wrappers === */
 export async function getKycStatus() {
-  return get<{ success: boolean; kyc?: unknown; error?: string }>("/api/kyc");
+  return get<{ success: boolean; kyc?: any; error?: string }>("/api/kyc");
 }
 
-export async function submitKycStep(step: string, data: unknown) {
-  return post<{ success: boolean; kyc?: unknown; error?: string }>("/api/kyc", {
+export async function submitKycStep(step: string, data: any) {
+  return post<{ success: boolean; kyc?: any; error?: string }>("/api/kyc", {
     step,
     ...data,
   });
@@ -563,7 +563,7 @@ export async function submitKycStep(step: string, data: unknown) {
 
 /* === V3.2 Hall Client Wrappers === */
 export async function getHall(hallId: string) {
-  return get<{ success: boolean; hall?: unknown; error?: string }>(
+  return get<{ success: boolean; hall?: any; error?: string }>(
     `/api/halls/${hallId}`,
   );
 }
@@ -574,7 +574,7 @@ export async function sendHallMessage(
   type = "text",
   isEphemeral = false,
 ) {
-  return post<{ success: boolean; message?: unknown; error?: string }>(
+  return post<{ success: boolean; message?: any; error?: string }>(
     `/api/halls/${hallId}/messages`,
     {
       content,
@@ -584,8 +584,8 @@ export async function sendHallMessage(
   );
 }
 
-export async function createProposal(hallId: string, proposal: unknown) {
-  return post<{ success: boolean; proposal?: unknown; error?: string }>(
+export async function createProposal(hallId: string, proposal: any) {
+  return post<{ success: boolean; proposal?: any; error?: string }>(
     `/api/halls/${hallId}/proposals`,
     proposal,
   );
@@ -596,14 +596,14 @@ export async function voteOnProposal(
   proposalId: string,
   choice: "yes" | "no",
 ) {
-  return post<{ success: boolean; vote?: unknown; error?: string }>(
+  return post<{ success: boolean; vote?: any; error?: string }>(
     `/api/halls/${hallId}/proposals/${proposalId}/vote`,
     { choice },
   );
 }
 
 export async function getHallMarketplace(hallId: string) {
-  return get<{ success: boolean; items?: unknown[]; error?: string }>(
+  return get<{ success: boolean; items?: any[]; error?: string }>(
     `/api/halls/${hallId}/marketplace`,
   );
 }
@@ -614,7 +614,7 @@ export async function createMarketplaceOrder(
   quantity: number,
   refCode?: string,
 ) {
-  return post<{ success: boolean; order?: unknown; error?: string }>(
+  return post<{ success: boolean; order?: any; error?: string }>(
     `/api/halls/${hallId}/marketplace/orders`,
     {
       itemId,
@@ -625,7 +625,7 @@ export async function createMarketplaceOrder(
 }
 
 export async function generateShareLink(itemId: string, platform?: string) {
-  return post<{ success: boolean; share?: unknown; error?: string }>(
+  return post<{ success: boolean; share?: any; error?: string }>(
     "/api/marketplace/share",
     { itemId, platform },
   );
@@ -638,7 +638,7 @@ export async function requestWithdrawal(
   destinationType = "bank",
   totpCode?: string,
 ) {
-  return post<{ success: boolean; withdrawal?: unknown; error?: string }>(
+  return post<{ success: boolean; withdrawal?: any; error?: string }>(
     "/api/wallet/withdraw",
     {
       amount,

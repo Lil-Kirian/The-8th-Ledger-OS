@@ -27,9 +27,9 @@ import {
   FileCheck,
 } from "lucide-react";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES — Schema-Aligned
-// ─────────────────────────────────────────────────────────────
+//
 
 export interface RelayFeedItem {
   id: string;
@@ -56,9 +56,9 @@ interface RelayFeedProps {
   isLast?: boolean;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // DESIGN SYSTEM — The Governance Wire
-// ─────────────────────────────────────────────────────────────
+//
 
 const EVENT_CONFIG: Record<string, {
   icon: React.ElementType;
@@ -207,9 +207,9 @@ const HALL_CLASS_CONFIG: Record<string, { color: string; label: string }> = {
   III: { color: "text-cyan-400", label: "Active" },
 };
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function timeAgo(date: string): string {
   const diff = Date.now() - new Date(date).getTime();
@@ -227,9 +227,9 @@ function getEventConfig(type: string) {
   return EVENT_CONFIG[type] || EVENT_CONFIG.proposal;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // SUB-COMPONENTS
-// ─────────────────────────────────────────────────────────────
+//
 
 function TimelineNode({
   config,
@@ -299,9 +299,9 @@ function HallClassBadge({ class: className }: { class: string | null }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────
+//
 
 export function RelayFeed({ item, index = 0, isLast = false }: RelayFeedProps) {
   const eventConfig = getEventConfig(item.event.type);

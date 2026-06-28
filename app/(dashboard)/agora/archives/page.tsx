@@ -17,7 +17,7 @@ import Link from "next/link";
 import useSWR, { mutate } from "swr";
 import { useAuth } from "@/hooks/use-auth";
 
-// ── Types ───────────────────────────────────────────────────
+// ── Types
 
 interface QA {
   id: string;
@@ -41,11 +41,11 @@ interface QA {
   } | null;
 }
 
-// ── Fetcher ─────────────────────────────────────────────────
+// ── Fetcher
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-// ── Components ──────────────────────────────────────────────
+// ── Components
 
 function HeraldBadge({ role, kycTier }: { role: string; kycTier: string }) {
   if (role === "admin") {
@@ -177,7 +177,7 @@ function QACard({ qa, isHerald }: { qa: QA; isHerald: boolean }) {
   );
 }
 
-// ── Main Page ───────────────────────────────────────────────
+// ── Main Page ─
 
 export default function ArchivesPage() {
   const { user } = useAuth();
@@ -186,11 +186,11 @@ export default function ArchivesPage() {
   const [question, setQuestion] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
-  const isHerald = user && (
-    user.kycTier === "verified" || 
-    user.kycTier === "whale" || 
-    user.role === "admin"
-  );
+  const isHerald =
+    user &&
+    (user.kycTier === "verified" ||
+      user.kycTier === "whale" ||
+      user.role === "admin");
 
   const queryParams = new URLSearchParams();
   queryParams.set("limit", "50");
@@ -231,11 +231,14 @@ export default function ArchivesPage() {
             <Link href="/agora" className="text-white/30 hover:text-white/60">
               <ArrowLeft className="h-4 w-4" />
             </Link>
-            <span className="text-xs font-medium uppercase tracking-[0.2em] text-violet-400/60">The Agora</span>
+            <span className="text-xs font-medium uppercase tracking-[0.2em] text-violet-400/60">
+              The Agora
+            </span>
           </div>
           <h1 className="text-3xl font-bold text-white">The Archives</h1>
           <p className="mt-1 text-white/40">
-            The Scribe answers from the Codex. Heralds moderate. Knowledge is sovereign.
+            The Scribe answers from the Codex. Heralds moderate. Knowledge is
+            sovereign.
           </p>
         </div>
       </div>
@@ -282,11 +285,15 @@ export default function ArchivesPage() {
           </div>
           <select
             value={sort}
-            onChange={(e) => setSort(e.target.value as unknown)}
+            onChange={(e) => setSort(e.target.value as any)}
             className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-cyan-500/50 focus:outline-none"
           >
-            <option value="unanswered_first" className="bg-[#0f0f14]">Unanswered First</option>
-            <option value="newest" className="bg-[#0f0f14]">Newest</option>
+            <option value="unanswered_first" className="bg-[#0f0f14]">
+              Unanswered First
+            </option>
+            <option value="newest" className="bg-[#0f0f14]">
+              Newest
+            </option>
           </select>
         </div>
 
@@ -294,7 +301,10 @@ export default function ArchivesPage() {
         {isLoading ? (
           <div className="space-y-4">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-40 rounded-2xl bg-white/[0.02] animate-pulse" />
+              <div
+                key={i}
+                className="h-40 rounded-2xl bg-white/[0.02] animate-pulse"
+              />
             ))}
           </div>
         ) : error ? (
@@ -305,7 +315,9 @@ export default function ArchivesPage() {
         ) : data?.questions?.length === 0 ? (
           <div className="text-center py-20">
             <BookOpen className="mx-auto h-12 w-12 text-white/10" />
-            <p className="mt-4 text-white/30">The Archives are empty. Ask the first question.</p>
+            <p className="mt-4 text-white/30">
+              The Archives are empty. Ask the first question.
+            </p>
           </div>
         ) : (
           <div className="space-y-4">

@@ -179,7 +179,7 @@ export async function GET(
           : `Healthy: Inventory clears in ~${monthsToClear !== null ? Number(monthsToClear.toFixed(1)) : "∞"} months.`,
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[HALL_VELOCITY_GET]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
@@ -473,7 +473,7 @@ export async function POST(
       { success: false, error: "Invalid action" },
       { status: 400 }
     );
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[HALL_VELOCITY_POST]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(

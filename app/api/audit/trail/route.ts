@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
     const eventType = searchParams.get("type");
 
-    const where: unknown = {
+    const where: any = {
       OR: [{ visibleToPublic: true }, { ledgerId: user.ledgerId }],
     };
     if (eventType) where.eventType = eventType;

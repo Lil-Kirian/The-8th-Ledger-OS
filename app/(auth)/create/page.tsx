@@ -54,7 +54,7 @@ const COUNTRIES: string[] = [
   "Vanuatu","Vatican City","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe",
 ];
 
-export default function CreatePage(): JSX.Element {
+export default function CreatePage() {
   const router = useRouter();
   const { mutate } = useAuth();
   const [step, setStep] = useState<1 | 2>(1);
@@ -114,7 +114,7 @@ export default function CreatePage(): JSX.Element {
 
       let result: AuthInitiateResponse;
       try {
-        const raw: unknown = await res.json();
+        const raw: any = await res.json();
         if (typeof raw !== "object" || raw === null) {
           throw new Error("Invalid response structure");
         }

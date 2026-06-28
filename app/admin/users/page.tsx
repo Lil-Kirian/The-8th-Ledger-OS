@@ -95,7 +95,7 @@ function UserActionMenu({
   loading,
 }: {
   user: User;
-  onAction: (action: string, ledgerId: string, payload?: unknown) => void;
+  onAction: (action: string, ledgerId: string, payload?: any) => void;
   loading: boolean;
 }) {
   const [open, setOpen] = useState(false);
@@ -368,7 +368,7 @@ export default function UsersPage() {
   async function handleAction(action: string, ledgerId: string) {
     setActionLoading(ledgerId);
     try {
-      const body: unknown = { action, ledgerId };
+      const body: any = { action, ledgerId };
       if (action === "promote") body.tierDelta = 1;
       if (action === "demote") body.tierDelta = -1;
 

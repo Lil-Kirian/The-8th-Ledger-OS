@@ -62,6 +62,48 @@ export interface RelayMessageInput {
   loggedBy: string;
 }
 
+export interface HallClassWorkerRules {
+  maxWorkers: number;
+  canProposeHire: boolean;
+  canProposeFire: boolean;
+  showIndividualSalaries: boolean;
+}
+
+export function getHallClassWorkerRules(hallClass?: string | null): HallClassWorkerRules {
+  switch (hallClass) {
+    case "III":
+      return {
+        maxWorkers: 50,
+        canProposeHire: true,
+        canProposeFire: true,
+        showIndividualSalaries: true,
+      };
+    case "II":
+      return {
+        maxWorkers: 20,
+        canProposeHire: true,
+        canProposeFire: false,
+        showIndividualSalaries: false,
+      };
+    default:
+      return {
+        maxWorkers: 0,
+        canProposeHire: false,
+        canProposeFire: false,
+        showIndividualSalaries: false,
+      };
+  }
+}
+
+export function calculatePerformanceScore(metrics: Record<string, unknown>): number {
+  const numericValues = Object.values(metrics)
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value));
+
+  if (numericValues.length === 0) return 50;
+  return numericValues.reduce((sum, value) => sum + value, 0) / numericValues.length;
+}
+
 /* ============================================================
    WORKER CRUD
    ============================================================ */
@@ -260,11 +302,19 @@ export async function recordPerformance(input: WorkerPerformanceInput): Promise<
  */
 export async function executePayroll(
   hallId: string,
-  month: string,
-  executorId: string,
-  isAdmin: boolean
+  monthOrExecutorId?: string,
+  executorId?: string,
+  isAdmin: boolean = true
 ): Promise<{ success: boolean; payroll?: PayrollExecution; error?: string }> {
   if (!isAdmin) return { success: false, error: "8th Ledger authority required" };
+  const month =
+    monthOrExecutorId && /^\d{4}-\d{2}$/.test(monthOrExecutorId)
+      ? monthOrExecutorId
+      : new Date().toISOString().slice(0, 7);
+  const executedBy =
+    monthOrExecutorId && !/^\d{4}-\d{2}$/.test(monthOrExecutorId)
+      ? monthOrExecutorId
+      : executorId ?? "system";
 
   const hall = await prisma.hall.findUnique({
     where: { id: hallId },
@@ -349,7 +399,7 @@ export async function executePayroll(
         type: "payroll_executed",
         description: `Payroll executed for Hall ${hallId}. ${workers.length} workers. Total: $${totalPayroll}.`,
         amount: totalPayroll,
-        txHash: `PAYROLL-${hallId}-${month}-${Date.now()}`,
+        txHash: `PAYROLL-${hallId}-${month}-${executedBy}-${Date.now()}`,
       },
     });
   });
@@ -386,6 +436,8 @@ export async function getPayrollHistory(hallId: string, limit: number = 12): Pro
     costOfGoodsSold: l.costOfGoodsSold,
   }));
 }
+
+export const getForgeLedgerHistory = getPayrollHistory;
 
 /* ============================================================
    RELAY — Hall ↔ Worker Communication
@@ -432,6 +484,27 @@ export async function getRelayConversation(workerId: string, limit: number = 50)
 }>> {
   const messages = await prisma.relayMessage.findMany({
     where: { workerId },
+    orderBy: { relayedAt: "desc" },
+    take: limit,
+  });
+
+  return messages.map((m) => ({
+    id: m.id,
+    direction: m.direction,
+    content: m.content,
+    relayedAt: m.relayedAt,
+    loggedBy: m.loggedBy,
+    status: m.status,
+  }));
+}
+
+export async function getRelayHistory(
+  hallId: string,
+  workerId: string,
+  limit: number = 50
+) {
+  const messages = await prisma.relayMessage.findMany({
+    where: { hallId, workerId },
     orderBy: { relayedAt: "desc" },
     take: limit,
   });
@@ -569,6 +642,34 @@ export async function getForgeLedger(hallId: string, limit: number = 12): Promis
     costOfGoodsSold: l.costOfGoodsSold,
     createdAt: l.createdAt,
   }));
+}
+
+export async function getHallStaffingSummary(hallId: string) {
+  const workers = await prisma.worker.findMany({
+    where: { hallId },
+    select: { status: true, salary: true, performanceScore: true },
+  });
+
+  const activeWorkers = workers.filter((worker) => worker.status === "active").length;
+  const probationWorkers = workers.filter((worker) => worker.status === "probation").length;
+  const payrollWorkers = workers.filter(
+    (worker) => worker.status === "active" || worker.status === "probation"
+  );
+  const totalMonthlyPayroll = payrollWorkers.reduce((sum, worker) => sum + worker.salary, 0);
+  const avgPerformanceScore =
+    workers.length > 0
+      ? Math.round(
+          (workers.reduce((sum, worker) => sum + worker.performanceScore, 0) / workers.length) * 100
+        ) / 100
+      : 0;
+
+  return {
+    activeWorkers,
+    probationWorkers,
+    totalMonthlyPayroll,
+    avgPerformanceScore,
+    nextReviewDue: 0,
+  };
 }
 
 /* ============================================================

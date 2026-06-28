@@ -23,7 +23,7 @@ interface ForgeLedgerProps {
   hallId: string;
 }
 
-export default function ForgeLedgerDashboard({ hallId }: ForgeLedgerProps) {
+export function ForgeLedger({ hallId }: ForgeLedgerProps) {
   const { forge, isLoading, error, mutate } = useForge(hallId);
   const [showHireForm, setShowHireForm] = useState(false);
 
@@ -236,6 +236,8 @@ export default function ForgeLedgerDashboard({ hallId }: ForgeLedgerProps) {
   );
 }
 
+export default ForgeLedger;
+
 /* ============================================================
    SUB-COMPONENTS
    ============================================================ */
@@ -285,7 +287,7 @@ function WorkerRow({
   showSalary,
   hallId,
 }: {
-  worker: unknown;
+  worker: any;
   index: number;
   showSalary: boolean;
   hallId: string;
@@ -346,7 +348,7 @@ function WorkerRow({
   );
 }
 
-function LedgerRow({ ledger, index }: { ledger: unknown; index: number }) {
+function LedgerRow({ ledger, index }: { ledger: any; index: number }) {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -381,7 +383,7 @@ function HireProposalModal({
 }: {
   hallId: string;
   onClose: () => void;
-  onSubmit: (payload: unknown) => void;
+  onSubmit: (payload: any) => void;
 }) {
   const [role, setRole] = useState("");
   const [responsibilities, setResponsibilities] = useState("");

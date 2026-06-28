@@ -8,9 +8,9 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS
-// ─────────────────────────────────────────────────────────────
+//
 
 const PHASE_DURATIONS_MS = {
   hush: 48 * 60 * 60 * 1000,
@@ -24,9 +24,9 @@ const MAX_POOLS_PER_CYCLE = 5;
 const MAX_STANDARD_POOLS = 4;
 const TALLY_HIDE_DURATION_MS = 12 * 60 * 60 * 1000;
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function maskPoolId(poolId: string): string {
   if (!poolId || poolId.length < 4) return "POOL-XXXX";
@@ -81,10 +81,10 @@ function computeRevealElapsed(startAt: Date): number {
   return Math.max(0, elapsed - revealStart);
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/meridian/cycle/[id]/pools
 // Public. Phase-aware visibility. Cached 30s.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(
   req: NextRequest,
@@ -96,7 +96,7 @@ export async function GET(
     if (!cycleId || cycleId.length < 10) {
       return NextResponse.json(
         { error: "Invalid cycle ID", code: "VALIDATION_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -135,15 +135,21 @@ export async function GET(
     if (!cycle) {
       return NextResponse.json(
         { error: "Cycle not found", code: "NOT_FOUND" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     const totalTimeRemaining = computeTotalTimeRemaining(cycle.startAt);
-    const totalVotes = cycle.cyclePools.reduce((sum, cp) => sum + cp._count.cycleVotes, 0);
-    const maxVotes = Math.max(...cycle.cyclePools.map((cp) => cp._count.cycleVotes), 0);
+    const totalVotes = cycle.cyclePools.reduce(
+      (sum, cp) => sum + cp._count.cycleVotes,
+      0,
+    );
+    const maxVotes = Math.max(
+      ...cycle.cyclePools.map((cp) => cp._count.cycleVotes),
+      0,
+    );
 
-    // ── Hush: nothing revealed ───────────────────────────────
+    // ── Hush: nothing revealed
     if (cycle.phase === "hush") {
       const response = NextResponse.json({
         cycle: {
@@ -154,13 +160,18 @@ export async function GET(
           timeRemaining: totalTimeRemaining,
         },
         pools: [],
-        meta: { message: "The Hush. The Architect watches. The 8th Ledger waits." },
+        meta: {
+          message: "The Hush. The Architect watches. The 8th Ledger waits.",
+        },
       });
-      response.headers.set("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+      response.headers.set(
+        "Cache-Control",
+        "public, max-age=30, stale-while-revalidate=60",
+      );
       return response;
     }
 
-    // ── Unveil: blurred cards, location hints only ───────────
+    // ── Unveil: blurred cards, location hints only
     if (cycle.phase === "unveil") {
       const pools = cycle.cyclePools.map((cp) => ({
         id: cp.id,
@@ -194,11 +205,14 @@ export async function GET(
           poolCount: pools.length,
         },
       });
-      response.headers.set("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+      response.headers.set(
+        "Cache-Control",
+        "public, max-age=30, stale-while-revalidate=60",
+      );
       return response;
     }
 
-    // ── Reveal: full data, tally hidden first 12h ────────────
+    // ── Reveal: full data, tally hidden first 12h
     if (cycle.phase === "reveal") {
       const revealElapsed = computeRevealElapsed(cycle.startAt);
       const tallyHidden = revealElapsed < TALLY_HIDE_DURATION_MS;
@@ -243,7 +257,9 @@ export async function GET(
           startAt: cycle.startAt,
           timeRemaining: totalTimeRemaining,
           tallyHidden,
-          tallyRevealIn: tallyHidden ? TALLY_HIDE_DURATION_MS - revealElapsed : 0,
+          tallyRevealIn: tallyHidden
+            ? TALLY_HIDE_DURATION_MS - revealElapsed
+            : 0,
         },
         pools,
         meta: {
@@ -253,11 +269,14 @@ export async function GET(
           totalVotes: tallyHidden ? null : totalVotes,
         },
       });
-      response.headers.set("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+      response.headers.set(
+        "Cache-Control",
+        "public, max-age=30, stale-while-revalidate=60",
+      );
       return response;
     }
 
-    // ── Forge / Complete: everything visible ─────────────────
+    // ── Forge / Complete: everything visible ─
     const pools = cycle.cyclePools.map((cp) => {
       const voteCount = cp._count.cycleVotes;
       const votePercent = totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0;
@@ -296,15 +315,23 @@ export async function GET(
         phase: cycle.phase,
         startAt: cycle.startAt,
         timeRemaining: totalTimeRemaining,
-        winnerPoolId: cycle.winnerPoolId ? maskPoolId(cycle.winnerPoolId) : null,
+        winnerPoolId: cycle.winnerPoolId
+          ? maskPoolId(cycle.winnerPoolId)
+          : null,
       },
       pools,
       meta: {
-        message: cycle.phase === "forge" ? "FORGED. The pool is live." : "Cycle complete.",
+        message:
+          cycle.phase === "forge"
+            ? "FORGED. The pool is live."
+            : "Cycle complete.",
         totalVotes,
       },
     });
-    response.headers.set("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=30, stale-while-revalidate=60",
+    );
     return response;
   } catch (error) {
     console.error("[MERIDIAN_POOLS_GET]", error);
@@ -315,10 +342,10 @@ export async function GET(
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST /api/meridian/cycle/[id]/pools
 // Admin-only. Seeds a pool into the cycle. Validates phase + limits.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function POST(
   req: NextRequest,
@@ -329,8 +356,11 @@ export async function POST(
     const user = await requireAuth(req);
     if (user.role !== "admin") {
       return NextResponse.json(
-        { error: "The Architect only. Admin role required.", code: "FORBIDDEN" },
-        { status: 403 }
+        {
+          error: "The Architect only. Admin role required.",
+          code: "FORBIDDEN",
+        },
+        { status: 403 },
       );
     }
 
@@ -338,7 +368,7 @@ export async function POST(
     if (!cycleId || cycleId.length < 10) {
       return NextResponse.json(
         { error: "Invalid cycle ID", code: "VALIDATION_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -352,7 +382,7 @@ export async function POST(
     if (!poolId || typeof poolId !== "string" || poolId.length < 3) {
       return NextResponse.json(
         { error: "Valid pool ID required", code: "VALIDATION_POOL_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -367,7 +397,7 @@ export async function POST(
     if (!cycle) {
       return NextResponse.json(
         { error: "Cycle not found", code: "NOT_FOUND" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -378,20 +408,27 @@ export async function POST(
           code: "PHASE_LOCKED",
           currentPhase: cycle.phase,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     // 4. Pool validation
     const pool = await prisma.pool.findUnique({
       where: { poolId },
-      select: { id: true, poolId: true, name: true, verticalId: true, country: true, status: true },
+      select: {
+        id: true,
+        poolId: true,
+        name: true,
+        verticalId: true,
+        country: true,
+        status: true,
+      },
     });
 
     if (!pool) {
       return NextResponse.json(
         { error: "Pool not found", code: "POOL_NOT_FOUND" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -401,7 +438,7 @@ export async function POST(
           error: `Pool status '${pool.status}' cannot enter a cycle. Must be filling or filled.`,
           code: "POOL_STATUS_INVALID",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -413,7 +450,7 @@ export async function POST(
     if (existing) {
       return NextResponse.json(
         { error: "Pool already in this cycle", code: "DUPLICATE" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -427,7 +464,7 @@ export async function POST(
           code: "CYCLE_FULL",
           maxPools: MAX_POOLS_PER_CYCLE,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -438,17 +475,21 @@ export async function POST(
       });
       if (wildcardCount >= 1) {
         return NextResponse.json(
-          { error: "Architect's Hand already used in this cycle.", code: "WILDCARD_USED" },
-          { status: 409 }
+          {
+            error: "Architect's Hand already used in this cycle.",
+            code: "WILDCARD_USED",
+          },
+          { status: 409 },
         );
       }
       if (poolCount >= MAX_STANDARD_POOLS) {
         return NextResponse.json(
           {
-            error: "Standard pool slots full. Wildcard cannot replace standard slot.",
+            error:
+              "Standard pool slots full. Wildcard cannot replace standard slot.",
             code: "STANDARD_SLOTS_FULL",
           },
-          { status: 409 }
+          { status: 409 },
         );
       }
     }
@@ -515,21 +556,24 @@ export async function POST(
           maxPools: MAX_POOLS_PER_CYCLE,
         },
       },
-      { status: 201 }
+      { status: 201 },
     );
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[MERIDIAN_POOLS_POST]", error);
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
         { error: "Authentication required", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     return NextResponse.json(
       { error: "Failed to add pool to cycle", code: "MERIDIAN_POOLS_002" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

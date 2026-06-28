@@ -127,7 +127,7 @@ export async function POST(
       },
       message: "Listing cancelled. No penalty applied.",
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[OWNERSHIP_CANCEL_POST]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(

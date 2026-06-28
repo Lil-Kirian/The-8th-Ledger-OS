@@ -94,7 +94,7 @@ export async function verifyAdminToken(token: string): Promise<AdminTokenPayload
   if (!valid) return null;
 
   try {
-    const raw: unknown = JSON.parse(decodeBase64Url(payloadB64));
+    const raw: any = JSON.parse(decodeBase64Url(payloadB64));
     if (
       typeof raw !== "object" ||
       raw === null ||

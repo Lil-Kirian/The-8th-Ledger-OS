@@ -12,13 +12,13 @@ export async function GET(request: NextRequest) {
     const type = searchParams.get("type") || "all"; // all | pools | users | verticals
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
 
-    const results: unknown = { pools: [], users: [], verticals: [] };
+    const results: any = { pools: [], users: [], verticals: [] };
 
     /* ============================================================
        SEARCH POOLS
        ============================================================ */
     if (type === "all" || type === "pools") {
-      const where: unknown = {};
+      const where: any = {};
 
       if (q) {
         where.OR = [
@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
        SEARCH USERS (Public Profiles)
        ============================================================ */
     if (type === "all" || type === "users") {
-      const userWhere: unknown = {
+      const userWhere: any = {
         isBanned: false,
       };
 
@@ -107,7 +107,7 @@ export async function GET(request: NextRequest) {
        SEARCH VERTICALS
        ============================================================ */
     if (type === "all" || type === "verticals") {
-      const vertWhere: unknown = { isActive: true };
+      const vertWhere: any = { isActive: true };
 
       if (q) {
         vertWhere.OR = [

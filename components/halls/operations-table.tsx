@@ -37,7 +37,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-// ─── Types ───
+//  Types
 export type ProposalStatus = "passed" | "ledger_review" | "in_progress" | "completed" | "cancelled" | "voting";
 export type ProposalType = "maintenance" | "upgrade" | "hire" | "fire" | "inventory_list" | "closure" | "pir_advance" | "location_select" | "sale" | "strategy";
 export type VerticalKey =
@@ -89,7 +89,7 @@ export interface OperationsTableProps {
   showHallColumn?: boolean;
 }
 
-// ─── Config ───
+//  Config
 const STATUS_CONFIG: Record<ProposalStatus, { label: string; color: string; bg: string; border: string; icon: React.ElementType }> = {
   passed:        { label: "Passed",        color: "text-emerald-400",  bg: "bg-emerald-500/10",  border: "border-emerald-500/20",  icon: CheckCircle2 },
   ledger_review: { label: "8th Ledger Review", color: "text-amber-400",    bg: "bg-amber-500/10",    border: "border-amber-500/20",    icon: Landmark },
@@ -118,7 +118,7 @@ const VERTICAL_ICONS: Record<VerticalKey, React.ElementType> = {
   ledgeragri: Wheat, ledgerenergy: Sun, ledgeraccess: Wifi,
 };
 
-// ─── Helpers ───
+//  Helpers
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 }
@@ -143,7 +143,7 @@ function votePercent(yes: number, total: number) {
   return Math.round((yes / total) * 100);
 }
 
-// ─── Component ───
+//  Component
 export function OperationsTable({
   proposals,
   isLoading = false,
@@ -211,32 +211,65 @@ export function OperationsTable({
 
   return (
     <div className="space-y-5">
-      {/* ─── Header ─── */}
+      {/*  Header  */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-slate-100">8th Ledger Operations</h2>
+          <h2 className="text-xl font-semibold text-slate-100">
+            8th Ledger Operations
+          </h2>
           <p className="text-sm text-slate-500 mt-0.5">
-            Command Center · {stats.total} proposals · {formatCurrency(stats.totalEstimated)} estimated
+            Command Center · {stats.total} proposals ·{" "}
+            {formatCurrency(stats.totalEstimated)} estimated
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={onExport} className="text-xs border-slate-700 text-slate-400 hover:text-slate-200">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onExport}
+            className="text-xs border-slate-700 text-slate-400 hover:text-slate-200"
+          >
             <Download className="w-3.5 h-3.5 mr-1.5" />
             CSV
           </Button>
         </div>
       </div>
 
-      {/* ─── Stats ─── */}
+      {/*  Stats  */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-        <StatPill icon={ClipboardList} label="Total" value={stats.total} color="slate" />
-        <StatPill icon={CheckCircle2} label="Passed" value={stats.passed} color="emerald" />
-        <StatPill icon={Play} label="In Progress" value={stats.inProgress} color="cyan" />
-        <StatPill icon={CheckCircle2} label="Completed" value={stats.completed} color="blue" />
-        <StatPill icon={DollarSign} label="Est. Value" value={formatCurrency(stats.totalEstimated)} color="amber" />
+        <StatPill
+          icon={ClipboardList}
+          label="Total"
+          value={stats.total}
+          color="slate"
+        />
+        <StatPill
+          icon={CheckCircle2}
+          label="Passed"
+          value={stats.passed}
+          color="emerald"
+        />
+        <StatPill
+          icon={Play}
+          label="In Progress"
+          value={stats.inProgress}
+          color="cyan"
+        />
+        <StatPill
+          icon={CheckCircle2}
+          label="Completed"
+          value={stats.completed}
+          color="blue"
+        />
+        <StatPill
+          icon={DollarSign}
+          label="Est. Value"
+          value={formatCurrency(stats.totalEstimated)}
+          color="amber"
+        />
       </div>
 
-      {/* ─── Controls ─── */}
+      {/*  Controls  */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
@@ -247,7 +280,10 @@ export function OperationsTable({
             className="pl-10 bg-slate-900/50 border-slate-800 text-slate-200 placeholder:text-slate-600 focus-visible:ring-cyan-500/30"
           />
           {search && (
-            <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300"
+            >
               <X className="w-4 h-4" />
             </button>
           )}
@@ -256,7 +292,9 @@ export function OperationsTable({
         <div className="flex items-center gap-2 flex-wrap">
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as ProposalStatus | "all")}
+            onChange={(e) =>
+              setStatusFilter(e.target.value as ProposalStatus | "all")
+            }
             className="appearance-none bg-slate-900/50 border border-slate-800 rounded-md px-3 py-2 pr-8 text-xs text-slate-300 focus:outline-none"
           >
             <option value="all">All Statuses</option>
@@ -270,12 +308,16 @@ export function OperationsTable({
 
           <select
             value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value as ProposalType | "all")}
+            onChange={(e) =>
+              setTypeFilter(e.target.value as ProposalType | "all")
+            }
             className="appearance-none bg-slate-900/50 border border-slate-800 rounded-md px-3 py-2 pr-8 text-xs text-slate-300 focus:outline-none"
           >
             <option value="all">All Types</option>
             {Object.entries(TYPE_CONFIG).map(([key, cfg]) => (
-              <option key={key} value={key}>{cfg.label}</option>
+              <option key={key} value={key}>
+                {cfg.label}
+              </option>
             ))}
           </select>
 
@@ -292,13 +334,15 @@ export function OperationsTable({
         </div>
       </div>
 
-      {/* ─── Results Count ─── */}
+      {/*  Results Count  */}
       <div className="text-sm text-slate-500">
-        Showing <span className="text-slate-300 font-medium">{filtered.length}</span> of{" "}
-        <span className="text-slate-300 font-medium">{proposals.length}</span> proposals
+        Showing{" "}
+        <span className="text-slate-300 font-medium">{filtered.length}</span> of{" "}
+        <span className="text-slate-300 font-medium">{proposals.length}</span>{" "}
+        proposals
       </div>
 
-      {/* ─── Table ─── */}
+      {/*  Table  */}
       <div className="space-y-3">
         <AnimatePresence mode="popLayout">
           {filtered.map((proposal) => {
@@ -308,10 +352,18 @@ export function OperationsTable({
             const type = TYPE_CONFIG[proposal.type];
             const TIcon = type.icon;
             const VIcon = VERTICAL_ICONS[proposal.vertical];
-            const votePct = votePercent(proposal.yesVotes, proposal.totalVotingPower);
-            const hasVariance = proposal.actualCost != null && proposal.estimatedCost > 0;
-            const variance = hasVariance ? (proposal.actualCost! - proposal.estimatedCost) : 0;
-            const variancePct = hasVariance ? (variance / proposal.estimatedCost) * 100 : 0;
+            const votePct = votePercent(
+              proposal.yesVotes,
+              proposal.totalVotingPower,
+            );
+            const hasVariance =
+              proposal.actualCost != null && proposal.estimatedCost > 0;
+            const variance = hasVariance
+              ? proposal.actualCost! - proposal.estimatedCost
+              : 0;
+            const variancePct = hasVariance
+              ? (variance / proposal.estimatedCost) * 100
+              : 0;
 
             return (
               <motion.div
@@ -322,28 +374,38 @@ export function OperationsTable({
                 exit={{ opacity: 0, y: -8 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card className={`border transition-colors overflow-hidden ${
-                  proposal.status === "in_progress"
-                    ? "border-cyan-500/20 bg-cyan-950/5"
-                    : proposal.status === "completed"
-                    ? "border-blue-500/20 bg-blue-950/5"
-                    : "border-slate-800 bg-slate-950/50 hover:border-slate-700"
-                }`}>
+                <Card
+                  className={`border transition-colors overflow-hidden ${
+                    proposal.status === "in_progress"
+                      ? "border-cyan-500/20 bg-cyan-950/5"
+                      : proposal.status === "completed"
+                        ? "border-blue-500/20 bg-blue-950/5"
+                        : "border-slate-800 bg-slate-950/50 hover:border-slate-700"
+                  }`}
+                >
                   {/* Main Row */}
                   <div
                     className="flex items-center gap-3 p-4 cursor-pointer"
-                    onClick={() => setExpandedId(isExpanded ? null : proposal.id)}
+                    onClick={() =>
+                      setExpandedId(isExpanded ? null : proposal.id)
+                    }
                   >
                     {/* Status */}
-                    <div className={`w-10 h-10 rounded-lg ${status.bg} flex items-center justify-center shrink-0`}>
+                    <div
+                      className={`w-10 h-10 rounded-lg ${status.bg} flex items-center justify-center shrink-0`}
+                    >
                       <SIcon className={`w-5 h-5 ${status.color}`} />
                     </div>
 
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-sm font-semibold text-slate-200 truncate">{proposal.title}</span>
-                        <Badge className={`text-[10px] ${type.color} bg-slate-800 border-0`}>
+                        <span className="text-sm font-semibold text-slate-200 truncate">
+                          {proposal.title}
+                        </span>
+                        <Badge
+                          className={`text-[10px] ${type.color} bg-slate-800 border-0`}
+                        >
                           <TIcon className="w-2.5 h-2.5 mr-1" />
                           {type.label}
                         </Badge>
@@ -362,11 +424,16 @@ export function OperationsTable({
                         {showHallColumn && (
                           <>
                             <VIcon className="w-3 h-3" />
-                            <span>#{proposal.hallNumber} {proposal.hallName}</span>
+                            <span>
+                              #{proposal.hallNumber} {proposal.hallName}
+                            </span>
                             <span className="text-slate-700">·</span>
                           </>
                         )}
-                        <span>by {proposal.proposedBy || proposal.proposedByLedgerId}</span>
+                        <span>
+                          by{" "}
+                          {proposal.proposedBy || proposal.proposedByLedgerId}
+                        </span>
                         <span className="text-slate-700">·</span>
                         <span>{timeAgo(proposal.proposedAt)}</span>
                       </div>
@@ -377,22 +444,33 @@ export function OperationsTable({
                       <div className="text-sm font-mono font-semibold text-slate-200">
                         {formatCurrency(proposal.estimatedCost)}
                       </div>
-                      <div className="text-[10px] text-slate-500">estimated</div>
+                      <div className="text-[10px] text-slate-500">
+                        estimated
+                      </div>
                       {hasVariance && (
-                        <div className={`text-[10px] font-mono ${variance > 0 ? "text-red-400" : "text-emerald-400"}`}>
-                          {variance > 0 ? "+" : ""}{formatCurrency(variance)} ({variancePct > 0 ? "+" : ""}{variancePct.toFixed(1)}%)
+                        <div
+                          className={`text-[10px] font-mono ${variance > 0 ? "text-red-400" : "text-emerald-400"}`}
+                        >
+                          {variance > 0 ? "+" : ""}
+                          {formatCurrency(variance)} (
+                          {variancePct > 0 ? "+" : ""}
+                          {variancePct.toFixed(1)}%)
                         </div>
                       )}
                     </div>
 
                     {/* Vote Bar */}
-                    {proposal.status === "voting" || proposal.status === "passed" ? (
+                    {proposal.status === "voting" ||
+                    proposal.status === "passed" ? (
                       <div className="hidden sm:block w-28 shrink-0">
                         <div className="flex justify-between text-[10px] mb-1">
                           <span className="text-slate-500">{votePct}% yes</span>
                         </div>
                         <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
-                          <div className="h-full rounded-full bg-emerald-400" style={{ width: `${votePct}%` }} />
+                          <div
+                            className="h-full rounded-full bg-emerald-400"
+                            style={{ width: `${votePct}%` }}
+                          />
                         </div>
                       </div>
                     ) : null}
@@ -446,33 +524,87 @@ export function OperationsTable({
                       >
                         <div className="px-4 pb-4 pt-1 border-t border-slate-800/50">
                           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-3">
-                            <DetailBox label="Description" value={proposal.description} fullWidth />
+                            <DetailBox
+                              label="Description"
+                              value={proposal.description}
+                              fullWidth
+                            />
 
-                            <DetailBox label="Proposed By" value={proposal.proposedBy || proposal.proposedByLedgerId} />
-                            <DetailBox label="Proposed" value={formatDate(proposal.proposedAt)} />
-                            <DetailBox label="Status" value={status.label} color={status.color} />
+                            <DetailBox
+                              label="Proposed By"
+                              value={
+                                proposal.proposedBy ||
+                                proposal.proposedByLedgerId
+                              }
+                            />
+                            <DetailBox
+                              label="Proposed"
+                              value={formatDate(proposal.proposedAt)}
+                            />
+                            <DetailBox
+                              label="Status"
+                              value={status.label}
+                              color={status.color}
+                            />
                             <DetailBox label="Type" value={type.label} />
 
-                            <DetailBox label="Estimated Cost" value={formatCurrency(proposal.estimatedCost)} color="cyan" />
+                            <DetailBox
+                              label="Estimated Cost"
+                              value={formatCurrency(proposal.estimatedCost)}
+                              color="cyan"
+                            />
                             {proposal.actualCost != null && (
-                              <DetailBox label="Actual Cost" value={formatCurrency(proposal.actualCost)} color={variance > 0 ? "red" : "emerald"} />
+                              <DetailBox
+                                label="Actual Cost"
+                                value={formatCurrency(proposal.actualCost)}
+                                color={variance > 0 ? "red" : "emerald"}
+                              />
                             )}
                             {hasVariance && (
-                              <DetailBox label="Variance" value={`${variance > 0 ? "+" : ""}${formatCurrency(variance)} (${variancePct.toFixed(1)}%)`} color={variance > 0 ? "red" : "emerald"} />
+                              <DetailBox
+                                label="Variance"
+                                value={`${variance > 0 ? "+" : ""}${formatCurrency(variance)} (${variancePct.toFixed(1)}%)`}
+                                color={variance > 0 ? "red" : "emerald"}
+                              />
                             )}
 
-                            <DetailBox label="Yes Votes" value={`${proposal.yesVotes.toFixed(1)}%`} color="emerald" />
-                            <DetailBox label="No Votes" value={`${proposal.noVotes.toFixed(1)}%`} color="red" />
-                            <DetailBox label="Abstain" value={`${proposal.abstainVotes.toFixed(1)}%`} />
-                            <DetailBox label="Total Power" value={`${proposal.totalVotingPower.toFixed(1)}%`} />
+                            <DetailBox
+                              label="Yes Votes"
+                              value={`${proposal.yesVotes.toFixed(1)}%`}
+                              color="emerald"
+                            />
+                            <DetailBox
+                              label="No Votes"
+                              value={`${proposal.noVotes.toFixed(1)}%`}
+                              color="red"
+                            />
+                            <DetailBox
+                              label="Abstain"
+                              value={`${proposal.abstainVotes.toFixed(1)}%`}
+                            />
+                            <DetailBox
+                              label="Total Power"
+                              value={`${proposal.totalVotingPower.toFixed(1)}%`}
+                            />
 
                             {proposal.executionStartedAt && (
-                              <DetailBox label="Execution Started" value={formatDate(proposal.executionStartedAt)} />
+                              <DetailBox
+                                label="Execution Started"
+                                value={formatDate(proposal.executionStartedAt)}
+                              />
                             )}
                             {proposal.executionCompletedAt && (
-                              <DetailBox label="Execution Completed" value={formatDate(proposal.executionCompletedAt)} />
+                              <DetailBox
+                                label="Execution Completed"
+                                value={formatDate(
+                                  proposal.executionCompletedAt,
+                                )}
+                              />
                             )}
-                            <DetailBox label="Proofs" value={`${proposal.proofCount} uploaded`} />
+                            <DetailBox
+                              label="Proofs"
+                              value={`${proposal.proofCount} uploaded`}
+                            />
                           </div>
                         </div>
                       </motion.div>
@@ -495,15 +627,19 @@ export function OperationsTable({
           <div className="w-14 h-14 rounded-2xl bg-slate-800/50 flex items-center justify-center mb-4">
             <ClipboardList className="w-7 h-7 text-slate-600" />
           </div>
-          <h3 className="text-lg font-semibold text-slate-300">No proposals found</h3>
-          <p className="text-sm text-slate-500 mt-1">Adjust your filters or search terms.</p>
+          <h3 className="text-lg font-semibold text-slate-300">
+            No proposals found
+          </h3>
+          <p className="text-sm text-slate-500 mt-1">
+            Adjust your filters or search terms.
+          </p>
         </motion.div>
       )}
     </div>
   );
 }
 
-// ─── Stat Pill ───
+//  Stat Pill
 function StatPill({
   icon: Icon,
   label,
@@ -534,7 +670,7 @@ function StatPill({
   );
 }
 
-// ─── Detail Box ───
+//  Detail Box
 function DetailBox({
   label,
   value,
@@ -564,7 +700,7 @@ function DetailBox({
   );
 }
 
-// ─── Skeleton ───
+//  Skeleton
 function OperationsSkeleton() {
   return (
     <div className="space-y-5">

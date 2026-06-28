@@ -22,9 +22,9 @@ import {
   Sparkles,
 } from "lucide-react";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES — Schema-Aligned
-// ─────────────────────────────────────────────────────────────
+//
 
 export interface QAItem {
   id: string;
@@ -53,9 +53,9 @@ interface QAThreadProps {
   defaultExpanded?: boolean;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // DESIGN SYSTEM — The Archive Palette
-// ─────────────────────────────────────────────────────────────
+//
 
 const STATUS_CONFIG = {
   pending: {
@@ -117,9 +117,9 @@ const ROLE_BADGES = {
   },
 } as const;
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function timeAgo(date: string): string {
   const diff = Date.now() - new Date(date).getTime();
@@ -140,9 +140,9 @@ function getRoleBadge(answerer: QAItem["answerer"]) {
   return ROLE_BADGES.user;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // SUB-COMPONENTS
-// ─────────────────────────────────────────────────────────────
+//
 
 function Avatar({
   src,
@@ -217,9 +217,9 @@ function RoleBadge({ answerer }: { answerer: QAItem["answerer"] }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────
+//
 
 export function QAThread({ item, index = 0, defaultExpanded = false }: QAThreadProps) {
   const [expanded, setExpanded] = useState(defaultExpanded || item.status === "pending");

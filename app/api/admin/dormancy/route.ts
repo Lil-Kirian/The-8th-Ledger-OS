@@ -8,7 +8,7 @@ import { Prisma } from "@prisma/client";
    3-Year Protocol: Warning → Vault → Auction → Liquidation
    ============================================================ */
 
-function handlePrismaError(error: unknown): NextResponse {
+function handlePrismaError(error: any): NextResponse {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2025") {
       return NextResponse.json(

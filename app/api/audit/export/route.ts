@@ -7,12 +7,12 @@ import crypto from "crypto";
    HASH CHAIN VERIFIER
    Each entry's previousHash must match the prior entry's txHash
    ============================================================ */
-function computeEntryHash(entry: unknown): string {
+function computeEntryHash(entry: any): string {
   const payload = `${entry.timestamp.toISOString()}|${entry.type}|${entry.description}|${entry.amount ?? 0}|${entry.txHash}|${entry.previousHash ?? "genesis"}`;
   return crypto.createHash("sha256").update(payload).digest("hex");
 }
 
-function verifyHashChain(entries: unknown[]): { valid: boolean; brokenAt?: number; total: number } {
+function verifyHashChain(entries: any[]): { valid: boolean; brokenAt?: number; total: number } {
   if (entries.length === 0) return { valid: true, total: 0 };
 
   const sorted = [...entries].sort(

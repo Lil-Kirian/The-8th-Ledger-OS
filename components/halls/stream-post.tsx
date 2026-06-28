@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ─────────────────────────────────────────────────────────
+//  Types
 
 export type StreamPostType = "proposal" | "report" | "appeal" | "ledger_update";
 
@@ -77,7 +77,7 @@ export interface StreamPostProps {
   className?: string;
 }
 
-// ─── Type Config ───────────────────────────────────────────────────
+//  Type Config
 
 const TYPE_CONFIG: Record<
   StreamPostType,
@@ -134,7 +134,7 @@ const TYPE_CONFIG: Record<
   },
 };
 
-// ─── Status Config ───────────────────────────────────────────────────
+//  Status Config
 
 const STATUS_MAP: Record<
   string,
@@ -167,7 +167,7 @@ const STATUS_MAP: Record<
   },
 };
 
-// ─── Helpers ─────────────────────────────────────────────────────────
+//  Helpers
 
 function formatTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -191,7 +191,7 @@ function getVotePercent(yes: number, no: number, abstain: number) {
   };
 }
 
-// ─── Sub-Components ──────────────────────────────────────────────────
+//  Sub-Components ─
 
 function VoteBar({ yes, no, abstain }: { yes: number; no: number; abstain: number }) {
   const { yes: y, no: n, abstain: a } = getVotePercent(yes, no, abstain);
@@ -260,7 +260,7 @@ function ReplyCard({ reply }: { reply: StreamReply }) {
   );
 }
 
-// ─── Main Component ──────────────────────────────────────────────────
+//  Main Component ─
 
 export function StreamPost({
   post,
@@ -585,7 +585,7 @@ export function StreamPost({
   );
 }
 
-// ─── Skeleton ────────────────────────────────────────────────────────
+//  Skeleton ─
 
 export function StreamPostSkeleton() {
   return (

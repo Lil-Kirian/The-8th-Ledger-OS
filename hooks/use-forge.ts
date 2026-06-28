@@ -1,4 +1,5 @@
 import useSWR from "swr";
+import { useCallback } from "react";
 
 /* ============================================================
    TYPES
@@ -338,4 +339,14 @@ export async function toggleForge(
     body: JSON.stringify({ enabled }),
   });
   return res.json() as Promise<{ success: boolean; error?: string }>;
+}
+
+export function useToggleForge() {
+  const mutateAsync = useCallback(
+    async ({ hallId, enable, enabled }: { hallId: string; enable?: boolean; enabled?: boolean }) =>
+      toggleForge(hallId, enable ?? enabled ?? true),
+    []
+  );
+
+  return { mutateAsync };
 }

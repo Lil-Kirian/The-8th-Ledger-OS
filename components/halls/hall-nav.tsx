@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-// ─── Types ───
+//  Types
 export type HallNavTab =
   | "dashboard"
   | "sovereign-stream"
@@ -39,7 +39,7 @@ export interface HallNavProps {
   className?: string;
 }
 
-// ─── Tab Config ───
+//  Tab Config
 const TABS: {
   key: HallNavTab;
   label: string;
@@ -99,7 +99,7 @@ const TABS: {
   },
 ];
 
-// ─── Component ───
+//  Component
 export function HallNav({
   hallId,
   activeTab,
@@ -243,7 +243,7 @@ export function HallNav({
   );
 }
 
-// ─── Vertical Sidebar Nav (for hall pages with side layout) ───
+//  Vertical Sidebar Nav (for hall pages with side layout)
 export function HallNavSidebar({
   hallId,
   activeTab,

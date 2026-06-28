@@ -865,7 +865,7 @@ export default function HallGovernancePage() {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setFilterStatus(tab.id as unknown)}
+                onClick={() => setFilterStatus(tab.id as any)}
                 className={cn(
                   "flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition-all whitespace-nowrap border",
                   filterStatus === tab.id

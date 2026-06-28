@@ -97,7 +97,7 @@ export default function WithdrawPage() {
     setLoading(true);
 
     try {
-      const payload: unknown = {
+      const payload: any = {
         amount: val,
         destination: destination.trim(),
         destinationType,

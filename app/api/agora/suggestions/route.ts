@@ -7,9 +7,9 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth, requireKycTier } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS & CONFIG
-// ─────────────────────────────────────────────────────────────
+//
 
 const VALID_CONTINENTS = [
   "africa",
@@ -41,9 +41,9 @@ type StatusFilter = "pending" | "under_review" | "approved" | "rejected";
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const RATE_LIMIT_MAX = 5; // 5 suggestions per hour per IP
 
-// ─────────────────────────────────────────────────────────────
+//
 // IN-MEMORY RATE LIMITER (swap for Redis when multi-instance)
-// ─────────────────────────────────────────────────────────────
+//
 
 interface RateLimitEntry {
   count: number;
@@ -69,9 +69,9 @@ function checkRateLimit(ip: string): { allowed: boolean; resetAt: number; remain
   return { allowed: true, resetAt: entry.resetAt, remaining: RATE_LIMIT_MAX - entry.count };
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // INPUT SANITIZATION
-// ─────────────────────────────────────────────────────────────
+//
 
 function sanitizeText(input: string, maxLength: number): string {
   return input
@@ -84,9 +84,9 @@ function isValidStatus(status: string): status is StatusFilter {
   return ["pending", "under_review", "approved", "rejected"].includes(status);
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // AUDIT LOGGING
-// ─────────────────────────────────────────────────────────────
+//
 
 async function logAudit(props: {
   eventType: string;
@@ -112,10 +112,10 @@ async function logAudit(props: {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/agora/suggestions
 // Public. Cached 60s. Leverages schema indexes: status, continent, userId
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(req: NextRequest) {
   try {
@@ -223,10 +223,10 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST /api/agora/suggestions
 // Auth required. KYC tier >= sovereign. Rate-limited. Audited.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function POST(req: NextRequest) {
   try {
@@ -246,8 +246,12 @@ export async function POST(req: NextRequest) {
         },
         {
           status: 429,
-          headers: { "Retry-After": String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)) },
-        }
+          headers: {
+            "Retry-After": String(
+              Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
+            ),
+          },
+        },
       );
     }
 
@@ -265,15 +269,21 @@ export async function POST(req: NextRequest) {
 
     if (title.length < 5) {
       return NextResponse.json(
-        { error: "Title must be at least 5 characters", code: "VALIDATION_TITLE" },
-        { status: 400 }
+        {
+          error: "Title must be at least 5 characters",
+          code: "VALIDATION_TITLE",
+        },
+        { status: 400 },
       );
     }
 
     if (description.length < 20) {
       return NextResponse.json(
-        { error: "Description must be at least 20 characters", code: "VALIDATION_DESCRIPTION" },
-        { status: 400 }
+        {
+          error: "Description must be at least 20 characters",
+          code: "VALIDATION_DESCRIPTION",
+        },
+        { status: 400 },
       );
     }
 
@@ -283,7 +293,7 @@ export async function POST(req: NextRequest) {
           error: `Continent must be one of: ${VALID_CONTINENTS.join(", ")}`,
           code: "VALIDATION_CONTINENT",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -293,7 +303,7 @@ export async function POST(req: NextRequest) {
           error: `Vertical must be one of: ${VALID_VERTICALS.join(", ")}`,
           code: "VALIDATION_VERTICAL",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -309,8 +319,11 @@ export async function POST(req: NextRequest) {
 
     if (recentDuplicate) {
       return NextResponse.json(
-        { error: "You already suggested this asset in the last 24 hours", code: "DUPLICATE" },
-        { status: 409 }
+        {
+          error: "You already suggested this asset in the last 24 hours",
+          code: "DUPLICATE",
+        },
+        { status: 409 },
       );
     }
 
@@ -344,7 +357,11 @@ export async function POST(req: NextRequest) {
           eventType: "agora_suggestion_created",
           description: `Suggestion created: "${title}" (${continent} / ${vertical})`,
           ledgerId: user.ledgerId,
-          metadata: JSON.stringify({ continent, vertical, titleLength: title.length }),
+          metadata: JSON.stringify({
+            continent,
+            vertical,
+            titleLength: title.length,
+          }),
           txHash: `AUD-${randomUUID()}`,
           visibleToPublic: true,
           timestamp: new Date(),
@@ -377,30 +394,36 @@ export async function POST(req: NextRequest) {
           rateLimitRemaining: rateLimit.remaining,
         },
       },
-      { status: 201 }
+      { status: 201 },
     );
 
     return response;
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[AGORA_SUGGESTIONS_POST]", error);
 
     if (error.message?.includes("KYC tier")) {
       return NextResponse.json(
-        { error: "KYC tier 'sovereign' or higher required to suggest", code: "KYC_INSUFFICIENT" },
-        { status: 403 }
+        {
+          error: "KYC tier 'sovereign' or higher required to suggest",
+          code: "KYC_INSUFFICIENT",
+        },
+        { status: 403 },
       );
     }
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
         { error: "Authentication required", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     return NextResponse.json(
       { error: "Failed to create suggestion", code: "AGORA_002" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

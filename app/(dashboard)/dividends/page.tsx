@@ -4,9 +4,9 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 
-// ───────────────────────────────────────────
+// ─
 // TYPES — 8TH LEDGER BLUEPRINT
-// ───────────────────────────────────────────
+// ─
 interface HallDividend {
   id: string;
   name: string;
@@ -41,9 +41,9 @@ interface WaterfallStep {
   icon: string;
 }
 
-// ───────────────────────────────────────────
+// ─
 // MOCK DATA — GLOBAL NEUTRAL, 11 VERTICALS
-// ───────────────────────────────────────────
+// ─
 const HALLS: HallDividend[] = [
   {
     id: "h-2847",
@@ -224,9 +224,9 @@ const HALLS: HallDividend[] = [
 
 const MONTHLY_TREND = [12400, 13200, 12800, 14500, 15100, 14800, 16200, 15800, 17500, 18200, 17800, 19240];
 
-// ───────────────────────────────────────────
+// ─
 // UTILITIES
-// ───────────────────────────────────────────
+// ─
 const formatMoney = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(n);
 
@@ -262,9 +262,9 @@ const AnimatedCounter = ({ value, prefix = "", suffix = "", decimals = 2 }: { va
   );
 };
 
-// ───────────────────────────────────────────
+// ─
 // FUTURISTIC UI COMPONENTS
-// ───────────────────────────────────────────
+// ─
 
 const HologramCard = ({ children, className = "", accent = "cyan", glow = false }: { children: React.ReactNode; className?: string; accent?: "cyan" | "amber" | "violet" | "emerald" | "rose" | "slate"; glow?: boolean }) => {
   const accentMap = {
@@ -394,9 +394,9 @@ const MiniSparkline = ({ data, color = "#22d3ee" }: { data: number[]; color?: st
   );
 };
 
-// ───────────────────────────────────────────
+// ─
 // MAIN PAGE
-// ───────────────────────────────────────────
+// ─
 export default function DividendsPage() {
   const router = useRouter();
   const [downloadOpen, setDownloadOpen] = useState(false);
@@ -470,17 +470,20 @@ export default function DividendsPage() {
 
   return (
     <div className="min-h-screen bg-[#030308] text-slate-100 selection:bg-cyan-500/30 selection:text-cyan-100 overflow-x-hidden">
-      {/* ─── AMBIENT BACKGROUND ─── */}
+      {/*  AMBIENT BACKGROUND  */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-cyan-500/[0.03] rounded-full blur-[150px] animate-pulse-slow" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-amber-500/[0.03] rounded-full blur-[150px] animate-pulse-slow" style={{ animationDelay: "2s" }} />
+        <div
+          className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-amber-500/[0.03] rounded-full blur-[150px] animate-pulse-slow"
+          style={{ animationDelay: "2s" }}
+        />
         <div className="absolute top-[40%] left-[30%] w-[30%] h-[30%] bg-violet-500/[0.02] rounded-full blur-[120px]" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.015)_1px,transparent_1px)] bg-[size:48px_48px]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(6,182,212,0.04),_transparent_50%)]" />
       </div>
 
       <div className="relative z-10 max-w-[1600px] mx-auto px-6 py-10">
-        {/* ─── HEADER ─── */}
+        {/*  HEADER  */}
         <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-12">
           <div className="space-y-3">
             <div className="flex items-center gap-3">
@@ -488,14 +491,17 @@ export default function DividendsPage() {
                 <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_12px_rgba(52,211,153,0.8)]" />
                 <div className="absolute inset-0 h-2 w-2 rounded-full bg-emerald-400 animate-ping opacity-40" />
               </div>
-              <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-[0.3em]">Sovereign Revenue Stream Active</span>
+              <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-[0.3em]">
+                Sovereign Revenue Stream Active
+              </span>
             </div>
             <h1 className="text-4xl md:text-6xl font-black tracking-tighter bg-gradient-to-r from-white via-slate-200 to-slate-500 bg-clip-text text-transparent">
               DIVIDEND<span className="text-cyan-400">.</span>COMMAND
             </h1>
             <p className="text-slate-400 text-sm max-w-2xl leading-relaxed font-light">
-              Global income aggregation across all sovereign Halls. Revenue flows through the Protocol Infrastructure Reserve,
-              then splits by ownership percentage. Immutable. Transparent. Yours forever.
+              Global income aggregation across all sovereign Halls. Revenue
+              flows through the Protocol Infrastructure Reserve, then splits by
+              ownership percentage. Immutable. Transparent. Yours forever.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -504,7 +510,20 @@ export default function DividendsPage() {
               className="group relative px-6 py-3 rounded-xl bg-gradient-to-r from-cyan-600/80 to-blue-600/80 border border-cyan-500/30 text-white font-semibold text-sm overflow-hidden transition-all hover:shadow-[0_0_40px_rgba(6,182,212,0.3)] hover:scale-105 active:scale-95 backdrop-blur-md"
             >
               <span className="relative z-10 flex items-center gap-2">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
                 Export Ledger
               </span>
               <div className="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-400 opacity-0 group-hover:opacity-20 transition-opacity" />
@@ -512,17 +531,23 @@ export default function DividendsPage() {
           </div>
         </header>
 
-        {/* ─── TOP STATS ROW ─── */}
+        {/*  TOP STATS ROW  */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
           <HologramCard accent="emerald" className="lg:col-span-1">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-[0.2em]">Net Monthly</span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono">{filtered.length} Halls</span>
+              <span className="text-[10px] font-mono text-emerald-400 uppercase tracking-[0.2em]">
+                Net Monthly
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono">
+                {filtered.length} Halls
+              </span>
             </div>
             <div className="text-2xl font-bold text-white mb-1">
               <AnimatedCounter value={totals.div} prefix="$" />
             </div>
-            <div className="text-[10px] text-slate-500 font-mono">After all protocol deductions</div>
+            <div className="text-[10px] text-slate-500 font-mono">
+              After all protocol deductions
+            </div>
             <div className="mt-3 h-8 opacity-40">
               <MiniSparkline data={MONTHLY_TREND.slice(-6)} color="#34d399" />
             </div>
@@ -530,17 +555,29 @@ export default function DividendsPage() {
 
           <HologramCard accent="amber">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-mono text-amber-400 uppercase tracking-[0.2em]">Gross Inflow</span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono">Pre-Tithe</span>
+              <span className="text-[10px] font-mono text-amber-400 uppercase tracking-[0.2em]">
+                Gross Inflow
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono">
+                Pre-Tithe
+              </span>
             </div>
             <div className="text-2xl font-bold text-white mb-1">
               <AnimatedCounter value={totals.gross} prefix="$" />
             </div>
-            <div className="text-[10px] text-slate-500 font-mono">Total hall revenue this cycle</div>
+            <div className="text-[10px] text-slate-500 font-mono">
+              Total hall revenue this cycle
+            </div>
             <div className="mt-3 flex gap-1">
               {[0.2, 0.35, 0.5, 0.7, 1].map((op, i) => (
-                <div key={i} className="h-1 flex-1 rounded-full bg-amber-500/20 overflow-hidden">
-                  <div className="h-full bg-amber-400/60 rounded-full" style={{ width: `${op * 100}%` }} />
+                <div
+                  key={i}
+                  className="h-1 flex-1 rounded-full bg-amber-500/20 overflow-hidden"
+                >
+                  <div
+                    className="h-full bg-amber-400/60 rounded-full"
+                    style={{ width: `${op * 100}%` }}
+                  />
                 </div>
               ))}
             </div>
@@ -548,66 +585,109 @@ export default function DividendsPage() {
 
           <HologramCard accent="cyan">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-[0.2em]">8th Ledger Tithe</span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-mono">20% Fixed</span>
+              <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-[0.2em]">
+                8th Ledger Tithe
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-300 border border-cyan-500/20 font-mono">
+                20% Fixed
+              </span>
             </div>
             <div className="text-2xl font-bold text-white mb-1">
               <AnimatedCounter value={totals.tithe} prefix="$" />
             </div>
-            <div className="text-[10px] text-slate-500 font-mono">Protocol infrastructure reserve</div>
+            <div className="text-[10px] text-slate-500 font-mono">
+              Protocol infrastructure reserve
+            </div>
             <div className="mt-3 w-full bg-slate-800/50 rounded-full h-1.5 overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.5)]" style={{ width: "20%" }} />
+              <div
+                className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.5)]"
+                style={{ width: "20%" }}
+              />
             </div>
           </HologramCard>
 
           <HologramCard accent="violet">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-mono text-violet-400 uppercase tracking-[0.2em]">Accumulated</span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-violet-500/10 text-violet-300 border border-violet-500/20 font-mono">Lifetime</span>
+              <span className="text-[10px] font-mono text-violet-400 uppercase tracking-[0.2em]">
+                Accumulated
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-violet-500/10 text-violet-300 border border-violet-500/20 font-mono">
+                Lifetime
+              </span>
             </div>
             <div className="text-2xl font-bold text-white mb-1">
               <AnimatedCounter value={totals.accum} prefix="$" />
             </div>
-            <div className="text-[10px] text-slate-500 font-mono">Feeds Dynamic PAC Valuation</div>
+            <div className="text-[10px] text-slate-500 font-mono">
+              Feeds Dynamic PAC Valuation
+            </div>
             <div className="mt-3 h-8 opacity-40">
-              <MiniSparkline data={[5000, 8200, 11400, 15600, 19800, 24500, 28900, 34200, 39800, 45200, 51200, 56700]} color="#a78bfa" />
+              <MiniSparkline
+                data={[
+                  5000, 8200, 11400, 15600, 19800, 24500, 28900, 34200, 39800,
+                  45200, 51200, 56700,
+                ]}
+                color="#a78bfa"
+              />
             </div>
           </HologramCard>
 
           <HologramCard accent="slate">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-[10px] font-mono text-slate-400 uppercase tracking-[0.2em]">Book Value</span>
-              <span className="text-[10px] px-2 py-0.5 rounded bg-slate-500/10 text-slate-300 border border-slate-500/20 font-mono">Dynamic</span>
+              <span className="text-[10px] font-mono text-slate-400 uppercase tracking-[0.2em]">
+                Book Value
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded bg-slate-500/10 text-slate-300 border border-slate-500/20 font-mono">
+                Dynamic
+              </span>
             </div>
             <div className="text-2xl font-bold text-white mb-1">
               <AnimatedCounter value={totals.dynValue} prefix="$" />
             </div>
-            <div className="text-[10px] text-slate-500 font-mono">Current PAC valuation floor</div>
+            <div className="text-[10px] text-slate-500 font-mono">
+              Current PAC valuation floor
+            </div>
             <div className="mt-3 flex items-center gap-1">
-              <span className="text-[10px] text-emerald-400 font-mono">+8.4%</span>
-              <span className="text-[10px] text-slate-600 font-mono">vs last quarter</span>
+              <span className="text-[10px] text-emerald-400 font-mono">
+                +8.4%
+              </span>
+              <span className="text-[10px] text-slate-600 font-mono">
+                vs last quarter
+              </span>
             </div>
           </HologramCard>
         </div>
 
-        {/* ─── REVENUE WATERFALL + CHART ─── */}
+        {/*  REVENUE WATERFALL + CHART  */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-10">
           <HologramCard className="lg:col-span-2" accent="cyan">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h3 className="text-lg font-bold text-white tracking-tight">Revenue Velocity</h3>
-                <p className="text-[10px] text-slate-400 mt-1 font-mono uppercase tracking-wider">12-month dividend trend across all verticals</p>
+                <h3 className="text-lg font-bold text-white tracking-tight">
+                  Revenue Velocity
+                </h3>
+                <p className="text-[10px] text-slate-400 mt-1 font-mono uppercase tracking-wider">
+                  12-month dividend trend across all verticals
+                </p>
               </div>
               <div className="flex gap-1">
                 {["1M", "3M", "6M", "1Y", "ALL"].map((range) => (
-                  <button key={range} className={`px-3 py-1 rounded-lg text-[10px] font-mono border transition-all ${range === "1Y" ? "bg-cyan-500/15 border-cyan-500/40 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.2)]" : "bg-transparent border-slate-700 text-slate-500 hover:border-slate-500 hover:text-slate-300"}`}>
+                  <button
+                    key={range}
+                    className={`px-3 py-1 rounded-lg text-[10px] font-mono border transition-all ${range === "1Y" ? "bg-cyan-500/15 border-cyan-500/40 text-cyan-300 shadow-[0_0_12px_rgba(6,182,212,0.2)]" : "bg-transparent border-slate-700 text-slate-500 hover:border-slate-500 hover:text-slate-300"}`}
+                  >
                     {range}
                   </button>
                 ))}
               </div>
             </div>
             <div className="h-56 w-full relative">
-              <svg width="100%" height="100%" viewBox="0 0 900 260" preserveAspectRatio="none">
+              <svg
+                width="100%"
+                height="100%"
+                viewBox="0 0 900 260"
+                preserveAspectRatio="none"
+              >
                 <defs>
                   <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.25" />
@@ -620,11 +700,22 @@ export default function DividendsPage() {
                   </linearGradient>
                   <filter id="glow">
                     <feGaussianBlur stdDeviation="3" result="coloredBlur" />
-                    <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
+                    <feMerge>
+                      <feMergeNode in="coloredBlur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
                   </filter>
                 </defs>
-                {[0, 1, 2, 3, 4].map(i => (
-                  <line key={i} x1="0" y1={i * 65} x2="900" y2={i * 65} stroke="rgba(255,255,255,0.04)" strokeWidth="1" />
+                {[0, 1, 2, 3, 4].map((i) => (
+                  <line
+                    key={i}
+                    x1="0"
+                    y1={i * 65}
+                    x2="900"
+                    y2={i * 65}
+                    stroke="rgba(255,255,255,0.04)"
+                    strokeWidth="1"
+                  />
                 ))}
                 <path
                   d={`M0,260 ${MONTHLY_TREND.map((v, i) => {
@@ -635,11 +726,13 @@ export default function DividendsPage() {
                   fill="url(#areaGrad)"
                 />
                 <path
-                  d={`M0,${260 - ((MONTHLY_TREND[0] - 12000) / 8000) * 260} ${MONTHLY_TREND.map((v, i) => {
-                    const x = (i / (MONTHLY_TREND.length - 1)) * 900;
-                    const y = 260 - ((v - 12000) / 8000) * 260;
-                    return `L${x},${y}`;
-                  }).join(" ")}`}
+                  d={`M0,${260 - ((MONTHLY_TREND[0] - 12000) / 8000) * 260} ${MONTHLY_TREND.map(
+                    (v, i) => {
+                      const x = (i / (MONTHLY_TREND.length - 1)) * 900;
+                      const y = 260 - ((v - 12000) / 8000) * 260;
+                      return `L${x},${y}`;
+                    },
+                  ).join(" ")}`}
                   fill="none"
                   stroke="url(#lineGrad)"
                   strokeWidth="3"
@@ -652,14 +745,49 @@ export default function DividendsPage() {
                   const y = 260 - ((v - 12000) / 8000) * 260;
                   return (
                     <g key={i}>
-                      <circle cx={x} cy={y} r="4" fill="#030308" stroke="#22d3ee" strokeWidth="2" />
+                      <circle
+                        cx={x}
+                        cy={y}
+                        r="4"
+                        fill="#030308"
+                        stroke="#22d3ee"
+                        strokeWidth="2"
+                      />
                       {i === MONTHLY_TREND.length - 1 && (
                         <>
-                          <circle cx={x} cy={y} r="10" fill="none" stroke="#22d3ee" strokeWidth="1" opacity="0.3">
-                            <animate attributeName="r" values="10;16;10" dur="2.5s" repeatCount="indefinite" />
-                            <animate attributeName="opacity" values="0.3;0;0.3" dur="2.5s" repeatCount="indefinite" />
+                          <circle
+                            cx={x}
+                            cy={y}
+                            r="10"
+                            fill="none"
+                            stroke="#22d3ee"
+                            strokeWidth="1"
+                            opacity="0.3"
+                          >
+                            <animate
+                              attributeName="r"
+                              values="10;16;10"
+                              dur="2.5s"
+                              repeatCount="indefinite"
+                            />
+                            <animate
+                              attributeName="opacity"
+                              values="0.3;0;0.3"
+                              dur="2.5s"
+                              repeatCount="indefinite"
+                            />
                           </circle>
-                          <text x={x} y={y - 16} textAnchor="middle" fill="#fff" fontSize="11" fontFamily="monospace" fontWeight="bold">${(v / 1000).toFixed(1)}k</text>
+                          <text
+                            x={x}
+                            y={y - 16}
+                            textAnchor="middle"
+                            fill="#fff"
+                            fontSize="11"
+                            fontFamily="monospace"
+                            fontWeight="bold"
+                          >
+                            ${(v / 1000).toFixed(1)}k
+                          </text>
                         </>
                       )}
                     </g>
@@ -668,37 +796,94 @@ export default function DividendsPage() {
               </svg>
             </div>
             <div className="flex justify-between text-[10px] font-mono text-slate-600 mt-2 px-2 uppercase tracking-wider">
-              <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span>
-              <span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+              <span>Jan</span>
+              <span>Feb</span>
+              <span>Mar</span>
+              <span>Apr</span>
+              <span>May</span>
+              <span>Jun</span>
+              <span>Jul</span>
+              <span>Aug</span>
+              <span>Sep</span>
+              <span>Oct</span>
+              <span>Nov</span>
+              <span>Dec</span>
             </div>
           </HologramCard>
 
           <HologramCard accent="violet" className="flex flex-col">
-            <h3 className="text-lg font-bold text-white tracking-tight mb-1">Protocol Flow</h3>
-            <p className="text-[10px] text-slate-400 mb-6 font-mono uppercase tracking-wider">Revenue distribution architecture</p>
+            <h3 className="text-lg font-bold text-white tracking-tight mb-1">
+              Protocol Flow
+            </h3>
+            <p className="text-[10px] text-slate-400 mb-6 font-mono uppercase tracking-wider">
+              Revenue distribution architecture
+            </p>
             <div className="flex-1 space-y-3">
               {[
-                { label: "Gross Revenue", amount: totals.gross, color: "from-emerald-500 to-teal-500", pct: 100 },
-                { label: "8th Ledger Tithe (20%)", amount: totals.tithe, color: "from-amber-500 to-yellow-500", pct: (totals.tithe / totals.gross) * 100 },
-                { label: "IHCP Repayment", amount: totals.ihcp, color: "from-violet-500 to-purple-500", pct: (totals.ihcp / totals.gross) * 100 },
-                { label: "Forge / Payroll", amount: totals.payroll, color: "from-cyan-500 to-blue-500", pct: (totals.payroll / totals.gross) * 100 },
-                { label: "COGS (Inventory)", amount: totals.cogs, color: "from-slate-500 to-slate-400", pct: (totals.cogs / totals.gross) * 100 },
-                { label: "Net Hall Revenue", amount: totals.net, color: "from-blue-500 to-indigo-500", pct: (totals.net / totals.gross) * 100 },
-                { label: "Your Dividend", amount: totals.div, color: "from-fuchsia-500 to-pink-500", pct: (totals.div / totals.gross) * 100 },
+                {
+                  label: "Gross Revenue",
+                  amount: totals.gross,
+                  color: "from-emerald-500 to-teal-500",
+                  pct: 100,
+                },
+                {
+                  label: "8th Ledger Tithe (20%)",
+                  amount: totals.tithe,
+                  color: "from-amber-500 to-yellow-500",
+                  pct: (totals.tithe / totals.gross) * 100,
+                },
+                {
+                  label: "IHCP Repayment",
+                  amount: totals.ihcp,
+                  color: "from-violet-500 to-purple-500",
+                  pct: (totals.ihcp / totals.gross) * 100,
+                },
+                {
+                  label: "Forge / Payroll",
+                  amount: totals.payroll,
+                  color: "from-cyan-500 to-blue-500",
+                  pct: (totals.payroll / totals.gross) * 100,
+                },
+                {
+                  label: "COGS (Inventory)",
+                  amount: totals.cogs,
+                  color: "from-slate-500 to-slate-400",
+                  pct: (totals.cogs / totals.gross) * 100,
+                },
+                {
+                  label: "Net Hall Revenue",
+                  amount: totals.net,
+                  color: "from-blue-500 to-indigo-500",
+                  pct: (totals.net / totals.gross) * 100,
+                },
+                {
+                  label: "Your Dividend",
+                  amount: totals.div,
+                  color: "from-fuchsia-500 to-pink-500",
+                  pct: (totals.div / totals.gross) * 100,
+                },
               ].map((item, i) => (
                 <div key={i} className="group">
                   <div className="flex justify-between items-center mb-1">
                     <span className="text-[11px] text-slate-300 flex items-center gap-2">
-                      <span className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${item.color} shadow-[0_0_6px_currentColor]`} />
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${item.color} shadow-[0_0_6px_currentColor]`}
+                      />
                       {item.label}
                     </span>
-                    <span className="text-[11px] font-mono text-slate-200">{formatMoney(item.amount)}</span>
+                    <span className="text-[11px] font-mono text-slate-200">
+                      {formatMoney(item.amount)}
+                    </span>
                   </div>
                   <div className="w-full bg-slate-800/50 rounded-full h-1.5 overflow-hidden">
                     <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${item.pct}%` }}
-                      transition={{ duration: 1.2, delay: i * 0.1, ease: "easeOut" }}
+                      transition={{
+                        duration: 1.2,
+                        delay: i * 0.1,
+                        ease: "easeOut",
+                      }}
                       className={`h-full rounded-full bg-gradient-to-r ${item.color}`}
                     />
                   </div>
@@ -707,25 +892,39 @@ export default function DividendsPage() {
             </div>
             <div className="mt-6 pt-4 border-t border-slate-700/50">
               <div className="flex justify-between items-center">
-                <span className="text-sm font-bold text-white">Effective Yield</span>
-                <span className="text-xl font-bold text-emerald-400 font-mono">{((totals.div / totals.gross) * 100).toFixed(1)}%</span>
+                <span className="text-sm font-bold text-white">
+                  Effective Yield
+                </span>
+                <span className="text-xl font-bold text-emerald-400 font-mono">
+                  {((totals.div / totals.gross) * 100).toFixed(1)}%
+                </span>
               </div>
-              <div className="text-[10px] text-slate-500 mt-1 font-mono">Of gross revenue distributed to you</div>
+              <div className="text-[10px] text-slate-500 mt-1 font-mono">
+                Of gross revenue distributed to you
+              </div>
             </div>
           </HologramCard>
         </div>
 
-        {/* ─── HALL BREAKDOWN TABLE ─── */}
+        {/*  HALL BREAKDOWN TABLE  */}
         <HologramCard accent="cyan" className="mb-10">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
             <div>
-              <h3 className="text-xl font-bold text-white tracking-tight">Sovereign Hall Registry</h3>
-              <p className="text-[10px] text-slate-400 mt-1 font-mono uppercase tracking-wider">Per-asset dividend allocation, SRI health, and dynamic valuation</p>
+              <h3 className="text-xl font-bold text-white tracking-tight">
+                Sovereign Hall Registry
+              </h3>
+              <p className="text-[10px] text-slate-400 mt-1 font-mono uppercase tracking-wider">
+                Per-asset dividend allocation, SRI health, and dynamic valuation
+              </p>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-[10px] text-slate-500 font-mono">{selectedHalls.size} of {HALLS.length} selected</span>
+              <span className="text-[10px] text-slate-500 font-mono">
+                {selectedHalls.size} of {HALLS.length} selected
+              </span>
               <button
-                onClick={() => setSelectedHalls(new Set(HALLS.map(h => h.id)))}
+                onClick={() =>
+                  setSelectedHalls(new Set(HALLS.map((h) => h.id)))
+                }
                 className="text-[10px] px-3 py-1.5 rounded-lg border border-slate-700 text-slate-400 hover:text-white hover:border-cyan-500/40 transition-colors font-mono"
               >
                 Select All
@@ -747,19 +946,41 @@ export default function DividendsPage() {
                     <input
                       type="checkbox"
                       checked={selectedHalls.size === HALLS.length}
-                      onChange={() => selectedHalls.size === HALLS.length ? setSelectedHalls(new Set()) : setSelectedHalls(new Set(HALLS.map(h => h.id)))}
+                      onChange={() =>
+                        selectedHalls.size === HALLS.length
+                          ? setSelectedHalls(new Set())
+                          : setSelectedHalls(new Set(HALLS.map((h) => h.id)))
+                      }
                       className="rounded border-slate-600 bg-slate-800/50 text-cyan-500 focus:ring-cyan-500/20"
                     />
                   </th>
-                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider">Hall</th>
-                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider">Vertical</th>
-                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider text-center">SRI / AHGI</th>
-                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider text-right">Ownership</th>
-                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider text-right">Monthly</th>
-                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider text-right">Accumulated</th>
-                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider text-right">Dynamic Val</th>
-                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider text-center">Status</th>
-                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider text-right">Waterfall</th>
+                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider">
+                    Hall
+                  </th>
+                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider">
+                    Vertical
+                  </th>
+                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider text-center">
+                    SRI / AHGI
+                  </th>
+                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider text-right">
+                    Ownership
+                  </th>
+                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider text-right">
+                    Monthly
+                  </th>
+                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider text-right">
+                    Accumulated
+                  </th>
+                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider text-right">
+                    Dynamic Val
+                  </th>
+                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider text-center">
+                    Status
+                  </th>
+                  <th className="pb-3 text-[10px] font-mono text-slate-400 uppercase tracking-wider text-right">
+                    Waterfall
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/50">
@@ -770,14 +991,19 @@ export default function DividendsPage() {
                       <tr
                         onMouseEnter={() => setHoveredRow(hall.id)}
                         onMouseLeave={() => setHoveredRow(null)}
-                        onClick={() => setExpandedHall(isExpanded ? null : hall.id)}
+                        onClick={() =>
+                          setExpandedHall(isExpanded ? null : hall.id)
+                        }
                         className={`group transition-all duration-300 cursor-pointer ${hoveredRow === hall.id ? "bg-slate-800/20" : ""} ${isExpanded ? "bg-slate-800/30" : ""}`}
                       >
                         <td className="py-4 pl-2">
                           <input
                             type="checkbox"
                             checked={selectedHalls.has(hall.id)}
-                            onChange={(e) => { e.stopPropagation(); toggleHall(hall.id); }}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              toggleHall(hall.id);
+                            }}
                             className="rounded border-slate-600 bg-slate-800/50 text-cyan-500 focus:ring-cyan-500/20"
                           />
                         </td>
@@ -785,8 +1011,12 @@ export default function DividendsPage() {
                           <div className="flex items-center gap-3">
                             <span className="text-xl">{hall.emoji}</span>
                             <div>
-                              <div className="text-sm font-semibold text-white group-hover:text-cyan-300 transition-colors">{hall.name}</div>
-                              <div className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">{hall.id} · {hall.continent}</div>
+                              <div className="text-sm font-semibold text-white group-hover:text-cyan-300 transition-colors">
+                                {hall.name}
+                              </div>
+                              <div className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">
+                                {hall.id} · {hall.continent}
+                              </div>
                             </div>
                           </div>
                         </td>
@@ -797,32 +1027,61 @@ export default function DividendsPage() {
                         </td>
                         <td className="py-4">
                           <div className="flex flex-col gap-2 items-center">
-                            <SRIBadge tier={hall.sriTier} score={hall.sriScore} />
-                            <AHGIBar score={hall.ahgiScore} trend={hall.ahgiTrend} />
+                            <SRIBadge
+                              tier={hall.sriTier}
+                              score={hall.sriScore}
+                            />
+                            <AHGIBar
+                              score={hall.ahgiScore}
+                              trend={hall.ahgiTrend}
+                            />
                           </div>
                         </td>
                         <td className="py-4 text-right">
-                          <div className="text-sm font-mono text-white">{hall.ownershipPercent}%</div>
+                          <div className="text-sm font-mono text-white">
+                            {hall.ownershipPercent}%
+                          </div>
                           <div className="w-16 h-1 bg-slate-800 rounded-full ml-auto mt-1 overflow-hidden">
-                            <div className="h-full bg-cyan-500 rounded-full shadow-[0_0_6px_rgba(6,182,212,0.5)]" style={{ width: `${hall.ownershipPercent * 4}%` }} />
+                            <div
+                              className="h-full bg-cyan-500 rounded-full shadow-[0_0_6px_rgba(6,182,212,0.5)]"
+                              style={{ width: `${hall.ownershipPercent * 4}%` }}
+                            />
                           </div>
                         </td>
                         <td className="py-4 text-right">
-                          <div className="text-sm font-mono text-emerald-400">{formatMoney(hall.monthlyDividend)}</div>
-                          <div className="text-[10px] text-slate-600 font-mono">of {formatMoney(hall.netHallRevenue)} net</div>
+                          <div className="text-sm font-mono text-emerald-400">
+                            {formatMoney(hall.monthlyDividend)}
+                          </div>
+                          <div className="text-[10px] text-slate-600 font-mono">
+                            of {formatMoney(hall.netHallRevenue)} net
+                          </div>
                         </td>
                         <td className="py-4 text-right">
-                          <div className="text-sm font-mono text-violet-300">{formatMoney(hall.accumulatedDividends)}</div>
+                          <div className="text-sm font-mono text-violet-300">
+                            {formatMoney(hall.accumulatedDividends)}
+                          </div>
                         </td>
                         <td className="py-4 text-right">
-                          <div className="text-sm font-mono text-amber-300">{formatMoney(hall.dynamicValuePerPercent)}</div>
-                          <div className="text-[10px] text-slate-600 font-mono">per 1%</div>
+                          <div className="text-sm font-mono text-amber-300">
+                            {formatMoney(hall.dynamicValuePerPercent)}
+                          </div>
+                          <div className="text-[10px] text-slate-600 font-mono">
+                            per 1%
+                          </div>
                         </td>
                         <td className="py-4 text-center">
                           <StatusBadge status={hall.status} />
                         </td>
                         <td className="py-4 text-right pr-2">
-                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`text-slate-500 transition-transform duration-300 inline-block ${isExpanded ? "rotate-180 text-cyan-400" : ""}`}>
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            className={`text-slate-500 transition-transform duration-300 inline-block ${isExpanded ? "rotate-180 text-cyan-400" : ""}`}
+                          >
                             <polyline points="6 9 12 15 18 9" />
                           </svg>
                         </td>
@@ -844,15 +1103,26 @@ export default function DividendsPage() {
                                       <span className="w-1 h-4 bg-cyan-500 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
                                       Revenue Waterfall
                                     </h4>
-                                    <WaterfallBar steps={getWaterfallSteps(hall)} hallId={hall.id} />
+                                    <WaterfallBar
+                                      steps={getWaterfallSteps(hall)}
+                                      hallId={hall.id}
+                                    />
                                     <div className="mt-4 grid grid-cols-2 gap-2 text-[10px] font-mono text-slate-400">
                                       <div className="bg-slate-800/30 rounded-lg p-2 border border-slate-700/30">
-                                        <div className="text-slate-500 mb-1">PIR Debt / 1%</div>
-                                        <div className="text-white">{formatMoney(hall.pirDebtPerPercent)}</div>
+                                        <div className="text-slate-500 mb-1">
+                                          PIR Debt / 1%
+                                        </div>
+                                        <div className="text-white">
+                                          {formatMoney(hall.pirDebtPerPercent)}
+                                        </div>
                                       </div>
                                       <div className="bg-slate-800/30 rounded-lg p-2 border border-slate-700/30">
-                                        <div className="text-slate-500 mb-1">IHCP Debt / 1%</div>
-                                        <div className="text-white">{formatMoney(hall.ihcpDebtPerPercent)}</div>
+                                        <div className="text-slate-500 mb-1">
+                                          IHCP Debt / 1%
+                                        </div>
+                                        <div className="text-white">
+                                          {formatMoney(hall.ihcpDebtPerPercent)}
+                                        </div>
                                       </div>
                                     </div>
                                   </div>
@@ -863,25 +1133,83 @@ export default function DividendsPage() {
                                     </h4>
                                     <div className="space-y-2 text-[11px] font-mono">
                                       {[
-                                        { label: "Asset Book Value / 100", val: hall.dynamicValuePerPercent * 0.6, color: "text-cyan-400" },
-                                        { label: "Accumulated Dividends / 1%", val: hall.accumulatedDividends / hall.ownershipPercent, color: "text-violet-400" },
-                                        { label: "AHGI Growth Premium", val: (hall.ahgiScore - 50) * 10, color: "text-emerald-400" },
-                                        { label: "SRI Tier Bonus", val: hall.sriTier === "platinum" ? 50 : hall.sriTier === "gold" ? 30 : hall.sriTier === "silver" ? 10 : hall.sriTier === "bronze" ? 0 : -20, color: "text-amber-400" },
-                                        { label: "PIR Debt / 1%", val: -hall.pirDebtPerPercent, color: "text-rose-400" },
-                                        { label: "IHCP Debt / 1%", val: -hall.ihcpDebtPerPercent, color: "text-rose-400" },
+                                        {
+                                          label: "Asset Book Value / 100",
+                                          val:
+                                            hall.dynamicValuePerPercent * 0.6,
+                                          color: "text-cyan-400",
+                                        },
+                                        {
+                                          label: "Accumulated Dividends / 1%",
+                                          val:
+                                            hall.accumulatedDividends /
+                                            hall.ownershipPercent,
+                                          color: "text-violet-400",
+                                        },
+                                        {
+                                          label: "AHGI Growth Premium",
+                                          val: (hall.ahgiScore - 50) * 10,
+                                          color: "text-emerald-400",
+                                        },
+                                        {
+                                          label: "SRI Tier Bonus",
+                                          val:
+                                            hall.sriTier === "platinum"
+                                              ? 50
+                                              : hall.sriTier === "gold"
+                                                ? 30
+                                                : hall.sriTier === "silver"
+                                                  ? 10
+                                                  : hall.sriTier === "bronze"
+                                                    ? 0
+                                                    : -20,
+                                          color: "text-amber-400",
+                                        },
+                                        {
+                                          label: "PIR Debt / 1%",
+                                          val: -hall.pirDebtPerPercent,
+                                          color: "text-rose-400",
+                                        },
+                                        {
+                                          label: "IHCP Debt / 1%",
+                                          val: -hall.ihcpDebtPerPercent,
+                                          color: "text-rose-400",
+                                        },
                                       ].map((item, i) => (
-                                        <div key={i} className="flex justify-between items-center py-1 border-b border-slate-800/30">
-                                          <span className="text-slate-400">{item.label}</span>
-                                          <span className={item.color}>{item.val >= 0 ? "+" : ""}{formatMoney(item.val)}</span>
+                                        <div
+                                          key={i}
+                                          className="flex justify-between items-center py-1 border-b border-slate-800/30"
+                                        >
+                                          <span className="text-slate-400">
+                                            {item.label}
+                                          </span>
+                                          <span className={item.color}>
+                                            {item.val >= 0 ? "+" : ""}
+                                            {formatMoney(item.val)}
+                                          </span>
                                         </div>
                                       ))}
                                       <div className="flex justify-between items-center pt-2">
-                                        <span className="text-white font-bold">FLOOR VALUE PER 1%</span>
-                                        <span className="text-cyan-400 font-bold text-sm">{formatMoney(hall.dynamicValuePerPercent)}</span>
+                                        <span className="text-white font-bold">
+                                          FLOOR VALUE PER 1%
+                                        </span>
+                                        <span className="text-cyan-400 font-bold text-sm">
+                                          {formatMoney(
+                                            hall.dynamicValuePerPercent,
+                                          )}
+                                        </span>
                                       </div>
                                       <div className="flex justify-between items-center">
-                                        <span className="text-white font-bold">YOUR TOTAL VALUE ({hall.ownershipPercent}%)</span>
-                                        <span className="text-fuchsia-400 font-bold text-sm">{formatMoney(hall.dynamicValuePerPercent * hall.ownershipPercent)}</span>
+                                        <span className="text-white font-bold">
+                                          YOUR TOTAL VALUE (
+                                          {hall.ownershipPercent}%)
+                                        </span>
+                                        <span className="text-fuchsia-400 font-bold text-sm">
+                                          {formatMoney(
+                                            hall.dynamicValuePerPercent *
+                                              hall.ownershipPercent,
+                                          )}
+                                        </span>
                                       </div>
                                     </div>
                                   </div>
@@ -898,11 +1226,16 @@ export default function DividendsPage() {
               <tfoot>
                 <tr className="border-t-2 border-slate-700/50 bg-slate-800/10">
                   <td className="py-4 pl-2" />
-                  <td className="py-4 text-sm font-bold text-white">AGGREGATE</td>
+                  <td className="py-4 text-sm font-bold text-white">
+                    AGGREGATE
+                  </td>
                   <td className="py-4" />
                   <td className="py-4" />
                   <td className="py-4 text-right text-sm font-mono text-cyan-400">
-                    {HALLS.reduce((s, h) => s + h.ownershipPercent, 0).toFixed(1)}%
+                    {HALLS.reduce((s, h) => s + h.ownershipPercent, 0).toFixed(
+                      1,
+                    )}
+                    %
                   </td>
                   <td className="py-4 text-right text-sm font-mono text-emerald-400 font-bold">
                     {formatMoney(totals.div)}
@@ -921,27 +1254,57 @@ export default function DividendsPage() {
           </div>
         </HologramCard>
 
-        {/* ─── BOTTOM ROW: YIELD SIM + ACTIVITY ─── */}
+        {/*  BOTTOM ROW: YIELD SIM + ACTIVITY  */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           <HologramCard accent="amber" className="lg:col-span-1">
-            <h3 className="text-lg font-bold text-white tracking-tight mb-1">Yield Simulator</h3>
-            <p className="text-[10px] text-slate-400 mb-6 font-mono uppercase tracking-wider">Projected returns at varying commitment scales</p>
+            <h3 className="text-lg font-bold text-white tracking-tight mb-1">
+              Yield Simulator
+            </h3>
+            <p className="text-[10px] text-slate-400 mb-6 font-mono uppercase tracking-wider">
+              Projected returns at varying commitment scales
+            </p>
             <div className="space-y-4">
               {[
-                { label: "Conservative (5% yield)", mult: 0.6, color: "from-slate-500 to-slate-400", glow: "shadow-slate-500/20" },
-                { label: "Expected (8% yield)", mult: 1.0, color: "from-amber-500 to-yellow-500", glow: "shadow-amber-500/20" },
-                { label: "Optimistic (12% yield)", mult: 1.4, color: "from-emerald-500 to-teal-500", glow: "shadow-emerald-500/20" },
+                {
+                  label: "Conservative (5% yield)",
+                  mult: 0.6,
+                  color: "from-slate-500 to-slate-400",
+                  glow: "shadow-slate-500/20",
+                },
+                {
+                  label: "Expected (8% yield)",
+                  mult: 1.0,
+                  color: "from-amber-500 to-yellow-500",
+                  glow: "shadow-amber-500/20",
+                },
+                {
+                  label: "Optimistic (12% yield)",
+                  mult: 1.4,
+                  color: "from-emerald-500 to-teal-500",
+                  glow: "shadow-emerald-500/20",
+                },
               ].map((scenario) => (
-                <div key={scenario.label} className={`flex items-center justify-between p-4 rounded-xl bg-slate-900/40 border border-slate-800 hover:border-slate-600 transition-all ${scenario.glow}`}>
+                <div
+                  key={scenario.label}
+                  className={`flex items-center justify-between p-4 rounded-xl bg-slate-900/40 border border-slate-800 hover:border-slate-600 transition-all ${scenario.glow}`}
+                >
                   <div>
-                    <div className="text-xs text-slate-300 mb-1">{scenario.label}</div>
+                    <div className="text-xs text-slate-300 mb-1">
+                      {scenario.label}
+                    </div>
                     <div className="text-lg font-mono font-bold text-white">
                       {formatMoney(totals.div * 12 * scenario.mult)}
                     </div>
-                    <div className="text-[10px] text-slate-500 font-mono">Annual projection</div>
+                    <div className="text-[10px] text-slate-500 font-mono">
+                      Annual projection
+                    </div>
                   </div>
-                  <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${scenario.color} opacity-30 flex items-center justify-center`}>
-                    <div className={`w-5 h-5 rounded-full bg-gradient-to-br ${scenario.color} opacity-60`} />
+                  <div
+                    className={`w-10 h-10 rounded-full bg-gradient-to-br ${scenario.color} opacity-30 flex items-center justify-center`}
+                  >
+                    <div
+                      className={`w-5 h-5 rounded-full bg-gradient-to-br ${scenario.color} opacity-60`}
+                    />
                   </div>
                 </div>
               ))}
@@ -949,26 +1312,70 @@ export default function DividendsPage() {
           </HologramCard>
 
           <HologramCard accent="cyan" className="lg:col-span-2">
-            <h3 className="text-lg font-bold text-white tracking-tight mb-4">Recent Payout Activity</h3>
+            <h3 className="text-lg font-bold text-white tracking-tight mb-4">
+              Recent Payout Activity
+            </h3>
             <div className="space-y-2">
               {[
-                { hall: "Solar Array Alpha — Kajiado", amount: 2840, time: "2 hours ago", type: "dividend", emoji: "⚡" },
-                { hall: "Metro Fleet — North Atlantic", amount: 4100.5, time: "5 hours ago", type: "dividend", emoji: "🚗" },
-                { hall: "Cocoa Collective — West African Belt", amount: 5200, time: "8 hours ago", type: "dividend", emoji: "🌾" },
-                { hall: "SportLedger — Gulf Academy FC", amount: 2100, time: "1 day ago", type: "dividend", emoji: "🏆" },
-                { hall: "8th Ledger Protocol Tithe", amount: 13640, time: "1 day ago", type: "tithe", emoji: "🏛" },
+                {
+                  hall: "Solar Array Alpha — Kajiado",
+                  amount: 2840,
+                  time: "2 hours ago",
+                  type: "dividend",
+                  emoji: "⚡",
+                },
+                {
+                  hall: "Metro Fleet — North Atlantic",
+                  amount: 4100.5,
+                  time: "5 hours ago",
+                  type: "dividend",
+                  emoji: "🚗",
+                },
+                {
+                  hall: "Cocoa Collective — West African Belt",
+                  amount: 5200,
+                  time: "8 hours ago",
+                  type: "dividend",
+                  emoji: "🌾",
+                },
+                {
+                  hall: "SportLedger — Gulf Academy FC",
+                  amount: 2100,
+                  time: "1 day ago",
+                  type: "dividend",
+                  emoji: "🏆",
+                },
+                {
+                  hall: "8th Ledger Protocol Tithe",
+                  amount: 13640,
+                  time: "1 day ago",
+                  type: "tithe",
+                  emoji: "🏛",
+                },
               ].map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-slate-900/20 border border-slate-800/50 hover:border-slate-700 transition-colors group">
+                <div
+                  key={i}
+                  className="flex items-center justify-between p-3 rounded-xl bg-slate-900/20 border border-slate-800/50 hover:border-slate-700 transition-colors group"
+                >
                   <div className="flex items-center gap-3">
                     <span className="text-lg">{item.emoji}</span>
-                    <div className={`w-2 h-2 rounded-full ${item.type === "tithe" ? "bg-amber-400" : "bg-emerald-400"} shadow-[0_0_8px_currentColor]`} />
+                    <div
+                      className={`w-2 h-2 rounded-full ${item.type === "tithe" ? "bg-amber-400" : "bg-emerald-400"} shadow-[0_0_8px_currentColor]`}
+                    />
                     <div>
-                      <div className="text-sm text-white group-hover:text-cyan-300 transition-colors">{item.hall}</div>
-                      <div className="text-[10px] text-slate-500 font-mono">{item.time}</div>
+                      <div className="text-sm text-white group-hover:text-cyan-300 transition-colors">
+                        {item.hall}
+                      </div>
+                      <div className="text-[10px] text-slate-500 font-mono">
+                        {item.time}
+                      </div>
                     </div>
                   </div>
-                  <div className={`text-sm font-mono font-semibold ${item.type === "tithe" ? "text-amber-400" : "text-emerald-400"}`}>
-                    {item.type === "tithe" ? "-" : "+"}{formatMoney(item.amount)}
+                  <div
+                    className={`text-sm font-mono font-semibold ${item.type === "tithe" ? "text-amber-400" : "text-emerald-400"}`}
+                  >
+                    {item.type === "tithe" ? "-" : "+"}
+                    {formatMoney(item.amount)}
                   </div>
                 </div>
               ))}
@@ -977,7 +1384,7 @@ export default function DividendsPage() {
         </div>
       </div>
 
-      {/* ─── DOWNLOAD MODAL ─── */}
+      {/*  DOWNLOAD MODAL  */}
       <AnimatePresence>
         {downloadOpen && (
           <motion.div
@@ -997,8 +1404,13 @@ export default function DividendsPage() {
               <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/50 to-transparent" />
               <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:24px_24px] opacity-30 pointer-events-none" />
 
-              <h3 className="text-xl font-bold text-white mb-2 tracking-tight">Export Ledger</h3>
-              <p className="text-sm text-slate-400 mb-6">Download your dividend records for audit, tax, and valuation purposes.</p>
+              <h3 className="text-xl font-bold text-white mb-2 tracking-tight">
+                Export Ledger
+              </h3>
+              <p className="text-sm text-slate-400 mb-6">
+                Download your dividend records for audit, tax, and valuation
+                purposes.
+              </p>
               <div className="space-y-3">
                 <button
                   onClick={() => handleDownload("csv")}
@@ -1006,14 +1418,41 @@ export default function DividendsPage() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-cyan-500/10 flex items-center justify-center text-cyan-400 border border-cyan-500/20">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <line x1="16" y1="13" x2="8" y2="13" />
+                        <line x1="16" y1="17" x2="8" y2="17" />
+                        <polyline points="10 9 9 9 8 9" />
+                      </svg>
                     </div>
                     <div className="text-left">
-                      <div className="text-sm font-semibold text-white group-hover:text-cyan-300 transition-colors">CSV Spreadsheet</div>
-                      <div className="text-xs text-slate-500">Raw data for Excel / Sheets</div>
+                      <div className="text-sm font-semibold text-white group-hover:text-cyan-300 transition-colors">
+                        CSV Spreadsheet
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        Raw data for Excel / Sheets
+                      </div>
                     </div>
                   </div>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500 group-hover:text-cyan-400"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="text-slate-500 group-hover:text-cyan-400"
+                  >
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
                 </button>
                 <button
                   onClick={() => handleDownload("pdf")}
@@ -1021,14 +1460,40 @@ export default function DividendsPage() {
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-400 border border-amber-500/20">
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><path d="M9 13h6"/><path d="M9 17h6"/></svg>
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                      >
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                        <polyline points="14 2 14 8 20 8" />
+                        <path d="M9 13h6" />
+                        <path d="M9 17h6" />
+                      </svg>
                     </div>
                     <div className="text-left">
-                      <div className="text-sm font-semibold text-white group-hover:text-amber-300 transition-colors">PDF Certificate</div>
-                      <div className="text-xs text-slate-500">Formal statement with 8th Ledger seal</div>
+                      <div className="text-sm font-semibold text-white group-hover:text-amber-300 transition-colors">
+                        PDF Certificate
+                      </div>
+                      <div className="text-xs text-slate-500">
+                        Formal statement with 8th Ledger seal
+                      </div>
                     </div>
                   </div>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-500 group-hover:text-amber-400"><polyline points="9 18 15 12 9 6"/></svg>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    className="text-slate-500 group-hover:text-amber-400"
+                  >
+                    <polyline points="9 18 15 12 9 6" />
+                  </svg>
                 </button>
               </div>
               <button
@@ -1042,11 +1507,16 @@ export default function DividendsPage() {
         )}
       </AnimatePresence>
 
-      {/* ─── CSS ANIMATIONS ─── */}
+      {/*  CSS ANIMATIONS  */}
       <style jsx global>{`
         @keyframes pulse-slow {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 0.8; }
+          0%,
+          100% {
+            opacity: 0.4;
+          }
+          50% {
+            opacity: 0.8;
+          }
         }
         .animate-pulse-slow {
           animation: pulse-slow 4s ease-in-out infinite;

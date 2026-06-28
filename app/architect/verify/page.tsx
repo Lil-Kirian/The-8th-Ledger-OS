@@ -1,7 +1,7 @@
 // app/architect/verify/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Shield,
@@ -33,7 +33,7 @@ type Status = {
   windowEnd: number;
 };
 
-export default function ArchitectVerifyPage() {
+function ArchitectVerifyPageContent() {
   const [step, setStep] = useState<Step>("checking");
   const [status, setStatus] = useState<Status | null>(null);
   const [totpCode, setTotpCode] = useState("");
@@ -90,7 +90,7 @@ export default function ArchitectVerifyPage() {
       if (!s.geoEnrolled) { setStep("setup-geo"); return; }
 
       setStep("totp");
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError("Failed to check fortress status. " + err.message);
       setStep("totp");
     }
@@ -110,7 +110,7 @@ export default function ArchitectVerifyPage() {
       setSetupTotpSecret(data.secret);
       setSetupTotpUrl(data.otpauthUrl || "");
       setStep("setup-totp-verify");
-    } catch (err: unknown) { setError(err.message); }
+    } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
   }
 
@@ -128,7 +128,7 @@ export default function ArchitectVerifyPage() {
       if (!res.ok) throw new Error(data.error);
       setTotpCode("");
       setStep("setup-pin");
-    } catch (err: unknown) { setError(err.message); }
+    } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
   }
 
@@ -152,7 +152,7 @@ export default function ArchitectVerifyPage() {
       if (!res.ok) throw new Error(data.error);
       setSetupPin(""); setConfirmPin("");
       setStep("setup-webauthn");
-    } catch (err: unknown) { setError(err.message); }
+    } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
   }
 
@@ -188,8 +188,8 @@ export default function ArchitectVerifyPage() {
             id: credential.id,
             rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
             response: {
-              clientDataJSON: btoa(String.fromCharCode(...new Uint8Array((credential.response as unknown).clientDataJSON))),
-              attestationObject: btoa(String.fromCharCode(...new Uint8Array((credential.response as unknown).attestationObject))),
+              clientDataJSON: btoa(String.fromCharCode(...new Uint8Array((credential.response as any).clientDataJSON))),
+              attestationObject: btoa(String.fromCharCode(...new Uint8Array((credential.response as any).attestationObject))),
             },
             type: credential.type,
           },
@@ -199,7 +199,7 @@ export default function ArchitectVerifyPage() {
       const finishData = await finishRes.json();
       if (!finishRes.ok) throw new Error(finishData.error || "Enrollment failed");
       setStep("setup-geo");
-    } catch (err: unknown) { setError(err.message); }
+    } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
   }
 
@@ -225,7 +225,7 @@ export default function ArchitectVerifyPage() {
 
       setStep("complete");
       setTimeout(() => { window.location.href = redirect; }, 2000);
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err.message || "Location access required for fortress enrollment.");
     } finally { setLoading(false); }
   }
@@ -245,7 +245,7 @@ export default function ArchitectVerifyPage() {
       if (!res.ok) throw new Error(data.error);
       setTotpCode("");
       setStep("pin");
-    } catch (err: unknown) { setError(err.message); }
+    } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
   }
 
@@ -271,7 +271,7 @@ export default function ArchitectVerifyPage() {
       setLocked(false);
       setPin("");
       setStep("webauthn");
-    } catch (err: unknown) { setError(err.message); }
+    } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
   }
 
@@ -294,7 +294,7 @@ export default function ArchitectVerifyPage() {
       const options = data.options;
       options.challenge = Uint8Array.from(atob(options.challenge.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
       if (options.allowCredentials) {
-        options.allowCredentials = options.allowCredentials.map((cred: unknown) => ({
+        options.allowCredentials = options.allowCredentials.map((cred: any) => ({
           ...cred,
           id: Uint8Array.from(atob(cred.id.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0)),
         }));
@@ -312,10 +312,10 @@ export default function ArchitectVerifyPage() {
             id: credential.id,
             rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
             response: {
-              authenticatorData: btoa(String.fromCharCode(...new Uint8Array((credential.response as unknown).authenticatorData))),
-              clientDataJSON: btoa(String.fromCharCode(...new Uint8Array((credential.response as unknown).clientDataJSON))),
-              signature: btoa(String.fromCharCode(...new Uint8Array((credential.response as unknown).signature))),
-              userHandle: (credential.response as unknown).userHandle ? btoa(String.fromCharCode(...new Uint8Array((credential.response as unknown).userHandle))) : null,
+              authenticatorData: btoa(String.fromCharCode(...new Uint8Array((credential.response as any).authenticatorData))),
+              clientDataJSON: btoa(String.fromCharCode(...new Uint8Array((credential.response as any).clientDataJSON))),
+              signature: btoa(String.fromCharCode(...new Uint8Array((credential.response as any).signature))),
+              userHandle: (credential.response as any).userHandle ? btoa(String.fromCharCode(...new Uint8Array((credential.response as any).userHandle))) : null,
             },
             type: credential.type,
           },
@@ -327,7 +327,7 @@ export default function ArchitectVerifyPage() {
 
       setStep("geo");
       runGeoCheck();
-    } catch (err: unknown) { setError(err.message); setLoading(false); }
+    } catch (err: any) { setError(err.message); setLoading(false); }
   }
 
   /* ===== VERIFICATION: GEO ===== */
@@ -352,7 +352,7 @@ export default function ArchitectVerifyPage() {
 
       setStep("complete");
       setTimeout(() => { window.location.href = redirect; }, 2000);
-    } catch (err: unknown) {
+    } catch (err: any) {
       try {
         const res = await fetch("/api/auth/geo-check", {
           method: "POST",
@@ -697,5 +697,13 @@ export default function ArchitectVerifyPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function ArchitectVerifyPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <ArchitectVerifyPageContent />
+    </Suspense>
   );
 }

@@ -7,7 +7,7 @@ import {  requireAuth } from "@/lib/auth";
 // Only hall owners and admins may access
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth(req);
@@ -162,7 +162,7 @@ export async function GET(
       canElect: isAdmin || (!cabinet.isImpeached && isActive && daysRemaining <= 14),
       canImpeach: (!!ownership || isAdmin) && isActive && !cabinet.isImpeached,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[CABINET GET]", error);
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

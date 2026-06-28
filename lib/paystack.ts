@@ -83,7 +83,7 @@ export async function initializePaystackPayment(
       };
     }
 
-    const raw: unknown = await response.json();
+    const raw: any = await response.json();
 
     if (
       typeof raw !== "object" ||

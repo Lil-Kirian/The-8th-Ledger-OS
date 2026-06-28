@@ -7,8 +7,8 @@ import { getSessionUser, isPrimaryAdmin } from "@/lib/auth";
    ============================================================ */
 interface ReportResponse {
   success: boolean;
-  reports?: unknown[];
-  report?: unknown;
+  reports?: any[];
+  report?: any;
   total?: number;
   error?: string;
   message?: string;
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit") || 20)));
     const skip = (page - 1) * limit;
 
-    const where: unknown = {};
+    const where: any = {};
     if (poolId) where.poolId = poolId;
     if (status) where.status = status;
 
@@ -170,7 +170,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       report: result,
       message: "Listing flagged for review",
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[REPORTS POST]", error);
     return NextResponse.json(
       { success: false, error: error.message || "Failed to submit report" },
@@ -269,7 +269,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       report: updated,
       message: `Report ${status}`,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[REPORTS PATCH]", error);
     return NextResponse.json(
       { success: false, error: error.message || "Failed to update report" },

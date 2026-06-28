@@ -26,9 +26,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES
-// ─────────────────────────────────────────────────────────────
+//
 
 type MeridianPhase = "hush" | "unveil" | "reveal" | "forge" | "complete";
 
@@ -76,9 +76,9 @@ interface CycleArchive {
   cyclePools: { id: string; pool: { name: string; verticalId: string } }[];
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS
-// ─────────────────────────────────────────────────────────────
+//
 
 const CONTINENTS = [
   { id: "africa", name: "Africa", emoji: "🌍", color: "from-amber-500/20 to-orange-500/20" },
@@ -135,15 +135,15 @@ const PHASE_META: Record<MeridianPhase, { title: string; subtitle: string; icon:
   },
 };
 
-// ─────────────────────────────────────────────────────────────
+//
 // FETCHER
-// ─────────────────────────────────────────────────────────────
+//
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
 
-// ─────────────────────────────────────────────────────────────
+//
 // COUNTDOWN HOOK
-// ─────────────────────────────────────────────────────────────
+//
 
 function useCountdown(targetDate: string | null) {
   const [remaining, setRemaining] = useState<number>(0);
@@ -174,9 +174,9 @@ function useCountdown(targetDate: string | null) {
   };
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GLITCH TEXT COMPONENT
-// ─────────────────────────────────────────────────────────────
+//
 
 function GlitchText({ text, className = "" }: { text: string; className?: string }) {
   return (
@@ -192,9 +192,9 @@ function GlitchText({ text, className = "" }: { text: string; className?: string
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // MAIN PAGE
-// ─────────────────────────────────────────────────────────────
+//
 
 export default function MeridianPage() {
   const router = useRouter();
@@ -214,66 +214,68 @@ export default function MeridianPage() {
   // Cycle archive
   const { data: archiveData } = useSWR<{ cycles: CycleArchive[] }>(
     "/api/meridian/cycle?archive=true",
-    fetcher
+    fetcher,
   );
 
   const currentCycle = currentData?.cycle;
   const countdown = useCountdown(currentCycle?.endAt ?? null);
 
-  const handleVote = useCallback(
-    async (cycleId: string, poolId: string) => {
-      try {
-        const res = await fetch(`/api/meridian/cycle/${cycleId}/vote`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ poolId }),
-        });
-        if (!res.ok) throw new Error("Vote failed");
-        // SWR will revalidate
-        window.location.reload();
-      } catch (err) {
-        console.error(err);
-      }
-    },
-    []
-  );
+  const handleVote = useCallback(async (cycleId: string, poolId: string) => {
+    try {
+      const res = await fetch(`/api/meridian/cycle/${cycleId}/vote`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ poolId }),
+      });
+      if (!res.ok) throw new Error("Vote failed");
+      // SWR will revalidate
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+    }
+  }, []);
 
-  // ─────────────────────────────────────────────────────────
+  //
   // RENDER: LOADING
-  // ─────────────────────────────────────────────────────────
+  //
 
   if (currentLoading) {
     return (
       <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="w-8 h-8 text-cyan-400 animate-spin" />
-          <p className="text-slate-400 text-sm tracking-widest uppercase">Loading Meridian Cycle</p>
-        </div>
-      </div>
-    );
-  }
-
-  // ─────────────────────────────────────────────────────────
-  // RENDER: ERROR
-  // ─────────────────────────────────────────────────────────
-
-  if (currentError) {
-    return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4 text-center max-w-md px-6">
-          <AlertCircle className="w-10 h-10 text-red-400" />
-          <h2 className="text-xl font-semibold text-white">Cycle Data Unavailable</h2>
-          <p className="text-slate-400 text-sm">
-            The Meridian engine is experiencing turbulence. The Architect has been notified.
+          <p className="text-slate-400 text-sm tracking-widest uppercase">
+            Loading Meridian Cycle
           </p>
         </div>
       </div>
     );
   }
 
-  // ─────────────────────────────────────────────────────────
+  //
+  // RENDER: ERROR
+  //
+
+  if (currentError) {
+    return (
+      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4 text-center max-w-md px-6">
+          <AlertCircle className="w-10 h-10 text-red-400" />
+          <h2 className="text-xl font-semibold text-white">
+            Cycle Data Unavailable
+          </h2>
+          <p className="text-slate-400 text-sm">
+            The Meridian engine is experiencing turbulence. The Architect has
+            been notified.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  //
   // RENDER: NO ACTIVE CYCLE
-  // ─────────────────────────────────────────────────────────
+  //
 
   if (!currentCycle) {
     return (
@@ -283,10 +285,13 @@ export default function MeridianPage() {
           <div className="mb-12">
             <div className="flex items-center gap-3 mb-2">
               <Globe className="w-6 h-6 text-cyan-400" />
-              <h1 className="text-3xl font-bold tracking-tight">The Meridian</h1>
+              <h1 className="text-3xl font-bold tracking-tight">
+                The Meridian
+              </h1>
             </div>
             <p className="text-slate-400 max-w-xl">
-              The forge where assets are born through democratic fire. No cycle is currently active.
+              The forge where assets are born through democratic fire. No cycle
+              is currently active.
             </p>
           </div>
 
@@ -297,9 +302,12 @@ export default function MeridianPage() {
               <div className="w-16 h-16 mx-auto mb-6 rounded-full bg-slate-800 flex items-center justify-center">
                 <Clock className="w-8 h-8 text-slate-500" />
               </div>
-              <h2 className="text-2xl font-semibold mb-2">The Hush Approaches</h2>
+              <h2 className="text-2xl font-semibold mb-2">
+                The Hush Approaches
+              </h2>
               <p className="text-slate-400 mb-6">
-                The next cycle will begin soon. The Architect is selecting the continent.
+                The next cycle will begin soon. The Architect is selecting the
+                continent.
               </p>
               <div className="flex justify-center gap-2">
                 {CONTINENTS.map((c) => (
@@ -337,14 +345,14 @@ export default function MeridianPage() {
   const phaseMeta = PHASE_META[currentCycle.phase];
   const continentMeta = CONTINENTS.find((c) => c.id === currentCycle.continent);
 
-  // ─────────────────────────────────────────────────────────
+  //
   // RENDER: ACTIVE CYCLE
-  // ─────────────────────────────────────────────────────────
+  //
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* ── Header ───────────────────────────────────────── */}
+        {/* ── Header ─ */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
             <Globe className="w-6 h-6 text-cyan-400" />
@@ -354,11 +362,12 @@ export default function MeridianPage() {
             </span>
           </div>
           <p className="text-slate-400 max-w-xl">
-            The forge where assets are born through democratic fire. The 8th Ledger commands the cycle. The community writes the law.
+            The forge where assets are born through democratic fire. The 8th
+            Ledger commands the cycle. The community writes the law.
           </p>
         </div>
 
-        {/* ── Phase Hero ───────────────────────────────────── */}
+        {/* ── Phase Hero  */}
         <div className="relative overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/50 mb-12">
           {/* Dynamic background based on phase */}
           <div className="absolute inset-0">
@@ -381,13 +390,18 @@ export default function MeridianPage() {
               <div>
                 <div className="flex items-center gap-3 mb-3">
                   <span className={`${phaseMeta.color}`}>{phaseMeta.icon}</span>
-                  <span className={`text-sm font-semibold uppercase tracking-wider ${phaseMeta.color}`}>
+                  <span
+                    className={`text-sm font-semibold uppercase tracking-wider ${phaseMeta.color}`}
+                  >
                     {phaseMeta.title}
                   </span>
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold mb-2">
                   {currentCycle.phase === "hush" ? (
-                    <GlitchText text={continentMeta?.name || currentCycle.continent} className="text-cyan-400" />
+                    <GlitchText
+                      text={continentMeta?.name || currentCycle.continent}
+                      className="text-cyan-400"
+                    />
                   ) : (
                     continentMeta?.name || currentCycle.continent
                   )}
@@ -398,7 +412,9 @@ export default function MeridianPage() {
               {/* Countdown */}
               {currentCycle.phase !== "complete" && (
                 <div className="flex flex-col items-center md:items-end">
-                  <div className="text-xs text-slate-500 uppercase tracking-widest mb-1">Time Remaining</div>
+                  <div className="text-xs text-slate-500 uppercase tracking-widest mb-1">
+                    Time Remaining
+                  </div>
                   <div className="font-mono text-4xl md:text-5xl font-bold text-white tracking-wider">
                     {countdown.isExpired ? "00:00:00" : countdown.formatted}
                   </div>
@@ -411,28 +427,37 @@ export default function MeridianPage() {
 
             {/* Phase indicator dots */}
             <div className="flex items-center gap-2 mt-8">
-              {(["hush", "unveil", "reveal", "forge"] as MeridianPhase[]).map((p, i) => (
-                <div key={p} className="flex items-center gap-2">
-                  <div
-                    className={`w-2.5 h-2.5 rounded-full transition-all duration-500 ${
-                      p === currentCycle.phase
-                        ? "bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)] scale-125"
-                        : p === "complete" || (currentCycle.phase === "forge" && p === "forge")
-                        ? "bg-slate-600"
-                        : "bg-slate-700"
-                    }`}
-                  />
-                  {i < 3 && <div className="w-8 h-px bg-slate-800" />}
-                </div>
-              ))}
+              {(["hush", "unveil", "reveal", "forge"] as MeridianPhase[]).map(
+                (p, i) => (
+                  <div key={p} className="flex items-center gap-2">
+                    <div
+                      className={`w-2.5 h-2.5 rounded-full transition-all duration-500 ${
+                        p === currentCycle.phase
+                          ? "bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,0.5)] scale-125"
+                          : p === "complete" ||
+                              (currentCycle.phase === "forge" && p === "forge")
+                            ? "bg-slate-600"
+                            : "bg-slate-700"
+                      }`}
+                    />
+                    {i < 3 && <div className="w-8 h-px bg-slate-800" />}
+                  </div>
+                ),
+              )}
               <span className="ml-2 text-xs text-slate-500 uppercase tracking-wider">
-                {currentCycle.phase === "hush" ? "Phase 1 of 4" : currentCycle.phase === "unveil" ? "Phase 2 of 4" : currentCycle.phase === "reveal" ? "Phase 3 of 4" : "Phase 4 of 4"}
+                {currentCycle.phase === "hush"
+                  ? "Phase 1 of 4"
+                  : currentCycle.phase === "unveil"
+                    ? "Phase 2 of 4"
+                    : currentCycle.phase === "reveal"
+                      ? "Phase 3 of 4"
+                      : "Phase 4 of 4"}
               </span>
             </div>
           </div>
         </div>
 
-        {/* ── Phase-Specific Content ───────────────────────── */}
+        {/* ── Phase-Specific Content ─ */}
 
         {/* HUSH: Pulsing dot, dark screen */}
         {currentCycle.phase === "hush" && (
@@ -449,7 +474,8 @@ export default function MeridianPage() {
               <GlitchText text={continentMeta?.name || ""} />
             </h3>
             <p className="text-slate-500 max-w-md">
-              The Architect watches. The 8th Ledger waits. In {countdown.formatted}, the veil lifts.
+              The Architect watches. The 8th Ledger waits. In{" "}
+              {countdown.formatted}, the veil lifts.
             </p>
           </motion.div>
         )}
@@ -483,7 +509,8 @@ export default function MeridianPage() {
                 Vote for the Winner
               </h3>
               <span className="text-xs text-slate-500">
-                One vote per subject • {currentCycle._count?.cycleVotes || 0} votes cast
+                One vote per subject • {currentCycle._count?.cycleVotes || 0}{" "}
+                votes cast
               </span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -520,7 +547,7 @@ export default function MeridianPage() {
           </div>
         )}
 
-        {/* ── Continent Rotation Map ───────────────────────── */}
+        {/* ── Continent Rotation Map ─ */}
         <div className="mt-16 mb-8">
           <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
             <MapPin className="w-5 h-5 text-slate-400" />
@@ -541,7 +568,9 @@ export default function MeridianPage() {
                   }`}
                 >
                   <div className="text-2xl mb-1">{c.emoji}</div>
-                  <div className={`text-xs font-medium ${isCurrent ? "text-cyan-400" : "text-slate-500"}`}>
+                  <div
+                    className={`text-xs font-medium ${isCurrent ? "text-cyan-400" : "text-slate-500"}`}
+                  >
                     {c.name}
                   </div>
                   {isCurrent && (
@@ -559,11 +588,12 @@ export default function MeridianPage() {
             })}
           </div>
           <p className="text-xs text-slate-500 mt-3 text-center">
-            Winner continent is locked for 2 cycles. Forces global spread. Prevents concentration.
+            Winner continent is locked for 2 cycles. Forces global spread.
+            Prevents concentration.
           </p>
         </div>
 
-        {/* ── Archive ───────────────────────────────────────── */}
+        {/* ── Archive ─ */}
         {archiveData?.cycles && archiveData.cycles.length > 0 && (
           <div className="mt-8">
             <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
@@ -582,9 +612,9 @@ export default function MeridianPage() {
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // SUB-COMPONENTS
-// ─────────────────────────────────────────────────────────────
+//
 
 function UnveilCard({ cyclePool, index }: { cyclePool: CyclePool; index: number }) {
   const vertical = VERTICAL_META[cyclePool.pool.verticalId];

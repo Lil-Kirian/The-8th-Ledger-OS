@@ -29,11 +29,11 @@ function formatCompact(n: number) {
   return new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 }).format(n);
 }
 
-function safeStr(val: unknown, fallback = ""): string {
+function safeStr(val: any, fallback = ""): string {
   return typeof val === "string" ? val : fallback;
 }
 
-function safeNum(val: unknown, fallback = 0): number {
+function safeNum(val: any, fallback = 0): number {
   return typeof val === "number" && !isNaN(val) ? val : fallback;
 }
 

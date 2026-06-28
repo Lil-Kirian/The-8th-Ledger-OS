@@ -61,7 +61,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  /* ─── THE SACRED RECORD — System Knowledge ─── */
+  /*  THE SACRED RECORD — System Knowledge  */
   {
     label: "The Octachronicle",
     href: "/the-octachronicle",
@@ -82,44 +82,186 @@ const NAV_ITEMS: NavItem[] = [
     badge: "GUIDE",
   },
 
-  /* ─── SOVEREIGN ASSETS ─── */
-  { label: "Dashboard",   href: "/dashboard",      icon: LayoutDashboard, feature: "dashboard",   section: "assets", matchPrefix: "/dashboard" },
-  { label: "My Halls",    href: "/halls",          icon: Radio,           feature: "halls",       section: "assets", matchPrefix: "/halls" },
-  { label: "Pools",       href: "/pools",          icon: Grid3X3,         feature: "pools",       section: "assets", matchPrefix: "/pools", badge: "Live" },
-  { label: "Marketplace", href: "/marketplace",    icon: Store,           feature: "marketplace", section: "assets", matchPrefix: "/marketplace" },
-  { label: "Verticals",   href: "/verticals",      icon: Hexagon,         feature: "verticals",   section: "assets", matchPrefix: "/verticals" },
-  { label: "Meridian",    href: "/meridian",       icon: Globe,           feature: "meridian",    section: "assets", matchPrefix: "/meridian", badge: "Cycle" },
+  /*  SOVEREIGN ASSETS  */
+  {
+    label: "Dashboard",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+    feature: "dashboard",
+    section: "assets",
+    matchPrefix: "/dashboard",
+  },
+  {
+    label: "My Halls",
+    href: "/halls",
+    icon: Radio,
+    feature: "halls",
+    section: "assets",
+    matchPrefix: "/halls",
+  },
+  {
+    label: "Pools",
+    href: "/pools",
+    icon: Grid3X3,
+    feature: "pools",
+    section: "assets",
+    matchPrefix: "/pools",
+    badge: "Live",
+  },
+  {
+    label: "Marketplace",
+    href: "/marketplace",
+    icon: Store,
+    feature: "marketplace",
+    section: "assets",
+    matchPrefix: "/marketplace",
+  },
+  {
+    label: "Verticals",
+    href: "/verticals",
+    icon: Hexagon,
+    feature: "verticals",
+    section: "assets",
+    matchPrefix: "/verticals",
+  },
+  {
+    label: "Meridian",
+    href: "/meridian",
+    icon: Globe,
+    feature: "meridian",
+    section: "assets",
+    matchPrefix: "/meridian",
+    badge: "Cycle",
+  },
 
-  /* ─── CAPITAL ─── */
-  { label: "Dividends",    href: "/dividends",    icon: Coins,      feature: "dividends", section: "capital", matchPrefix: "/dividends" },
-  { label: "Vault",        href: "/vault",        icon: Shield,     feature: "vault",     section: "capital", matchPrefix: "/vault" },
-  { label: "Wallet",       href: "/wallet",       icon: Wallet,     feature: "wallet",    section: "capital", matchPrefix: "/wallet" },
-  { label: "LED Protocol", href: "/led-protocol", icon: Hexagon,    feature: "exchange",  section: "capital", matchPrefix: "/led-protocol" },
+  /*  CAPITAL  */
+  {
+    label: "Dividends",
+    href: "/dividends",
+    icon: Coins,
+    feature: "dividends",
+    section: "capital",
+    matchPrefix: "/dividends",
+  },
+  {
+    label: "Vault",
+    href: "/vault",
+    icon: Shield,
+    feature: "vault",
+    section: "capital",
+    matchPrefix: "/vault",
+  },
+  {
+    label: "Wallet",
+    href: "/wallet",
+    icon: Wallet,
+    feature: "wallet",
+    section: "capital",
+    matchPrefix: "/wallet",
+  },
+  {
+    label: "LED Protocol",
+    href: "/led-protocol",
+    icon: Hexagon,
+    feature: "exchange",
+    section: "capital",
+    matchPrefix: "/led-protocol",
+  },
 
-  /* ─── IDENTITY & POWER ─── */
-  { label: "SIV / KYC",    href: "/kyc",          icon: BadgeCheck, feature: "kyc",          section: "identity", matchPrefix: "/kyc" },
-  { label: "Forge",        href: "/forge",        icon: Flame,      feature: "forge",        section: "identity", matchPrefix: "/forge" },
-  { label: "Knot",         href: "/knot",         icon: Users,      feature: "knot",         section: "identity", matchPrefix: "/knot" },
-  { label: "Leaderboards", href: "/leaderboards", icon: Trophy,     feature: "leaderboards", section: "identity", matchPrefix: "/leaderboards" },
-  { label: "Oracle",       href: "/oracle",       icon: Target,     feature: "oracle",       section: "identity", matchPrefix: "/oracle" },
-  { label: "Agora",        href: "/agora",        icon: Globe,      feature: "agora",        section: "identity", matchPrefix: "/agora" },
+  /*  IDENTITY & POWER  */
+  {
+    label: "SIV / KYC",
+    href: "/kyc",
+    icon: BadgeCheck,
+    feature: "kyc",
+    section: "identity",
+    matchPrefix: "/kyc",
+  },
+  {
+    label: "Forge",
+    href: "/forge",
+    icon: Flame,
+    feature: "forge",
+    section: "identity",
+    matchPrefix: "/forge",
+  },
+  {
+    label: "Knot",
+    href: "/knot",
+    icon: Users,
+    feature: "knot",
+    section: "identity",
+    matchPrefix: "/knot",
+  },
+  {
+    label: "Leaderboards",
+    href: "/leaderboards",
+    icon: Trophy,
+    feature: "leaderboards",
+    section: "identity",
+    matchPrefix: "/leaderboards",
+  },
+  {
+    label: "Oracle",
+    href: "/oracle",
+    icon: Target,
+    feature: "oracle",
+    section: "identity",
+    matchPrefix: "/oracle",
+  },
+  {
+    label: "Agora",
+    href: "/agora",
+    icon: Globe,
+    feature: "agora",
+    section: "identity",
+    matchPrefix: "/agora",
+  },
 
-  /* ─── RECORDS ─── */
-  { label: "Contracts", href: "/contracts", icon: FileText,   feature: "contracts", section: "records", matchPrefix: "/contracts" },
-  { label: "Audit",     href: "/audit",     icon: Eye,        feature: "audit",     section: "records", matchPrefix: "/audit" },
+  /*  RECORDS  */
+  {
+    label: "Contracts",
+    href: "/contracts",
+    icon: FileText,
+    feature: "contracts",
+    section: "records",
+    matchPrefix: "/contracts",
+  },
+  {
+    label: "Audit",
+    href: "/audit",
+    icon: Eye,
+    feature: "audit",
+    section: "records",
+    matchPrefix: "/audit",
+  },
 
-  /* ─── ACCOUNT ─── */
-  { label: "Profile",  href: "/me",       icon: User,     feature: "profile",  section: "account", matchPrefix: "/me" },
-  { label: "Settings", href: "/settings", icon: Settings, feature: "settings", section: "account", matchPrefix: "/settings" },
+  /*  ACCOUNT  */
+  {
+    label: "Profile",
+    href: "/me",
+    icon: User,
+    feature: "profile",
+    section: "account",
+    matchPrefix: "/me",
+  },
+  {
+    label: "Settings",
+    href: "/settings",
+    icon: Settings,
+    feature: "settings",
+    section: "account",
+    matchPrefix: "/settings",
+  },
 ];
 
-/* ─── LEGAL FOOTER LINKS ─── */
+/*  LEGAL FOOTER LINKS  */
 const LEGAL_LINKS = [
   { label: "Privacy", href: "/privacy", icon: Shield },
   { label: "Terms", href: "/terms", icon: BookOpen },
 ];
 
-/* ─── SECTION METADATA ─── */
+/*  SECTION METADATA  */
 const SECTION_META: Record<string, { name: string; icon: React.ElementType; color: string }> = {
   sacred:   { name: "The Sacred Record", icon: Scroll,   color: "text-amber-400" },
   assets:   { name: "Sovereign Assets",  icon: Landmark, color: "text-cyan-400" },
@@ -129,7 +271,7 @@ const SECTION_META: Record<string, { name: string; icon: React.ElementType; colo
   account:  { name: "Account",           icon: User,     color: "text-slate-400" },
 };
 
-/* ─── KYC TIER CONFIG ─── */
+/*  KYC TIER CONFIG  */
 const KYC_TIER_NAMES: Record<string, string> = {
   visitor:   "Visitor",
   sovereign: "Sovereign",
@@ -177,7 +319,7 @@ function NavSection({
   const [expanded, setExpanded] = useState(true);
   const meta = SECTION_META[sectionKey];
   const Icon = meta.icon;
-  
+
   const hasActive = items.some((item) => {
     const prefix = item.matchPrefix || item.href;
     return pathname === item.href || pathname?.startsWith(`${prefix}/`) || pathname === prefix;

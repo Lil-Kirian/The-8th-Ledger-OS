@@ -5,9 +5,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS
-// ─────────────────────────────────────────────────────────────
+//
 
 const PHASE_DURATIONS_MS = {
   hush: 48 * 60 * 60 * 1000,    // 48h
@@ -19,9 +19,9 @@ const PHASE_DURATIONS_MS = {
 const PHASE_ORDER = ["hush", "unveil", "reveal", "forge", "complete"] as const;
 const TOTAL_CYCLE_DURATION_MS = Object.values(PHASE_DURATIONS_MS).reduce((a, b) => a + b, 0);
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function getNextPhase(current: string): string | null {
   const idx = PHASE_ORDER.indexOf(current as typeof PHASE_ORDER[number]);
@@ -76,10 +76,10 @@ function computePhaseTime(phase: string, elapsedMs: number): {
   return { phaseTimeRemaining, phaseProgress, isTallyVisible };
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/meridian/cycle/[id]
 // Public. Phase-aware masking. Cached 30s.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(
   req: NextRequest,

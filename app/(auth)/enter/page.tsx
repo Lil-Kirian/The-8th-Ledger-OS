@@ -344,7 +344,7 @@ const COUNTRIES: string[] = [
   "Zimbabwe",
 ];
 
-function parseApiResponse(raw: unknown): ApiResponse {
+function parseApiResponse(raw: any): ApiResponse {
   if (typeof raw !== "object" || raw === null)
     return { success: false, error: "Invalid response" };
   const obj = raw as Record<string, unknown>;
@@ -511,7 +511,7 @@ function VerticalBadge({ v }: { v: VerticalConfig }) {
   );
 }
 
-export default function EnterPage(): JSX.Element {
+export default function EnterPage() {
   const router = useRouter();
   const { mutate } = useAuth();
   const [mode, setMode] = useState<AuthMode>("access");

@@ -6,7 +6,7 @@ import { Prisma } from "@prisma/client";
 /* ============================================================
    ERROR HANDLER
    ============================================================ */
-function handleError(error: unknown, label: string): NextResponse {
+function handleError(error: any, label: string): NextResponse {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2025") {
       return NextResponse.json(

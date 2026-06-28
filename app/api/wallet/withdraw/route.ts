@@ -23,7 +23,10 @@ export async function POST(request: NextRequest) {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const body = await request.json();
@@ -36,10 +39,13 @@ export async function POST(request: NextRequest) {
     } = body;
 
     if (!amount || amount < 1) {
-      return NextResponse.json({ success: false, error: "Invalid amount" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Invalid amount" },
+        { status: 400 },
+      );
     }
 
-    // ── 1. KYC TIER GATE ─────────────────────────────────────
+    // ── 1. KYC TIER GATE
     const kycTier = user.kycTier || "visitor";
     const tierConfig = TIER_LIMITS[kycTier];
 
@@ -50,23 +56,24 @@ export async function POST(request: NextRequest) {
           error: "Sovereign Identity Verification required",
           detail: "Complete KYC to unlock withdrawals. Visit /kyc",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
-    // ── 2. NAME MATCH VERIFICATION ───────────────────────────
+    // ── 2. NAME MATCH VERIFICATION
     if (!user.legalName || user.legalName.trim().length === 0) {
       return NextResponse.json(
         {
           success: false,
           error: "Legal name not verified",
-          detail: "Your account name must match your government ID. Update in Settings.",
+          detail:
+            "Your account name must match your government ID. Update in Settings.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
-    // ── 3. TOTP / 2FA CHECK ──────────────────────────────────
+    // ── 3. TOTP / 2FA CHECK ─
     if (user.totpEnabled && user.totpSecret) {
       if (!totpCode || totpCode.length !== 6) {
         return NextResponse.json(
@@ -75,7 +82,7 @@ export async function POST(request: NextRequest) {
             error: "TOTP code required",
             detail: "Enter the 6-digit code from your authenticator app.",
           },
-          { status: 403 }
+          { status: 403 },
         );
       }
       const isValid = authenticator.verify({
@@ -85,27 +92,29 @@ export async function POST(request: NextRequest) {
       if (!isValid) {
         return NextResponse.json(
           { success: false, error: "Invalid TOTP code" },
-          { status: 403 }
+          { status: 403 },
         );
       }
     }
 
-    // ── 4. DORMANCY CHECK ────────────────────────────────────
+    // ── 4. DORMANCY CHECK ─
     const daysSinceActivity = user.lastActivityAt
-      ? (Date.now() - new Date(user.lastActivityAt).getTime()) / (1000 * 60 * 60 * 24)
+      ? (Date.now() - new Date(user.lastActivityAt).getTime()) /
+        (1000 * 60 * 60 * 24)
       : 999;
     if (daysSinceActivity > 365) {
       return NextResponse.json(
         {
           success: false,
           error: "Account dormant",
-          detail: "Your account has been inactive for over 365 days. Login required.",
+          detail:
+            "Your account has been inactive for over 365 days. Login required.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
-    // ── 5. DAILY LIMIT CHECK ─────────────────────────────────
+    // ── 5. DAILY LIMIT CHECK
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const tomorrow = new Date(today);
@@ -128,26 +137,26 @@ export async function POST(request: NextRequest) {
           error: "Daily withdrawal limit exceeded",
           detail: `Tier: ${kycTier.toUpperCase()}. Limit: $${tierConfig.daily.toLocaleString()}/day. Already withdrawn: $${(dailyWithdrawn._sum?.amount || 0).toLocaleString()}.`,
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
-    // ── 6. BALANCE CHECK ─────────────────────────────────────
+    // ── 6. BALANCE CHECK
     const wallet = await prisma.wallet.findUnique({
       where: { ledgerId: user.ledgerId },
     });
     if (!wallet || wallet.balance < amount) {
       return NextResponse.json(
         { success: false, error: "Insufficient balance" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // ── 7. DELAY CALCULATION ─────────────────────────────────
+    // ── 7. DELAY CALCULATION
     const delayMs = tierConfig.delayHours * 60 * 60 * 1000;
     const processedAt = delayMs > 0 ? new Date(Date.now() + delayMs) : null;
 
-    // ── 8. EXECUTE WITHDRAWAL ────────────────────────────────
+    // ── 8. EXECUTE WITHDRAWAL
     const result = await prisma.$transaction(async (tx) => {
       // Create withdrawal record
       const withdrawal = await tx.withdrawal.create({
@@ -231,7 +240,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status");
     const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 100);
 
-    const where: unknown = { ledgerId: user.ledgerId };
+    const where: any = { ledgerId: user.ledgerId };
     if (status) where.status = status;
 
     const withdrawals = await prisma.withdrawal.findMany({

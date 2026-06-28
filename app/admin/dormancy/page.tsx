@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Timer,
@@ -42,7 +42,7 @@ interface DormancyRecord {
   dissolvedCount?: number;
 }
 
-const STAGE_CONFIG: Record<DormancyStatus, { label: string; color: string; bg: string; border: string; icon: unknown; pulse?: boolean }> = {
+const STAGE_CONFIG: Record<DormancyStatus, { label: string; color: string; bg: string; border: string; icon: any; pulse?: boolean }> = {
   healthy: { label: "Active", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", icon: Activity },
   warning: { label: "Warning", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", icon: AlertTriangle, pulse: true },
   critical: { label: "Critical", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/20", icon: Zap, pulse: true },

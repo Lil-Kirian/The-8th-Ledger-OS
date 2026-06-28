@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ─────────────────────────────────────────────────────────
+//  Types
 
 export type LedgerUpdateType =
   | "insurance_renewal"
@@ -75,7 +75,7 @@ export interface LedgerUpdateListProps {
   className?: string;
 }
 
-// ─── Type Config ───────────────────────────────────────────────────
+//  Type Config
 
 const TYPE_CONFIG: Record<
   LedgerUpdateType,
@@ -191,7 +191,7 @@ const STATUS_CONFIG: Record<
   urgent: { label: "Urgent", class: "bg-rose-500/15 text-rose-400 border-rose-500/20", icon: AlertTriangle },
 };
 
-// ─── Helpers ─────────────────────────────────────────────────────────
+//  Helpers
 
 function formatTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -215,7 +215,7 @@ function formatDate(date: Date): string {
   });
 }
 
-// ─── Single Update Card ────────────────────────────────────────────
+//  Single Update Card
 
 export function LedgerUpdate({
   update,
@@ -494,7 +494,7 @@ export function LedgerUpdate({
   );
 }
 
-// ─── Update List ───────────────────────────────────────────────────
+//  Update List
 
 export function LedgerUpdateList({
   updates,
@@ -517,7 +517,12 @@ export function LedgerUpdateList({
   const urgentCount = updates.filter((u) => u.status === "urgent" && !u.actionTaken).length;
 
   return (
-    <div className={cn("flex flex-col h-full bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden", className)}>
+    <div
+      className={cn(
+        "flex flex-col h-full bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden",
+        className,
+      )}
+    >
       {/* Header */}
       <div className="border-b border-slate-800 bg-slate-900/50 px-5 py-4">
         <div className="flex items-center justify-between">
@@ -533,7 +538,9 @@ export function LedgerUpdateList({
           {urgentCount > 0 && (
             <div className="flex items-center gap-1.5 rounded-full bg-rose-500/15 px-3 py-1.5 border border-rose-500/20">
               <AlertTriangle className="h-3.5 w-3.5 text-rose-400" />
-              <span className="text-xs font-semibold text-rose-400">{urgentCount} urgent</span>
+              <span className="text-xs font-semibold text-rose-400">
+                {urgentCount} urgent
+              </span>
             </div>
           )}
         </div>
@@ -542,18 +549,22 @@ export function LedgerUpdateList({
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <select
             value={filterType}
-            onChange={(e) => setFilterType(e.target.value as LedgerUpdateType | "all")}
+            onChange={(e) =>
+              setFilterType(e.target.value as LedgerUpdateType | "all")
+            }
             className="rounded-lg bg-slate-800/60 border border-slate-700/50 px-2.5 py-1.5 text-[11px] text-slate-300 focus:outline-none focus:border-cyan-500/40"
           >
             <option value="all">All Types</option>
             {Object.entries(TYPE_CONFIG).map(([key, cfg]) => (
-              <option key={key} value={key}>{cfg.label}</option>
+              <option key={key} value={key}>
+                {cfg.label}
+              </option>
             ))}
           </select>
 
           <select
             value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value as unknown)}
+            onChange={(e) => setFilterStatus(e.target.value as any)}
             className="rounded-lg bg-slate-800/60 border border-slate-700/50 px-2.5 py-1.5 text-[11px] text-slate-300 focus:outline-none focus:border-cyan-500/40"
           >
             <option value="all">All Status</option>
@@ -574,9 +585,12 @@ export function LedgerUpdateList({
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <Landmark className="h-10 w-10 text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-400">No ledger updates</p>
+            <p className="text-sm font-medium text-slate-400">
+              No ledger updates
+            </p>
             <p className="text-[11px] text-slate-600 mt-1 max-w-xs">
-              The 8th Ledger has not posted any updates for this hall yet. Updates appear automatically.
+              The 8th Ledger has not posted any updates for this hall yet.
+              Updates appear automatically.
             </p>
           </div>
         ) : (
@@ -595,7 +609,7 @@ export function LedgerUpdateList({
   );
 }
 
-// ─── Skeleton ────────────────────────────────────────────────────────
+//  Skeleton ─
 
 export function LedgerUpdateSkeleton() {
   return (

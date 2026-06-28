@@ -4,9 +4,9 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/hooks/use-auth";
 
-// ───────────────────────────────────────────
+// ─
 // TYPES
-// ───────────────────────────────────────────
+// ─
 interface Transaction {
   id: string;
   amount: number;
@@ -74,9 +74,9 @@ const MONTHLY_FLOW = [
   4200, 5100, 4800, 6200, 5900, 7100, 6800, 7500, 8200, 7800, 9100, 8500,
 ];
 
-// ───────────────────────────────────────────
+// ─
 // UTILITIES
-// ───────────────────────────────────────────
+// ─
 const formatMoney = (n: number) =>
   new Intl.NumberFormat("en-US", {
     style: "currency",
@@ -141,9 +141,9 @@ const AnimatedCounter = ({
   );
 };
 
-// ───────────────────────────────────────────
+// ─
 // FUTURISTIC UI COMPONENTS
-// ───────────────────────────────────────────
+// ─
 const HologramCard = ({
   children,
   className = "",
@@ -342,9 +342,9 @@ const HexBadge = ({
   );
 };
 
-// ───────────────────────────────────────────
+// ─
 // MAIN PAGE
-// ───────────────────────────────────────────
+// ─
 export default function WalletPage() {
   const { user } = useAuth();
   const [balance, setBalance] = useState(42580);

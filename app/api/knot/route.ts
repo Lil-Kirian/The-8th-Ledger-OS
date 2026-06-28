@@ -7,11 +7,11 @@ import { getSessionUser } from "@/lib/auth";
    ============================================================ */
 interface KnotResponse {
   success: boolean;
-  network?: unknown[];
-  oraclePredictions?: unknown[];
-  rewards?: unknown[];
-  leaderboard?: unknown[];
-  stats?: unknown;
+  network?: any[];
+  oraclePredictions?: any[];
+  rewards?: any[];
+  leaderboard?: any[];
+  stats?: any;
   error?: string;
   message?: string;
 }

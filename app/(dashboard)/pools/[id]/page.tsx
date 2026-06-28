@@ -152,7 +152,7 @@ function StatusBadge({ status, isFilled, isExpired }: { status: string; isFilled
 /* ============================================================
    HERO SECTION — NO TARGET / TRUE COST
    ============================================================ */
-function HeroSection({ pool, vertical, colors, activeImage, setActiveImage, assetImages }: unknown) {
+function HeroSection({ pool, vertical, colors, activeImage, setActiveImage, assetImages }: any) {
   const timeLeft = new Date(pool.closesAt).getTime() - Date.now();
 
   return (
@@ -257,7 +257,7 @@ function HeroSection({ pool, vertical, colors, activeImage, setActiveImage, asse
 
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between">
                 <div className="flex gap-2">
-                  {assetImages.map((_: unknown, i: number) => (
+                  {assetImages.map((_: any, i: number) => (
                     <button key={i} onClick={() => setActiveImage(i)} className={cn(
                       "h-1.5 rounded-full transition-all duration-300",
                       i === activeImage ? "bg-cyan-400 w-8" : "bg-slate-600 w-4 hover:bg-slate-500"
@@ -295,7 +295,7 @@ function HeroSection({ pool, vertical, colors, activeImage, setActiveImage, asse
 /* ============================================================
    DATA DASHBOARD — NO TARGET / TRUE COST
    ============================================================ */
-function DataDashboard({ pool, colors, user }: unknown) {
+function DataDashboard({ pool, colors, user }: any) {
   const assetValue = pool.assetValue || 0;
   const committed = pool.committed || 0;
   const pir = pool.pirAllocation || pool.surplus || 0;
@@ -401,7 +401,7 @@ function PirBreakdown() {
 /* ============================================================
    LOCATION OPTIONS
    ============================================================ */
-function LocationOptions({ options, colors }: { options: unknown[]; colors: unknown }) {
+function LocationOptions({ options, colors }: { options: any[]; colors: any }) {
   if (!options || options.length === 0) return null;
 
   return (
@@ -415,7 +415,7 @@ function LocationOptions({ options, colors }: { options: unknown[]; colors: unkn
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {options.map((loc: unknown, i: number) => (
+          {options.map((loc: any, i: number) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 10 }}
@@ -463,7 +463,7 @@ function LocationOptions({ options, colors }: { options: unknown[]; colors: unkn
 /* ============================================================
    COMMIT TERMINAL — NO TARGET REFERENCE
    ============================================================ */
-function CommitTerminal({ pool, user, onCommit, committing, message, commitAmount, setCommitAmount }: unknown) {
+function CommitTerminal({ pool, user, onCommit, committing, message, commitAmount, setCommitAmount }: any) {
   const isClosed = pool.status === "forged" || pool.status === "active" || pool.status === "dormant" || pool.status === "sold" || pool.status === "dissolved";
   const timeLeft = new Date(pool.closesAt).getTime() - Date.now();
   const isExpired = timeLeft <= 0;
@@ -577,7 +577,7 @@ function CommitTerminal({ pool, user, onCommit, committing, message, commitAmoun
 /* ============================================================
    SOVEREIGN ACCESS CARD
    ============================================================ */
-function SovereignAccess({ pool, userOwnership, colors }: unknown) {
+function SovereignAccess({ pool, userOwnership, colors }: any) {
   if (!userOwnership || userOwnership.ownershipPercent <= 0) return null;
 
   return (
@@ -626,7 +626,7 @@ function SovereignAccess({ pool, userOwnership, colors }: unknown) {
 /* ============================================================
    REVIEW SYSTEM
    ============================================================ */
-function ReviewSystem({ reviews, reviewStats, user, poolId, onSubmit }: unknown) {
+function ReviewSystem({ reviews, reviewStats, user, poolId, onSubmit }: any) {
   const [rating, setRating] = useState(5);
   const [text, setText] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -690,7 +690,7 @@ function ReviewSystem({ reviews, reviewStats, user, poolId, onSubmit }: unknown)
               <p className="text-xs text-slate-600">No reviews yet. Be the first to review this asset.</p>
             </div>
           ) : (
-            reviews.map((review: unknown, i: number) => (
+            reviews.map((review: any, i: number) => (
               <motion.div
                 key={review.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -728,12 +728,12 @@ function ReviewSystem({ reviews, reviewStats, user, poolId, onSubmit }: unknown)
 /* ============================================================
    EXTERNAL LINKS
    ============================================================ */
-function ExternalLinks({ links }: { links: unknown[] }) {
+function ExternalLinks({ links }: { links: any[] }) {
   if (!links || links.length === 0) return null;
 
   return (
     <div className="flex flex-wrap gap-2">
-      {links.map((link: unknown, i: number) => (
+      {links.map((link: any, i: number) => (
         <a
           key={i}
           href={link.url}
@@ -825,7 +825,7 @@ export default function PoolDetailPage() {
     }
   }
 
-  async function handleReviewSubmit({ poolId, rating, content }: unknown) {
+  async function handleReviewSubmit({ poolId, rating, content }: any) {
     if (!user) {
       setMessage("Authenticate to leave a review");
       return;

@@ -27,7 +27,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-// ─── Types ───
+//  Types
 interface UserRow {
   id: string;
   ledgerId: string;
@@ -52,14 +52,14 @@ interface UserRow {
 
 interface UserTableProps {
   users: UserRow[];
-  onAction: (action: string, userId: string, payload?: unknown) => Promise<void>;
+  onAction: (action: string, userId: string, payload?: any) => Promise<void>;
   isLoading?: boolean;
 }
 
 type SortKey = keyof UserRow;
 type SortDir = "asc" | "desc";
 
-// ─── KYC Tier Config ───
+//  KYC Tier Config
 const kycTierConfig = {
   visitor: {
     label: "Visitor",
@@ -91,13 +91,13 @@ const kycTierConfig = {
   },
 };
 
-// ─── Role Config ───
+//  Role Config
 const roleConfig = {
   user: { label: "User", color: "text-slate-400", bg: "bg-slate-800/30" },
   admin: { label: "Admin", color: "text-cyan-400", bg: "bg-cyan-950/20" },
 };
 
-// ─── Stats ───
+//  Stats
 function UserStats({ users }: { users: UserRow[] }) {
   const stats = useMemo(() => {
     const total = users.length;
@@ -149,7 +149,7 @@ function UserStats({ users }: { users: UserRow[] }) {
   );
 }
 
-// ─── Main Component ───
+//  Main Component
 export default function UserTable({ users, onAction, isLoading }: UserTableProps) {
   const [search, setSearch] = useState("");
   const [kycFilter, setKycFilter] = useState<string>("all");
@@ -214,7 +214,11 @@ export default function UserTable({ users, onAction, isLoading }: UserTableProps
     }
   };
 
-  const handleAction = async (action: string, userId: string, payload?: unknown) => {
+  const handleAction = async (
+    action: string,
+    userId: string,
+    payload?: any,
+  ) => {
     setActionLoading(`${action}-${userId}`);
     try {
       await onAction(action, userId, payload);

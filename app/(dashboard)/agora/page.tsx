@@ -17,7 +17,7 @@ import {
 import Link from "next/link";
 import useSWR from "swr";
 
-// ── Types ───────────────────────────────────────────────────
+// ── Types
 
 interface AgoraStats {
   pendingSuggestions: number;
@@ -28,7 +28,7 @@ interface AgoraStats {
   systemScore: number;
 }
 
-// ── Fetcher ─────────────────────────────────────────────────
+// ── Fetcher
 
 const fetcher = (url: string) =>
   fetch(url).then((res) => {
@@ -36,7 +36,7 @@ const fetcher = (url: string) =>
     return res.json();
   });
 
-// ── Chamber Card ────────────────────────────────────────────
+// ── Chamber Card
 
 function ChamberCard({
   href,
@@ -66,7 +66,7 @@ function ChamberCard({
       <Link href={href} className="group block h-full">
         <div className="relative h-full overflow-hidden rounded-2xl border border-white/5 bg-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:border-cyan-500/30 hover:bg-white/[0.04]">
           <div className={`absolute -right-4 -top-4 h-24 w-24 rounded-full opacity-10 blur-2xl ${color}`} />
-          
+
           <div className="flex items-start justify-between">
             <div className={`inline-flex h-10 w-10 items-center justify-center rounded-xl ${color} bg-opacity-10`}>
               <Icon className={`h-5 w-5 ${color.replace("bg-", "text-")}`} />
@@ -93,7 +93,7 @@ function ChamberCard({
   );
 }
 
-// ── Status Badge ────────────────────────────────────────────
+// ── Status Badge
 
 function StatusBadge({ status, score }: { status: string; score: number }) {
   const colors = {
@@ -110,7 +110,7 @@ function StatusBadge({ status, score }: { status: string; score: number }) {
   );
 }
 
-// ── Main Page ───────────────────────────────────────────────
+// ── Main Page ─
 
 export default function AgoraPage() {
   const { data: pulseData, error: pulseError } = useSWR("/api/agora/pulse", fetcher, {
@@ -135,16 +135,18 @@ export default function AgoraPage() {
           >
             <div className="flex items-center gap-3 text-cyan-400/60 mb-4">
               <Sparkles className="h-4 w-4" />
-              <span className="text-xs font-medium uppercase tracking-[0.2em]">The Public Square</span>
+              <span className="text-xs font-medium uppercase tracking-[0.2em]">
+                The Public Square
+              </span>
             </div>
             <h1 className="text-4xl font-bold tracking-tight text-white sm:text-5xl">
               The Agora
             </h1>
             <p className="mt-4 max-w-2xl text-lg text-white/40">
-              Voice. Question. Witness. The sovereign square where the community writes the law — 
-              and the 8th Ledger enforces it.
+              Voice. Question. Witness. The sovereign square where the community
+              writes the law — and the 8th Ledger enforces it.
             </p>
-            
+
             {system && (
               <div className="mt-6">
                 <StatusBadge status={system.status} score={system.score} />
@@ -159,12 +161,36 @@ export default function AgoraPage() {
         <div className="mx-auto max-w-7xl px-4 py-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-6">
             {[
-              { label: "Active Pools", value: pulse?.pools?.active ?? "—", icon: TrendingUp },
-              { label: "Live Halls", value: pulse?.halls?.live ?? "—", icon: Users },
-              { label: "Pending Suggestions", value: pulse?.agora?.pendingSuggestions ?? "—", icon: MessageSquare },
-              { label: "This Month", value: pulse?.display?.dividendsThisMonthFormatted ?? "—", icon: Activity },
-              { label: "Meridian Phase", value: pulse?.meridian?.phase ?? "—", icon: Clock },
-              { label: "Oracle Forecasts", value: pulse?.oracle?.activeForecasts ?? "—", icon: Sparkles },
+              {
+                label: "Active Pools",
+                value: pulse?.pools?.active ?? "—",
+                icon: TrendingUp,
+              },
+              {
+                label: "Live Halls",
+                value: pulse?.halls?.live ?? "—",
+                icon: Users,
+              },
+              {
+                label: "Pending Suggestions",
+                value: pulse?.agora?.pendingSuggestions ?? "—",
+                icon: MessageSquare,
+              },
+              {
+                label: "This Month",
+                value: pulse?.display?.dividendsThisMonthFormatted ?? "—",
+                icon: Activity,
+              },
+              {
+                label: "Meridian Phase",
+                value: pulse?.meridian?.phase ?? "—",
+                icon: Clock,
+              },
+              {
+                label: "Oracle Forecasts",
+                value: pulse?.oracle?.activeForecasts ?? "—",
+                icon: Sparkles,
+              },
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
@@ -175,8 +201,12 @@ export default function AgoraPage() {
               >
                 <stat.icon className="h-4 w-4 text-cyan-500/50" />
                 <div>
-                  <div className="text-sm font-semibold text-white">{stat.value}</div>
-                  <div className="text-[10px] uppercase tracking-wider text-white/30">{stat.label}</div>
+                  <div className="text-sm font-semibold text-white">
+                    {stat.value}
+                  </div>
+                  <div className="text-[10px] uppercase tracking-wider text-white/30">
+                    {stat.label}
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -187,8 +217,12 @@ export default function AgoraPage() {
       {/* Chambers Grid */}
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="mb-8 flex items-center justify-between">
-          <h2 className="text-xl font-semibold text-white">The Five Chambers</h2>
-          <span className="text-xs text-white/30">All chambers are public within the sovereign system</span>
+          <h2 className="text-xl font-semibold text-white">
+            The Five Chambers
+          </h2>
+          <span className="text-xs text-white/30">
+            All chambers are public within the sovereign system
+          </span>
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -254,37 +288,55 @@ export default function AgoraPage() {
             className="rounded-2xl border border-white/5 bg-white/[0.02] p-6"
           >
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-white">Trending Suggestions</h3>
-              <Link href="/agora/suggestions" className="text-sm text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
+              <h3 className="text-lg font-semibold text-white">
+                Trending Suggestions
+              </h3>
+              <Link
+                href="/agora/suggestions"
+                className="text-sm text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
+              >
                 View all <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
-            
+
             <div className="space-y-4">
               {suggestionsData?.suggestions?.length ? (
-                suggestionsData.suggestions.map((s: unknown) => (
-                  <div key={s.id} className="flex items-start gap-4 rounded-xl border border-white/5 bg-white/[0.02] p-4">
+                suggestionsData.suggestions.map((s: any) => (
+                  <div
+                    key={s.id}
+                    className="flex items-start gap-4 rounded-xl border border-white/5 bg-white/[0.02] p-4"
+                  >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-400 font-bold text-sm">
-                      {s.score > 0 ? "+" : ""}{s.score}
+                      {s.score > 0 ? "+" : ""}
+                      {s.score}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <h4 className="text-sm font-medium text-white truncate">{s.title}</h4>
+                      <h4 className="text-sm font-medium text-white truncate">
+                        {s.title}
+                      </h4>
                       <p className="mt-1 text-xs text-white/30">
                         {s.continent} · {s.vertical} · by {s.author.displayName}
                       </p>
                     </div>
-                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
-                      s.status === "approved" ? "bg-emerald-500/10 text-emerald-400" :
-                      s.status === "under_review" ? "bg-amber-500/10 text-amber-400" :
-                      s.status === "rejected" ? "bg-rose-500/10 text-rose-400" :
-                      "bg-white/5 text-white/40"
-                    }`}>
+                    <span
+                      className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider ${
+                        s.status === "approved"
+                          ? "bg-emerald-500/10 text-emerald-400"
+                          : s.status === "under_review"
+                            ? "bg-amber-500/10 text-amber-400"
+                            : s.status === "rejected"
+                              ? "bg-rose-500/10 text-rose-400"
+                              : "bg-white/5 text-white/40"
+                      }`}
+                    >
                       {s.status.replace("_", " ")}
                     </span>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8 text-white/20 text-sm">No suggestions yet</div>
+                <div className="text-center py-8 text-white/20 text-sm">
+                  No suggestions yet
+                </div>
               )}
             </div>
           </motion.div>
@@ -297,17 +349,27 @@ export default function AgoraPage() {
             className="rounded-2xl border border-white/5 bg-white/[0.02] p-6"
           >
             <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-white">Awaiting Answers</h3>
-              <Link href="/agora/archives" className="text-sm text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
+              <h3 className="text-lg font-semibold text-white">
+                Awaiting Answers
+              </h3>
+              <Link
+                href="/agora/archives"
+                className="text-sm text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
+              >
                 View all <ChevronRight className="h-4 w-4" />
               </Link>
             </div>
-            
+
             <div className="space-y-4">
               {qaData?.questions?.length ? (
-                qaData.questions.map((q: unknown) => (
-                  <div key={q.id} className="rounded-xl border border-white/5 bg-white/[0.02] p-4">
-                    <p className="text-sm text-white/80 line-clamp-2">{q.question}</p>
+                qaData.questions.map((q: any) => (
+                  <div
+                    key={q.id}
+                    className="rounded-xl border border-white/5 bg-white/[0.02] p-4"
+                  >
+                    <p className="text-sm text-white/80 line-clamp-2">
+                      {q.question}
+                    </p>
                     <div className="mt-2 flex items-center gap-3 text-xs text-white/30">
                       <span>{q.author.displayName}</span>
                       <span>·</span>
@@ -315,14 +377,19 @@ export default function AgoraPage() {
                       {q.status === "answered" && (
                         <>
                           <span>·</span>
-                          <span className="text-emerald-400">Answered by {q.answerer?.displayName || "The Scribe"}</span>
+                          <span className="text-emerald-400">
+                            Answered by{" "}
+                            {q.answerer?.displayName || "The Scribe"}
+                          </span>
                         </>
                       )}
                     </div>
                   </div>
                 ))
               ) : (
-                <div className="text-center py-8 text-white/20 text-sm">All questions answered</div>
+                <div className="text-center py-8 text-white/20 text-sm">
+                  All questions answered
+                </div>
               )}
             </div>
           </motion.div>

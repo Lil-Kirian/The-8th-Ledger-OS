@@ -15,7 +15,7 @@ export async function GET(request: NextRequest) {
     const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 100);
     const offset = parseInt(searchParams.get("offset") || "0");
 
-    const where: unknown = { status };
+    const where: any = { status };
     if (hallId) {
       where.vault = {
         ownership: { hallId },
@@ -88,7 +88,7 @@ export async function GET(request: NextRequest) {
       }),
       count: auctions.length,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[DORMANCY AUCTION] GET error:", error);
     return NextResponse.json(
       { success: false, error: "Failed to load auctions" },
@@ -344,7 +344,7 @@ export async function POST(request: NextRequest) {
       yourBid: bidAmount,
       ledgerId: user.ledgerId,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[DORMANCY AUCTION] POST error:", error);
     return NextResponse.json(
       { success: false, error: "Auction action failed" },

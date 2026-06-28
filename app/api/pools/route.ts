@@ -67,11 +67,11 @@ interface PoolListItem {
   country: string;
   creatorId: string;
   imageUrl: string | null;
-  assetImages: unknown[] | null;
-  assetVideos: unknown[] | null;
-  documents: unknown[] | null;
+  assetImages: any[] | null;
+  assetVideos: any[] | null;
+  documents: any[] | null;
   tour360Url: string | null;
-  externalLinks: unknown[] | null;
+  externalLinks: any[] | null;
   emojiSet: string | null;
   assetCondition: string | null;
   minCommitment: number;
@@ -101,7 +101,7 @@ function isValidVertical(v: string): v is VerticalId {
   return VALID_VERTICALS.includes(v as VerticalId);
 }
 
-function parseMediaField(raw: string | null): unknown[] | null {
+function parseMediaField(raw: string | null): any[] | null {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw);
@@ -111,7 +111,7 @@ function parseMediaField(raw: string | null): unknown[] | null {
   }
 }
 
-function handlePrismaError(error: unknown): NextResponse {
+function handlePrismaError(error: any): NextResponse {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2002") {
       return NextResponse.json(

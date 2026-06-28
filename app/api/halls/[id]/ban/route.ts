@@ -73,7 +73,10 @@ export async function POST(
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: hallId } = await params;
@@ -83,11 +86,11 @@ export async function POST(
     if (!targetUserId || !reason) {
       return NextResponse.json(
         { success: false, error: "targetUserId and reason required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // ── 1. ROLE GATE ─────────────────────────────────────────
+    // ── 1. ROLE GATE ─
     let hasTriggerPower = false;
     try {
       await requireManagerRole(hallId, user.id);
@@ -106,35 +109,42 @@ export async function POST(
         {
           success: false,
           error: "Manager or Liaison role required to propose bans",
-          detail: "Only elected Managers or Liaisons can trigger ban proposals.",
+          detail:
+            "Only elected Managers or Liaisons can trigger ban proposals.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
-    // ── 2. VALIDATE TARGET ───────────────────────────────────
+    // ── 2. VALIDATE TARGET
     const target = await prisma.user.findUnique({
       where: { id: targetUserId },
       select: { ledgerId: true, displayName: true },
     });
     if (!target) {
-      return NextResponse.json({ success: false, error: "Target user not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Target user not found" },
+        { status: 404 },
+      );
     }
 
     // Cannot ban self
     if (targetUserId === user.id) {
-      return NextResponse.json({ success: false, error: "Cannot ban yourself" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Cannot ban yourself" },
+        { status: 400 },
+      );
     }
 
     // Cannot ban primary admin
     if (isPrimaryAdmin(target.ledgerId)) {
       return NextResponse.json(
         { success: false, error: "Cannot ban the 8th Ledger Primary Admin" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
-    // ── 3. CREATE BAN PROPOSAL ───────────────────────────────
+    // ── 3. CREATE BAN PROPOSAL
     const result = await prisma.$transaction(async (tx) => {
       // Create ban record (pending — not yet enforced)
       const ban = await tx.banRecord.create({
@@ -145,7 +155,10 @@ export async function POST(
           reason,
           evidence: evidence || null,
           duration,
-          expiresAt: duration === "permanent" ? null : new Date(Date.now() + parseDuration(duration)),
+          expiresAt:
+            duration === "permanent"
+              ? null
+              : new Date(Date.now() + parseDuration(duration)),
           isAppealed: false,
         },
       });
@@ -153,7 +166,13 @@ export async function POST(
       // Auto-create proposal for community vote
       const proposal = await tx.proposal.create({
         data: {
-          poolId: (await tx.hall.findUnique({ where: { id: hallId }, select: { poolId: true } }))?.poolId || "",
+          poolId:
+            (
+              await tx.hall.findUnique({
+                where: { id: hallId },
+                select: { poolId: true },
+              })
+            )?.poolId || "",
           hallId,
           proposerId: user.id,
           title: `Ban ${target.displayName}`,
@@ -172,7 +191,11 @@ export async function POST(
           userId: user.id,
           type: "ban",
           description: `Ban proposed for ${target.displayName}: ${reason}`,
-          metadata: JSON.stringify({ banId: ban.id, proposalId: proposal.id, targetUserId }),
+          metadata: JSON.stringify({
+            banId: ban.id,
+            proposalId: proposal.id,
+            targetUserId,
+          }),
         },
       });
 
@@ -196,9 +219,12 @@ export async function POST(
       proposalId: result.proposal.id,
       message: `Ban proposed for ${target.displayName}. Community must vote 51% to enforce.`,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[BAN POST]", error);
-    return NextResponse.json({ success: false, error: error.message || "Ban proposal failed" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: error.message || "Ban proposal failed" },
+      { status: 500 },
+    );
   }
 }
 
@@ -213,7 +239,10 @@ export async function PATCH(
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: hallId } = await params;
@@ -223,7 +252,7 @@ export async function PATCH(
     if (!banId || !appealReason) {
       return NextResponse.json(
         { success: false, error: "banId and appealReason required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -233,13 +262,13 @@ export async function PATCH(
     if (!ban) {
       return NextResponse.json(
         { success: false, error: "Ban record not found or not yours" },
-        { status: 404 }
+        { status: 404 },
       );
     }
     if (ban.isAppealed) {
       return NextResponse.json(
         { success: false, error: "Appeal already submitted" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -256,7 +285,13 @@ export async function PATCH(
       // Create overturn proposal
       const proposal = await tx.proposal.create({
         data: {
-          poolId: (await tx.hall.findUnique({ where: { id: hallId }, select: { poolId: true } }))?.poolId || "",
+          poolId:
+            (
+              await tx.hall.findUnique({
+                where: { id: hallId },
+                select: { poolId: true },
+              })
+            )?.poolId || "",
           hallId,
           proposerId: user.id,
           title: `Overturn Ban on ${user.displayName}`,
@@ -288,9 +323,12 @@ export async function PATCH(
       proposalId: result.proposal.id,
       message: "Appeal submitted. Community must vote 51% to overturn.",
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[BAN PATCH]", error);
-    return NextResponse.json({ success: false, error: error.message || "Appeal failed" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: error.message || "Appeal failed" },
+      { status: 500 },
+    );
   }
 }
 

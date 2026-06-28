@@ -102,7 +102,7 @@ export async function GET(request: NextRequest) {
           });
 
           results.warnings++;
-        } catch (err: unknown) {
+        } catch (err: any) {
           results.errors.push(`Warn ${user.ledgerId}: ${err.message}`);
         }
       }
@@ -175,7 +175,7 @@ export async function GET(request: NextRequest) {
           });
 
           results.vaults++;
-        } catch (err: unknown) {
+        } catch (err: any) {
           results.errors.push(`Vault ${user.ledgerId}: ${err.message}`);
         }
       }
@@ -248,7 +248,7 @@ export async function GET(request: NextRequest) {
           });
 
           results.auctions++;
-        } catch (err: unknown) {
+        } catch (err: any) {
           results.errors.push(`Auction ${vault.id}: ${err.message}`);
         }
       }
@@ -357,7 +357,7 @@ export async function GET(request: NextRequest) {
           });
 
           results.completed++;
-        } catch (err: unknown) {
+        } catch (err: any) {
           results.errors.push(`Complete ${auction.id}: ${err.message}`);
         }
       }
@@ -368,7 +368,7 @@ export async function GET(request: NextRequest) {
       results,
       message: `Dormancy sweep complete. ${results.warnings} warned, ${results.vaults} vaulted, ${results.auctions} auctioned, ${results.completed} auctions resolved.`,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[DORMANCY CHECK] GET error:", error);
     return NextResponse.json(
       { success: false, error: "Dormancy sweep failed" },
@@ -521,7 +521,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 400 }
     );
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[DORMANCY CHECK] POST error:", error);
     return NextResponse.json(
       { success: false, error: "Manual dormancy action failed" },

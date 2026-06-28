@@ -195,7 +195,7 @@ function getTrend(score: number, meta: ComponentMeta): TrendResult {
   };
 }
 
-function getDetailText(key: string, detail: unknown): string {
+function getDetailText(key: string, detail: any): string {
   switch (key) {
     case "governanceActivity": {
       const d = detail as GovernanceDetail;

@@ -8,7 +8,7 @@ import { logSecurityAudit } from "@/lib/audit";
 // Owners and admins only
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id: hallId } = await params;
@@ -123,7 +123,7 @@ export async function GET(
 // Auto-trigger logic (cron) checks AHGI critical for 3 consecutive months.
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id: hallId } = await params;

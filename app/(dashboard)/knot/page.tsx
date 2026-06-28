@@ -237,7 +237,7 @@ function StatCard({ label, value, subtext, icon: Icon, color, delay }: { label: 
 
   return (
     <motion.div ref={ref} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}>
-      <GlowCard accent={color.replace("text-", "") as unknown}>
+      <GlowCard accent={color.replace("text-", "") as any}>
         <div className="flex items-start justify-between">
           <div>
             <p className="text-[10px] uppercase tracking-widest text-white/30 font-mono">{label}</p>

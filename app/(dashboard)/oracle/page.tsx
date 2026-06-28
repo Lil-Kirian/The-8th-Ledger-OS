@@ -350,7 +350,7 @@ function ForecastCard({
     try {
       await onPredict(forecast.id, selectedVertical, selectedCountry);
       setSubmitted(true);
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err.message || "Failed to submit prophecy");
     }
   };
@@ -659,32 +659,37 @@ function SectionSkeleton() {
 export default function OraclePage() {
   const { user } = useAuth();
   const { toasts, addToast } = useToast();
-  const [activeTab, setActiveTab] = useState<"forecasts" | "history" | "leaderboard">("forecasts");
-  const [submittingForecastId, setSubmittingForecastId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<
+    "forecasts" | "history" | "leaderboard"
+  >("forecasts");
+  const [submittingForecastId, setSubmittingForecastId] = useState<
+    string | null
+  >(null);
 
-  // ── Data Fetching ─────────────────────────────────────────
-  const { data: forecastsData, error: forecastsError, isLoading: forecastsLoading, mutate: mutateForecasts } = useSWR(
-    "/api/oracle/forecasts",
-    fetcher,
-    { refreshInterval: 30000 }
-  );
+  // ── Data Fetching ─
+  const {
+    data: forecastsData,
+    error: forecastsError,
+    isLoading: forecastsLoading,
+    mutate: mutateForecasts,
+  } = useSWR("/api/oracle/forecasts", fetcher, { refreshInterval: 30000 });
 
   const { data: standingData, isLoading: standingLoading } = useSWR(
     "/api/oracle/standing",
     fetcher,
-    { refreshInterval: 60000 }
+    { refreshInterval: 60000 },
   );
 
   const { data: leaderboardData, isLoading: leaderboardLoading } = useSWR(
     "/api/oracle/leaderboard",
     fetcher,
-    { refreshInterval: 60000 }
+    { refreshInterval: 60000 },
   );
 
   const { data: predictionsData, mutate: mutatePredictions } = useSWR(
     "/api/oracle/forecasts?my=true",
     fetcher,
-    { refreshInterval: 30000 }
+    { refreshInterval: 30000 },
   );
 
   const forecasts: OracleForecast[] = forecastsData?.forecasts || [];
@@ -693,11 +698,16 @@ export default function OraclePage() {
   const predictions: UserPrediction[] = predictionsData?.predictions || [];
 
   const predictedForecastIds = useMemo(
-    () => new Set(predictions.filter((p) => p.status === "pending").map((p) => p.forecastId)),
-    [predictions]
+    () =>
+      new Set(
+        predictions
+          .filter((p) => p.status === "pending")
+          .map((p) => p.forecastId),
+      ),
+    [predictions],
   );
 
-  // ── Submit Prediction ─────────────────────────────────────
+  // ── Submit Prediction
   const handlePredict = useCallback(
     async (forecastId: string, vertical: string, country: string) => {
       setSubmittingForecastId(forecastId);
@@ -714,25 +724,36 @@ export default function OraclePage() {
           throw new Error(data.error || "Failed to cast prophecy");
         }
 
-        addToast("Prophecy cast successfully. The Oracle remembers.", "success");
+        addToast(
+          "Prophecy cast successfully. The Oracle remembers.",
+          "success",
+        );
         await Promise.all([mutateForecasts(), mutatePredictions()]);
-      } catch (err: unknown) {
-        addToast(err.message || "The Oracle could not hear your prophecy", "error");
+      } catch (err: any) {
+        addToast(
+          err.message || "The Oracle could not hear your prophecy",
+          "error",
+        );
         throw err;
       } finally {
         setSubmittingForecastId(null);
       }
     },
-    [addToast, mutateForecasts, mutatePredictions]
+    [addToast, mutateForecasts, mutatePredictions],
   );
 
-  const accuracy = standing ? ((standing.correctCount / Math.max(standing.totalPredictions, 1)) * 100).toFixed(1) : "0.0";
+  const accuracy = standing
+    ? (
+        (standing.correctCount / Math.max(standing.totalPredictions, 1)) *
+        100
+      ).toFixed(1)
+    : "0.0";
 
   return (
     <div className="space-y-8">
       <ToastContainer toasts={toasts} />
 
-      {/* ── Header ───────────────────────────────────────────── */}
+      {/* ── Header ─ */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <motion.div
@@ -741,7 +762,9 @@ export default function OraclePage() {
             className="mb-3 inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1"
           >
             <Telescope className="h-3 w-3 text-violet-400" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-300">The Oracle</span>
+            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-violet-300">
+              The Oracle
+            </span>
           </motion.div>
           <motion.h1
             initial={{ opacity: 0, y: 10 }}
@@ -757,8 +780,9 @@ export default function OraclePage() {
             transition={{ delay: 0.2 }}
             className="mt-2 max-w-lg text-sm text-white/40 leading-relaxed"
           >
-            Predict the future of the 8th Ledger. No stakes. No money. Just standing.
-            Correct prophecies earn you rank, recognition, and early access.
+            Predict the future of the 8th Ledger. No stakes. No money. Just
+            standing. Correct prophecies earn you rank, recognition, and early
+            access.
           </motion.p>
         </div>
 
@@ -769,13 +793,17 @@ export default function OraclePage() {
           className="flex items-center gap-3"
         >
           <div className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 text-center backdrop-blur-sm">
-            <p className="text-[10px] uppercase tracking-wider text-white/30">Global Rank</p>
+            <p className="text-[10px] uppercase tracking-wider text-white/30">
+              Global Rank
+            </p>
             <p className="font-space text-lg font-bold text-white tabular-nums">
               {standingLoading ? "—" : standing ? `#${standing.rank}` : "—"}
             </p>
           </div>
           <div className="rounded-xl border border-white/5 bg-white/[0.02] px-4 py-3 text-center backdrop-blur-sm">
-            <p className="text-[10px] uppercase tracking-wider text-white/30">Accuracy</p>
+            <p className="text-[10px] uppercase tracking-wider text-white/30">
+              Accuracy
+            </p>
             <p className="font-space text-lg font-bold text-emerald-400 tabular-nums">
               {standingLoading ? "—" : `${accuracy}%`}
             </p>
@@ -783,10 +811,10 @@ export default function OraclePage() {
         </motion.div>
       </div>
 
-      {/* ── Standing Card ────────────────────────────────────── */}
+      {/* ── Standing Card  */}
       <StandingCard standing={standing} isLoading={standingLoading} />
 
-      {/* ── Tabs ─────────────────────────────────────────────── */}
+      {/* ── Tabs ─ */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -794,15 +822,29 @@ export default function OraclePage() {
         className="flex items-center gap-1 rounded-xl border border-white/5 bg-white/[0.02] p-1"
       >
         {[
-          { id: "forecasts" as const, label: "Active Prophecies", count: forecasts.length },
-          { id: "history" as const, label: "Your History", count: predictions.length },
-          { id: "leaderboard" as const, label: "Standing", count: leaderboard.length },
+          {
+            id: "forecasts" as const,
+            label: "Active Prophecies",
+            count: forecasts.length,
+          },
+          {
+            id: "history" as const,
+            label: "Your History",
+            count: predictions.length,
+          },
+          {
+            id: "leaderboard" as const,
+            label: "Standing",
+            count: leaderboard.length,
+          },
         ].map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={`relative flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-xs font-bold uppercase tracking-wider transition-all ${
-              activeTab === tab.id ? "text-white" : "text-white/30 hover:text-white/60"
+              activeTab === tab.id
+                ? "text-white"
+                : "text-white/30 hover:text-white/60"
             }`}
           >
             {activeTab === tab.id && (
@@ -815,7 +857,9 @@ export default function OraclePage() {
             <span className="relative z-10">{tab.label}</span>
             <span
               className={`relative z-10 rounded-md px-1.5 py-0.5 text-[9px] font-mono ${
-                activeTab === tab.id ? "bg-violet-500/20 text-violet-300" : "bg-white/5 text-white/30"
+                activeTab === tab.id
+                  ? "bg-violet-500/20 text-violet-300"
+                  : "bg-white/5 text-white/30"
               }`}
             >
               {tab.count}
@@ -824,7 +868,7 @@ export default function OraclePage() {
         ))}
       </motion.div>
 
-      {/* ── Active Forecasts ─────────────────────────────────── */}
+      {/* ── Active Forecasts  */}
       <AnimatePresence mode="wait">
         {activeTab === "forecasts" && (
           <motion.div
@@ -837,7 +881,11 @@ export default function OraclePage() {
             {forecastsLoading ? (
               <SectionSkeleton />
             ) : forecastsError ? (
-              <EmptyState icon={AlertTriangle} title="The Oracle is silent" subtitle="Could not load prophecies. The stars will align shortly." />
+              <EmptyState
+                icon={AlertTriangle}
+                title="The Oracle is silent"
+                subtitle="Could not load prophecies. The stars will align shortly."
+              />
             ) : forecasts.length === 0 ? (
               <EmptyState
                 icon={Clock}
@@ -858,7 +906,7 @@ export default function OraclePage() {
           </motion.div>
         )}
 
-        {/* ── History ──────────────────────────────────────────── */}
+        {/* ── History  */}
         {activeTab === "history" && (
           <motion.div
             key="history"
@@ -875,13 +923,15 @@ export default function OraclePage() {
                   subtitle="Your history begins with your first prediction. Choose a forecast above."
                 />
               ) : (
-                predictions.map((p) => <PredictionRow key={p.id} prediction={p} />)
+                predictions.map((p) => (
+                  <PredictionRow key={p.id} prediction={p} />
+                ))
               )}
             </AnimatePresence>
           </motion.div>
         )}
 
-        {/* ── Leaderboard ────────────────────────────────────── */}
+        {/* ── Leaderboard  */}
         {activeTab === "leaderboard" && (
           <motion.div
             key="leaderboard"
@@ -893,12 +943,20 @@ export default function OraclePage() {
             {leaderboardLoading ? (
               <SectionSkeleton />
             ) : leaderboard.length === 0 ? (
-              <EmptyState icon={Trophy} title="The Scroll is empty" subtitle="No sovereigns have earned standing yet. Be the first." />
+              <EmptyState
+                icon={Trophy}
+                title="The Scroll is empty"
+                subtitle="No sovereigns have earned standing yet. Be the first."
+              />
             ) : (
               <>
                 <div className="space-y-2">
                   {leaderboard.map((entry) => (
-                    <LeaderboardRow key={entry.rank} entry={entry} isMe={entry.ledgerId === user?.ledgerId} />
+                    <LeaderboardRow
+                      key={entry.rank}
+                      entry={entry}
+                      isMe={entry.ledgerId === user?.ledgerId}
+                    />
                   ))}
                 </div>
 
@@ -923,12 +981,20 @@ export default function OraclePage() {
                         >
                           <div className="flex items-center gap-2 mb-2">
                             <Icon className={`h-4 w-4 ${config.color}`} />
-                            <span className={`text-xs font-bold ${config.color}`}>{config.label}</span>
+                            <span
+                              className={`text-xs font-bold ${config.color}`}
+                            >
+                              {config.label}
+                            </span>
                           </div>
                           <p className="text-[10px] text-white/30">
-                            {config.requirement === 0 ? "Starting tier" : `${config.requirement} correct required`}
+                            {config.requirement === 0
+                              ? "Starting tier"
+                              : `${config.requirement} correct required`}
                           </p>
-                          <p className="mt-2 text-[10px] text-white/20 leading-relaxed">{config.privilege}</p>
+                          <p className="mt-2 text-[10px] text-white/20 leading-relaxed">
+                            {config.privilege}
+                          </p>
                         </div>
                       );
                     })}
@@ -940,7 +1006,7 @@ export default function OraclePage() {
         )}
       </AnimatePresence>
 
-      {/* ── How It Works ─────────────────────────────────────── */}
+      {/* ── How It Works ─ */}
       <motion.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
@@ -952,12 +1018,17 @@ export default function OraclePage() {
             <Zap className="h-6 w-6 text-violet-400" />
           </div>
           <div>
-            <h4 className="text-sm font-bold text-white">How The Oracle Works</h4>
+            <h4 className="text-sm font-bold text-white">
+              How The Oracle Works
+            </h4>
             <p className="mt-2 text-xs text-white/40 leading-relaxed max-w-2xl">
-              Before each Meridian Cycle reveal, the Oracle opens a forecast window. Pick the vertical and country
-              you believe will win the public vote. No money required. No risk. If you are correct, you earn
-              Oracle Standing points that unlock tiers, early access, and recognition. Incorrect forecasts cost
-              nothing. Your streak multiplies future rewards. All predictions are logged immutably on the 8th Ledger.
+              Before each Meridian Cycle reveal, the Oracle opens a forecast
+              window. Pick the vertical and country you believe will win the
+              public vote. No money required. No risk. If you are correct, you
+              earn Oracle Standing points that unlock tiers, early access, and
+              recognition. Incorrect forecasts cost nothing. Your streak
+              multiplies future rewards. All predictions are logged immutably on
+              the 8th Ledger.
             </p>
           </div>
         </div>

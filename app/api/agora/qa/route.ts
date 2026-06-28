@@ -8,9 +8,9 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES & CONSTANTS
-// ─────────────────────────────────────────────────────────────
+//
 
 type QaStatus = "pending" | "answered" | "rejected";
 type SortMode = "newest" | "unanswered_first";
@@ -18,9 +18,9 @@ type SortMode = "newest" | "unanswered_first";
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000;
 const RATE_LIMIT_MAX_QUESTIONS = 10;
 
-// ─────────────────────────────────────────────────────────────
+//
 // IN-MEMORY RATE LIMITER (swap for Redis at scale)
-// ─────────────────────────────────────────────────────────────
+//
 
 interface RateLimitEntry {
   count: number;
@@ -46,9 +46,9 @@ function checkRateLimit(userId: string): { allowed: boolean; resetAt: number; re
   return { allowed: true, resetAt: entry.resetAt, remaining: RATE_LIMIT_MAX_QUESTIONS - entry.count };
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function sanitizeText(input: string, maxLength: number): string {
   return input.replace(/[<>]/g, "").trim().slice(0, maxLength);
@@ -81,9 +81,9 @@ async function logAudit(props: {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // FETCH ANSWERER HELPER (answeredBy is String?, not a relation)
-// ─────────────────────────────────────────────────────────────
+//
 
 async function fetchAnswerer(answererId: string | null) {
   if (!answererId) return null;
@@ -94,10 +94,10 @@ async function fetchAnswerer(answererId: string | null) {
   return user;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/agora/qa
 // Public. Cached 60s. Full-text search on question + answer.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(req: NextRequest) {
   try {
@@ -214,10 +214,10 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST /api/agora/qa
 // Ask a question. Auth required. Rate-limited. Audited.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function POST(req: NextRequest) {
   try {
@@ -233,8 +233,12 @@ export async function POST(req: NextRequest) {
         },
         {
           status: 429,
-          headers: { "Retry-After": String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)) },
-        }
+          headers: {
+            "Retry-After": String(
+              Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
+            ),
+          },
+        },
       );
     }
 
@@ -245,8 +249,11 @@ export async function POST(req: NextRequest) {
 
     if (question.length < 10) {
       return NextResponse.json(
-        { error: "Question must be at least 10 characters", code: "VALIDATION_QUESTION" },
-        { status: 400 }
+        {
+          error: "Question must be at least 10 characters",
+          code: "VALIDATION_QUESTION",
+        },
+        { status: 400 },
       );
     }
 
@@ -261,8 +268,11 @@ export async function POST(req: NextRequest) {
 
     if (recentDuplicate) {
       return NextResponse.json(
-        { error: "You already asked this question in the last hour", code: "DUPLICATE" },
-        { status: 409 }
+        {
+          error: "You already asked this question in the last hour",
+          code: "DUPLICATE",
+        },
+        { status: 409 },
       );
     }
 
@@ -315,59 +325,72 @@ export async function POST(req: NextRequest) {
           rateLimitRemaining: rateLimit.remaining,
         },
       },
-      { status: 201 }
+      { status: 201 },
     );
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[AGORA_QA_POST]", error);
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
         { error: "Authentication required", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     return NextResponse.json(
       { error: "Failed to post question", code: "AGORA_QA_002" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // PATCH /api/agora/qa
 // Answer or reject a question. Herald (kycTier >= verified) or Admin only.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function PATCH(req: NextRequest) {
   try {
     const user = await requireAuth(req);
 
-    const isHerald = user.kycTier === "verified" || user.kycTier === "whale" || user.role === "admin";
+    const isHerald =
+      user.kycTier === "verified" ||
+      user.kycTier === "whale" ||
+      user.role === "admin";
     if (!isHerald) {
       return NextResponse.json(
         {
           error: "Only Heralds (verified tier+) and The Architect may answer",
           code: "HERALD_REQUIRED",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     const body = await req.json();
-    const { id, answer, action } = body as { id: string; answer?: string; action: "answer" | "reject" };
+    const { id, answer, action } = body as {
+      id: string;
+      answer?: string;
+      action: "answer" | "reject";
+    };
 
     if (!id || id.length < 10) {
       return NextResponse.json(
         { error: "Invalid question ID", code: "VALIDATION_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!action || !["answer", "reject"].includes(action)) {
       return NextResponse.json(
-        { error: "Action must be 'answer' or 'reject'", code: "VALIDATION_ACTION" },
-        { status: 400 }
+        {
+          error: "Action must be 'answer' or 'reject'",
+          code: "VALIDATION_ACTION",
+        },
+        { status: 400 },
       );
     }
 
@@ -384,14 +407,14 @@ export async function PATCH(req: NextRequest) {
     if (!qa) {
       return NextResponse.json(
         { error: "Question not found", code: "NOT_FOUND" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     if (qa.status === "answered" && action === "answer") {
       return NextResponse.json(
         { error: "Question already answered", code: "ALREADY_ANSWERED" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -399,8 +422,11 @@ export async function PATCH(req: NextRequest) {
       const sanitizedAnswer = sanitizeText(answer || "", 2000);
       if (sanitizedAnswer.length < 5) {
         return NextResponse.json(
-          { error: "Answer must be at least 5 characters", code: "VALIDATION_ANSWER" },
-          { status: 400 }
+          {
+            error: "Answer must be at least 5 characters",
+            code: "VALIDATION_ANSWER",
+          },
+          { status: 400 },
         );
       }
 
@@ -424,7 +450,10 @@ export async function PATCH(req: NextRequest) {
             eventType: "agora_qa_answered",
             description: `Question answered by ${user.role === "admin" ? "The Architect" : "Herald"} ${user.ledgerId}`,
             ledgerId: user.ledgerId,
-            metadata: JSON.stringify({ questionId: id, answerLength: sanitizedAnswer.length }),
+            metadata: JSON.stringify({
+              questionId: id,
+              answerLength: sanitizedAnswer.length,
+            }),
             txHash: `AUD-${randomUUID()}`,
             visibleToPublic: true,
             timestamp: new Date(),
@@ -505,19 +534,22 @@ export async function PATCH(req: NextRequest) {
           : null,
       },
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[AGORA_QA_PATCH]", error);
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
         { error: "Authentication required", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     return NextResponse.json(
       { error: "Failed to process answer", code: "AGORA_QA_003" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

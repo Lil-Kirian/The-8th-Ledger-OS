@@ -27,9 +27,9 @@ import {
   Radio,
 } from "lucide-react";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES — Schema-Aligned
-// ─────────────────────────────────────────────────────────────
+//
 
 export interface PulseData {
   pools: {
@@ -91,9 +91,9 @@ interface PulseDashboardProps {
   data: PulseData;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // DESIGN SYSTEM — The Vital Palette
-// ─────────────────────────────────────────────────────────────
+//
 
 const STATUS_CONFIG = {
   BEATING: {
@@ -140,9 +140,9 @@ const SRI_TIERS = [
   { key: "liquidation", label: "Liquidation", color: "bg-red-400", width: "w-2" },
 ] as const;
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function formatCurrency(n: number): string {
   if (n >= 1_000_000_000) return `$${(n / 1_000_000_000).toFixed(2)}B`;
@@ -157,9 +157,9 @@ function formatCompact(n: number): string {
   return `${n}`;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // SUB-COMPONENTS
-// ─────────────────────────────────────────────────────────────
+//
 
 function VitalCard({
   icon: Icon,
@@ -356,9 +356,9 @@ function ScoreRing({ score, status }: { score: number; status: keyof typeof STAT
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────
+//
 
 export function PulseDashboard({ data }: PulseDashboardProps) {
   const status = STATUS_CONFIG[data.system.status];

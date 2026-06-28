@@ -8,8 +8,8 @@ import { SignJWT, jwtVerify } from "jose";
 /* ============================================================
    OPTIONAL IMPORTS — Graceful fallback if modules missing
    ============================================================ */
-let authenticator: unknown = null;
-let QRCode: unknown = null;
+let authenticator: any = null;
+let QRCode: any = null;
 
 try {
   const otplib = require("otplib");
@@ -168,7 +168,7 @@ function getClientIP(request: NextRequest): string {
   if (xf) return xf.split(",")[0].trim();
   const ri = request.headers.get("x-real-ip");
   if (ri) return ri;
-  return (request as unknown).ip ?? "unknown";
+  return (request as any).ip ?? "unknown";
 }
 
 function getUserAgent(request: NextRequest): string {
@@ -248,7 +248,7 @@ async function enforceSessionCap(ledgerId: string) {
 /* ============================================================
    ANOMALY DETECTION
    ============================================================ */
-function detectAnomaly(session: unknown, request: NextRequest): string | null {
+function detectAnomaly(session: any, request: NextRequest): string | null {
   const fp = getDeviceFingerprint(request);
   if (session.deviceFingerprint && session.deviceFingerprint !== fp)
     return "DEVICE_MISMATCH";

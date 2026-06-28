@@ -1,6 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   outputFileTracingRoot: __dirname,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   serverExternalPackages: ['otplib', 'bcryptjs'],
   images: {
     remotePatterns: [

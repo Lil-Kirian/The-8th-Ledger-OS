@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-// ─── Types ───
+//  Types
 export type BanStatus = "proposed" | "voting" | "enforced" | "appealed" | "lifted" | "rejected";
 export type BanDuration = "7d" | "30d" | "90d" | "1y" | "permanent";
 
@@ -61,7 +61,7 @@ export interface BanPanelProps {
   onSubmitEvidence?: (proposalId: string, evidence: Omit<BanEvidence, "id" | "submittedAt">) => void;
 }
 
-// ─── Config ───
+//  Config
 const STATUS_CONFIG: Record<BanStatus, { label: string; color: string; bg: string; border: string; icon: React.ElementType }> = {
   proposed:  { label: "Proposed",  color: "text-amber-400",   bg: "bg-amber-500/10",   border: "border-amber-500/20",   icon: FileText },
   voting:    { label: "Voting",    color: "text-cyan-400",    bg: "bg-cyan-500/10",    border: "border-cyan-500/20",    icon: Vote },
@@ -86,7 +86,7 @@ const EVIDENCE_TYPES = [
   { key: "witness" as const, label: "Witness", icon: Users },
 ];
 
-// ─── Helpers ───
+//  Helpers
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
@@ -100,7 +100,7 @@ function daysSince(iso: string) {
   return Math.floor((Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24));
 }
 
-// ─── Component ───
+//  Component
 export function BanPanel({
   hallId,
   hallName,

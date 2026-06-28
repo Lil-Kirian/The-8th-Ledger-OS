@@ -13,7 +13,7 @@ import {
   Landmark, Bitcoin, Wallet
 } from "lucide-react";
 
-// ─── TYPES ───
+//  TYPES
 interface WithdrawalAddress {
   id: string;
   label: string;
@@ -45,7 +45,7 @@ interface SecuritySession {
   current: boolean;
 }
 
-// ─── UTILS ───
+//  UTILS
 const sectionIds = {
   identity: "identity",
   security: "security",
@@ -180,7 +180,7 @@ const NetworkBadge = ({ network }: { network: string }) => {
   );
 };
 
-// ─── MOCK DATA ───
+//  MOCK DATA
 const MOCK_KYC_DOCS: KycDoc[] = [
   { id: "k1", type: "id", status: "verified", uploadedAt: "2025-01-15", filename: "national_id_front.pdf", fileSize: "2.4 MB", reviewedBy: "8th Ledger KYC", reviewedAt: "2025-01-16" },
   { id: "k2", type: "selfie", status: "verified", uploadedAt: "2025-01-15", filename: "selfie_verification.jpg", fileSize: "1.1 MB", reviewedBy: "AI Liveness Engine", reviewedAt: "2025-01-15" },
@@ -326,7 +326,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-6 py-10">
-        {/* ─── PROFILE HERO ─── */}
+        {/*  PROFILE HERO  */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -336,7 +336,15 @@ export default function SettingsPage() {
             <div className="flex items-center gap-5">
               <div className="relative">
                 <div className="h-20 w-20 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-500/20 flex items-center justify-center text-3xl overflow-hidden">
-                  {user.avatar ? <img src={user.avatar} alt="" className="h-full w-full object-cover" /> : "👤"}
+                  {user.avatar ? (
+                    <img
+                      src={user.avatar}
+                      alt=""
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    "👤"
+                  )}
                 </div>
                 <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-emerald-500 border-2 border-[#050508] flex items-center justify-center">
                   <CheckCircle2 className="h-3.5 w-3.5 text-[#050508]" />
@@ -344,17 +352,32 @@ export default function SettingsPage() {
               </div>
               <div>
                 <div className="flex items-center gap-3 mb-1">
-                  <h1 className="text-2xl font-bold text-white tracking-tight">{displayName || "Sovereign"}</h1>
+                  <h1 className="text-2xl font-bold text-white tracking-tight">
+                    {displayName || "Sovereign"}
+                  </h1>
                   <span className="px-2 py-0.5 rounded-md bg-amber-500/10 border border-amber-500/20 text-amber-400 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1">
                     <Crown className="h-3 w-3" /> Tier {user.tier || 1}
                   </span>
                 </div>
                 <div className="flex items-center gap-3 text-xs text-slate-500 font-mono">
-                  <span className="flex items-center gap-1"><Fingerprint className="h-3 w-3" /> {user.ledgerId || "LED-XXXX-XXXX"}</span>
+                  <span className="flex items-center gap-1">
+                    <Fingerprint className="h-3 w-3" />{" "}
+                    {user.ledgerId || "LED-XXXX-XXXX"}
+                  </span>
                   <span>•</span>
-                  <span>Joined {user.createdAt ? new Date(user.createdAt).toLocaleDateString("en-US", { month: "short", year: "numeric" }) : "Jan 2025"}</span>
+                  <span>
+                    Joined{" "}
+                    {user.createdAt
+                      ? new Date(user.createdAt).toLocaleDateString("en-US", {
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "Jan 2025"}
+                  </span>
                   <span>•</span>
-                  <span className="text-emerald-400 flex items-center gap-1"><ShieldCheck className="h-3 w-3" /> KYC Verified</span>
+                  <span className="text-emerald-400 flex items-center gap-1">
+                    <ShieldCheck className="h-3 w-3" /> KYC Verified
+                  </span>
                 </div>
               </div>
             </div>
@@ -368,14 +391,18 @@ export default function SettingsPage() {
                 disabled={saving}
                 className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold transition-all disabled:opacity-50 shadow-lg shadow-cyan-500/10"
               >
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                {saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
                 {saving ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </div>
         </motion.div>
 
-        {/* ─── ALERT BANNER ─── */}
+        {/*  ALERT BANNER  */}
         <AnimatePresence>
           {(error || success) && (
             <motion.div
@@ -384,10 +411,26 @@ export default function SettingsPage() {
               exit={{ opacity: 0, height: 0 }}
               className="mb-6 overflow-hidden"
             >
-              <div className={`p-4 rounded-xl border flex items-center gap-3 ${error ? "border-rose-500/20 bg-rose-500/5" : "border-emerald-500/20 bg-emerald-500/5"}`}>
-                {error ? <XCircle className="h-4 w-4 text-rose-400 shrink-0" /> : <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />}
-                <p className={`text-xs ${error ? "text-rose-400" : "text-emerald-400"}`}>{error || success}</p>
-                <button onClick={() => { setError(""); setSuccess(""); }} className="ml-auto text-slate-500 hover:text-white">
+              <div
+                className={`p-4 rounded-xl border flex items-center gap-3 ${error ? "border-rose-500/20 bg-rose-500/5" : "border-emerald-500/20 bg-emerald-500/5"}`}
+              >
+                {error ? (
+                  <XCircle className="h-4 w-4 text-rose-400 shrink-0" />
+                ) : (
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                )}
+                <p
+                  className={`text-xs ${error ? "text-rose-400" : "text-emerald-400"}`}
+                >
+                  {error || success}
+                </p>
+                <button
+                  onClick={() => {
+                    setError("");
+                    setSuccess("");
+                  }}
+                  className="ml-auto text-slate-500 hover:text-white"
+                >
                   <X className="h-4 w-4" />
                 </button>
               </div>
@@ -396,7 +439,7 @@ export default function SettingsPage() {
         </AnimatePresence>
 
         <div className="flex flex-col lg:flex-row gap-8">
-          {/* ─── LEFT NAV ─── */}
+          {/*  LEFT NAV  */}
           <div className="lg:w-64 shrink-0">
             <div className="sticky top-6 space-y-1">
               {navItems.map((item) => (
@@ -411,12 +454,16 @@ export default function SettingsPage() {
                 >
                   <item.icon className="h-4 w-4" />
                   {item.label}
-                  {item.key === "danger" && <AlertTriangle className="h-3 w-3 ml-auto text-rose-400" />}
+                  {item.key === "danger" && (
+                    <AlertTriangle className="h-3 w-3 ml-auto text-rose-400" />
+                  )}
                 </button>
               ))}
 
               <div className="mt-6 p-4 rounded-xl bg-slate-900/40 border border-slate-800">
-                <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-3">Security Score</div>
+                <div className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-3">
+                  Security Score
+                </div>
                 <div className="flex items-center gap-3 mb-2">
                   <div className="flex-1 h-2 bg-slate-800 rounded-full overflow-hidden">
                     <div className="h-full w-[85%] rounded-full bg-gradient-to-r from-emerald-500 to-cyan-400" />
@@ -430,22 +477,58 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          {/* ─── RIGHT CONTENT ─── */}
+          {/*  RIGHT CONTENT  */}
           <div className="flex-1 space-y-10 min-w-0">
             {/* IDENTITY */}
             <section id={sectionIds.identity}>
               <GlowCard>
                 <div className="p-6">
-                  <SectionHeader icon={User} title="Sovereign Identity" subtitle="Your public profile and legal identity must reconcile exactly for withdrawals." />
+                  <SectionHeader
+                    icon={User}
+                    title="Sovereign Identity"
+                    subtitle="Your public profile and legal identity must reconcile exactly for withdrawals."
+                  />
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <InputField label="Display Name" value={displayName} onChange={setDisplayName} placeholder="How others see you" helper="Public across the 8th Ledger" icon={User} />
-                    <InputField label="Legal Name (Government ID)" value={legalName} onChange={setLegalName} placeholder="Exact name on ID" helper="Must match KYC documents exactly" icon={Shield} />
-                    <InputField label="Email" value={email} onChange={setEmail} type="email" placeholder="sovereign@8thledger.com" helper="Primary contact for notifications" icon={Mail} />
-                    <InputField label="Phone" value={phone} onChange={setPhone} type="tel" placeholder="+1 234 567 8900" helper="Required for SMS alerts and 2FA" icon={Smartphone} />
+                    <InputField
+                      label="Display Name"
+                      value={displayName}
+                      onChange={setDisplayName}
+                      placeholder="How others see you"
+                      helper="Public across the 8th Ledger"
+                      icon={User}
+                    />
+                    <InputField
+                      label="Legal Name (Government ID)"
+                      value={legalName}
+                      onChange={setLegalName}
+                      placeholder="Exact name on ID"
+                      helper="Must match KYC documents exactly"
+                      icon={Shield}
+                    />
+                    <InputField
+                      label="Email"
+                      value={email}
+                      onChange={setEmail}
+                      type="email"
+                      placeholder="sovereign@8thledger.com"
+                      helper="Primary contact for notifications"
+                      icon={Mail}
+                    />
+                    <InputField
+                      label="Phone"
+                      value={phone}
+                      onChange={setPhone}
+                      type="tel"
+                      placeholder="+1 234 567 8900"
+                      helper="Required for SMS alerts and 2FA"
+                      icon={Smartphone}
+                    />
                   </div>
 
                   <div className="mt-5">
-                    <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">Bio</label>
+                    <label className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5 block">
+                      Bio
+                    </label>
                     <textarea
                       value={bio}
                       onChange={(e) => setBio(e.target.value)}
@@ -454,38 +537,60 @@ export default function SettingsPage() {
                       className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-3 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/10 resize-none"
                     />
                     <div className="flex justify-between mt-1.5">
-                      <span className="text-[11px] text-slate-500">{bio.length}/280</span>
+                      <span className="text-[11px] text-slate-500">
+                        {bio.length}/280
+                      </span>
                     </div>
                   </div>
 
                   {/* Name Match Reconciliation */}
-                  <div className={`mt-6 p-4 rounded-xl border ${nameMatch ? "border-emerald-500/20 bg-emerald-500/5" : "border-rose-500/20 bg-rose-500/5"}`}>
+                  <div
+                    className={`mt-6 p-4 rounded-xl border ${nameMatch ? "border-emerald-500/20 bg-emerald-500/5" : "border-rose-500/20 bg-rose-500/5"}`}
+                  >
                     <div className="flex items-center gap-3 mb-3">
-                      <div className={`h-8 w-8 rounded-lg flex items-center justify-center ${nameMatch ? "bg-emerald-500/10" : "bg-rose-500/10"}`}>
-                        {nameMatch ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> : <AlertTriangle className="h-4 w-4 text-rose-400" />}
+                      <div
+                        className={`h-8 w-8 rounded-lg flex items-center justify-center ${nameMatch ? "bg-emerald-500/10" : "bg-rose-500/10"}`}
+                      >
+                        {nameMatch ? (
+                          <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                        ) : (
+                          <AlertTriangle className="h-4 w-4 text-rose-400" />
+                        )}
                       </div>
                       <div>
-                        <div className="text-sm font-semibold text-white">Identity Reconciliation</div>
-                        <div className="text-xs text-slate-500">Name match verification</div>
+                        <div className="text-sm font-semibold text-white">
+                          Identity Reconciliation
+                        </div>
+                        <div className="text-xs text-slate-500">
+                          Name match verification
+                        </div>
                       </div>
                       <div className="ml-auto">
-                        <StatusBadge status={nameMatch ? "verified" : "rejected"} text={nameMatch ? "MATCHED" : "MISMATCH"} />
+                        <StatusBadge
+                          status={nameMatch ? "verified" : "rejected"}
+                          text={nameMatch ? "MATCHED" : "MISMATCH"}
+                        />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       <div className="p-3 rounded-lg bg-slate-900/40 border border-slate-800">
                         <div className="text-slate-500 mb-1">Display</div>
-                        <div className="font-mono text-white">{displayName || "—"}</div>
+                        <div className="font-mono text-white">
+                          {displayName || "—"}
+                        </div>
                       </div>
                       <div className="p-3 rounded-lg bg-slate-900/40 border border-slate-800">
                         <div className="text-slate-500 mb-1">Legal</div>
-                        <div className="font-mono text-white">{legalName || "—"}</div>
+                        <div className="font-mono text-white">
+                          {legalName || "—"}
+                        </div>
                       </div>
                     </div>
                     {!nameMatch && (
                       <p className="mt-3 text-xs text-rose-400 flex items-center gap-1.5">
                         <AlertTriangle className="h-3.5 w-3.5" />
-                        Withdrawals will be frozen until display name matches legal name exactly.
+                        Withdrawals will be frozen until display name matches
+                        legal name exactly.
                       </p>
                     )}
                   </div>
@@ -497,29 +602,47 @@ export default function SettingsPage() {
             <section id={sectionIds.security}>
               <GlowCard>
                 <div className="p-6">
-                  <SectionHeader icon={Shield} title="Security Fortress" subtitle="Authentication methods, active sessions, and access controls." />
+                  <SectionHeader
+                    icon={Shield}
+                    title="Security Fortress"
+                    subtitle="Authentication methods, active sessions, and access controls."
+                  />
 
                   <div className="space-y-1 divide-y divide-slate-800/60">
                     <ToggleRow
-                      icon={KeyRound} title="Two-Factor Authentication" description="Require TOTP code from authenticator app on every login"
-                      checked={twoFactor} onChange={handleToggle2FA}
+                      icon={KeyRound}
+                      title="Two-Factor Authentication"
+                      description="Require TOTP code from authenticator app on every login"
+                      checked={twoFactor}
+                      onChange={handleToggle2FA}
                     />
                     <ToggleRow
-                      icon={Lock} title="Biometric Login" description="Use Face ID or Touch ID on supported devices"
-                      checked={false} onChange={() => {}} disabled
+                      icon={Lock}
+                      title="Biometric Login"
+                      description="Use Face ID or Touch ID on supported devices"
+                      checked={false}
+                      onChange={() => {}}
+                      disabled
                     />
                     <ToggleRow
-                      icon={Eye} title="Hide Balance on Dashboard" description="Mask VIN and dollar amounts in public view"
-                      checked={false} onChange={() => {}}
+                      icon={Eye}
+                      title="Hide Balance on Dashboard"
+                      description="Mask VIN and dollar amounts in public view"
+                      checked={false}
+                      onChange={() => {}}
                     />
                   </div>
 
                   {/* Password Change */}
                   <div className="mt-6 pt-6 border-t border-slate-800/60">
                     <div className="flex items-center justify-between mb-4">
-                      <div className="text-sm font-semibold text-white">Quantum Key (Password)</div>
+                      <div className="text-sm font-semibold text-white">
+                        Quantum Key (Password)
+                      </div>
                       <button
-                        onClick={() => setShowPasswordChange(!showPasswordChange)}
+                        onClick={() =>
+                          setShowPasswordChange(!showPasswordChange)
+                        }
                         className="text-xs text-cyan-400 hover:text-cyan-300 font-medium flex items-center gap-1"
                       >
                         <Pencil className="h-3 w-3" /> Change
@@ -527,15 +650,39 @@ export default function SettingsPage() {
                     </div>
                     <AnimatePresence>
                       {showPasswordChange && (
-                        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          className="overflow-hidden"
+                        >
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-2">
-                            <input type="password" placeholder="Current password" className="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/10" />
-                            <input type="password" placeholder="New password" className="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/10" />
-                            <input type="password" placeholder="Confirm new password" className="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/10" />
+                            <input
+                              type="password"
+                              placeholder="Current password"
+                              className="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/10"
+                            />
+                            <input
+                              type="password"
+                              placeholder="New password"
+                              className="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/10"
+                            />
+                            <input
+                              type="password"
+                              placeholder="Confirm new password"
+                              className="rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/10"
+                            />
                           </div>
                           <div className="flex gap-2">
-                            <button onClick={() => setShowPasswordChange(false)} className="px-4 py-2 rounded-lg border border-slate-700 text-xs text-slate-400 hover:text-white">Cancel</button>
-                            <button className="px-4 py-2 rounded-lg bg-cyan-600/20 text-cyan-400 border border-cyan-500/30 text-xs font-semibold hover:bg-cyan-600/30">Update Key</button>
+                            <button
+                              onClick={() => setShowPasswordChange(false)}
+                              className="px-4 py-2 rounded-lg border border-slate-700 text-xs text-slate-400 hover:text-white"
+                            >
+                              Cancel
+                            </button>
+                            <button className="px-4 py-2 rounded-lg bg-cyan-600/20 text-cyan-400 border border-cyan-500/30 text-xs font-semibold hover:bg-cyan-600/30">
+                              Update Key
+                            </button>
                           </div>
                         </motion.div>
                       )}
@@ -544,10 +691,15 @@ export default function SettingsPage() {
 
                   {/* Active Sessions */}
                   <div className="mt-6 pt-6 border-t border-slate-800/60">
-                    <div className="text-sm font-semibold text-white mb-4">Active Sessions</div>
+                    <div className="text-sm font-semibold text-white mb-4">
+                      Active Sessions
+                    </div>
                     <div className="space-y-3">
                       {sessions.map((session) => (
-                        <div key={session.id} className="flex items-center justify-between p-3 rounded-xl bg-slate-900/40 border border-slate-800 hover:border-slate-700 transition-all">
+                        <div
+                          key={session.id}
+                          className="flex items-center justify-between p-3 rounded-xl bg-slate-900/40 border border-slate-800 hover:border-slate-700 transition-all"
+                        >
                           <div className="flex items-center gap-3">
                             <div className="h-9 w-9 rounded-lg bg-slate-800 flex items-center justify-center text-slate-400">
                               <HardDrive className="h-4 w-4" />
@@ -555,15 +707,26 @@ export default function SettingsPage() {
                             <div>
                               <div className="text-sm text-white flex items-center gap-2">
                                 {session.device}
-                                {session.current && <span className="px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 text-[10px] font-bold border border-cyan-500/20">CURRENT</span>}
+                                {session.current && (
+                                  <span className="px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400 text-[10px] font-bold border border-cyan-500/20">
+                                    CURRENT
+                                  </span>
+                                )}
                               </div>
-                              <div className="text-xs text-slate-500 font-mono mt-0.5">{session.location} • {session.ip}</div>
+                              <div className="text-xs text-slate-500 font-mono mt-0.5">
+                                {session.location} • {session.ip}
+                              </div>
                             </div>
                           </div>
                           <div className="flex items-center gap-3">
-                            <span className="text-xs text-slate-500">{session.lastActive}</span>
+                            <span className="text-xs text-slate-500">
+                              {session.lastActive}
+                            </span>
                             {!session.current && (
-                              <button onClick={() => handleRevokeSession(session.id)} className="p-2 rounded-lg hover:bg-rose-500/10 text-slate-500 hover:text-rose-400 transition-colors">
+                              <button
+                                onClick={() => handleRevokeSession(session.id)}
+                                className="p-2 rounded-lg hover:bg-rose-500/10 text-slate-500 hover:text-rose-400 transition-colors"
+                              >
                                 <LogOut className="h-4 w-4" />
                               </button>
                             )}
@@ -580,22 +743,42 @@ export default function SettingsPage() {
             <section id={sectionIds.documents}>
               <GlowCard>
                 <div className="p-6">
-                  <SectionHeader icon={FileCheck} title="Document Vault" subtitle="KYC verification pipeline. All documents are encrypted at rest and access-logged." />
+                  <SectionHeader
+                    icon={FileCheck}
+                    title="Document Vault"
+                    subtitle="KYC verification pipeline. All documents are encrypted at rest and access-logged."
+                  />
 
                   <div className="space-y-3 mb-6">
                     {kycDocs.map((doc) => (
-                      <div key={doc.id} className="group flex items-center justify-between p-4 rounded-xl bg-slate-900/40 border border-slate-800 hover:border-slate-700 transition-all">
+                      <div
+                        key={doc.id}
+                        className="group flex items-center justify-between p-4 rounded-xl bg-slate-900/40 border border-slate-800 hover:border-slate-700 transition-all"
+                      >
                         <div className="flex items-center gap-4">
-                          <div className={`h-10 w-10 rounded-xl flex items-center justify-center border ${
-                            doc.type === "id" ? "bg-blue-500/10 border-blue-500/20 text-blue-400" :
-                            doc.type === "selfie" ? "bg-violet-500/10 border-violet-500/20 text-violet-400" :
-                            doc.type === "liveness" ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400" :
-                            "bg-amber-500/10 border-amber-500/20 text-amber-400"
-                          }`}>
-                            {doc.type === "id" && <Shield className="h-5 w-5" />}
-                            {doc.type === "selfie" && <User className="h-5 w-5" />}
-                            {doc.type === "liveness" && <Zap className="h-5 w-5" />}
-                            {doc.type === "address" && <Globe className="h-5 w-5" />}
+                          <div
+                            className={`h-10 w-10 rounded-xl flex items-center justify-center border ${
+                              doc.type === "id"
+                                ? "bg-blue-500/10 border-blue-500/20 text-blue-400"
+                                : doc.type === "selfie"
+                                  ? "bg-violet-500/10 border-violet-500/20 text-violet-400"
+                                  : doc.type === "liveness"
+                                    ? "bg-cyan-500/10 border-cyan-500/20 text-cyan-400"
+                                    : "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                            }`}
+                          >
+                            {doc.type === "id" && (
+                              <Shield className="h-5 w-5" />
+                            )}
+                            {doc.type === "selfie" && (
+                              <User className="h-5 w-5" />
+                            )}
+                            {doc.type === "liveness" && (
+                              <Zap className="h-5 w-5" />
+                            )}
+                            {doc.type === "address" && (
+                              <Globe className="h-5 w-5" />
+                            )}
                           </div>
                           <div>
                             <div className="text-sm font-medium text-white capitalize flex items-center gap-2">
@@ -603,7 +786,8 @@ export default function SettingsPage() {
                               <StatusBadge status={doc.status} />
                             </div>
                             <div className="text-xs text-slate-500 font-mono mt-0.5">
-                              {doc.filename} • {doc.fileSize} • Uploaded {doc.uploadedAt}
+                              {doc.filename} • {doc.fileSize} • Uploaded{" "}
+                              {doc.uploadedAt}
                             </div>
                             {doc.reviewedBy && (
                               <div className="text-[10px] text-slate-600 mt-0.5">
@@ -626,21 +810,46 @@ export default function SettingsPage() {
 
                   {/* Upload Zone */}
                   <div
-                    onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragOver(true);
+                    }}
                     onDragLeave={() => setDragOver(false)}
-                    onDrop={(e) => { e.preventDefault(); setDragOver(false); e.dataTransfer.files && handleFileUpload(e.dataTransfer.files); }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setDragOver(false);
+                      e.dataTransfer.files &&
+                        handleFileUpload(e.dataTransfer.files);
+                    }}
                     onClick={() => fileInputRef.current?.click()}
                     className={`relative border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
-                      dragOver ? "border-cyan-400 bg-cyan-500/5" : "border-slate-800 hover:border-slate-600 bg-slate-900/20"
+                      dragOver
+                        ? "border-cyan-400 bg-cyan-500/5"
+                        : "border-slate-800 hover:border-slate-600 bg-slate-900/20"
                     }`}
                   >
-                    <input ref={fileInputRef} type="file" className="hidden" multiple accept=".pdf,.jpg,.jpeg,.png,.mp4" onChange={(e) => e.target.files && handleFileUpload(e.target.files)} />
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      className="hidden"
+                      multiple
+                      accept=".pdf,.jpg,.jpeg,.png,.mp4"
+                      onChange={(e) =>
+                        e.target.files && handleFileUpload(e.target.files)
+                      }
+                    />
                     <div className="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-3 text-slate-400">
                       <Upload className="h-5 w-5" />
                     </div>
-                    <div className="text-sm font-medium text-white">Drop files or click to upload</div>
-                    <div className="text-xs text-slate-500 mt-1">ID, selfie, address proof, or liveness video</div>
-                    <div className="text-[10px] text-slate-600 mt-2">PDF, JPG, PNG, MP4 up to 20MB</div>
+                    <div className="text-sm font-medium text-white">
+                      Drop files or click to upload
+                    </div>
+                    <div className="text-xs text-slate-500 mt-1">
+                      ID, selfie, address proof, or liveness video
+                    </div>
+                    <div className="text-[10px] text-slate-600 mt-2">
+                      PDF, JPG, PNG, MP4 up to 20MB
+                    </div>
                   </div>
                 </div>
               </GlowCard>
@@ -650,31 +859,55 @@ export default function SettingsPage() {
             <section id={sectionIds.addresses}>
               <GlowCard>
                 <div className="p-6">
-                  <SectionHeader icon={CreditCard} title="Withdrawal Addresses" subtitle="Verified destinations for sovereign withdrawals. New addresses require 24-hour cooldown." />
+                  <SectionHeader
+                    icon={CreditCard}
+                    title="Withdrawal Addresses"
+                    subtitle="Verified destinations for sovereign withdrawals. New addresses require 24-hour cooldown."
+                  />
 
                   <div className="space-y-3 mb-6">
                     {withdrawalAddrs.map((addr) => (
-                      <div key={addr.id} className="p-4 rounded-xl bg-slate-900/40 border border-slate-800 hover:border-slate-700 transition-all">
+                      <div
+                        key={addr.id}
+                        className="p-4 rounded-xl bg-slate-900/40 border border-slate-800 hover:border-slate-700 transition-all"
+                      >
                         <div className="flex items-start justify-between mb-3">
                           <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-xl bg-slate-800 flex items-center justify-center text-slate-400">
-                              {addr.network === "Naira" ? <Landmark className="h-5 w-5" /> : <Wallet className="h-5 w-5" />}
+                              {addr.network === "Naira" ? (
+                                <Landmark className="h-5 w-5" />
+                              ) : (
+                                <Wallet className="h-5 w-5" />
+                              )}
                             </div>
                             <div>
                               <div className="text-sm font-medium text-white flex items-center gap-2">
                                 {addr.label}
                                 {addr.verified ? (
-                                  <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">VERIFIED</span>
+                                  <span className="px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 text-[10px] font-bold border border-emerald-500/20">
+                                    VERIFIED
+                                  </span>
                                 ) : (
-                                  <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[10px] font-bold border border-amber-500/20">PENDING</span>
+                                  <span className="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[10px] font-bold border border-amber-500/20">
+                                    PENDING
+                                  </span>
                                 )}
                               </div>
-                              <div className="text-xs text-slate-500 font-mono mt-0.5">{addr.address}</div>
+                              <div className="text-xs text-slate-500 font-mono mt-0.5">
+                                {addr.address}
+                              </div>
                             </div>
                           </div>
                           <div className="flex items-center gap-1">
-                            <button onClick={() => handleCopy(addr.address, addr.id)} className="p-2 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-white transition-colors">
-                              {copiedAddr === addr.id ? <CheckCircle2 className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+                            <button
+                              onClick={() => handleCopy(addr.address, addr.id)}
+                              className="p-2 rounded-lg hover:bg-slate-800 text-slate-500 hover:text-white transition-colors"
+                            >
+                              {copiedAddr === addr.id ? (
+                                <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                              ) : (
+                                <Copy className="h-4 w-4" />
+                              )}
                             </button>
                             <button className="p-2 rounded-lg hover:bg-rose-500/10 text-slate-500 hover:text-rose-400 transition-colors">
                               <Trash2 className="h-4 w-4" />
@@ -684,7 +917,9 @@ export default function SettingsPage() {
                         <div className="flex items-center gap-3 text-[10px] text-slate-500">
                           <NetworkBadge network={addr.network} />
                           <span>Added {addr.addedAt}</span>
-                          {addr.lastUsed && <span>• Last used {addr.lastUsed}</span>}
+                          {addr.lastUsed && (
+                            <span>• Last used {addr.lastUsed}</span>
+                          )}
                         </div>
                       </div>
                     ))}
@@ -699,11 +934,26 @@ export default function SettingsPage() {
 
                   <AnimatePresence>
                     {showAddAddress && (
-                      <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                      >
                         <div className="mt-4 p-5 rounded-xl bg-slate-900/60 border border-cyan-500/20 space-y-3">
-                          <div className="text-sm font-semibold text-white mb-1">Add New Address</div>
-                          <input type="text" placeholder="Label (e.g. Primary Bank)" className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/10" />
-                          <input type="text" placeholder="Account Number / Wallet Address" className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/10" />
+                          <div className="text-sm font-semibold text-white mb-1">
+                            Add New Address
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Label (e.g. Primary Bank)"
+                            className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/10"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Account Number / Wallet Address"
+                            className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/10"
+                          />
                           <select className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-sm text-white focus:outline-none focus:border-cyan-500/40 focus:ring-2 focus:ring-cyan-500/10">
                             <option>Naira</option>
                             <option>USD Swift</option>
@@ -711,11 +961,23 @@ export default function SettingsPage() {
                             <option>BEP-20</option>
                           </select>
                           <div className="flex gap-2 pt-2">
-                            <button onClick={() => setShowAddAddress(false)} className="flex-1 py-2.5 rounded-xl border border-slate-700 text-xs text-slate-400 hover:text-white transition-colors">Cancel</button>
-                            <button onClick={() => setShowAddAddress(false)} className="flex-1 py-2.5 rounded-xl bg-cyan-600 text-white text-xs font-semibold hover:bg-cyan-500 transition-colors">Verify & Add</button>
+                            <button
+                              onClick={() => setShowAddAddress(false)}
+                              className="flex-1 py-2.5 rounded-xl border border-slate-700 text-xs text-slate-400 hover:text-white transition-colors"
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              onClick={() => setShowAddAddress(false)}
+                              className="flex-1 py-2.5 rounded-xl bg-cyan-600 text-white text-xs font-semibold hover:bg-cyan-500 transition-colors"
+                            >
+                              Verify & Add
+                            </button>
                           </div>
                           <p className="text-[10px] text-amber-400/70 flex items-center gap-1">
-                            <AlertTriangle className="h-3 w-3" /> New addresses require 24-hour verification hold before withdrawals.
+                            <AlertTriangle className="h-3 w-3" /> New addresses
+                            require 24-hour verification hold before
+                            withdrawals.
                           </p>
                         </div>
                       </motion.div>
@@ -729,12 +991,41 @@ export default function SettingsPage() {
             <section id={sectionIds.notifications}>
               <GlowCard>
                 <div className="p-6">
-                  <SectionHeader icon={Bell} title="Notification Preferences" subtitle="Control how the 8th Ledger reaches you. Critical security alerts cannot be disabled." />
+                  <SectionHeader
+                    icon={Bell}
+                    title="Notification Preferences"
+                    subtitle="Control how the 8th Ledger reaches you. Critical security alerts cannot be disabled."
+                  />
                   <div className="space-y-1 divide-y divide-slate-800/60">
-                    <ToggleRow icon={Mail} title="Email Notifications" description="Dividends, vote reminders, proposal updates, and hall announcements" checked={emailNotif} onChange={() => setEmailNotif(!emailNotif)} />
-                    <ToggleRow icon={Smartphone} title="SMS Alerts" description="Withdrawal confirmations, login alerts, and dormancy warnings" checked={smsAlert} onChange={() => setSmsAlert(!smsAlert)} />
-                    <ToggleRow icon={Bell} title="Marketing & New Pools" description="Early access to cycles, new vertical launches, and empire updates" checked={marketingEmails} onChange={() => setMarketingEmails(!marketingEmails)} />
-                    <ToggleRow icon={Shield} title="Security Alerts" description="Failed logins, password changes, and new device authorizations" checked={true} onChange={() => {}} disabled />
+                    <ToggleRow
+                      icon={Mail}
+                      title="Email Notifications"
+                      description="Dividends, vote reminders, proposal updates, and hall announcements"
+                      checked={emailNotif}
+                      onChange={() => setEmailNotif(!emailNotif)}
+                    />
+                    <ToggleRow
+                      icon={Smartphone}
+                      title="SMS Alerts"
+                      description="Withdrawal confirmations, login alerts, and dormancy warnings"
+                      checked={smsAlert}
+                      onChange={() => setSmsAlert(!smsAlert)}
+                    />
+                    <ToggleRow
+                      icon={Bell}
+                      title="Marketing & New Pools"
+                      description="Early access to cycles, new vertical launches, and empire updates"
+                      checked={marketingEmails}
+                      onChange={() => setMarketingEmails(!marketingEmails)}
+                    />
+                    <ToggleRow
+                      icon={Shield}
+                      title="Security Alerts"
+                      description="Failed logins, password changes, and new device authorizations"
+                      checked={true}
+                      onChange={() => {}}
+                      disabled
+                    />
                   </div>
                 </div>
               </GlowCard>
@@ -744,12 +1035,21 @@ export default function SettingsPage() {
             <section id={sectionIds.danger}>
               <GlowCard className="border-rose-500/20">
                 <div className="p-6">
-                  <SectionHeader icon={AlertTriangle} title="Danger Zone" subtitle="Irreversible actions. Proceed with extreme caution." />
+                  <SectionHeader
+                    icon={AlertTriangle}
+                    title="Danger Zone"
+                    subtitle="Irreversible actions. Proceed with extreme caution."
+                  />
                   <div className="space-y-4">
                     <div className="flex items-center justify-between p-4 rounded-xl bg-slate-900/40 border border-slate-800 hover:border-rose-500/30 transition-all group">
                       <div>
-                        <div className="text-sm font-semibold text-white group-hover:text-rose-300 transition-colors">Export All Data</div>
-                        <div className="text-xs text-slate-500 mt-0.5">Download GDPR-compliant archive of your entire sovereign record</div>
+                        <div className="text-sm font-semibold text-white group-hover:text-rose-300 transition-colors">
+                          Export All Data
+                        </div>
+                        <div className="text-xs text-slate-500 mt-0.5">
+                          Download GDPR-compliant archive of your entire
+                          sovereign record
+                        </div>
                       </div>
                       <button className="px-4 py-2 rounded-lg bg-slate-800 text-slate-400 text-xs font-semibold hover:bg-slate-700 transition-colors flex items-center gap-1.5">
                         <Download className="h-3.5 w-3.5" /> Export
@@ -758,8 +1058,13 @@ export default function SettingsPage() {
 
                     <div className="flex items-center justify-between p-4 rounded-xl bg-slate-900/40 border border-slate-800 hover:border-rose-500/30 transition-all group">
                       <div>
-                        <div className="text-sm font-semibold text-white group-hover:text-rose-300 transition-colors">Freeze Account</div>
-                        <div className="text-xs text-slate-500 mt-0.5">Temporarily disable all activity. Can be reversed by contacting the Council.</div>
+                        <div className="text-sm font-semibold text-white group-hover:text-rose-300 transition-colors">
+                          Freeze Account
+                        </div>
+                        <div className="text-xs text-slate-500 mt-0.5">
+                          Temporarily disable all activity. Can be reversed by
+                          contacting the Council.
+                        </div>
                       </div>
                       <button className="px-4 py-2 rounded-lg bg-slate-800 text-slate-400 text-xs font-semibold hover:bg-slate-700 transition-colors flex items-center gap-1.5">
                         <Ban className="h-3.5 w-3.5" /> Freeze
@@ -768,10 +1073,18 @@ export default function SettingsPage() {
 
                     <div className="flex items-center justify-between p-4 rounded-xl bg-rose-500/5 border border-rose-500/20 hover:border-rose-500/40 transition-all group">
                       <div>
-                        <div className="text-sm font-semibold text-rose-400">Initiate Dormancy</div>
-                        <div className="text-xs text-rose-400/60 mt-0.5">Begin 12-month inactivity countdown. Your PACs will enter the Vault.</div>
+                        <div className="text-sm font-semibold text-rose-400">
+                          Initiate Dormancy
+                        </div>
+                        <div className="text-xs text-rose-400/60 mt-0.5">
+                          Begin 12-month inactivity countdown. Your PACs will
+                          enter the Vault.
+                        </div>
                       </div>
-                      <Link href="/dormancy" className="px-4 py-2 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/30 text-xs font-semibold hover:bg-rose-500/20 transition-colors flex items-center gap-1.5">
+                      <Link
+                        href="/dormancy"
+                        className="px-4 py-2 rounded-lg bg-rose-500/10 text-rose-400 border border-rose-500/30 text-xs font-semibold hover:bg-rose-500/20 transition-colors flex items-center gap-1.5"
+                      >
                         <AlertTriangle className="h-3.5 w-3.5" /> Begin
                       </Link>
                     </div>

@@ -32,7 +32,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-// ─── Types ───
+//  Types
 export type VerticalKey =
   | "ledgerprop"
   | "ledgerauto"
@@ -95,7 +95,7 @@ export interface AssetStatusProps {
   onReportIssue?: () => void;
 }
 
-// ─── Vertical Config ───
+//  Vertical Config
 const VERTICAL_CONFIG: Record<VerticalKey, { label: string; icon: React.ElementType; color: string; bg: string }> = {
   ledgerprop:   { label: "LedgerProp",   icon: Building2,      color: "text-emerald-400",  bg: "bg-emerald-500/10" },
   ledgerauto:   { label: "LedgerAuto",   icon: Car,            color: "text-blue-400",     bg: "bg-blue-500/10" },
@@ -124,7 +124,7 @@ const AHGI_STATUS = {
   critical:  { label: "Critical",  color: "text-red-400",     min: 0 },
 };
 
-// ─── Helpers ───
+//  Helpers
 function getAhgiStatus(score: number) {
   if (score >= 80) return AHGI_STATUS.thriving;
   if (score >= 60) return AHGI_STATUS.healthy;
@@ -144,7 +144,7 @@ function formatTimeAgo(iso: string) {
   return `${days}d ago`;
 }
 
-// ─── Component ───
+//  Component
 export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onReportIssue }: AssetStatusProps) {
   const [showAlerts, setShowAlerts] = useState(true);
   const [showEvents, setShowEvents] = useState(false);
@@ -165,17 +165,26 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
 
   return (
     <div className="space-y-5">
-      {/* ─── Header ─── */}
+      {/*  Header  */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div className="flex items-start gap-4">
-          <div className={`w-14 h-14 rounded-2xl ${v.bg} flex items-center justify-center shrink-0`}>
+          <div
+            className={`w-14 h-14 rounded-2xl ${v.bg} flex items-center justify-center shrink-0`}
+          >
             <VIcon className={`w-7 h-7 ${v.color}`} />
           </div>
           <div>
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-xl font-semibold text-slate-100">{data.hallName}</h2>
-              <Badge className={`text-[10px] ${v.bg} ${v.color} border-0`}>{v.label}</Badge>
-              <Badge variant="outline" className="text-[10px] border-slate-700 text-slate-400">
+              <h2 className="text-xl font-semibold text-slate-100">
+                {data.hallName}
+              </h2>
+              <Badge className={`text-[10px] ${v.bg} ${v.color} border-0`}>
+                {v.label}
+              </Badge>
+              <Badge
+                variant="outline"
+                className="text-[10px] border-slate-700 text-slate-400"
+              >
                 Class {data.hallClass}
               </Badge>
             </div>
@@ -186,7 +195,8 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
               </span>
               {data.coordinates && (
                 <span className="font-mono text-xs">
-                  {data.coordinates.lat.toFixed(4)}, {data.coordinates.lng.toFixed(4)}
+                  {data.coordinates.lat.toFixed(4)},{" "}
+                  {data.coordinates.lng.toFixed(4)}
                 </span>
               )}
               <span className="flex items-center gap-1">
@@ -198,35 +208,62 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
-          <Badge className={`text-xs ${status.bg} ${status.color} ${status.border} border`}>
+          <Badge
+            className={`text-xs ${status.bg} ${status.color} ${status.border} border`}
+          >
             <StatusIcon className="w-3.5 h-3.5 mr-1.5" />
             {status.label}
           </Badge>
-          <Button variant="outline" size="sm" onClick={onRefresh} className="text-xs border-slate-700 text-slate-400 hover:text-slate-200">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRefresh}
+            className="text-xs border-slate-700 text-slate-400 hover:text-slate-200"
+          >
             <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
             Refresh
           </Button>
           {data.coordinates && (
-            <Button variant="outline" size="sm" onClick={onViewMap} className="text-xs border-slate-700 text-slate-400 hover:text-slate-200">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onViewMap}
+              className="text-xs border-slate-700 text-slate-400 hover:text-slate-200"
+            >
               <Globe className="w-3.5 h-3.5 mr-1.5" />
               Map
             </Button>
           )}
-          <Button variant="outline" size="sm" onClick={onReportIssue} className="text-xs border-red-500/20 text-red-400 hover:bg-red-500/10">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onReportIssue}
+            className="text-xs border-red-500/20 text-red-400 hover:bg-red-500/10"
+          >
             <AlertTriangle className="w-3.5 h-3.5 mr-1.5" />
             Report
           </Button>
         </div>
       </div>
 
-      {/* ─── Score Cards ─── */}
+      {/*  Score Cards  */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {/* SRI */}
         <ScoreCard
           label="SRI Score"
           score={data.sriScore}
           max={100}
-          color={data.sriScore >= 90 ? "platinum" : data.sriScore >= 75 ? "gold" : data.sriScore >= 60 ? "silver" : data.sriScore >= 40 ? "bronze" : "at_risk"}
+          color={
+            data.sriScore >= 90
+              ? "platinum"
+              : data.sriScore >= 75
+                ? "gold"
+                : data.sriScore >= 60
+                  ? "silver"
+                  : data.sriScore >= 40
+                    ? "bronze"
+                    : "at_risk"
+          }
           icon={Shield}
         />
         {/* AHGI */}
@@ -234,7 +271,17 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
           label="AHGI Score"
           score={data.ahgiScore}
           max={100}
-          color={data.ahgiScore >= 80 ? "emerald" : data.ahgiScore >= 60 ? "blue" : data.ahgiScore >= 40 ? "amber" : data.ahgiScore >= 20 ? "orange" : "red"}
+          color={
+            data.ahgiScore >= 80
+              ? "emerald"
+              : data.ahgiScore >= 60
+                ? "blue"
+                : data.ahgiScore >= 40
+                  ? "amber"
+                  : data.ahgiScore >= 20
+                    ? "orange"
+                    : "red"
+          }
           icon={Activity}
           subLabel={ahgi.label}
         />
@@ -243,7 +290,15 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
           label="Health Component"
           score={data.ahgiHealthScore}
           max={100}
-          color={data.ahgiHealthScore >= 80 ? "emerald" : data.ahgiHealthScore >= 60 ? "blue" : data.ahgiHealthScore >= 40 ? "amber" : "red"}
+          color={
+            data.ahgiHealthScore >= 80
+              ? "emerald"
+              : data.ahgiHealthScore >= 60
+                ? "blue"
+                : data.ahgiHealthScore >= 40
+                  ? "amber"
+                  : "red"
+          }
           icon={HeartPulse}
           subLabel={`${(data.ahgiHealthScore * 0.4).toFixed(0)}% of AHGI`}
         />
@@ -252,13 +307,21 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
           label="Growth Component"
           score={data.ahgiGrowthScore}
           max={100}
-          color={data.ahgiGrowthScore >= 80 ? "emerald" : data.ahgiGrowthScore >= 60 ? "blue" : data.ahgiGrowthScore >= 40 ? "amber" : "red"}
+          color={
+            data.ahgiGrowthScore >= 80
+              ? "emerald"
+              : data.ahgiGrowthScore >= 60
+                ? "blue"
+                : data.ahgiGrowthScore >= 40
+                  ? "amber"
+                  : "red"
+          }
           icon={TrendingUp}
           subLabel={`${(data.ahgiGrowthScore * 0.6).toFixed(0)}% of AHGI`}
         />
       </div>
 
-      {/* ─── Metrics Grid ─── */}
+      {/*  Metrics Grid  */}
       <div>
         <h3 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
           <BarChart3 className="w-4 h-4 text-cyan-400" />
@@ -268,19 +331,24 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
           {data.metrics.map((metric) => {
             const MetricIcon = metric.icon;
             const isSelected = selectedMetric === metric.key;
-            const pct = metric.target > 0 ? Math.min((metric.value / metric.target) * 100, 100) : 0;
+            const pct =
+              metric.target > 0
+                ? Math.min((metric.value / metric.target) * 100, 100)
+                : 0;
 
             return (
               <motion.div
                 key={metric.key}
                 whileHover={{ scale: 1.02 }}
-                onClick={() => setSelectedMetric(isSelected ? null : metric.key)}
+                onClick={() =>
+                  setSelectedMetric(isSelected ? null : metric.key)
+                }
                 className={`rounded-xl border p-4 cursor-pointer transition-colors ${
                   metric.status === "good"
                     ? "border-emerald-500/20 bg-emerald-950/5"
                     : metric.status === "warning"
-                    ? "border-amber-500/20 bg-amber-950/5"
-                    : "border-red-500/20 bg-red-950/5"
+                      ? "border-amber-500/20 bg-amber-950/5"
+                      : "border-red-500/20 bg-red-950/5"
                 } ${isSelected ? "ring-1 ring-cyan-500/30" : ""}`}
               >
                 <div className="flex items-center justify-between mb-2">
@@ -290,19 +358,21 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
                         metric.status === "good"
                           ? "text-emerald-400"
                           : metric.status === "warning"
-                          ? "text-amber-400"
-                          : "text-red-400"
+                            ? "text-amber-400"
+                            : "text-red-400"
                       }`}
                     />
-                    <span className="text-xs font-medium text-slate-300">{metric.label}</span>
+                    <span className="text-xs font-medium text-slate-300">
+                      {metric.label}
+                    </span>
                   </div>
                   <Badge
                     className={`text-[9px] border-0 ${
                       metric.status === "good"
                         ? "bg-emerald-500/10 text-emerald-400"
                         : metric.status === "warning"
-                        ? "bg-amber-500/10 text-amber-400"
-                        : "bg-red-500/10 text-red-400"
+                          ? "bg-amber-500/10 text-amber-400"
+                          : "bg-red-500/10 text-red-400"
                     }`}
                   >
                     {metric.status}
@@ -318,17 +388,23 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
 
                 <div className="mt-2">
                   <div className="flex justify-between text-[10px] mb-1">
-                    <span className="text-slate-500">Target: {metric.target.toLocaleString()} {metric.unit}</span>
+                    <span className="text-slate-500">
+                      Target: {metric.target.toLocaleString()} {metric.unit}
+                    </span>
                     <span
                       className={`font-mono ${
                         metric.direction === "up"
                           ? "text-emerald-400"
                           : metric.direction === "down"
-                          ? "text-red-400"
-                          : "text-slate-500"
+                            ? "text-red-400"
+                            : "text-slate-500"
                       }`}
                     >
-                      {metric.direction === "up" ? "↑" : metric.direction === "down" ? "↓" : "—"}
+                      {metric.direction === "up"
+                        ? "↑"
+                        : metric.direction === "down"
+                          ? "↓"
+                          : "—"}
                     </span>
                   </div>
                   <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
@@ -337,8 +413,8 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
                         metric.status === "good"
                           ? "bg-emerald-400"
                           : metric.status === "warning"
-                          ? "bg-amber-400"
-                          : "bg-red-400"
+                            ? "bg-amber-400"
+                            : "bg-red-400"
                       }`}
                       style={{ width: `${pct}%` }}
                     />
@@ -365,11 +441,15 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
                               metric.direction === "up"
                                 ? "text-emerald-400"
                                 : metric.direction === "down"
-                                ? "text-red-400"
-                                : "text-slate-500"
+                                  ? "text-red-400"
+                                  : "text-slate-500"
                             }
                           >
-                            {metric.direction === "up" ? "Improving" : metric.direction === "down" ? "Declining" : "Stable"}
+                            {metric.direction === "up"
+                              ? "Improving"
+                              : metric.direction === "down"
+                                ? "Declining"
+                                : "Stable"}
                           </span>
                         </div>
                       </div>
@@ -382,7 +462,7 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
         </div>
       </div>
 
-      {/* ─── Alerts ─── */}
+      {/*  Alerts  */}
       {data.alerts.length > 0 && (
         <Card className="border-slate-800 bg-slate-950/50">
           <CardHeader className="pb-3">
@@ -402,7 +482,11 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
                 onClick={() => setShowAlerts(!showAlerts)}
                 className="text-slate-500 hover:text-slate-300 transition-colors"
               >
-                {showAlerts ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {showAlerts ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
               </button>
             </div>
           </CardHeader>
@@ -425,20 +509,26 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
         </Card>
       )}
 
-      {/* ─── Recent Events ─── */}
+      {/*  Recent Events  */}
       {data.recentEvents.length > 0 && (
         <Card className="border-slate-800 bg-slate-950/50">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-slate-400" />
-                <h3 className="text-sm font-semibold text-slate-200">Recent Events</h3>
+                <h3 className="text-sm font-semibold text-slate-200">
+                  Recent Events
+                </h3>
               </div>
               <button
                 onClick={() => setShowEvents(!showEvents)}
                 className="text-slate-500 hover:text-slate-300 transition-colors"
               >
-                {showEvents ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {showEvents ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
               </button>
             </div>
           </CardHeader>
@@ -456,7 +546,9 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
                       <div key={i} className="flex items-start gap-3">
                         <div className="w-2 h-2 rounded-full bg-slate-600 mt-1.5 shrink-0" />
                         <div className="flex-1">
-                          <div className="text-xs text-slate-300">{event.action}</div>
+                          <div className="text-xs text-slate-300">
+                            {event.action}
+                          </div>
                           <div className="flex items-center gap-2 mt-0.5 text-[10px] text-slate-500">
                             <span>by {event.actor}</span>
                             <span>·</span>
@@ -476,7 +568,7 @@ export function AssetStatus({ data, isLoading = false, onRefresh, onViewMap, onR
   );
 }
 
-// ─── Score Card ───
+//  Score Card
 function ScoreCard({
   label,
   score,
@@ -550,7 +642,7 @@ function ScoreCard({
   );
 }
 
-// ─── Alert Item ───
+//  Alert Item
 function AlertItem({ alert }: { alert: AssetAlert }) {
   const severityConfig = {
     info: { color: "text-blue-400", bg: "bg-blue-500/10", border: "border-blue-500/20", icon: Shield },
@@ -598,7 +690,7 @@ function AlertItem({ alert }: { alert: AssetAlert }) {
   );
 }
 
-// ─── Skeleton ───
+//  Skeleton
 function AssetStatusSkeleton() {
   return (
     <div className="space-y-5">

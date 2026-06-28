@@ -37,7 +37,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-// ─── Types ───
+//  Types
 export interface MonthlyRevenue {
   month: string; // "Jan 2026"
   monthKey: string; // "2026-01"
@@ -63,7 +63,7 @@ export interface RevenueChartProps {
   onExport?: () => void;
 }
 
-// ─── Helpers ───
+//  Helpers
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 }
@@ -87,8 +87,8 @@ function calculateGrowth(data: MonthlyRevenue[], key: keyof MonthlyRevenue): { v
   };
 }
 
-// ─── Custom Tooltip ───
-function CustomTooltip({ active, payload, label, view }: { active?: boolean; payload?: unknown[]; label?: string; view: DataView }) {
+//  Custom Tooltip
+function CustomTooltip({ active, payload, label, view }: { active?: boolean; payload?: any[]; label?: string; view: DataView }) {
   if (!active || !payload || !payload.length) return null;
 
   return (
@@ -114,7 +114,7 @@ function CustomTooltip({ active, payload, label, view }: { active?: boolean; pay
   );
 }
 
-// ─── Component ───
+//  Component
 export function RevenueChart({ data, isLoading = false, onExport }: RevenueChartProps) {
   const [chartType, setChartType] = useState<ChartType>("area");
   const [timeRange, setTimeRange] = useState<TimeRange>("6m");
@@ -159,23 +159,30 @@ export function RevenueChart({ data, isLoading = false, onExport }: RevenueChart
 
   return (
     <div className="space-y-5">
-      {/* ─── Header Controls ─── */}
+      {/*  Header Controls  */}
       <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-slate-100">Revenue Analytics</h2>
+          <h2 className="text-xl font-semibold text-slate-100">
+            Revenue Analytics
+          </h2>
           <p className="text-sm text-slate-500 mt-0.5">
-            {filteredData.length} month{filteredData.length === 1 ? "" : "s"} of data
+            {filteredData.length} month{filteredData.length === 1 ? "" : "s"} of
+            data
           </p>
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
           {/* Data View Tabs */}
           <div className="flex items-center border border-slate-800 rounded-lg overflow-hidden">
-            {([
+            {[
               { key: "revenue" as DataView, label: "Revenue", icon: Landmark },
-              { key: "dividends" as DataView, label: "Dividends", icon: PiggyBank },
+              {
+                key: "dividends" as DataView,
+                label: "Dividends",
+                icon: PiggyBank,
+              },
               { key: "health" as DataView, label: "Health", icon: Activity },
-            ]).map((tab) => {
+            ].map((tab) => {
               const TabIcon = tab.icon;
               return (
                 <button
@@ -196,18 +203,20 @@ export function RevenueChart({ data, isLoading = false, onExport }: RevenueChart
 
           {/* Chart Type */}
           <div className="flex items-center border border-slate-800 rounded-lg overflow-hidden">
-            {([
+            {[
               { key: "area" as ChartType, icon: AreaChartIcon },
               { key: "bar" as ChartType, icon: BarChart3 },
               { key: "line" as ChartType, icon: LineChartIcon },
-            ]).map((t) => {
+            ].map((t) => {
               const TIcon = t.icon;
               return (
                 <button
                   key={t.key}
                   onClick={() => setChartType(t.key)}
                   className={`px-2.5 py-2 transition-colors ${
-                    chartType === t.key ? "bg-slate-800 text-slate-100" : "text-slate-500 hover:text-slate-300"
+                    chartType === t.key
+                      ? "bg-slate-800 text-slate-100"
+                      : "text-slate-500 hover:text-slate-300"
                   }`}
                   title={t.key}
                 >
@@ -231,14 +240,19 @@ export function RevenueChart({ data, isLoading = false, onExport }: RevenueChart
             <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" />
           </div>
 
-          <Button variant="outline" size="sm" onClick={onExport} className="text-xs border-slate-700 text-slate-400 hover:text-slate-200">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onExport}
+            className="text-xs border-slate-700 text-slate-400 hover:text-slate-200"
+          >
             <Download className="w-3.5 h-3.5 mr-1.5" />
             CSV
           </Button>
         </div>
       </div>
 
-      {/* ─── Summary Stats ─── */}
+      {/*  Summary Stats  */}
       {stats && (
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
           <SummaryStat
@@ -286,7 +300,7 @@ export function RevenueChart({ data, isLoading = false, onExport }: RevenueChart
         </div>
       )}
 
-      {/* ─── Main Chart ─── */}
+      {/*  Main Chart  */}
       <Card className="border-slate-800 bg-slate-950/50">
         <CardContent className="p-4 sm:p-6">
           <div className="h-[360px] w-full">
@@ -303,7 +317,7 @@ export function RevenueChart({ data, isLoading = false, onExport }: RevenueChart
         </CardContent>
       </Card>
 
-      {/* ─── Legend / Explanation ─── */}
+      {/*  Legend / Explanation  */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <LegendItem
           icon={Landmark}
@@ -334,7 +348,7 @@ export function RevenueChart({ data, isLoading = false, onExport }: RevenueChart
   );
 }
 
-// ─── Revenue Chart (Area/Bar/Line) ───
+//  Revenue Chart (Area/Bar/Line)
 function RevenueChartInner({ type, data }: { type: ChartType; data: MonthlyRevenue[] }) {
   const Chart = type === "area" ? AreaChart : type === "bar" ? BarChart : LineChart;
 
@@ -396,7 +410,7 @@ function RevenueChartInner({ type, data }: { type: ChartType; data: MonthlyReven
   );
 }
 
-// ─── Dividend Chart ───
+//  Dividend Chart
 function DividendChartInner({ type, data }: { type: ChartType; data: MonthlyRevenue[] }) {
   const Chart = type === "area" ? AreaChart : type === "bar" ? BarChart : LineChart;
 
@@ -434,7 +448,7 @@ function DividendChartInner({ type, data }: { type: ChartType; data: MonthlyReve
   );
 }
 
-// ─── Health Chart (SRI + AHGI) ───
+//  Health Chart (SRI + AHGI)
 function HealthChartInner({ type, data }: { type: ChartType; data: MonthlyRevenue[] }) {
   const Chart = type === "area" ? AreaChart : type === "bar" ? BarChart : LineChart;
 
@@ -470,7 +484,7 @@ function HealthChartInner({ type, data }: { type: ChartType; data: MonthlyRevenu
   );
 }
 
-// ─── Summary Stat ───
+//  Summary Stat
 function SummaryStat({
   icon: Icon,
   label,
@@ -517,7 +531,7 @@ function SummaryStat({
   );
 }
 
-// ─── Legend Item ───
+//  Legend Item
 function LegendItem({
   icon: Icon,
   color,
@@ -542,7 +556,7 @@ function LegendItem({
   );
 }
 
-// ─── Skeleton ───
+//  Skeleton
 function ChartSkeleton() {
   return (
     <div className="space-y-5">

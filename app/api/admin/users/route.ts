@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
   const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "25", 10)));
   const skip = (page - 1) * limit;
 
-  const where: unknown = {};
+  const where: any = {};
   if (status !== "all") where.role = status;
   if (kycTierFilter !== "all") {
     where.kycTier = kycTierFilter;
@@ -38,7 +38,7 @@ export async function GET(req: NextRequest) {
     ];
   }
 
-  const orderBy: unknown = {};
+  const orderBy: any = {};
   if (["trustScore", "tier", "identityScore", "ledgerBalance", "creditPool", "displayName", "createdAt"].includes(sort)) {
     orderBy[sort] = dir;
   } else {
@@ -105,7 +105,7 @@ export async function PATCH(req: NextRequest) {
   if (!user) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   if (user.role !== "admin") return NextResponse.json({ success: false, error: "Admin access only" }, { status: 403 });
 
-  let body: unknown;
+  let body: any;
   try {
     body = await req.json();
   } catch {
@@ -121,7 +121,7 @@ export async function PATCH(req: NextRequest) {
     const targetUser = await prisma.user.findUnique({ where: { ledgerId } });
     if (!targetUser) return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
 
-    let updateData: unknown = {};
+    let updateData: any = {};
     let message = "";
 
     switch (action) {

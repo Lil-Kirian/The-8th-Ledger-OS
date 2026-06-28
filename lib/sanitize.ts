@@ -183,7 +183,7 @@ export function sanitizeBody<T extends Record<string, unknown>>(
 
     const result = sanitizer(String(raw));
     if (result.valid) {
-      (data as unknown)[key] = result.clean;
+      (data as any)[key] = result.clean;
     } else {
       errors[key] = result.error || `Invalid ${key}`;
     }

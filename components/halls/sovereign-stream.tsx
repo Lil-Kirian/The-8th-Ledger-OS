@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ─────────────────────────────────────────────────────────
+//  Types
 
 export type StreamPostType = "proposal" | "report" | "appeal" | "ledger_update";
 
@@ -83,7 +83,7 @@ export interface SovereignStreamProps {
   className?: string;
 }
 
-// ─── Role Config ───────────────────────────────────────────────────────
+//  Role Config
 
 const TYPE_CONFIG: Record<
   StreamPostType,
@@ -140,7 +140,7 @@ const TYPE_CONFIG: Record<
   },
 };
 
-// ─── Helpers ─────────────────────────────────────────────────────────
+//  Helpers
 
 function formatTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -163,7 +163,7 @@ function getVotePercent(yes: number, no: number, abstain: number): { yes: number
   };
 }
 
-// ─── Sub-Components ──────────────────────────────────────────────────
+//  Sub-Components ─
 
 function VoteBar({ yes, no, abstain }: { yes: number; no: number; abstain: number }) {
   const { yes: yesPct, no: noPct } = getVotePercent(yes, no, abstain);
@@ -226,7 +226,7 @@ function StatusBadge({ status }: { status: StreamPost["status"] }) {
   );
 }
 
-// ─── Main Component ──────────────────────────────────────────────────
+//  Main Component ─
 
 export function SovereignStream({
   hallId,
@@ -767,7 +767,7 @@ export function SovereignStream({
   );
 }
 
-// ─── Skeleton ────────────────────────────────────────────────────────
+//  Skeleton ─
 
 export function SovereignStreamSkeleton() {
   return (

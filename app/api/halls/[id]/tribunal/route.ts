@@ -28,7 +28,7 @@ export async function GET(
       );
     }
 
-    const where: unknown = { hallId };
+    const where: any = { hallId };
     if (status !== "all") where.status = status;
 
     const cases = await prisma.hallActivity.findMany({
@@ -236,7 +236,7 @@ export async function POST(
         ? `Report filed. High severity triggered automatic ban vote. Community must reach 51%.`
         : `Report filed. Tribunal will review. No automatic ban triggered for ${severity} severity.`,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[TRIBUNAL POST]", error);
     return NextResponse.json({ success: false, error: error.message || "Tribunal filing failed" }, { status: 500 });
   }
@@ -296,7 +296,7 @@ export async function PATCH(
       });
 
       // Execute primary admin decision
-      let meta: unknown = {};
+      let meta: any = {};
       try { meta = JSON.parse(tribunal.metadata || "{}"); } catch {}
 
       if (action === "enforce_ban" && meta.targetUserId) {
@@ -337,7 +337,7 @@ export async function PATCH(
       tribunal: result,
       message: `Primary Admin override executed: ${action}. ${overrideReason || "No reason provided"}.`,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[TRIBUNAL PATCH]", error);
     return NextResponse.json({ success: false, error: error.message || "Override failed" }, { status: 500 });
   }

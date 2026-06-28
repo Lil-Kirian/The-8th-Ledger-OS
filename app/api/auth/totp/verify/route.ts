@@ -104,7 +104,7 @@ export async function POST(req: Request) {
     });
 
     return response;
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error('[PRIMARY ADMIN TOTP VERIFY]', err);
     return NextResponse.json(
       { error: err.message || 'Verification failed' },

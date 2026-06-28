@@ -131,7 +131,7 @@ export async function GET(
         : undefined,
       myOwnership: isOwner ? hall.ownerships[0].ownershipPercent : 0,
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[IHCP_GET]", err);
     if (err.message === "Unauthorized") {
       return NextResponse.json({ error: "Login required" }, { status: 401 });
@@ -327,7 +327,7 @@ export async function POST(
           : `Proposal created. You voted YES (${userOwnership}%). Need 51% total to activate IHCP. 48 hours remaining.`,
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[IHCP_POST]", err);
     if (err.message === "Unauthorized") {
       return NextResponse.json({ error: "Login required" }, { status: 401 });

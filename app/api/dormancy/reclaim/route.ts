@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
       reclaimedAt: new Date().toISOString(),
       ledgerId: user.ledgerId,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[DORMANCY RECLAIM] POST error:", error);
     return NextResponse.json(
       { success: false, error: "Reclaim failed" },

@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST  /api/halls/[id]/stream/[postId]/reply
 // Adds a threaded reply to a Sovereign Stream post.
 // Only hall owners may reply. Zero cross-hall visibility.
-// ─────────────────────────────────────────────────────────────
+//
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string; postId: string }> }

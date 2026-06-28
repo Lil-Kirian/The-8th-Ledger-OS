@@ -23,9 +23,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES
-// ─────────────────────────────────────────────────────────────
+//
 
 interface SuggestionFormProps {
   onSubmit: (data: {
@@ -37,9 +37,9 @@ interface SuggestionFormProps {
   onClose?: () => void;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // DESIGN SYSTEM — The Petition Config
-// ─────────────────────────────────────────────────────────────
+//
 
 const CONTINENTS = [
   { value: "africa", label: "Africa", emoji: "🌍", desc: "Emerging markets, vast resources" },
@@ -63,9 +63,9 @@ const VERTICALS = [
   { value: "ledgeraccess", label: "LedgerAccess", emoji: "📡", desc: "Infrastructure & towers", color: "from-teal-500/20 to-teal-600/10" },
 ] as const;
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function useCharCount(value: string, max: number) {
   const count = value.length;
@@ -77,9 +77,9 @@ function useCharCount(value: string, max: number) {
   return { count, pct, isValid, isNearLimit, isOverLimit };
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // SUB-COMPONENTS
-// ─────────────────────────────────────────────────────────────
+//
 
 function KycGate({ tier }: { tier?: string }) {
   const isLocked = !tier || tier === "visitor";
@@ -285,9 +285,9 @@ function SuccessState({ onClose }: { onClose?: () => void }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────
+//
 
 export function SuggestionForm({ onSubmit, onClose }: SuggestionFormProps) {
   const { user } = useAuth();
@@ -350,7 +350,7 @@ export function SuggestionForm({ onSubmit, onClose }: SuggestionFormProps) {
           vertical,
         });
         setSuccess(true);
-      } catch (err: unknown) {
+      } catch (err: any) {
         setError(err.message || "Failed to submit petition.");
       } finally {
         setIsSubmitting(false);

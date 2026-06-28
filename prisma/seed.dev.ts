@@ -2483,18 +2483,14 @@ async function main() {
   console.log(
     `   User          : LED-USER-001     | Password: 8thledger2026         | Standard`,
   );
-  console.log(
-    `   ─────────────────────────────────────────────────────────────────────`,
-  );
+  console.log(`   `);
   console.log(
     `   HALL 1 (Class I)  : Sovereign Heights Parliament — LedgerProp Dubai`,
   );
   console.log(`   Pool              : POOL-LEDGERPROP-001`);
   console.log(`   SRI: 87 🥇 GOLD   | AHGI: 72  | PAC Floor: $2,930 per 1%`);
   console.log(`   PIR Shield: $25K  | Inventory: OFF | Forge: OFF | IHCP: $0`);
-  console.log(
-    `   ─────────────────────────────────────────────────────────────────────`,
-  );
+  console.log(`   `);
   console.log(
     `   HALL 2 (Class III): MetroMart Operations Parliament — LedgerBiz Nairobi`,
   );
@@ -2505,9 +2501,7 @@ async function main() {
   console.log(
     `   IHCP: $5,000      | Inventory: ON | Forge: ON | IHCP Repaid: $2,300`,
   );
-  console.log(
-    `   ─────────────────────────────────────────────────────────────────────`,
-  );
+  console.log(`   `);
   console.log(
     `   HALL 3 (Class III): Manchester Lions FC Parliament — LedgerSport UK`,
   );
@@ -2520,9 +2514,7 @@ async function main() {
   console.log(
     `   IHCP: $8,000      | Inventory: ON | Forge: ON | IHCP Repaid: $3,000`,
   );
-  console.log(
-    `   ─────────────────────────────────────────────────────────────────────`,
-  );
+  console.log(`   `);
   console.log(`   Oracle Standing   : 2 records seeded (Seer + Oracle tiers)`);
   console.log(`   Dynamic Valuation : Active on all 3 halls`);
   console.log(

@@ -10,7 +10,7 @@ interface PrismaGlobal {
   prisma: PrismaClient | undefined;
 }
 
-const globalForPrisma = globalThis as unknown as PrismaGlobal;
+const globalForPrisma = globalThis as any as PrismaGlobal;
 
 const prismaOptions = {
   log:

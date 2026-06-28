@@ -37,7 +37,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ─────────────────────────────────────────────────────────
+//  Types
 
 export type VerticalType =
   | "ledgerprop"
@@ -87,7 +87,7 @@ export interface AhgiDisplayProps {
   className?: string;
 }
 
-// ─── Vertical Config ─────────────────────────────────────────────────
+//  Vertical Config
 
 const VERTICAL_CONFIG: Record<
   VerticalType,
@@ -110,7 +110,7 @@ const VERTICAL_CONFIG: Record<
   ledgeraccess: { label: "LedgerAccess", icon: Wifi, color: "text-lime-400", bg: "bg-lime-500/10" },
 };
 
-// ─── Status Config ───────────────────────────────────────────────────
+//  Status Config
 
 const STATUS_CONFIG: Record<
   AhgiStatus,
@@ -200,7 +200,7 @@ const STATUS_CONFIG: Record<
   },
 };
 
-// ─── Helpers ─────────────────────────────────────────────────────────
+//  Helpers
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-US", {
@@ -235,7 +235,7 @@ function getGaugeRotation(score: number): number {
   return -90 + (score / 100) * 180;
 }
 
-// ─── Metric Row ──────────────────────────────────────────────────────
+//  Metric Row ──
 
 function MetricRow({ metric, index }: { metric: AhgiMetric; index: number }) {
   const pct = Math.min(100, Math.max(0, (metric.value / metric.target) * 100));
@@ -293,7 +293,7 @@ function MetricRow({ metric, index }: { metric: AhgiMetric; index: number }) {
   );
 }
 
-// ─── Gauge Component ───────────────────────────────────────────────
+//  Gauge Component ─
 
 function ScoreGauge({ score, label, color }: { score: number; label: string; color: string }) {
   const rotation = getGaugeRotation(score);
@@ -340,7 +340,7 @@ function ScoreGauge({ score, label, color }: { score: number; label: string; col
   );
 }
 
-// ─── Main Component ────────────────────────────────────────────────
+//  Main Component
 
 export function AhgiDisplay({
   data,
@@ -681,7 +681,7 @@ export function AhgiDisplay({
   );
 }
 
-// ─── Skeleton ────────────────────────────────────────────────────────
+//  Skeleton ─
 
 export function AhgiDisplaySkeleton() {
   return (

@@ -44,8 +44,8 @@ export function ContractCardScroll({
   user,
   isPreview,
 }: {
-  receipt: unknown;
-  user: unknown;
+  receipt: any;
+  user: any;
   isPreview?: boolean;
 }) {
   const isOwner = receipt.userId === user.id;

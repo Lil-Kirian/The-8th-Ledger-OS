@@ -6,7 +6,7 @@ import { Prisma } from "@prisma/client";
 /* ============================================================
    HELPERS
    ============================================================ */
-function handleError(error: unknown, label: string): NextResponse {
+function handleError(error: any, label: string): NextResponse {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2025") {
       return NextResponse.json(
@@ -503,7 +503,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         distributed: false,
       };
       if (revenueLogIds && Array.isArray(revenueLogIds) && revenueLogIds.length > 0) {
-        where.id = { in: revenueLogIds.map((id: unknown) => String(id)) };
+        where.id = { in: revenueLogIds.map((id: any) => String(id)) };
       }
 
       const pendingRevenue = await prisma.revenueLog.findMany({ where });

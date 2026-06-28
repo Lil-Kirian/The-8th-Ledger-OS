@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ─────────────────────────────────────────────────────────
+//  Types
 
 export type PirAdvanceStatus =
   | "proposed"
@@ -81,7 +81,7 @@ export interface PirAdvancePanelProps {
   className?: string;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────
+//  Helpers
 
 function toDate(input: Date | string | undefined): Date | undefined {
   if (!input) return undefined;
@@ -118,7 +118,7 @@ function isOverdue(input: Date | string | undefined): boolean {
   return d.getTime() < Date.now();
 }
 
-// ─── Status Config ───────────────────────────────────────────────────
+//  Status Config
 
 const STATUS_CONFIG: Record<
   PirAdvanceStatus,
@@ -182,7 +182,7 @@ const STATUS_CONFIG: Record<
   },
 };
 
-// ─── Main Component ────────────────────────────────────────────────
+//  Main Component
 
 export function PirAdvancePanel({
   data,
@@ -794,7 +794,7 @@ export function PirAdvancePanel({
   );
 }
 
-// ─── Skeleton ────────────────────────────────────────────────────────
+//  Skeleton ─
 
 export function PirAdvancePanelSkeleton() {
   return (

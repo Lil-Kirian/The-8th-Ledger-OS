@@ -18,7 +18,7 @@ interface WorkerRosterProps {
   onProposeFire?: (workerId: string) => void;
 }
 
-export default function WorkerRoster({
+export function WorkerRoster({
   hallId,
   onProposeHire,
   onProposeFire,
@@ -153,3 +153,5 @@ export default function WorkerRoster({
     </div>
   );
 }
+
+export default WorkerRoster;

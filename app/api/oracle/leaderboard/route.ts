@@ -7,9 +7,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS & TYPES
-// ─────────────────────────────────────────────────────────────
+//
 
 type OracleTier = "novice" | "seer" | "oracle" | "prophet";
 
@@ -45,9 +45,9 @@ const TIER_META: Record<
 
 const VALID_TIERS: OracleTier[] = ["novice", "seer", "oracle", "prophet"];
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function isValidTier(tier: string): tier is OracleTier {
   return VALID_TIERS.includes(tier as OracleTier);
@@ -58,10 +58,10 @@ function calculateAccuracy(correct: number, total: number): number {
   return Math.round((correct / total) * 1000) / 10;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/oracle/leaderboard
 // Public. Cached 120s. Tier filter. Pagination. Optional auth.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(req: NextRequest) {
   try {

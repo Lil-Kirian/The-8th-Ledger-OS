@@ -209,7 +209,7 @@ export async function POST(
           : `Proposal created. You voted YES (${userOwnership}% weight). Need 51% of active ownership to ${enable ? "enable" : "disable"} inventory. 48 hours remaining.`,
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[INVENTORY_TOGGLE_POST]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
 

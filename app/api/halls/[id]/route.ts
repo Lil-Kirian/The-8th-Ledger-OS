@@ -251,7 +251,7 @@ export async function GET(
       }),
     ]);
 
-    let assetTracker: unknown = null;
+    let assetTracker: any = null;
     const pool = hall.pool;
 
     if (pool) {
@@ -360,7 +360,7 @@ export async function GET(
       if (latestDormancy.stage === "auction_36mo") dormancyStatus.accountAuction = true;
     }
 
-    const response: unknown = {
+    const response: any = {
       success: true,
       hall: {
         id: hall.id,
@@ -431,13 +431,13 @@ export async function GET(
             calculatedAt: hall.dynamicValuations[0].calculatedAt,
           }
         : null,
-      pirAllocations: hall.pirAllocations.map((p: unknown) => ({
+      pirAllocations: hall.pirAllocations.map((p: any) => ({
         pillar: p.pillar,
         amount: p.amount,
         purpose: p.purpose,
         spent: p.spent,
       })),
-      eighthLedgerUpdates: hall.eighthLedgerUpdates.map((u: unknown) => ({
+      eighthLedgerUpdates: hall.eighthLedgerUpdates.map((u: any) => ({
         type: u.type,
         title: u.title,
         content: u.content,

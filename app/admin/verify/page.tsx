@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Shield, Lock, KeyRound, ArrowRight, Loader2, AlertTriangle,
@@ -16,7 +16,7 @@ type Status = {
   lockMinutes: number;
 };
 
-export default function AdminVerifyPage() {
+function AdminVerifyPageContent() {
   const [step, setStep] = useState<Step>("checking");
   const [status, setStatus] = useState<Status | null>(null);
   const [totpCode, setTotpCode] = useState("");
@@ -58,7 +58,7 @@ export default function AdminVerifyPage() {
       if (!s.totpEnabled) { setStep("setup-totp"); return; }
       if (!s.pinSet) { setStep("setup-pin"); return; }
       setStep("totp");
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError("Failed to check admin status. " + err.message);
       setStep("totp");
     }
@@ -83,7 +83,7 @@ export default function AdminVerifyPage() {
       setSetupTotpUrl(data.otpauthUrl || "");
       setDevCode(data.devCode || ""); // ← CAPTURE CODE
       setStep("setup-totp-verify");
-    } catch (err: unknown) { setError(err.message); }
+    } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
   }
 
@@ -100,7 +100,7 @@ export default function AdminVerifyPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setTotpCode(""); setStep("setup-pin");
-    } catch (err: unknown) { setError(err.message); }
+    } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
   }
 
@@ -119,7 +119,7 @@ export default function AdminVerifyPage() {
       if (!res.ok) throw new Error(data.error);
       setStep("complete");
       setTimeout(() => { window.location.href = redirect; }, 2000);
-    } catch (err: unknown) { setError(err.message); }
+    } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
   }
 
@@ -136,7 +136,7 @@ export default function AdminVerifyPage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       setTotpCode(""); setStep("pin");
-    } catch (err: unknown) { setError(err.message); }
+    } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
   }
 
@@ -157,7 +157,7 @@ export default function AdminVerifyPage() {
       }
       setLocked(false); setPin(""); setStep("complete");
       setTimeout(() => { window.location.href = redirect; }, 2000);
-    } catch (err: unknown) { setError(err.message); }
+    } catch (err: any) { setError(err.message); }
     finally { setLoading(false); }
   }
 
@@ -406,5 +406,13 @@ export default function AdminVerifyPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function AdminVerifyPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <AdminVerifyPageContent />
+    </Suspense>
   );
 }

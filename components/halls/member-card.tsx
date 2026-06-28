@@ -26,7 +26,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-// ─── Types ───
+//  Types
 export type KycTier = "visitor" | "sovereign" | "verified" | "whale";
 export type CabinetRole = "speaker" | "treasurer" | "warden" | "scribe";
 
@@ -61,7 +61,7 @@ export interface MemberCardProps {
   className?: string;
 }
 
-// ─── Config ───
+//  Config
 const KYC_CONFIG: Record<KycTier, { label: string; color: string; bg: string; icon: React.ElementType }> = {
   visitor:  { label: "V",  color: "text-slate-400",    bg: "bg-slate-500/10",    icon: EyeOff },
   sovereign:{ label: "S",  color: "text-cyan-400",     bg: "bg-cyan-500/10",     icon: Shield },
@@ -76,7 +76,7 @@ const CABINET_CONFIG: Record<CabinetRole, { label: string; color: string; bg: st
   scribe:    { label: "Scribe",    color: "text-sky-400",     bg: "bg-sky-500/10",     icon: FileText,      short: "SCR" },
 };
 
-// ─── Helpers ───
+//  Helpers
 function daysSince(iso?: string) {
   if (!iso) return null;
   const diff = Date.now() - new Date(iso).getTime();
@@ -88,7 +88,7 @@ function quorumPercent(votes?: number, eligible?: number) {
   return Math.round((votes / eligible) * 100);
 }
 
-// ─── Component ───
+//  Component
 export function MemberCard({
   member,
   isCurrentUser = false,
@@ -105,7 +105,7 @@ export function MemberCard({
   const daysInactive = daysSince(member.lastActiveAt);
   const quorum = quorumPercent(member.votesCast, member.votesEligible);
 
-  // ─── Ultra Compact Mode (sidebar, dropdowns) ───
+  //  Ultra Compact Mode (sidebar, dropdowns)
   if (compact) {
     return (
       <TooltipProvider delayDuration={150}>
@@ -116,8 +116,8 @@ export function MemberCard({
                 isCurrentUser
                   ? "bg-cyan-500/5 border border-cyan-500/20"
                   : member.isDormant
-                  ? "bg-red-500/5 border border-red-500/10 hover:bg-red-500/10"
-                  : "hover:bg-slate-800/50"
+                    ? "bg-red-500/5 border border-red-500/10 hover:bg-red-500/10"
+                    : "hover:bg-slate-800/50"
               } ${className}`}
             >
               {/* Avatar */}
@@ -127,12 +127,18 @@ export function MemberCard({
                     member.isPrimaryAdmin
                       ? "bg-amber-500/10 text-amber-400 border border-amber-500/30"
                       : member.cabinetRole
-                      ? CABINET_CONFIG[member.cabinetRole].bg + " " + CABINET_CONFIG[member.cabinetRole].color
-                      : "bg-slate-800 text-slate-400"
+                        ? CABINET_CONFIG[member.cabinetRole].bg +
+                          " " +
+                          CABINET_CONFIG[member.cabinetRole].color
+                        : "bg-slate-800 text-slate-400"
                   }`}
                 >
                   {member.avatar ? (
-                    <img src={member.avatar} alt="" className="w-full h-full rounded-full object-cover" />
+                    <img
+                      src={member.avatar}
+                      alt=""
+                      className="w-full h-full rounded-full object-cover"
+                    />
                   ) : (
                     member.displayName?.[0] || member.ledgerId.slice(-2)
                   )}
@@ -141,7 +147,11 @@ export function MemberCard({
                   <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center">
                     {(() => {
                       const CIcon = CABINET_CONFIG[member.cabinetRole].icon;
-                      return <CIcon className={`w-2 h-2 ${CABINET_CONFIG[member.cabinetRole].color}`} />;
+                      return (
+                        <CIcon
+                          className={`w-2 h-2 ${CABINET_CONFIG[member.cabinetRole].color}`}
+                        />
+                      );
                     })()}
                   </div>
                 )}
@@ -154,12 +164,20 @@ export function MemberCard({
                     {member.displayName || member.ledgerId}
                   </span>
                   {isCurrentUser && (
-                    <span className="text-[9px] text-cyan-400 font-medium">You</span>
+                    <span className="text-[9px] text-cyan-400 font-medium">
+                      You
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-[10px] font-mono text-slate-500">{member.ledgerId}</span>
-                  <span className={`text-[9px] px-1 rounded ${kyc.bg} ${kyc.color}`}>{kyc.label}</span>
+                  <span className="text-[10px] font-mono text-slate-500">
+                    {member.ledgerId}
+                  </span>
+                  <span
+                    className={`text-[9px] px-1 rounded ${kyc.bg} ${kyc.color}`}
+                  >
+                    {kyc.label}
+                  </span>
                   {member.isDormant && (
                     <span className="text-[9px] text-red-400">· Dormant</span>
                   )}
@@ -185,7 +203,7 @@ export function MemberCard({
     );
   }
 
-  // ─── Standard Card Mode ───
+  //  Standard Card Mode
   return (
     <motion.div
       initial={{ opacity: 0, y: 4 }}
@@ -195,8 +213,8 @@ export function MemberCard({
         isCurrentUser
           ? "border-cyan-500/30 bg-cyan-950/10"
           : member.isDormant
-          ? "border-red-500/20 bg-red-950/5"
-          : "border-slate-800 bg-slate-950/50 hover:border-slate-700"
+            ? "border-red-500/20 bg-red-950/5"
+            : "border-slate-800 bg-slate-950/50 hover:border-slate-700"
       } transition-colors ${className}`}
     >
       <div className="p-4">
@@ -209,12 +227,18 @@ export function MemberCard({
                 member.isPrimaryAdmin
                   ? "bg-amber-500/10 text-amber-400 border border-amber-500/30"
                   : member.cabinetRole
-                  ? CABINET_CONFIG[member.cabinetRole].bg + " " + CABINET_CONFIG[member.cabinetRole].color
-                  : "bg-slate-800 text-slate-400"
+                    ? CABINET_CONFIG[member.cabinetRole].bg +
+                      " " +
+                      CABINET_CONFIG[member.cabinetRole].color
+                    : "bg-slate-800 text-slate-400"
               }`}
             >
               {member.avatar ? (
-                <img src={member.avatar} alt="" className="w-full h-full rounded-xl object-cover" />
+                <img
+                  src={member.avatar}
+                  alt=""
+                  className="w-full h-full rounded-xl object-cover"
+                />
               ) : (
                 member.displayName?.[0] || member.ledgerId.slice(-2)
               )}
@@ -223,7 +247,11 @@ export function MemberCard({
               <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center">
                 {(() => {
                   const CIcon = CABINET_CONFIG[member.cabinetRole].icon;
-                  return <CIcon className={`w-3 h-3 ${CABINET_CONFIG[member.cabinetRole].color}`} />;
+                  return (
+                    <CIcon
+                      className={`w-3 h-3 ${CABINET_CONFIG[member.cabinetRole].color}`}
+                    />
+                  );
                 })()}
               </div>
             )}
@@ -236,7 +264,9 @@ export function MemberCard({
                 {member.displayName || member.ledgerId}
               </span>
               {isCurrentUser && (
-                <Badge className="text-[10px] bg-cyan-500/10 text-cyan-400 border-0 px-1.5">You</Badge>
+                <Badge className="text-[10px] bg-cyan-500/10 text-cyan-400 border-0 px-1.5">
+                  You
+                </Badge>
               )}
               {member.isPrimaryAdmin && (
                 <Badge className="text-[10px] bg-amber-500/10 text-amber-400 border-0 px-1.5">
@@ -246,13 +276,19 @@ export function MemberCard({
               )}
             </div>
             <div className="flex items-center gap-2 mt-1 flex-wrap">
-              <span className="text-xs font-mono text-slate-500">{member.ledgerId}</span>
-              <Badge className={`text-[10px] ${kyc.bg} ${kyc.color} border-0 px-1.5 py-0`}>
+              <span className="text-xs font-mono text-slate-500">
+                {member.ledgerId}
+              </span>
+              <Badge
+                className={`text-[10px] ${kyc.bg} ${kyc.color} border-0 px-1.5 py-0`}
+              >
                 <KIcon className="w-2.5 h-2.5 mr-1" />
                 {member.kycTier}
               </Badge>
               {member.cabinetRole && (
-                <Badge className={`text-[10px] ${CABINET_CONFIG[member.cabinetRole].bg} ${CABINET_CONFIG[member.cabinetRole].color} border-0 px-1.5 py-0`}>
+                <Badge
+                  className={`text-[10px] ${CABINET_CONFIG[member.cabinetRole].bg} ${CABINET_CONFIG[member.cabinetRole].color} border-0 px-1.5 py-0`}
+                >
                   {CABINET_CONFIG[member.cabinetRole].label}
                 </Badge>
               )}
@@ -291,13 +327,28 @@ export function MemberCard({
           <StatItem
             icon={Activity}
             label="Active"
-            value={daysInactive === null ? "—" : daysInactive === 0 ? "Today" : `${daysInactive}d`}
-            color={daysInactive === null ? "slate" : daysInactive > 90 ? "red" : daysInactive > 30 ? "amber" : "emerald"}
+            value={
+              daysInactive === null
+                ? "—"
+                : daysInactive === 0
+                  ? "Today"
+                  : `${daysInactive}d`
+            }
+            color={
+              daysInactive === null
+                ? "slate"
+                : daysInactive > 90
+                  ? "red"
+                  : daysInactive > 30
+                    ? "amber"
+                    : "emerald"
+            }
           />
         </div>
 
         {/* Dividends + SRI (if available) */}
-        {(member.accumulatedDividends != null || member.sriContribution != null) && (
+        {(member.accumulatedDividends != null ||
+          member.sriContribution != null) && (
           <div className="grid grid-cols-2 gap-3 mt-3">
             {member.accumulatedDividends != null && (
               <div className="flex items-center gap-2 p-2 rounded-lg bg-emerald-500/5 border border-emerald-500/10">
@@ -314,7 +365,9 @@ export function MemberCard({
               <div className="flex items-center gap-2 p-2 rounded-lg bg-violet-500/5 border border-violet-500/10">
                 <Shield className="w-3.5 h-3.5 text-violet-400" />
                 <div>
-                  <div className="text-[10px] text-slate-500">SRI Contribution</div>
+                  <div className="text-[10px] text-slate-500">
+                    SRI Contribution
+                  </div>
                   <div className="text-xs font-mono font-semibold text-violet-400">
                     {member.sriContribution}/100
                   </div>
@@ -329,9 +382,12 @@ export function MemberCard({
           <div className="mt-3 flex items-start gap-2 p-2.5 rounded-lg bg-red-500/5 border border-red-500/10">
             <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" />
             <div className="text-xs text-red-400">
-              Account flagged dormant. Voting rights suspended. Dividends still accrue.
+              Account flagged dormant. Voting rights suspended. Dividends still
+              accrue.
               {daysInactive != null && (
-                <span className="block mt-0.5 text-red-400/70">Inactive for {daysInactive} days.</span>
+                <span className="block mt-0.5 text-red-400/70">
+                  Inactive for {daysInactive} days.
+                </span>
               )}
             </div>
           </div>
@@ -391,7 +447,7 @@ export function MemberCard({
   );
 }
 
-// ─── Stat Item ───
+//  Stat Item
 function StatItem({
   icon: Icon,
   label,
@@ -423,7 +479,7 @@ function StatItem({
   );
 }
 
-// ─── Compact Tooltip Content ───
+//  Compact Tooltip Content
 function CompactTooltip({ member }: { member: MemberCardData }) {
   const kyc = KYC_CONFIG[member.kycTier];
   const quorum = quorumPercent(member.votesCast, member.votesEligible);

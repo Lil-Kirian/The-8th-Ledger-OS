@@ -3,17 +3,17 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES & CONSTANTS
-// ─────────────────────────────────────────────────────────────
+//
 
 type VoteDirection = "up" | "down";
 
 const VALID_DIRECTIONS: VoteDirection[] = ["up", "down"];
 
-// ─────────────────────────────────────────────────────────────
+//
 // AUDIT LOGGING
-// ─────────────────────────────────────────────────────────────
+//
 
 async function logAudit(props: {
   eventType: string;
@@ -38,11 +38,11 @@ async function logAudit(props: {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST /api/agora/suggestions/[id]/vote
 // Toggle vote with atomic counter recalculation.
 // Rules: 1 vote per user per suggestion. Self-voting blocked.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function POST(
   req: NextRequest,
@@ -56,7 +56,7 @@ export async function POST(
     if (!suggestionId || suggestionId.length < 10) {
       return NextResponse.json(
         { error: "Invalid suggestion ID", code: "VALIDATION_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -66,8 +66,11 @@ export async function POST(
 
     if (!direction || !VALID_DIRECTIONS.includes(direction as VoteDirection)) {
       return NextResponse.json(
-        { error: "Direction must be 'up' or 'down'", code: "VALIDATION_DIRECTION" },
-        { status: 400 }
+        {
+          error: "Direction must be 'up' or 'down'",
+          code: "VALIDATION_DIRECTION",
+        },
+        { status: 400 },
       );
     }
 
@@ -86,7 +89,7 @@ export async function POST(
     if (!suggestion) {
       return NextResponse.json(
         { error: "Suggestion not found", code: "NOT_FOUND" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -94,7 +97,7 @@ export async function POST(
     if (suggestion.userId === user.id) {
       return NextResponse.json(
         { error: "You cannot vote on your own suggestion", code: "SELF_VOTE" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -166,26 +169,26 @@ export async function POST(
             },
           })
         : voteResult.action === "removed"
-        ? prisma.agoraSuggestionVote.delete({
-            where: {
-              suggestionId_userId: {
-                suggestionId,
-                userId: user.id,
+          ? prisma.agoraSuggestionVote.delete({
+              where: {
+                suggestionId_userId: {
+                  suggestionId,
+                  userId: user.id,
+                },
               },
-            },
-          })
-        : prisma.agoraSuggestionVote.update({
-            where: {
-              suggestionId_userId: {
-                suggestionId,
-                userId: user.id,
+            })
+          : prisma.agoraSuggestionVote.update({
+              where: {
+                suggestionId_userId: {
+                  suggestionId,
+                  userId: user.id,
+                },
               },
-            },
-            data: {
-              direction: direction as VoteDirection,
-              updatedAt: new Date(),
-            },
-          }),
+              data: {
+                direction: direction as VoteDirection,
+                updatedAt: new Date(),
+              },
+            }),
 
       // Audit trail
       prisma.auditLog.create({
@@ -220,27 +223,33 @@ export async function POST(
         score: updatedSuggestion.upvotes - updatedSuggestion.downvotes,
       },
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[AGORA_SUGGESTION_VOTE]", error);
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
         { error: "Authentication required", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     // Prisma unique-constraint violation (race condition on duplicate vote)
     if (error.code === "P2002") {
       return NextResponse.json(
-        { error: "Vote already recorded. Refresh and try again.", code: "CONFLICT" },
-        { status: 409 }
+        {
+          error: "Vote already recorded. Refresh and try again.",
+          code: "CONFLICT",
+        },
+        { status: 409 },
       );
     }
 
     return NextResponse.json(
       { error: "Failed to record vote", code: "AGORA_VOTE_001" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

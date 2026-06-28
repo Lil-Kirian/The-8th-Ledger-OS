@@ -9,7 +9,7 @@ import { createHash } from "crypto";
    Immutable hash-chain verification, export, and integrity checks
    ============================================================ */
 
-function handlePrismaError(error: unknown): NextResponse {
+function handlePrismaError(error: any): NextResponse {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2025") {
       return NextResponse.json(
@@ -197,7 +197,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const ids = entryIds.filter((id: unknown): id is string => typeof id === "string" && id.length > 0);
+    const ids = entryIds.filter((id: any): id is string => typeof id === "string" && id.length > 0);
 
     const entries = await prisma.auditEntry.findMany({
       where: { id: { in: ids } },

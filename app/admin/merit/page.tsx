@@ -98,7 +98,7 @@ export default function QuantumMeritPage() {
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
       setMeritData(data);
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err.message);
     } finally {
       setLoading(false);
@@ -122,7 +122,7 @@ export default function QuantumMeritPage() {
       setConfirmOpen(false);
       setConfirmText("");
       previewMerit();
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err.message);
     } finally {
       setExecuting(false);
@@ -265,7 +265,7 @@ export default function QuantumMeritPage() {
             ].map((tab) => (
               <button
                 key={tab.id}
-                onClick={() => setActiveTab(tab.id as unknown)}
+                onClick={() => setActiveTab(tab.id as any)}
                 className={`px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition-all ${
                   activeTab === tab.id
                     ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30"

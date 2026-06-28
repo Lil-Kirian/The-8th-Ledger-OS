@@ -32,7 +32,7 @@ import {
   TooltipProvider,
 } from "@/components/ui/tooltip";
 
-// ─── Types ───
+//  Types
 export type RiskLevel = "low" | "moderate" | "high" | "extreme";
 export type DeploymentStatus = "pending" | "voting" | "deployed" | "suspended" | "completed" | "cancelled";
 
@@ -92,7 +92,7 @@ export interface HumanitarianToggleProps {
   onExport?: () => void;
 }
 
-// ─── Config ───
+//  Config
 const RISK_CONFIG: Record<RiskLevel, { label: string; color: string; bg: string; border: string; icon: React.ElementType; description: string }> = {
   low: {
     label: "Low Risk",
@@ -137,7 +137,7 @@ const STATUS_CONFIG: Record<DeploymentStatus, { label: string; color: string; bg
   cancelled: { label: "Cancelled",  color: "text-red-400",      bg: "bg-red-500/10",     icon: Ban },
 };
 
-// ─── Helpers ───
+//  Helpers
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 }
@@ -151,7 +151,7 @@ function votePercent(yes: number, total: number) {
   return Math.round((yes / total) * 100);
 }
 
-// ─── Component ───
+//  Component
 export function HumanitarianToggle({
   hallId,
   hallName,
@@ -206,33 +206,44 @@ export function HumanitarianToggle({
   return (
     <TooltipProvider delayDuration={200}>
       <div className="space-y-5">
-        {/* ─── Header ─── */}
+        {/*  Header  */}
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
           <div className="flex items-start gap-4">
             <div className="w-14 h-14 rounded-2xl bg-rose-500/10 flex items-center justify-center shrink-0">
               <HeartPulse className="w-7 h-7 text-rose-400" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-slate-100">Humanitarian Deployment</h2>
+              <h2 className="text-xl font-semibold text-slate-100">
+                Humanitarian Deployment
+              </h2>
               <p className="text-sm text-slate-500 mt-0.5">
                 LedgerHealth · {hallName} · Managed by 8th Ledger
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" onClick={onExport} className="text-xs border-slate-700 text-slate-400 hover:text-slate-200">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onExport}
+              className="text-xs border-slate-700 text-slate-400 hover:text-slate-200"
+            >
               <Download className="w-3.5 h-3.5 mr-1.5" />
               Export
             </Button>
           </div>
         </div>
 
-        {/* ─── Main Toggle Card ─── */}
-        <Card className={`border overflow-hidden ${isEnabled ? "border-rose-500/20 bg-rose-950/5" : "border-slate-800 bg-slate-950/50"}`}>
+        {/*  Main Toggle Card  */}
+        <Card
+          className={`border overflow-hidden ${isEnabled ? "border-rose-500/20 bg-rose-950/5" : "border-slate-800 bg-slate-950/50"}`}
+        >
           <CardContent className="p-5">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="flex items-center gap-4">
-                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${isEnabled ? "bg-rose-500/10" : "bg-slate-800"}`}>
+                <div
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center ${isEnabled ? "bg-rose-500/10" : "bg-slate-800"}`}
+                >
                   {isEnabled ? (
                     <HeartPulse className="w-6 h-6 text-rose-400" />
                   ) : (
@@ -258,12 +269,16 @@ export function HumanitarianToggle({
                 {isEnabled ? (
                   <>
                     <ToggleRight className="w-6 h-6 text-rose-400" />
-                    <span className="text-sm font-medium text-rose-400">On</span>
+                    <span className="text-sm font-medium text-rose-400">
+                      On
+                    </span>
                   </>
                 ) : (
                   <>
                     <ToggleLeft className="w-6 h-6 text-slate-500" />
-                    <span className="text-sm font-medium text-slate-500">Off</span>
+                    <span className="text-sm font-medium text-slate-500">
+                      Off
+                    </span>
                   </>
                 )}
               </button>
@@ -281,12 +296,18 @@ export function HumanitarianToggle({
                 >
                   <div className="mt-4 pt-4 border-t border-slate-800/50">
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-lg ${risk.bg} flex items-center justify-center`}>
+                      <div
+                        className={`w-10 h-10 rounded-lg ${risk.bg} flex items-center justify-center`}
+                      >
                         <RiskIcon className={`w-5 h-5 ${risk.color}`} />
                       </div>
                       <div>
-                        <div className={`text-sm font-semibold ${risk.color}`}>{risk.label}</div>
-                        <p className="text-xs text-slate-500">{risk.description}</p>
+                        <div className={`text-sm font-semibold ${risk.color}`}>
+                          {risk.label}
+                        </div>
+                        <p className="text-xs text-slate-500">
+                          {risk.description}
+                        </p>
                       </div>
                     </div>
                   </div>
@@ -296,19 +317,21 @@ export function HumanitarianToggle({
           </CardContent>
         </Card>
 
-        {/* ─── Insurance Coverage ─── */}
+        {/*  Insurance Coverage  */}
         <Card className="border-slate-800 bg-slate-950/50">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
               <Shield className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-sm font-semibold text-slate-200">Insurance Coverage</h3>
+              <h3 className="text-sm font-semibold text-slate-200">
+                Insurance Coverage
+              </h3>
               <Badge
                 className={`text-[10px] border-0 ml-auto ${
                   insuranceCoverage.status === "active"
                     ? "bg-emerald-500/10 text-emerald-400"
                     : insuranceCoverage.status === "pending"
-                    ? "bg-amber-500/10 text-amber-400"
-                    : "bg-red-500/10 text-red-400"
+                      ? "bg-amber-500/10 text-amber-400"
+                      : "bg-red-500/10 text-red-400"
                 }`}
               >
                 {insuranceCoverage.status}
@@ -318,89 +341,133 @@ export function HumanitarianToggle({
           <CardContent>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
-                <div className="text-[10px] text-slate-500 uppercase tracking-wider">Policy ID</div>
-                <div className="text-xs font-mono text-slate-300 mt-1">{insuranceCoverage.policyId}</div>
+                <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                  Policy ID
+                </div>
+                <div className="text-xs font-mono text-slate-300 mt-1">
+                  {insuranceCoverage.policyId}
+                </div>
               </div>
               <div>
-                <div className="text-[10px] text-slate-500 uppercase tracking-wider">Provider</div>
-                <div className="text-xs font-medium text-slate-300 mt-1">{insuranceCoverage.provider}</div>
+                <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                  Provider
+                </div>
+                <div className="text-xs font-medium text-slate-300 mt-1">
+                  {insuranceCoverage.provider}
+                </div>
               </div>
               <div>
-                <div className="text-[10px] text-slate-500 uppercase tracking-wider">Coverage</div>
-                <div className="text-xs font-mono text-emerald-400 mt-1">{formatCurrency(insuranceCoverage.coverageAmount)}</div>
+                <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                  Coverage
+                </div>
+                <div className="text-xs font-mono text-emerald-400 mt-1">
+                  {formatCurrency(insuranceCoverage.coverageAmount)}
+                </div>
               </div>
               <div>
-                <div className="text-[10px] text-slate-500 uppercase tracking-wider">Expires</div>
-                <div className="text-xs text-slate-300 mt-1">{formatDate(insuranceCoverage.expiresAt)}</div>
+                <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                  Expires
+                </div>
+                <div className="text-xs text-slate-300 mt-1">
+                  {formatDate(insuranceCoverage.expiresAt)}
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* ─── Active Deployment ─── */}
+        {/*  Active Deployment  */}
         {isEnabled && activeDeployment && (
-          <Card className={`border overflow-hidden ${
-            activeDeployment.status === "deployed"
-              ? "border-emerald-500/20 bg-emerald-950/5"
-              : activeDeployment.status === "voting"
-              ? "border-cyan-500/20 bg-cyan-950/5"
-              : "border-slate-800 bg-slate-950/50"
-          }`}>
+          <Card
+            className={`border overflow-hidden ${
+              activeDeployment.status === "deployed"
+                ? "border-emerald-500/20 bg-emerald-950/5"
+                : activeDeployment.status === "voting"
+                  ? "border-cyan-500/20 bg-cyan-950/5"
+                  : "border-slate-800 bg-slate-950/50"
+            }`}
+          >
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Ambulance className="w-4 h-4 text-rose-400" />
-                  <h3 className="text-sm font-semibold text-slate-200">Active Deployment</h3>
+                  <h3 className="text-sm font-semibold text-slate-200">
+                    Active Deployment
+                  </h3>
                   {(() => {
                     const s = STATUS_CONFIG[activeDeployment.status];
                     const SIcon = s.icon;
                     return (
-                      <Badge className={`text-[10px] ${s.bg} ${s.color} border-0`}>
+                      <Badge
+                        className={`text-[10px] ${s.bg} ${s.color} border-0`}
+                      >
                         <SIcon className="w-2.5 h-2.5 mr-1" />
                         {s.label}
                       </Badge>
                     );
                   })()}
                 </div>
-                <span className="text-[10px] text-slate-500 font-mono">ID: {activeDeployment.id}</span>
+                <span className="text-[10px] text-slate-500 font-mono">
+                  ID: {activeDeployment.id}
+                </span>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Deployment Info */}
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div>
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">Region</div>
-                  <div className="text-sm font-medium text-slate-200 mt-1">{activeDeployment.region}</div>
-                  <div className="text-xs text-slate-500">{activeDeployment.country}</div>
+                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                    Region
+                  </div>
+                  <div className="text-sm font-medium text-slate-200 mt-1">
+                    {activeDeployment.region}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {activeDeployment.country}
+                  </div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">NGO Partner</div>
-                  <div className="text-sm font-medium text-slate-200 mt-1">{activeDeployment.ngoPartnerName || "—"}</div>
-                  <div className="text-xs text-slate-500">{activeDeployment.staffDeployed || 0} staff deployed</div>
+                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                    NGO Partner
+                  </div>
+                  <div className="text-sm font-medium text-slate-200 mt-1">
+                    {activeDeployment.ngoPartnerName || "—"}
+                  </div>
+                  <div className="text-xs text-slate-500">
+                    {activeDeployment.staffDeployed || 0} staff deployed
+                  </div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">Patients Served</div>
+                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                    Patients Served
+                  </div>
                   <div className="text-sm font-mono font-bold text-emerald-400 mt-1">
                     {activeDeployment.patientsServed?.toLocaleString() || "—"}
                   </div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">Budget</div>
+                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                    Budget
+                  </div>
                   <div className="text-sm font-mono text-slate-200 mt-1">
-                    {activeDeployment.budgetUsed != null && activeDeployment.budgetAllocated != null
+                    {activeDeployment.budgetUsed != null &&
+                    activeDeployment.budgetAllocated != null
                       ? `${formatCurrency(activeDeployment.budgetUsed)} / ${formatCurrency(activeDeployment.budgetAllocated)}`
                       : "—"}
                   </div>
-                  {activeDeployment.budgetAllocated && activeDeployment.budgetUsed != null && (
-                    <div className="mt-1">
-                      <div className="h-1 w-full rounded-full bg-slate-800 overflow-hidden">
-                        <div
-                          className="h-full rounded-full bg-amber-400"
-                          style={{ width: `${Math.min((activeDeployment.budgetUsed / activeDeployment.budgetAllocated) * 100, 100)}%` }}
-                        />
+                  {activeDeployment.budgetAllocated &&
+                    activeDeployment.budgetUsed != null && (
+                      <div className="mt-1">
+                        <div className="h-1 w-full rounded-full bg-slate-800 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-amber-400"
+                            style={{
+                              width: `${Math.min((activeDeployment.budgetUsed / activeDeployment.budgetAllocated) * 100, 100)}%`,
+                            }}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               </div>
 
@@ -408,27 +475,43 @@ export function HumanitarianToggle({
               {activeDeployment.status === "voting" && (
                 <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800">
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-medium text-slate-300">Deployment Vote</span>
+                    <span className="text-xs font-medium text-slate-300">
+                      Deployment Vote
+                    </span>
                     <span className="text-xs font-mono text-slate-500">
-                      {votePercent(activeDeployment.yesVotes, activeDeployment.totalVotingPower)}% yes
+                      {votePercent(
+                        activeDeployment.yesVotes,
+                        activeDeployment.totalVotingPower,
+                      )}
+                      % yes
                     </span>
                   </div>
                   <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
                     <div className="flex h-full">
                       <div
                         className="h-full bg-emerald-400"
-                        style={{ width: `${activeDeployment.totalVotingPower > 0 ? (activeDeployment.yesVotes / activeDeployment.totalVotingPower) * 100 : 0}%` }}
+                        style={{
+                          width: `${activeDeployment.totalVotingPower > 0 ? (activeDeployment.yesVotes / activeDeployment.totalVotingPower) * 100 : 0}%`,
+                        }}
                       />
                       <div
                         className="h-full bg-red-400"
-                        style={{ width: `${activeDeployment.totalVotingPower > 0 ? (activeDeployment.noVotes / activeDeployment.totalVotingPower) * 100 : 0}%` }}
+                        style={{
+                          width: `${activeDeployment.totalVotingPower > 0 ? (activeDeployment.noVotes / activeDeployment.totalVotingPower) * 100 : 0}%`,
+                        }}
                       />
                     </div>
                   </div>
                   <div className="flex justify-between text-[10px] text-slate-500 mt-1">
-                    <span className="text-emerald-400">{activeDeployment.yesVotes.toFixed(1)}% yes</span>
-                    <span className="text-red-400">{activeDeployment.noVotes.toFixed(1)}% no</span>
-                    <span>{activeDeployment.totalVotingPower.toFixed(1)}% total cast</span>
+                    <span className="text-emerald-400">
+                      {activeDeployment.yesVotes.toFixed(1)}% yes
+                    </span>
+                    <span className="text-red-400">
+                      {activeDeployment.noVotes.toFixed(1)}% no
+                    </span>
+                    <span>
+                      {activeDeployment.totalVotingPower.toFixed(1)}% total cast
+                    </span>
                   </div>
                   <div className="flex gap-2 mt-3">
                     <Button
@@ -453,8 +536,12 @@ export function HumanitarianToggle({
 
               {/* Justification */}
               <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800">
-                <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Justification</div>
-                <p className="text-xs text-slate-300 leading-relaxed">{activeDeployment.justification}</p>
+                <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">
+                  Justification
+                </div>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  {activeDeployment.justification}
+                </p>
               </div>
 
               {/* Insurance */}
@@ -464,22 +551,24 @@ export function HumanitarianToggle({
                     activeDeployment.insuranceStatus === "active"
                       ? "bg-emerald-500/10 text-emerald-400"
                       : activeDeployment.insuranceStatus === "claimed"
-                      ? "bg-amber-500/10 text-amber-400"
-                      : "bg-red-500/10 text-red-400"
+                        ? "bg-amber-500/10 text-amber-400"
+                        : "bg-red-500/10 text-red-400"
                   }`}
                 >
                   <Shield className="w-2.5 h-2.5 mr-1" />
                   Insurance: {activeDeployment.insuranceStatus}
                 </Badge>
                 {activeDeployment.insurancePolicyId && (
-                  <span className="text-[10px] font-mono text-slate-500">Policy: {activeDeployment.insurancePolicyId}</span>
+                  <span className="text-[10px] font-mono text-slate-500">
+                    Policy: {activeDeployment.insurancePolicyId}
+                  </span>
                 )}
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* ─── Propose New Deployment ─── */}
+        {/*  Propose New Deployment  */}
         {isEnabled && !activeDeployment && (
           <div>
             {!showProposalForm ? (
@@ -494,7 +583,9 @@ export function HumanitarianToggle({
               <Card className="border-rose-500/20 bg-rose-950/5">
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-sm font-semibold text-rose-400">New Deployment Proposal</h3>
+                    <h3 className="text-sm font-semibold text-rose-400">
+                      New Deployment Proposal
+                    </h3>
                     <button
                       onClick={() => setShowProposalForm(false)}
                       className="text-slate-500 hover:text-slate-300"
@@ -506,7 +597,9 @@ export function HumanitarianToggle({
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-slate-500 mb-1.5 block">Region</label>
+                      <label className="text-xs text-slate-500 mb-1.5 block">
+                        Region
+                      </label>
                       <Input
                         value={formRegion}
                         onChange={(e) => setFormRegion(e.target.value)}
@@ -515,7 +608,9 @@ export function HumanitarianToggle({
                       />
                     </div>
                     <div>
-                      <label className="text-xs text-slate-500 mb-1.5 block">Country</label>
+                      <label className="text-xs text-slate-500 mb-1.5 block">
+                        Country
+                      </label>
                       <Input
                         value={formCountry}
                         onChange={(e) => setFormCountry(e.target.value)}
@@ -526,7 +621,9 @@ export function HumanitarianToggle({
                   </div>
 
                   <div>
-                    <label className="text-xs text-slate-500 mb-1.5 block">Justification</label>
+                    <label className="text-xs text-slate-500 mb-1.5 block">
+                      Justification
+                    </label>
                     <Textarea
                       value={formJustification}
                       onChange={(e) => setFormJustification(e.target.value)}
@@ -538,7 +635,9 @@ export function HumanitarianToggle({
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="text-xs text-slate-500 mb-1.5 block">NGO Partner</label>
+                      <label className="text-xs text-slate-500 mb-1.5 block">
+                        NGO Partner
+                      </label>
                       <select
                         value={formNgo}
                         onChange={(e) => setFormNgo(e.target.value)}
@@ -547,15 +646,20 @@ export function HumanitarianToggle({
                         <option value="">Select partner...</option>
                         {ngoPartners.map((ngo) => (
                           <option key={ngo.id} value={ngo.id}>
-                            {ngo.name} {ngo.verified ? "✓" : ""} ({ngo.activeDeployments} active)
+                            {ngo.name} {ngo.verified ? "✓" : ""} (
+                            {ngo.activeDeployments} active)
                           </option>
                         ))}
                       </select>
                     </div>
                     <div>
-                      <label className="text-xs text-slate-500 mb-1.5 block">Risk Level</label>
+                      <label className="text-xs text-slate-500 mb-1.5 block">
+                        Risk Level
+                      </label>
                       <div className="flex gap-2">
-                        {(["low", "moderate", "high", "extreme"] as RiskLevel[]).map((r) => {
+                        {(
+                          ["low", "moderate", "high", "extreme"] as RiskLevel[]
+                        ).map((r) => {
                           const rc = RISK_CONFIG[r];
                           const RIcon = rc.icon;
                           return (
@@ -568,8 +672,12 @@ export function HumanitarianToggle({
                                   : "border-slate-800 bg-slate-900/50 text-slate-500 hover:text-slate-300"
                               }`}
                             >
-                              <RIcon className={`w-4 h-4 ${formRisk === r ? rc.color : "text-slate-500"}`} />
-                              <span className={formRisk === r ? rc.color : ""}>{rc.label}</span>
+                              <RIcon
+                                className={`w-4 h-4 ${formRisk === r ? rc.color : "text-slate-500"}`}
+                              />
+                              <span className={formRisk === r ? rc.color : ""}>
+                                {rc.label}
+                              </span>
                             </button>
                           );
                         })}
@@ -580,7 +688,12 @@ export function HumanitarianToggle({
                   <div className="flex gap-2 pt-2">
                     <Button
                       onClick={handleSubmit}
-                      disabled={!formRegion || !formCountry || !formJustification || !formNgo}
+                      disabled={
+                        !formRegion ||
+                        !formCountry ||
+                        !formJustification ||
+                        !formNgo
+                      }
                       className="text-xs bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 border border-rose-500/20 disabled:opacity-40"
                     >
                       <Send className="w-3.5 h-3.5 mr-1.5" />
@@ -601,7 +714,7 @@ export function HumanitarianToggle({
           </div>
         )}
 
-        {/* ─── NGO Partners ─── */}
+        {/*  NGO Partners  */}
         {isEnabled && ngoPartners.length > 0 && (
           <div>
             <h3 className="text-sm font-semibold text-slate-200 mb-3 flex items-center gap-2">
@@ -621,7 +734,9 @@ export function HumanitarianToggle({
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-2">
                       <Hospital className="w-4 h-4 text-slate-400" />
-                      <span className="text-sm font-medium text-slate-200">{ngo.name}</span>
+                      <span className="text-sm font-medium text-slate-200">
+                        {ngo.name}
+                      </span>
                       {ngo.verified && (
                         <Badge className="text-[9px] bg-emerald-500/10 text-emerald-400 border-0">
                           <CheckCircle2 className="w-2.5 h-2.5 mr-1" />
@@ -631,13 +746,17 @@ export function HumanitarianToggle({
                     </div>
                     <div className="flex flex-wrap gap-1 mb-2">
                       {ngo.specializations.map((spec) => (
-                        <Badge key={spec} className="text-[9px] bg-slate-800 text-slate-400 border-0">
+                        <Badge
+                          key={spec}
+                          className="text-[9px] bg-slate-800 text-slate-400 border-0"
+                        >
                           {spec}
                         </Badge>
                       ))}
                     </div>
                     <div className="text-[10px] text-slate-500">
-                      {ngo.activeDeployments} active deployment{ngo.activeDeployments === 1 ? "" : "s"}
+                      {ngo.activeDeployments} active deployment
+                      {ngo.activeDeployments === 1 ? "" : "s"}
                     </div>
                   </CardContent>
                 </Card>
@@ -646,14 +765,16 @@ export function HumanitarianToggle({
           </div>
         )}
 
-        {/* ─── Deployment History ─── */}
+        {/*  Deployment History  */}
         {deploymentHistory.length > 0 && (
           <Card className="border-slate-800 bg-slate-950/50">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ClipboardList className="w-4 h-4 text-slate-400" />
-                  <h3 className="text-sm font-semibold text-slate-200">Deployment History</h3>
+                  <h3 className="text-sm font-semibold text-slate-200">
+                    Deployment History
+                  </h3>
                   <Badge className="text-[10px] bg-slate-800 text-slate-400 border-0">
                     {deploymentHistory.length} past
                   </Badge>
@@ -662,7 +783,11 @@ export function HumanitarianToggle({
                   onClick={() => setShowHistory(!showHistory)}
                   className="text-slate-500 hover:text-slate-300 transition-colors"
                 >
-                  {showHistory ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  {showHistory ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </CardHeader>
@@ -688,31 +813,45 @@ export function HumanitarianToggle({
                         >
                           <div
                             className="flex items-center gap-3 p-3 cursor-pointer hover:bg-slate-800/30 transition-colors"
-                            onClick={() => setExpandedDeployment(isExpanded ? null : dep.id)}
+                            onClick={() =>
+                              setExpandedDeployment(isExpanded ? null : dep.id)
+                            }
                           >
-                            <div className={`w-8 h-8 rounded-lg ${status.bg} flex items-center justify-center shrink-0`}>
+                            <div
+                              className={`w-8 h-8 rounded-lg ${status.bg} flex items-center justify-center shrink-0`}
+                            >
                               <SIcon className={`w-4 h-4 ${status.color}`} />
                             </div>
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center gap-2 flex-wrap">
-                                <span className="text-sm font-medium text-slate-200">{dep.region}</span>
-                                <Badge className={`text-[9px] ${status.bg} ${status.color} border-0`}>
+                                <span className="text-sm font-medium text-slate-200">
+                                  {dep.region}
+                                </span>
+                                <Badge
+                                  className={`text-[9px] ${status.bg} ${status.color} border-0`}
+                                >
                                   {status.label}
                                 </Badge>
-                                <Badge className={`text-[9px] ${RISK_CONFIG[dep.riskLevel].bg} ${RISK_CONFIG[dep.riskLevel].color} border-0`}>
+                                <Badge
+                                  className={`text-[9px] ${RISK_CONFIG[dep.riskLevel].bg} ${RISK_CONFIG[dep.riskLevel].color} border-0`}
+                                >
                                   {RISK_CONFIG[dep.riskLevel].label}
                                 </Badge>
                               </div>
                               <div className="text-xs text-slate-500 mt-0.5">
-                                {dep.country} · {dep.ngoPartnerName} · {formatDate(dep.proposedAt)}
+                                {dep.country} · {dep.ngoPartnerName} ·{" "}
+                                {formatDate(dep.proposedAt)}
                               </div>
                             </div>
                             <div className="text-right shrink-0">
                               <div className="text-xs font-mono text-slate-300">
-                                {dep.patientsServed?.toLocaleString() || "—"} patients
+                                {dep.patientsServed?.toLocaleString() || "—"}{" "}
+                                patients
                               </div>
                               <div className="text-[10px] text-slate-500">
-                                {dep.budgetUsed != null ? formatCurrency(dep.budgetUsed) : "—"}
+                                {dep.budgetUsed != null
+                                  ? formatCurrency(dep.budgetUsed)
+                                  : "—"}
                               </div>
                             </div>
                             {isExpanded ? (
@@ -733,24 +872,46 @@ export function HumanitarianToggle({
                                 <div className="px-3 pb-3 pt-1 border-t border-slate-800/50">
                                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
                                     <div>
-                                      <div className="text-[10px] text-slate-500 uppercase tracking-wider">Patients</div>
-                                      <div className="text-sm font-mono text-emerald-400">{dep.patientsServed?.toLocaleString() || "—"}</div>
+                                      <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                                        Patients
+                                      </div>
+                                      <div className="text-sm font-mono text-emerald-400">
+                                        {dep.patientsServed?.toLocaleString() ||
+                                          "—"}
+                                      </div>
                                     </div>
                                     <div>
-                                      <div className="text-[10px] text-slate-500 uppercase tracking-wider">Staff</div>
-                                      <div className="text-sm font-mono text-slate-200">{dep.staffDeployed || "—"}</div>
+                                      <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                                        Staff
+                                      </div>
+                                      <div className="text-sm font-mono text-slate-200">
+                                        {dep.staffDeployed || "—"}
+                                      </div>
                                     </div>
                                     <div>
-                                      <div className="text-[10px] text-slate-500 uppercase tracking-wider">Budget Used</div>
-                                      <div className="text-sm font-mono text-slate-200">{dep.budgetUsed != null ? formatCurrency(dep.budgetUsed) : "—"}</div>
+                                      <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                                        Budget Used
+                                      </div>
+                                      <div className="text-sm font-mono text-slate-200">
+                                        {dep.budgetUsed != null
+                                          ? formatCurrency(dep.budgetUsed)
+                                          : "—"}
+                                      </div>
                                     </div>
                                     <div>
-                                      <div className="text-[10px] text-slate-500 uppercase tracking-wider">Insurance</div>
-                                      <div className="text-sm font-mono text-slate-200">{dep.insuranceStatus}</div>
+                                      <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                                        Insurance
+                                      </div>
+                                      <div className="text-sm font-mono text-slate-200">
+                                        {dep.insuranceStatus}
+                                      </div>
                                     </div>
                                   </div>
                                   <div className="mt-2 text-xs text-slate-500">
-                                    <span className="text-slate-400">Justification:</span> {dep.justification}
+                                    <span className="text-slate-400">
+                                      Justification:
+                                    </span>{" "}
+                                    {dep.justification}
                                   </div>
                                 </div>
                               </motion.div>
@@ -770,7 +931,7 @@ export function HumanitarianToggle({
   );
 }
 
-// ─── Skeleton ───
+//  Skeleton
 function HumanitarianSkeleton() {
   return (
     <div className="space-y-5">

@@ -319,7 +319,7 @@ export async function PATCH(
         updatedAt: item.updatedAt,
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[INVENTORY_ITEM_PATCH]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     if (message === "Forbidden" || message === "Unauthorized") {
@@ -413,7 +413,7 @@ export async function DELETE(
         updatedAt: item.updatedAt,
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[INVENTORY_ITEM_DELETE]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     if (message === "Forbidden" || message === "Unauthorized") {

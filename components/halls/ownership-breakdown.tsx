@@ -26,7 +26,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-// ─── Types ───
+//  Types
 export type KycTier = "visitor" | "sovereign" | "verified" | "whale";
 export type CabinetRole = "speaker" | "treasurer" | "warden" | "scribe";
 
@@ -60,7 +60,7 @@ export interface OwnershipBreakdownProps {
   onExport?: () => void;
 }
 
-// ─── Config ───
+//  Config
 const KYC_CONFIG: Record<KycTier, { label: string; color: string; bg: string }> = {
   visitor:  { label: "Visitor",  color: "text-slate-400",    bg: "bg-slate-500/10" },
   sovereign:{ label: "Sovereign",color: "text-cyan-400",     bg: "bg-cyan-500/10" },
@@ -81,7 +81,7 @@ const PIE_COLORS = [
   "#14b8a6", "#e879f9", "#60a5fa", "#84cc16", "#f87171",
 ];
 
-// ─── Helpers ───
+//  Helpers
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 }
@@ -92,7 +92,7 @@ function formatCompact(n: number) {
   return `$${n.toFixed(0)}`;
 }
 
-// ─── Component ───
+//  Component
 export function OwnershipBreakdown({
   entries,
   hallId,
@@ -171,23 +171,40 @@ export function OwnershipBreakdown({
 
   return (
     <div className="space-y-5">
-      {/* ─── Header ─── */}
+      {/*  Header  */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-slate-100">Ownership Registry</h2>
+          <h2 className="text-xl font-semibold text-slate-100">
+            Ownership Registry
+          </h2>
           <p className="text-sm text-slate-500 mt-0.5">
             {entries.length} sovereign{entries.length === 1 ? "" : "s"} ·{" "}
-            <span className="font-mono text-slate-300">{totalAllocated.toFixed(1)}%</span> allocated ·{" "}
-            <span className="font-mono text-slate-300">{formatCurrency(totalAssetValue)}</span> asset value
+            <span className="font-mono text-slate-300">
+              {totalAllocated.toFixed(1)}%
+            </span>{" "}
+            allocated ·{" "}
+            <span className="font-mono text-slate-300">
+              {formatCurrency(totalAssetValue)}
+            </span>{" "}
+            asset value
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" onClick={onExport} className="text-xs border-slate-700 text-slate-400 hover:text-slate-200">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onExport}
+            className="text-xs border-slate-700 text-slate-400 hover:text-slate-200"
+          >
             <Download className="w-3.5 h-3.5 mr-1.5" />
             Export CSV
           </Button>
           {onBuyMore && (
-            <Button size="sm" onClick={onBuyMore} className="text-xs bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/20">
+            <Button
+              size="sm"
+              onClick={onBuyMore}
+              className="text-xs bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 border border-cyan-500/20"
+            >
               <ShoppingCart className="w-3.5 h-3.5 mr-1.5" />
               Buy More
             </Button>
@@ -195,13 +212,17 @@ export function OwnershipBreakdown({
         </div>
       </div>
 
-      {/* ─── Stats Row ─── */}
+      {/*  Stats Row  */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatBox
           icon={Percent}
           label="Total Allocated"
           value={`${totalAllocated.toFixed(1)}%`}
-          sub={unallocatedPercent > 0 ? `${unallocatedPercent.toFixed(1)}% unallocated` : "Fully allocated"}
+          sub={
+            unallocatedPercent > 0
+              ? `${unallocatedPercent.toFixed(1)}% unallocated`
+              : "Fully allocated"
+          }
           color="cyan"
         />
         <StatBox
@@ -222,23 +243,32 @@ export function OwnershipBreakdown({
           icon={TrendingUp}
           label="Largest Stake"
           value={`${largestStake.toFixed(2)}%`}
-          sub={entries.find((e) => e.ownershipPercent === largestStake)?.displayName || "—"}
+          sub={
+            entries.find((e) => e.ownershipPercent === largestStake)
+              ?.displayName || "—"
+          }
           color="violet"
         />
       </div>
 
-      {/* ─── Pie Chart + List ─── */}
+      {/*  Pie Chart + List  */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         {/* Pie Chart */}
         <Card className="border-slate-800 bg-slate-950/50 lg:col-span-1">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-slate-200">Distribution</h3>
+              <h3 className="text-sm font-semibold text-slate-200">
+                Distribution
+              </h3>
               <button
                 onClick={() => setShowPie(!showPie)}
                 className="text-slate-500 hover:text-slate-300 transition-colors"
               >
-                {showPie ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                {showPie ? (
+                  <ChevronUp className="w-4 h-4" />
+                ) : (
+                  <ChevronDown className="w-4 h-4" />
+                )}
               </button>
             </div>
           </CardHeader>
@@ -268,18 +298,26 @@ export function OwnershipBreakdown({
                           {pieData.map((entry, index) => (
                             <Cell
                               key={`cell-${index}`}
-                              fill={entry.color || PIE_COLORS[index % PIE_COLORS.length]}
+                              fill={
+                                entry.color ||
+                                PIE_COLORS[index % PIE_COLORS.length]
+                              }
                             />
                           ))}
                         </Pie>
                         <Tooltip
                           content={({ active, payload }) => {
-                            if (!active || !payload || !payload.length) return null;
+                            if (!active || !payload || !payload.length)
+                              return null;
                             const data = payload[0].payload;
                             return (
                               <div className="bg-slate-900 border border-slate-700 rounded-lg p-3 shadow-xl">
-                                <div className="text-xs font-semibold text-slate-200">{data.name}</div>
-                                <div className="text-xs font-mono text-cyan-400 mt-1">{data.value.toFixed(2)}%</div>
+                                <div className="text-xs font-semibold text-slate-200">
+                                  {data.name}
+                                </div>
+                                <div className="text-xs font-mono text-cyan-400 mt-1">
+                                  {data.value.toFixed(2)}%
+                                </div>
                               </div>
                             );
                           }}
@@ -289,24 +327,40 @@ export function OwnershipBreakdown({
                   </div>
                   {/* Center text */}
                   <div className="text-center -mt-36 mb-8 relative z-10 pointer-events-none">
-                    <div className="text-2xl font-bold font-mono text-slate-100">{entries.length}</div>
-                    <div className="text-[10px] uppercase tracking-wider text-slate-500">Sovereigns</div>
+                    <div className="text-2xl font-bold font-mono text-slate-100">
+                      {entries.length}
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wider text-slate-500">
+                      Sovereigns
+                    </div>
                   </div>
 
                   {/* Legend */}
                   <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
                     {pieData.slice(0, 8).map((entry, i) => (
-                      <div key={entry.ledgerId} className="flex items-center gap-2 text-xs">
+                      <div
+                        key={entry.ledgerId}
+                        className="flex items-center gap-2 text-xs"
+                      >
                         <div
                           className="w-2.5 h-2.5 rounded-full shrink-0"
-                          style={{ backgroundColor: entry.color || PIE_COLORS[i % PIE_COLORS.length] }}
+                          style={{
+                            backgroundColor:
+                              entry.color || PIE_COLORS[i % PIE_COLORS.length],
+                          }}
                         />
-                        <span className="text-slate-400 truncate">{entry.name}</span>
-                        <span className="text-slate-500 font-mono ml-auto">{entry.value.toFixed(1)}%</span>
+                        <span className="text-slate-400 truncate">
+                          {entry.name}
+                        </span>
+                        <span className="text-slate-500 font-mono ml-auto">
+                          {entry.value.toFixed(1)}%
+                        </span>
                       </div>
                     ))}
                     {pieData.length > 8 && (
-                      <div className="text-[10px] text-slate-600 text-center">+{pieData.length - 8} more</div>
+                      <div className="text-[10px] text-slate-600 text-center">
+                        +{pieData.length - 8} more
+                      </div>
                     )}
                   </div>
                 </motion.div>
@@ -319,9 +373,13 @@ export function OwnershipBreakdown({
         <Card className="border-slate-800 bg-slate-950/50 lg:col-span-2">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <h3 className="text-sm font-semibold text-slate-200">Sovereign Registry</h3>
+              <h3 className="text-sm font-semibold text-slate-200">
+                Sovereign Registry
+              </h3>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] text-slate-500 uppercase tracking-wider">Sort:</span>
+                <span className="text-[10px] text-slate-500 uppercase tracking-wider">
+                  Sort:
+                </span>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
@@ -353,7 +411,9 @@ export function OwnershipBreakdown({
                     {/* Main Row */}
                     <div
                       className="flex items-center gap-3 p-3 cursor-pointer hover:bg-slate-800/30 transition-colors"
-                      onClick={() => setExpandedEntry(isExpanded ? null : entry.userId)}
+                      onClick={() =>
+                        setExpandedEntry(isExpanded ? null : entry.userId)
+                      }
                     >
                       {/* Rank */}
                       <div className="w-6 text-center text-[10px] font-mono text-slate-600 shrink-0">
@@ -366,12 +426,16 @@ export function OwnershipBreakdown({
                           entry.isPrimaryAdmin
                             ? "bg-amber-500/10 text-amber-400 border border-amber-500/30"
                             : entry.cabinetRole
-                            ? "bg-slate-800 text-slate-400"
-                            : "bg-slate-800 text-slate-500"
+                              ? "bg-slate-800 text-slate-400"
+                              : "bg-slate-800 text-slate-500"
                         }`}
                       >
                         {entry.avatar ? (
-                          <img src={entry.avatar} alt="" className="w-full h-full rounded-full object-cover" />
+                          <img
+                            src={entry.avatar}
+                            alt=""
+                            className="w-full h-full rounded-full object-cover"
+                          />
                         ) : (
                           entry.displayName?.[0] || entry.ledgerId.slice(-2)
                         )}
@@ -384,7 +448,9 @@ export function OwnershipBreakdown({
                             {entry.displayName || entry.ledgerId}
                           </span>
                           {isYou && (
-                            <Badge className="text-[9px] bg-cyan-500/10 text-cyan-400 border-0 px-1.5">You</Badge>
+                            <Badge className="text-[9px] bg-cyan-500/10 text-cyan-400 border-0 px-1.5">
+                              You
+                            </Badge>
                           )}
                           {entry.isPrimaryAdmin && (
                             <Badge className="text-[9px] bg-amber-500/10 text-amber-400 border-0 px-1.5">
@@ -410,20 +476,30 @@ export function OwnershipBreakdown({
                           )}
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
-                          <span className="text-[10px] font-mono text-slate-500">{entry.ledgerId}</span>
-                          <span className={`text-[9px] px-1 rounded ${kyc.bg} ${kyc.color}`}>{kyc.label}</span>
+                          <span className="text-[10px] font-mono text-slate-500">
+                            {entry.ledgerId}
+                          </span>
+                          <span
+                            className={`text-[9px] px-1 rounded ${kyc.bg} ${kyc.color}`}
+                          >
+                            {kyc.label}
+                          </span>
                         </div>
                       </div>
 
                       {/* Ownership Bar */}
                       <div className="hidden sm:block w-28 shrink-0">
                         <div className="flex items-center justify-between text-[10px] mb-1">
-                          <span className="text-slate-500">{entry.ownershipPercent.toFixed(2)}%</span>
+                          <span className="text-slate-500">
+                            {entry.ownershipPercent.toFixed(2)}%
+                          </span>
                         </div>
                         <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
                           <div
                             className="h-full rounded-full bg-cyan-400"
-                            style={{ width: `${Math.min(entry.ownershipPercent * 5, 100)}%` }}
+                            style={{
+                              width: `${Math.min(entry.ownershipPercent * 5, 100)}%`,
+                            }}
                           />
                         </div>
                       </div>
@@ -460,13 +536,32 @@ export function OwnershipBreakdown({
                         >
                           <div className="px-3 pb-3 pt-1 border-t border-slate-800/50">
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-2">
-                              <DetailItem label="Ownership" value={`${entry.ownershipPercent.toFixed(2)}%`} color="cyan" />
-                              <DetailItem label="Dynamic Value" value={formatCurrency(entry.dynamicValue)} color="emerald" />
-                              <DetailItem label="Total Value" value={formatCurrency(entry.totalValue)} color="amber" />
-                              <DetailItem label="Dividends" value={formatCurrency(entry.accumulatedDividends)} color="violet" />
+                              <DetailItem
+                                label="Ownership"
+                                value={`${entry.ownershipPercent.toFixed(2)}%`}
+                                color="cyan"
+                              />
+                              <DetailItem
+                                label="Dynamic Value"
+                                value={formatCurrency(entry.dynamicValue)}
+                                color="emerald"
+                              />
+                              <DetailItem
+                                label="Total Value"
+                                value={formatCurrency(entry.totalValue)}
+                                color="amber"
+                              />
+                              <DetailItem
+                                label="Dividends"
+                                value={formatCurrency(
+                                  entry.accumulatedDividends,
+                                )}
+                                color="violet"
+                              />
                             </div>
                             <div className="text-[10px] text-slate-500 mt-2">
-                              Joined {new Date(entry.joinedAt).toLocaleDateString()}
+                              Joined{" "}
+                              {new Date(entry.joinedAt).toLocaleDateString()}
                             </div>
                             {isYou && onListForSale && (
                               <div className="mt-3 flex gap-2">
@@ -493,16 +588,19 @@ export function OwnershipBreakdown({
         </Card>
       </div>
 
-      {/* ─── Unallocated Warning ─── */}
+      {/*  Unallocated Warning  */}
       {unallocatedPercent > 0 && (
         <Card className="border-amber-500/20 bg-amber-950/5">
           <CardContent className="p-4 flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
             <div>
-              <div className="text-sm font-medium text-amber-400">{unallocatedPercent.toFixed(1)}% Unallocated</div>
+              <div className="text-sm font-medium text-amber-400">
+                {unallocatedPercent.toFixed(1)}% Unallocated
+              </div>
               <p className="text-xs text-slate-500 mt-1">
-                This ownership is not yet claimed. It may be available for purchase on the marketplace
-                or reserved for future distribution by the 8th Ledger.
+                This ownership is not yet claimed. It may be available for
+                purchase on the marketplace or reserved for future distribution
+                by the 8th Ledger.
               </p>
               {onBuyMore && (
                 <Button
@@ -519,7 +617,7 @@ export function OwnershipBreakdown({
         </Card>
       )}
 
-      {/* ─── Your Position Card ─── */}
+      {/*  Your Position Card  */}
       {yourOwnershipPercent != null && yourOwnershipPercent > 0 && (
         <Card className="border-cyan-500/20 bg-cyan-950/10">
           <CardContent className="p-4">
@@ -534,24 +632,34 @@ export function OwnershipBreakdown({
                     {yourOwnershipPercent.toFixed(2)}%
                   </div>
                   <div className="text-xs text-slate-500 mt-0.5">
-                    Rank #{sortedEntries.findIndex((e) => e.ledgerId === yourLedgerId) + 1} of {entries.length}
+                    Rank #
+                    {sortedEntries.findIndex(
+                      (e) => e.ledgerId === yourLedgerId,
+                    ) + 1}{" "}
+                    of {entries.length}
                   </div>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4 sm:text-right">
                 <div>
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">Dynamic Value</div>
+                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                    Dynamic Value
+                  </div>
                   <div className="text-sm font-mono font-semibold text-slate-200">
                     {formatCurrency(
-                      entries.find((e) => e.ledgerId === yourLedgerId)?.totalValue || 0
+                      entries.find((e) => e.ledgerId === yourLedgerId)
+                        ?.totalValue || 0,
                     )}
                   </div>
                 </div>
                 <div>
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">Dividends</div>
+                  <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                    Dividends
+                  </div>
                   <div className="text-sm font-mono font-semibold text-emerald-400">
                     {formatCurrency(
-                      entries.find((e) => e.ledgerId === yourLedgerId)?.accumulatedDividends || 0
+                      entries.find((e) => e.ledgerId === yourLedgerId)
+                        ?.accumulatedDividends || 0,
                     )}
                   </div>
                 </div>
@@ -563,7 +671,9 @@ export function OwnershipBreakdown({
                   variant="outline"
                   size="sm"
                   onClick={() => {
-                    const you = entries.find((e) => e.ledgerId === yourLedgerId);
+                    const you = entries.find(
+                      (e) => e.ledgerId === yourLedgerId,
+                    );
                     if (you) onListForSale(you.userId);
                   }}
                   className="text-xs border-slate-700 text-slate-400 hover:text-slate-200"
@@ -590,7 +700,7 @@ export function OwnershipBreakdown({
   );
 }
 
-// ─── Stat Box ───
+//  Stat Box
 function StatBox({
   icon: Icon,
   label,
@@ -623,7 +733,7 @@ function StatBox({
   );
 }
 
-// ─── Detail Item ───
+//  Detail Item
 function DetailItem({ label, value, color }: { label: string; value: string; color: "cyan" | "emerald" | "amber" | "violet" }) {
   const colorMap = {
     cyan: "text-cyan-400",
@@ -640,7 +750,7 @@ function DetailItem({ label, value, color }: { label: string; value: string; col
   );
 }
 
-// ─── Skeleton ───
+//  Skeleton
 function OwnershipSkeleton() {
   return (
     <div className="space-y-5">

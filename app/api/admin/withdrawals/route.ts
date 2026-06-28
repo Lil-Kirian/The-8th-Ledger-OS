@@ -8,7 +8,7 @@ import { Prisma } from "@prisma/client";
    Sovereign treasury outflows: approval, rejection, oversight
    ============================================================ */
 
-function handlePrismaError(error: unknown): NextResponse {
+function handlePrismaError(error: any): NextResponse {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2025") {
       return NextResponse.json(
@@ -49,14 +49,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const sort = searchParams.get("sort") || "createdAt";
     const dir = searchParams.get("dir") === "asc" ? "asc" : "desc";
 
-    const orderBy: unknown = {};
+    const orderBy: any = {};
     if (["createdAt", "amount", "processedAt"].includes(sort)) {
       orderBy[sort] = dir;
     } else {
       orderBy.createdAt = "desc";
     }
 
-    let withdrawals: unknown[] = [];
+    let withdrawals: any[] = [];
     let total = 0;
 
     /* ── MODERN WITHDRAWALS (Wallet relation) ── */
@@ -247,7 +247,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    let result: unknown;
+    let result: any;
     let message = "";
     let amount = 0;
     let ledgerId = "";

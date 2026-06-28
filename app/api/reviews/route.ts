@@ -7,8 +7,8 @@ import { getSessionUser } from "@/lib/auth";
    ============================================================ */
 interface ReviewResponse {
   success: boolean;
-  reviews?: unknown[];
-  review?: unknown;
+  reviews?: any[];
+  review?: any;
   averageRating?: number;
   total?: number;
   error?: string;
@@ -170,7 +170,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
       { status: 201 }
     );
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[REVIEWS POST]", error);
     return NextResponse.json<ReviewResponse>(
       { success: false, error: error.message || "Failed to submit review" },

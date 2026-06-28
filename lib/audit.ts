@@ -26,3 +26,35 @@ export async function createAuditEntry(data: {
     },
   });
 }
+
+export async function logSecurityAudit(data: {
+  action: string;
+  actorId?: string | null;
+  targetId?: string | null;
+  metadata?: Record<string, unknown> | null;
+  ip?: string | null;
+}) {
+  const metadata = {
+    ...(data.metadata ?? {}),
+    ip: data.ip ?? undefined,
+  };
+
+  return createAuditEntry({
+    type: data.action,
+    description: `${data.action}${data.targetId ? ` on ${data.targetId}` : ""}`,
+    txHash: `SEC-${data.action}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+    ledgerId: data.actorId ?? undefined,
+    poolId: undefined,
+  }).catch(async () =>
+    prisma.auditLog.create({
+      data: {
+        eventType: data.action,
+        description: `${data.action}${data.targetId ? ` on ${data.targetId}` : ""}`,
+        ledgerId: data.actorId ?? undefined,
+        metadata: JSON.stringify(metadata),
+        txHash: `SECLOG-${data.action}-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`,
+        visibleToPublic: false,
+      },
+    })
+  );
+}

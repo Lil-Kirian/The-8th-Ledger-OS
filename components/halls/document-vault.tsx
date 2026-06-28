@@ -31,7 +31,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ─────────────────────────────────────────────────────────
+//  Types
 
 export type DocumentCategory =
   | "deed"
@@ -83,7 +83,7 @@ export interface DocumentVaultProps {
   className?: string;
 }
 
-// ─── Category Config ─────────────────────────────────────────────────
+//  Category Config
 
 const CATEGORY_CONFIG: Record<
   DocumentCategory,
@@ -217,7 +217,7 @@ const FILE_TYPE_CONFIG: Record<
   json: { icon: FileCode, color: "text-yellow-400", label: "JSON" },
 };
 
-// ─── Helpers ─────────────────────────────────────────────────────────
+//  Helpers
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-US", {
@@ -239,7 +239,7 @@ function formatTimeAgo(date: Date): string {
   return formatDate(date);
 }
 
-// ─── Document Card ───────────────────────────────────────────────────
+//  Document Card
 
 function DocumentCard({
   doc,
@@ -474,7 +474,7 @@ function DocumentCard({
   );
 }
 
-// ─── Upload Zone ─────────────────────────────────────────────────────
+//  Upload Zone ─
 
 function UploadZone({
   onUpload,
@@ -618,7 +618,7 @@ function UploadZone({
   );
 }
 
-// ─── Main Document Vault ─────────────────────────────────────────────
+//  Main Document Vault ─
 
 export function DocumentVault({
   hallId,
@@ -805,7 +805,7 @@ export function DocumentVault({
   );
 }
 
-// ─── Skeleton ────────────────────────────────────────────────────────
+//  Skeleton ─
 
 export function DocumentVaultSkeleton() {
   return (

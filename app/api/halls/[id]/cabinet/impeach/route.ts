@@ -7,7 +7,7 @@ import { requireAuth } from "@/lib/auth";
 // 48-hour vote window. Only owners or admin may trigger.
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth(req);
@@ -179,7 +179,7 @@ export async function POST(
       reason: reason.trim(),
       message: `Impeachment vote initiated. ${roleLabels[targetRole]} will be removed if 51% of capital votes in favor.`,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[CABINET IMPEACH]", error);
     if (error.message === "Unauthorized") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

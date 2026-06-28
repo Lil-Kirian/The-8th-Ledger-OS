@@ -52,14 +52,14 @@ interface KycRecord {
   deviceFingerprint: string | null;
 }
 
-const TIER_CONFIG: Record<KycTier, { label: string; color: string; bg: string; border: string; icon: unknown }> = {
+const TIER_CONFIG: Record<KycTier, { label: string; color: string; bg: string; border: string; icon: any }> = {
   visitor: { label: "Visitor", color: "text-slate-400", bg: "bg-slate-500/10", border: "border-slate-500/20", icon: Shield },
   sovereign: { label: "Sovereign", color: "text-cyan-400", bg: "bg-cyan-500/10", border: "border-cyan-500/20", icon: Shield },
   verified: { label: "Verified", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", icon: CheckCircle2 },
   whale: { label: "Whale", color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", icon: Layers },
 };
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string; icon: unknown }> = {
+const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; border: string; icon: any }> = {
   pending: { label: "Pending Review", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", icon: Clock },
   approved: { label: "Approved", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", icon: CheckCircle2 },
   rejected: { label: "Rejected", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/20", icon: XCircle },

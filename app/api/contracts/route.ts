@@ -282,7 +282,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       certificate,
       message: `Certificate generated for ${certificate.token}`,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[CONTRACTS POST]", error);
     return NextResponse.json<ContractsResponse>(
       { success: false, error: error.message || "Failed to generate certificate" },

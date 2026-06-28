@@ -175,7 +175,7 @@ export async function POST(
       },
       message: "Purchase cancelled. Full refund processed. Listing returned to active marketplace.",
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[OWNERSHIP_REFUND_POST]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(

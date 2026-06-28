@@ -38,7 +38,7 @@ interface PoolFilterProps {
     country: string;
     hallClass: string;
   };
-  onChange: (filters: unknown) => void;
+  onChange: (filters: any) => void;
   countries: string[];
 }
 

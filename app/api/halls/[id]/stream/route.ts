@@ -2,11 +2,11 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET  /api/halls/[id]/stream
 // Returns all Sovereign Stream posts for this hall.
 // Includes: author, replies with authors, proposal vote stats.
-// ─────────────────────────────────────────────────────────────
+//
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -132,11 +132,11 @@ export async function GET(
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST  /api/halls/[id]/stream
 // Creates a new Sovereign Stream post.
 // Types: PROPOSAL | REPORT | APPEAL | 8TH_LEDGER_UPDATE
-// ─────────────────────────────────────────────────────────────
+//
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }

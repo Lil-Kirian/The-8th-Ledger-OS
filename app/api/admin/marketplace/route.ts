@@ -9,7 +9,7 @@ import { Prisma } from "@prisma/client";
    Oversight for Ownership + Inventory markets + IHCP
    ============================================================ */
 
-function handlePrismaError(error: unknown): NextResponse {
+function handlePrismaError(error: any): NextResponse {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2025") {
       return NextResponse.json(

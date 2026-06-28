@@ -112,7 +112,7 @@ export default function LedgerPropPage() {
         const res = await fetch("/api/pools?vertical=ledgerprop");
         const data = await res.json();
         if (data.success && data.pools) {
-          setPools(data.pools.map((p: unknown) => ({
+          setPools(data.pools.map((p: any) => ({
             ...p,
             accessThreshold: p.accessThreshold || p.target,
             id: p.poolId || p.id,
@@ -312,7 +312,7 @@ export default function LedgerPropPage() {
               ].map((opt) => (
                 <button
                   key={opt.key}
-                  onClick={() => setSortBy(opt.key as unknown)}
+                  onClick={() => setSortBy(opt.key as any)}
                   className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all border ${
                     sortBy === opt.key
                       ? "bg-blue-500/10 text-blue-400 border-blue-500/30"

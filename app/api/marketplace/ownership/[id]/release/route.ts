@@ -360,7 +360,7 @@ export async function POST(
         ? "Full ownership transfer complete. Seller has exited the hall."
         : "Fractional ownership transfer complete. New percentages active next dividend cycle.",
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[OWNERSHIP_RELEASE_POST]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
 

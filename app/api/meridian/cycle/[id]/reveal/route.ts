@@ -8,9 +8,9 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS
-// ─────────────────────────────────────────────────────────────
+//
 
 const PHASE_DURATIONS_MS = {
   hush: 48 * 60 * 60 * 1000,
@@ -21,19 +21,19 @@ const PHASE_DURATIONS_MS = {
 
 const TOTAL_CYCLE_DURATION_MS = Object.values(PHASE_DURATIONS_MS).reduce((a, b) => a + b, 0);
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function maskPoolId(poolId: string): string {
   if (!poolId || poolId.length < 4) return "POOL-XXXX";
   return `POOL-${poolId.slice(-4).toUpperCase()}`;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST /api/meridian/cycle/[id]/reveal
 // Admin-only. Reveal winner. Tiebreaker: Architect's Hand. Atomic.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function POST(
   req: NextRequest,
@@ -44,8 +44,11 @@ export async function POST(
     const user = await requireAuth(req);
     if (user.role !== "admin") {
       return NextResponse.json(
-        { error: "The Architect only. Admin role required.", code: "FORBIDDEN" },
-        { status: 403 }
+        {
+          error: "The Architect only. Admin role required.",
+          code: "FORBIDDEN",
+        },
+        { status: 403 },
       );
     }
 
@@ -53,7 +56,7 @@ export async function POST(
     if (!cycleId || cycleId.length < 10) {
       return NextResponse.json(
         { error: "Invalid cycle ID", code: "VALIDATION_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -87,7 +90,7 @@ export async function POST(
     if (!cycle) {
       return NextResponse.json(
         { error: "Cycle not found", code: "NOT_FOUND" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -98,19 +101,21 @@ export async function POST(
           code: "PHASE_LOCKED",
           currentPhase: cycle.phase,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     if (cycle.cyclePools.length === 0) {
       return NextResponse.json(
         { error: "No pools in this cycle to reveal", code: "EMPTY_CYCLE" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // 4. Determine winner
-    const sortedPools = [...cycle.cyclePools].sort((a, b) => b.voteCount - a.voteCount);
+    const sortedPools = [...cycle.cyclePools].sort(
+      (a, b) => b.voteCount - a.voteCount,
+    );
     const topVoteCount = sortedPools[0].voteCount;
     const tiedPools = sortedPools.filter((p) => p.voteCount === topVoteCount);
 
@@ -125,7 +130,8 @@ export async function POST(
       if (!architectHandPoolId) {
         return NextResponse.json(
           {
-            error: "Tie detected. The Architect's Hand is required to break the tie.",
+            error:
+              "Tie detected. The Architect's Hand is required to break the tie.",
             code: "TIE_BREAKER_REQUIRED",
             tiedPools: tiedPools.map((p) => ({
               cyclePoolId: p.id,
@@ -135,7 +141,7 @@ export async function POST(
             })),
             message: "Provide architectHandPoolId to declare the winner.",
           },
-          { status: 422 }
+          { status: 422 },
         );
       }
 
@@ -151,7 +157,7 @@ export async function POST(
               name: p.pool.name,
             })),
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -162,7 +168,7 @@ export async function POST(
     if (!winner) {
       return NextResponse.json(
         { error: "Could not determine a winner", code: "WINNER_ERROR" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -229,7 +235,9 @@ export async function POST(
         id: result.id,
         continent: result.continent,
         phase: result.phase,
-        winnerPoolId: result.winnerPoolId ? maskPoolId(result.winnerPoolId) : null,
+        winnerPoolId: result.winnerPoolId
+          ? maskPoolId(result.winnerPoolId)
+          : null,
         endAt: result.endAt,
       },
       winner: {
@@ -248,27 +256,33 @@ export async function POST(
         nextPhase: "complete",
       },
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[MERIDIAN_REVEAL_POST]", error);
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
         { error: "Authentication required", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     return NextResponse.json(
-      { error: "The winner could not be revealed", code: "MERIDIAN_REVEAL_001" },
-      { status: 500 }
+      {
+        error: "The winner could not be revealed",
+        code: "MERIDIAN_REVEAL_001",
+      },
+      { status: 500 },
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/meridian/cycle/[id]/reveal
 // Public tally. Vote distribution. Cached 30s.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(
   req: NextRequest,

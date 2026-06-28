@@ -307,7 +307,7 @@ export async function POST(req: NextRequest) {
         createdAt: item.createdAt,
       },
     }, { status: 201 });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[INVENTORY_MARKETPLACE_POST]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     if (message === "Forbidden" || message === "Unauthorized") {

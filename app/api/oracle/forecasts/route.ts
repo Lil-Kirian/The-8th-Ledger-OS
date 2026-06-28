@@ -8,9 +8,9 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin, getSessionUser } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS & TYPES
-// ─────────────────────────────────────────────────────────────
+//
 
 const VALID_VERTICALS = [
   "ledgerprop",
@@ -33,9 +33,9 @@ type ForecastStatus = "active" | "locked" | "resolved" | "cancelled";
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const RATE_LIMIT_MAX_FORECASTS = 10;
 
-// ─────────────────────────────────────────────────────────────
+//
 // IN-MEMORY RATE LIMITER (swap for Redis at scale)
-// ─────────────────────────────────────────────────────────────
+//
 
 interface RateLimitEntry {
   count: number;
@@ -61,9 +61,9 @@ function checkRateLimit(adminId: string): { allowed: boolean; resetAt: number; r
   return { allowed: true, resetAt: entry.resetAt, remaining: RATE_LIMIT_MAX_FORECASTS - entry.count };
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function sanitizeText(input: string, maxLength: number): string {
   return input.replace(/[<>]/g, "").trim().slice(0, maxLength);
@@ -90,12 +90,12 @@ function isValidVertical(v: string): v is VerticalSlug {
   return VALID_VERTICALS.includes(v as VerticalSlug);
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // AUTO-LOCK EXPIRED FORECASTS (data integrity guard)
-// ─────────────────────────────────────────────────────────────
+//
 // Called on every GET to ensure active forecasts past lockDate
 // are atomically transitioned to 'locked' before serving.
-// ─────────────────────────────────────────────────────────────
+//
 
 async function autoLockExpiredForecasts(): Promise<number> {
   try {
@@ -116,9 +116,9 @@ async function autoLockExpiredForecasts(): Promise<number> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // AUDIT LOGGING
-// ─────────────────────────────────────────────────────────────
+//
 
 async function logAudit(props: {
   eventType: string;
@@ -143,11 +143,11 @@ async function logAudit(props: {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/oracle/forecasts
 // Public. Cached 60s. Auto-locks expired. Optional auth enriches
 // with the caller's prediction per forecast.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(req: NextRequest) {
   try {
@@ -293,10 +293,10 @@ export async function GET(req: NextRequest) {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST /api/oracle/forecasts
 // Create a new forecast. Admin-only. Rate-limited. Audited.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function POST(req: NextRequest) {
   try {
@@ -314,8 +314,12 @@ export async function POST(req: NextRequest) {
         },
         {
           status: 429,
-          headers: { "Retry-After": String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)) },
-        }
+          headers: {
+            "Retry-After": String(
+              Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
+            ),
+          },
+        },
       );
     }
 
@@ -337,15 +341,21 @@ export async function POST(req: NextRequest) {
 
     if (title.length < 5) {
       return NextResponse.json(
-        { error: "Title must be at least 5 characters.", code: "VALIDATION_TITLE" },
-        { status: 400 }
+        {
+          error: "Title must be at least 5 characters.",
+          code: "VALIDATION_TITLE",
+        },
+        { status: 400 },
       );
     }
 
     if (!type || !isValidType(type)) {
       return NextResponse.json(
-        { error: "Type must be 'asset_launch' or 'hall_revenue'.", code: "VALIDATION_TYPE" },
-        { status: 400 }
+        {
+          error: "Type must be 'asset_launch' or 'hall_revenue'.",
+          code: "VALIDATION_TYPE",
+        },
+        { status: 400 },
       );
     }
 
@@ -356,12 +366,17 @@ export async function POST(req: NextRequest) {
       verticalOptions.length > 10
     ) {
       return NextResponse.json(
-        { error: "Provide 1-10 vertical options.", code: "VALIDATION_VERTICALS" },
-        { status: 400 }
+        {
+          error: "Provide 1-10 vertical options.",
+          code: "VALIDATION_VERTICALS",
+        },
+        { status: 400 },
       );
     }
 
-    const invalidVerticals = verticalOptions.filter((v: string) => !isValidVertical(v));
+    const invalidVerticals = verticalOptions.filter(
+      (v: string) => !isValidVertical(v),
+    );
     if (invalidVerticals.length > 0) {
       return NextResponse.json(
         {
@@ -369,7 +384,7 @@ export async function POST(req: NextRequest) {
           code: "VALIDATION_VERTICAL_INVALID",
           validVerticals: VALID_VERTICALS,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -380,13 +395,16 @@ export async function POST(req: NextRequest) {
       countryOptions.length > 50
     ) {
       return NextResponse.json(
-        { error: "Provide 1-50 country options.", code: "VALIDATION_COUNTRIES" },
-        { status: 400 }
+        {
+          error: "Provide 1-50 country options.",
+          code: "VALIDATION_COUNTRIES",
+        },
+        { status: 400 },
       );
     }
 
     const invalidCountries = countryOptions.filter(
-      (c: string) => typeof c !== "string" || c.length !== 2
+      (c: string) => typeof c !== "string" || c.length !== 2,
     );
     if (invalidCountries.length > 0) {
       return NextResponse.json(
@@ -395,7 +413,7 @@ export async function POST(req: NextRequest) {
           code: "VALIDATION_COUNTRY_FORMAT",
           invalid: invalidCountries,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -403,8 +421,11 @@ export async function POST(req: NextRequest) {
     const lockTime = new Date(lockDate);
     if (isNaN(lockTime.getTime()) || lockTime <= new Date()) {
       return NextResponse.json(
-        { error: "Lock date must be in the future.", code: "VALIDATION_LOCK_DATE" },
-        { status: 400 }
+        {
+          error: "Lock date must be in the future.",
+          code: "VALIDATION_LOCK_DATE",
+        },
+        { status: 400 },
       );
     }
 
@@ -413,20 +434,26 @@ export async function POST(req: NextRequest) {
     const periodEndDate = periodEnd ? new Date(periodEnd) : null;
     if (periodStartDate && isNaN(periodStartDate.getTime())) {
       return NextResponse.json(
-        { error: "Invalid period start date.", code: "VALIDATION_PERIOD_START" },
-        { status: 400 }
+        {
+          error: "Invalid period start date.",
+          code: "VALIDATION_PERIOD_START",
+        },
+        { status: 400 },
       );
     }
     if (periodEndDate && isNaN(periodEndDate.getTime())) {
       return NextResponse.json(
         { error: "Invalid period end date.", code: "VALIDATION_PERIOD_END" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     if (periodStartDate && periodEndDate && periodEndDate <= periodStartDate) {
       return NextResponse.json(
-        { error: "Period end must be after period start.", code: "VALIDATION_PERIOD_ORDER" },
-        { status: 400 }
+        {
+          error: "Period end must be after period start.",
+          code: "VALIDATION_PERIOD_ORDER",
+        },
+        { status: 400 },
       );
     }
 
@@ -441,8 +468,12 @@ export async function POST(req: NextRequest) {
 
     if (recentDuplicate) {
       return NextResponse.json(
-        { error: "A forecast with this title already exists in the last 24 hours.", code: "DUPLICATE" },
-        { status: 409 }
+        {
+          error:
+            "A forecast with this title already exists in the last 24 hours.",
+          code: "DUPLICATE",
+        },
+        { status: 409 },
       );
     }
 
@@ -504,28 +535,34 @@ export async function POST(req: NextRequest) {
         },
         message: "The Oracle has cast a new forecast.",
       },
-      { status: 201 }
+      { status: 201 },
     );
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[ORACLE_FORECASTS_POST]", error);
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
-        { error: "Only the Architect may cast a forecast.", code: "UNAUTHORIZED" },
-        { status: 401 }
+        {
+          error: "Only the Architect may cast a forecast.",
+          code: "UNAUTHORIZED",
+        },
+        { status: 401 },
       );
     }
 
     if (error.message?.includes("Admin") || error.message?.includes("admin")) {
       return NextResponse.json(
         { error: "Only the Architect may cast a forecast.", code: "FORBIDDEN" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     return NextResponse.json(
       { error: "The forecast could not be cast.", code: "ORACLE_002" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

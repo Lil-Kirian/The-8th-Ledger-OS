@@ -229,7 +229,7 @@ export async function POST(
           "You will receive 5% priority return on this contribution before standard dividends are distributed. Repayment is automatic from hall revenue.",
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[IHCP_CONTRIBUTE_POST]", err);
     if (err.message === "Unauthorized") {
       return NextResponse.json({ error: "Login required" }, { status: 401 });

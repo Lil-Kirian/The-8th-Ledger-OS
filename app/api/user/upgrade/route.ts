@@ -104,7 +104,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       trustScore: updatedUser.trustScore,
       message: `Upgraded from tier ${currentTier} to ${targetTier}. ${cost} LED burned permanently.`,
     });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error("[USER_UPGRADE]", error);
     return NextResponse.json(
       { success: false, error: error.message || "Tier upgrade failed" },

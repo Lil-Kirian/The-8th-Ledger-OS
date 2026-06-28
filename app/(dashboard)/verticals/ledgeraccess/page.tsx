@@ -26,7 +26,7 @@ type Pool = {
   closesAt: string;
 };
 
-// ─── UTILS ───
+//  UTILS
 const formatMoney = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
@@ -116,11 +116,13 @@ export default function LedgerAccessPage() {
         const res = await fetch("/api/pools?vertical=ledgeraccess");
         const data = await res.json();
         if (data.success && data.pools) {
-          setPools(data.pools.map((p: unknown) => ({
-            ...p,
-            accessThreshold: p.accessThreshold || p.target,
-            id: p.poolId || p.id,
-          })));
+          setPools(
+            data.pools.map((p: any) => ({
+              ...p,
+              accessThreshold: p.accessThreshold || p.target,
+              id: p.poolId || p.id,
+            })),
+          );
         }
       } catch (err) {
         console.error("[LEDGERACCESS]", err);
@@ -173,15 +175,18 @@ export default function LedgerAccessPage() {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="h-2 w-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_10px_rgba(251,191,36,0.6)]" />
-              <span className="text-xs font-mono text-amber-400 uppercase tracking-[0.2em]">Vertical Command</span>
+              <span className="text-xs font-mono text-amber-400 uppercase tracking-[0.2em]">
+                Vertical Command
+              </span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-white via-amber-100 to-amber-200 bg-clip-text text-transparent flex items-center gap-4">
               <span className="text-5xl">📡</span> LedgerAccess
             </h1>
             <p className="text-slate-400 mt-2 text-sm max-w-xl">
-              Fractional ownership of critical infrastructure — cell towers, fiber networks, data centers, 
-              EV charging, satellite ground stations. Protected by the Protocol Infrastructure Reserve. 
-              Class I Passive. Global.
+              Fractional ownership of critical infrastructure — cell towers,
+              fiber networks, data centers, EV charging, satellite ground
+              stations. Protected by the Protocol Infrastructure Reserve. Class
+              I Passive. Global.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -198,18 +203,24 @@ export default function LedgerAccessPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           <GlowCard accent="amber">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono text-amber-400 uppercase tracking-wider">Access Value</span>
+              <span className="text-xs font-mono text-amber-400 uppercase tracking-wider">
+                Access Value
+              </span>
               <Diamond className="h-4 w-4 text-amber-400/50" />
             </div>
             <div className="text-3xl font-bold text-white mb-1">
               <AnimatedCounter value={stats.totalValue} prefix="$" />
             </div>
-            <div className="text-xs text-slate-500">{pools.length} listings globally</div>
+            <div className="text-xs text-slate-500">
+              {pools.length} listings globally
+            </div>
           </GlowCard>
 
           <GlowCard accent="gold">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono text-yellow-400 uppercase tracking-wider">Threshold</span>
+              <span className="text-xs font-mono text-yellow-400 uppercase tracking-wider">
+                Threshold
+              </span>
               <TrendingUp className="h-4 w-4 text-yellow-400/50" />
             </div>
             <div className="text-3xl font-bold text-white mb-1">
@@ -220,7 +231,9 @@ export default function LedgerAccessPage() {
 
           <GlowCard accent="cyan">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono text-cyan-400 uppercase tracking-wider">Active</span>
+              <span className="text-xs font-mono text-cyan-400 uppercase tracking-wider">
+                Active
+              </span>
               <Zap className="h-4 w-4 text-cyan-400/50" />
             </div>
             <div className="text-3xl font-bold text-white mb-1">
@@ -231,11 +244,15 @@ export default function LedgerAccessPage() {
 
           <GlowCard accent="purple">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono text-violet-400 uppercase tracking-wider">Participants</span>
+              <span className="text-xs font-mono text-violet-400 uppercase tracking-wider">
+                Participants
+              </span>
               <Users className="h-4 w-4 text-violet-400/50" />
             </div>
             <div className="text-3xl font-bold text-white mb-1">
-              <AnimatedCounter value={pools.reduce((s, p) => s + p.participants, 0)} />
+              <AnimatedCounter
+                value={pools.reduce((s, p) => s + p.participants, 0)}
+              />
             </div>
             <div className="text-xs text-slate-500">Globally committed</div>
           </GlowCard>
@@ -259,7 +276,9 @@ export default function LedgerAccessPage() {
           >
             <SlidersHorizontal className="h-3.5 w-3.5" />
             Sort
-            <ChevronDown className={`h-3 w-3 transition-transform ${showFilters ? "rotate-180" : ""}`} />
+            <ChevronDown
+              className={`h-3 w-3 transition-transform ${showFilters ? "rotate-180" : ""}`}
+            />
           </button>
         </div>
 
@@ -280,7 +299,7 @@ export default function LedgerAccessPage() {
               ].map((opt) => (
                 <button
                   key={opt.key}
-                  onClick={() => setSortBy(opt.key as unknown)}
+                  onClick={() => setSortBy(opt.key as any)}
                   className={`rounded-lg px-3 py-1.5 text-xs font-medium transition-all border ${
                     sortBy === opt.key
                       ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
@@ -302,18 +321,26 @@ export default function LedgerAccessPage() {
         ) : filteredPools.length === 0 ? (
           <GlowCard accent="slate" className="text-center py-16">
             <Wifi className="mx-auto h-12 w-12 text-slate-700 mb-4" />
-            <p className="text-lg text-slate-400 font-semibold">No access listings found</p>
+            <p className="text-lg text-slate-400 font-semibold">
+              No access listings found
+            </p>
             <p className="text-xs text-slate-600 mt-2">
-              {searchQuery ? "Try a different search term" : "Check back soon for new listings"}
+              {searchQuery
+                ? "Try a different search term"
+                : "Check back soon for new listings"}
             </p>
           </GlowCard>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <AnimatePresence mode="popLayout">
               {filteredPools.map((pool) => {
-                const fillPct = pool.accessThreshold > 0
-                  ? Math.min((pool.committed / pool.accessThreshold) * 100, 100)
-                  : 0;
+                const fillPct =
+                  pool.accessThreshold > 0
+                    ? Math.min(
+                        (pool.committed / pool.accessThreshold) * 100,
+                        100,
+                      )
+                    : 0;
                 const timeLeft = new Date(pool.closesAt).getTime() - Date.now();
                 const isExpired = timeLeft <= 0;
 
@@ -328,7 +355,11 @@ export default function LedgerAccessPage() {
                     <GlowCard accent="amber" className="h-full flex flex-col">
                       <div className="relative h-44 w-full overflow-hidden rounded-xl border border-slate-800 mb-4">
                         {pool.imageUrl ? (
-                          <img src={pool.imageUrl} alt={pool.name} className="h-full w-full object-cover" />
+                          <img
+                            src={pool.imageUrl}
+                            alt={pool.name}
+                            className="h-full w-full object-cover"
+                          />
                         ) : (
                           <ImageSkeleton icon={Radio} />
                         )}
@@ -345,7 +376,9 @@ export default function LedgerAccessPage() {
                       <h3 className="text-sm font-bold text-white group-hover:text-amber-300 transition-colors line-clamp-1 mb-1">
                         {pool.name}
                       </h3>
-                      <p className="text-xs text-slate-500 line-clamp-2 mb-3">{pool.description || "Critical access infrastructure."}</p>
+                      <p className="text-xs text-slate-500 line-clamp-2 mb-3">
+                        {pool.description || "Critical access infrastructure."}
+                      </p>
 
                       <div className="flex flex-wrap gap-2 mb-4">
                         <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] border border-slate-700 flex items-center gap-1">
@@ -362,28 +395,49 @@ export default function LedgerAccessPage() {
                       <div className="mt-auto p-4 rounded-xl bg-slate-900/40 border border-slate-800">
                         <div className="flex items-baseline justify-between mb-2">
                           <div>
-                            <p className="text-[10px] uppercase tracking-wider text-amber-400/60 font-mono">Threshold</p>
+                            <p className="text-[10px] uppercase tracking-wider text-amber-400/60 font-mono">
+                              Threshold
+                            </p>
                             <p className="text-lg font-bold font-mono text-amber-400">
                               ${pool.accessThreshold.toLocaleString()}
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-[10px] text-slate-500">Asset Value</p>
-                            <p className="text-sm font-mono text-slate-400">${pool.assetValue.toLocaleString()}</p>
+                            <p className="text-[10px] text-slate-500">
+                              Asset Value
+                            </p>
+                            <p className="text-sm font-mono text-slate-400">
+                              ${pool.assetValue.toLocaleString()}
+                            </p>
                           </div>
                         </div>
                         <div className="mb-2">
                           <div className="flex items-center justify-between text-[10px] mb-1">
-                            <span className="text-amber-400/80 font-mono">{fillPct.toFixed(1)}% to threshold</span>
-                            <span className="text-slate-600 font-mono">${pool.committed.toLocaleString()}</span>
+                            <span className="text-amber-400/80 font-mono">
+                              {fillPct.toFixed(1)}% to threshold
+                            </span>
+                            <span className="text-slate-600 font-mono">
+                              ${pool.committed.toLocaleString()}
+                            </span>
                           </div>
                           <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full transition-all" style={{ width: `${fillPct}%` }} />
+                            <div
+                              className="h-full bg-gradient-to-r from-amber-500 to-yellow-400 rounded-full transition-all"
+                              style={{ width: `${fillPct}%` }}
+                            />
                           </div>
                         </div>
                         <div className="flex items-center justify-between text-[10px] text-slate-600 font-mono">
-                          <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {pool.participants}/{pool.maxParticipants}</span>
-                          <span className="flex items-center gap-1"><Timer className="h-3 w-3" /> {isExpired ? "Closed" : `${Math.ceil(timeLeft / 86400000)}d`}</span>
+                          <span className="flex items-center gap-1">
+                            <Users className="h-3 w-3" /> {pool.participants}/
+                            {pool.maxParticipants}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Timer className="h-3 w-3" />{" "}
+                            {isExpired
+                              ? "Closed"
+                              : `${Math.ceil(timeLeft / 86400000)}d`}
+                          </span>
                         </div>
                       </div>
 
@@ -410,20 +464,28 @@ export default function LedgerAccessPage() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2 flex-1">
               <div>
-                <h4 className="text-sm font-semibold text-white mb-2">How LedgerAccess Works</h4>
+                <h4 className="text-sm font-semibold text-white mb-2">
+                  How LedgerAccess Works
+                </h4>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Each pool shows the True Acquisition Cost and the Protocol Infrastructure Reserve (PIR). 
-                  When the pool fills, the 8th Ledger acquires the asset, forms the legal SPV, and activates 
-                  insurance. You receive a Perpetual Asset Contract (PAC) representing your ownership percentage. 
-                  Revenue is distributed monthly after the 8th Ledger Tithe (20%).
+                  Each pool shows the True Acquisition Cost and the Protocol
+                  Infrastructure Reserve (PIR). When the pool fills, the 8th
+                  Ledger acquires the asset, forms the legal SPV, and activates
+                  insurance. You receive a Perpetual Asset Contract (PAC)
+                  representing your ownership percentage. Revenue is distributed
+                  monthly after the 8th Ledger Tithe (20%).
                 </p>
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-white mb-2">Asset Protection</h4>
+                <h4 className="text-sm font-semibold text-white mb-2">
+                  Asset Protection
+                </h4>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  All LedgerAccess assets are Class I Passive — the 8th Ledger manages everything through 
-                  contracted vendors. No hall staffing required. Insurance, legal structure, maintenance, and 
-                  lease execution are handled by the Protocol Infrastructure Reserve. No country restrictions.
+                  All LedgerAccess assets are Class I Passive — the 8th Ledger
+                  manages everything through contracted vendors. No hall
+                  staffing required. Insurance, legal structure, maintenance,
+                  and lease execution are handled by the Protocol Infrastructure
+                  Reserve. No country restrictions.
                 </p>
               </div>
             </div>

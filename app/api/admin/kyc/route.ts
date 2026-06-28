@@ -19,7 +19,7 @@ const TIER_LIMITS: Record<Tier, { dailyWithdraw: number; label: string }> = {
 /* ============================================================
    HELPERS
    ============================================================ */
-function handlePrismaError(error: unknown): NextResponse {
+function handlePrismaError(error: any): NextResponse {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2025") {
       return NextResponse.json(
@@ -466,7 +466,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         );
       }
 
-      const ids = recordIds.map((id: unknown) => String(id)).filter((id: string) => !!id);
+      const ids = recordIds.map((id: any) => String(id)).filter((id: string) => !!id);
 
       const records = await prisma.kycRecord.findMany({
         where: {

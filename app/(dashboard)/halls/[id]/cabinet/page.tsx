@@ -31,7 +31,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import Link from "next/link";
 
-// ─── Types ───────────────────────────────────────────────────────────
+//  Types
 
 interface CabinetMember {
   ledgerId: string;
@@ -107,7 +107,7 @@ const ROLE_META = {
   },
 };
 
-// ─── Component ─────────────────────────────────────────────────────
+//  Component ─
 
 export default function ExecutiveCabinetPage() {
   const params = useParams();
@@ -152,7 +152,7 @@ export default function ExecutiveCabinetPage() {
       setShowImpeachModal(null);
       setImpeachReason("");
       mutate();
-    } catch (e: unknown) {
+    } catch (e: any) {
       toast.error(e.message);
     } finally {
       setIsSubmitting(false);
@@ -172,7 +172,7 @@ export default function ExecutiveCabinetPage() {
       }
       toast.success("Election called. Voting opens for 48 hours.");
       mutate();
-    } catch (e: unknown) {
+    } catch (e: any) {
       toast.error(e.message);
     } finally {
       setIsSubmitting(false);

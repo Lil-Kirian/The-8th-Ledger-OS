@@ -79,7 +79,7 @@ export async function GET(req: NextRequest) {
       enabled: user.adminTotpEnabled || false,
       setup: !!user.adminTotpSecret,
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[ADMIN TOTP GET]", err);
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
@@ -224,7 +224,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ error: "Invalid action. Use setup, verify, or verify-login" }, { status: 400 });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[ADMIN TOTP]", err);
     return NextResponse.json({ error: err.message || "Admin TOTP failed" }, { status: 500 });
   }

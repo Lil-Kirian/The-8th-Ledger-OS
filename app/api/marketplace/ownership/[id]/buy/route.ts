@@ -311,7 +311,7 @@ export async function POST(
       },
       message: "Purchase initiated. Funds held in 48-hour escrow. Buyer may cancel for full refund during this period.",
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[OWNERSHIP_BUY_POST]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
 

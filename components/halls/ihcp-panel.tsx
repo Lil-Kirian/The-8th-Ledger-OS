@@ -39,7 +39,7 @@ interface IhcpPanelProps {
 }
 
 // FIX: API uses "stock" not "inventory" for purpose validation
-const PURPOSE_LABELS: Record<string, { label: string; color: string; icon: unknown }> = {
+const PURPOSE_LABELS: Record<string, { label: string; color: string; icon: any }> = {
   payroll: { label: "Payroll", color: "bg-amber-500/20 text-amber-400", icon: Wallet },
   stock: { label: "Inventory Stock", color: "bg-cyan-500/20 text-cyan-400", icon: PiggyBank },
   marketing: { label: "Marketing", color: "bg-violet-500/20 text-violet-400", icon: TrendingUp },
@@ -47,7 +47,7 @@ const PURPOSE_LABELS: Record<string, { label: string; color: string; icon: unkno
   emergency: { label: "Emergency", color: "bg-red-500/20 text-red-400", icon: AlertCircle },
 };
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; icon: unknown }> = {
+const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any }> = {
   active: { label: "Active", color: "bg-amber-500/20 text-amber-400", icon: Clock },
   repaid: { label: "Repaid", color: "bg-emerald-500/20 text-emerald-400", icon: CheckCircle2 },
   defaulted: { label: "Defaulted", color: "bg-red-500/20 text-red-400", icon: XCircle },
@@ -68,10 +68,10 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
   const contributeIhcp = useContributeIhcp();
 
   const contributions = ihcpData?.contributions || [];
-  const totalContributed = contributions.reduce((sum: number, c: unknown) => sum + c.amount, 0);
-  const totalRepaid = contributions.reduce((sum: number, c: unknown) => sum + c.repaidAmount, 0);
-  const activeContributions = contributions.filter((c: unknown) => c.status === "active");
-  const repaidContributions = contributions.filter((c: unknown) => c.status === "repaid");
+  const totalContributed = contributions.reduce((sum: number, c: any) => sum + c.amount, 0);
+  const totalRepaid = contributions.reduce((sum: number, c: any) => sum + c.repaidAmount, 0);
+  const activeContributions = contributions.filter((c: any) => c.status === "active");
+  const repaidContributions = contributions.filter((c: any) => c.status === "repaid");
 
   const handleContribute = async () => {
     const amount = parseInt(contributeAmount);
@@ -245,7 +245,7 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
             </div>
           ) : (
             <div className="space-y-3">
-              {contributions.map((contribution: unknown) => {
+              {contributions.map((contribution: any) => {
                 const purpose = PURPOSE_LABELS[contribution.purpose] || PURPOSE_LABELS.payroll;
                 const status = STATUS_CONFIG[contribution.status] || STATUS_CONFIG.active;
                 const PurposeIcon = purpose.icon;

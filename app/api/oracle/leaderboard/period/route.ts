@@ -8,9 +8,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS & TYPES
-// ─────────────────────────────────────────────────────────────
+//
 
 type Period = "week" | "month" | "quarter" | "year";
 
@@ -31,9 +31,9 @@ const TIER_META: Record<
   prophet: { label: "Prophet", icon: "🥇", color: "#ffd700" },
 };
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function isValidPeriod(p: string): p is Period {
   return ["week", "month", "quarter", "year"].includes(p);
@@ -62,10 +62,10 @@ function getPeriodBounds(period: Period): { start: Date; end: Date; label: strin
   return { start, end, label };
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/oracle/leaderboard/period?period=month
 // Public. Rolling period. Aggregates predictions, not cumulative standings.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(req: NextRequest) {
   try {

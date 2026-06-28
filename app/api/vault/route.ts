@@ -9,7 +9,7 @@ import { getSessionUser } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
-/* ─── VERTICAL META ─── */
+/*  VERTICAL META  */
 const VERTICAL_META: Record<string, { name: string; emoji: string }> = {
   ledgerprop: { name: "LedgerProp", emoji: "🏛" },
   ledgerauto: { name: "LedgerAuto", emoji: "🚗" },
@@ -35,7 +35,7 @@ function mapStatus(ownStatus: string, lastDiv: Date | null): "active" | "maturin
   return days > 90 ? "dormant" : "active";
 }
 
-/* ─── ESTIMATE MONTHLY INCOME ───
+/*  ESTIMATE MONTHLY INCOME
    Real dividends preferred. Falls back to asset-value × ownership% × 0.25% monthly.
 */
 function estimateMonthlyIncome(dividends: { amount: number; periodEnd: Date }[], assetValue: number, ownershipPct: number): number {
@@ -46,7 +46,7 @@ function estimateMonthlyIncome(dividends: { amount: number; periodEnd: Date }[],
   return Math.round(assetValue * (ownershipPct / 100) * 0.0025);
 }
 
-/* ─── BUILD 12-MONTH HISTORY ───
+/*  BUILD 12-MONTH HISTORY
    Aggregates ALL dividends across ALL ownerships into month buckets.
    Missing months are forward-filled from the most recent known month.
 */
@@ -95,7 +95,7 @@ export async function GET(req: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -146,15 +146,22 @@ export async function GET(req: NextRequest) {
       const ownershipPct = own.ownershipPercent || 0;
       const divs = divByOwnership[own.id] || [];
       const lastDiv = divs[0]?.periodEnd || null;
-      const monthlyIncome = estimateMonthlyIncome(divs, assetValue, ownershipPct);
-      const annualYield = assetValue > 0 ? (monthlyIncome * 12 / assetValue) * 100 : 0;
+      const monthlyIncome = estimateMonthlyIncome(
+        divs,
+        assetValue,
+        ownershipPct,
+      );
+      const annualYield =
+        assetValue > 0 ? ((monthlyIncome * 12) / assetValue) * 100 : 0;
 
       return {
         id: own.id,
         hallName: hall?.name || pool?.name || "Unnamed Asset",
         vertical: meta.name,
         emoji: meta.emoji,
-        pacToken: own.pacToken || `PAC-${vKey.toUpperCase()}-${own.id.slice(-8).toUpperCase()}`,
+        pacToken:
+          own.pacToken ||
+          `PAC-${vKey.toUpperCase()}-${own.id.slice(-8).toUpperCase()}`,
         ownershipPercent: Math.round(ownershipPct * 100) / 100,
         monthlyIncome: Math.round(monthlyIncome * 100) / 100,
         annualYield: Math.round(annualYield * 10) / 10,
@@ -183,9 +190,10 @@ export async function GET(req: NextRequest) {
     const totalValue = assets.reduce((s, a) => s + a.value, 0);
     const totalMonthly = assets.reduce((s, a) => s + a.monthlyIncome, 0);
     const totalAnnual = totalMonthly * 12;
-    const avgYield = assets.length > 0
-      ? assets.reduce((s, a) => s + a.annualYield, 0) / assets.length
-      : 0;
+    const avgYield =
+      assets.length > 0
+        ? assets.reduce((s, a) => s + a.annualYield, 0) / assets.length
+        : 0;
 
     /* ── Audit ── */
     await prisma.auditLog.create({
@@ -210,11 +218,11 @@ export async function GET(req: NextRequest) {
         totalAssets: assets.length,
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[API/vault]", err);
     return NextResponse.json(
       { success: false, error: "Failed to fetch vault" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import { motion, AnimatePresence } from "framer-motion";
@@ -124,7 +124,7 @@ function StatusBadge({ status }: { status: string }) {
 /* ============================================================
    HERO STATS
    ============================================================ */
-function HeroStats({ stats }: { stats: unknown }) {
+function HeroStats({ stats }: { stats: any }) {
   const cards = [
     { label: "TOTAL POOLS", value: stats?.total ?? 0, icon: Layers, color: "cyan", suffix: "" },
     { label: "ACTIVE FORGES", value: stats?.active ?? 0, icon: Flame, color: "amber", suffix: "" },
@@ -261,7 +261,7 @@ function VerticalSelector({ activeId, onSelect }: { activeId: string | null; onS
 /* ============================================================
    POOL CARD — NO TARGET / TRUE COST
    ============================================================ */
-function PoolCard({ pool, index }: { pool: unknown; index: number }) {
+function PoolCard({ pool, index }: { pool: any; index: number }) {
   const vertical = ALL_VERTICALS.find(v => pool.verticalId?.includes(v.id)) || ALL_VERTICALS[0];
   const colors = COLOR_MAP[vertical.color];
   const Icon = vertical.icon;
@@ -541,7 +541,7 @@ function FooterInfo() {
 /* ============================================================
    MAIN PAGE
    ============================================================ */
-export default function PoolsPage() {
+function PoolsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeVertical = searchParams.get("vertical");
@@ -626,7 +626,7 @@ export default function PoolsPage() {
             ) : pools.length === 0 ? (
               <EmptyState />
             ) : (
-              pools.map((pool: unknown, i: number) => (
+              pools.map((pool: any, i: number) => (
                 <PoolCard key={pool.poolId} pool={pool} index={i} />
               ))
             )}
@@ -637,5 +637,21 @@ export default function PoolsPage() {
         <FooterInfo />
       </div>
     </div>
+  );
+}
+
+export default function PoolsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#050508] text-slate-100">
+          <div className="mx-auto flex min-h-screen max-w-[1400px] items-center justify-center px-4">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-500 border-t-transparent" />
+          </div>
+        </div>
+      }
+    >
+      <PoolsPageContent />
+    </Suspense>
   );
 }

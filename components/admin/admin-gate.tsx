@@ -333,7 +333,7 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
 
       // Convert base64url challenge
       const challenge = Uint8Array.from(atob(options.challenge.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0));
-      const allowCredentials = options.allowCredentials?.map((cred: unknown) => ({
+      const allowCredentials = options.allowCredentials?.map((cred: any) => ({
         id: Uint8Array.from(atob(cred.id.replace(/-/g, "+").replace(/_/g, "/")), (c) => c.charCodeAt(0)),
         type: cred.type,
       }));
@@ -359,18 +359,18 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           step: "finish",
-          id: btoa(String.fromCharCode(...new Uint8Array((assertion as unknown).rawId))),
-          rawId: btoa(String.fromCharCode(...new Uint8Array((assertion as unknown).rawId))),
+          id: btoa(String.fromCharCode(...new Uint8Array((assertion as any).rawId))),
+          rawId: btoa(String.fromCharCode(...new Uint8Array((assertion as any).rawId))),
           response: {
-            authenticatorData: btoa(String.fromCharCode(...new Uint8Array((assertion as unknown).response.authenticatorData))),
-            clientDataJSON: btoa(String.fromCharCode(...new Uint8Array((assertion as unknown).response.clientDataJSON))),
-            signature: btoa(String.fromCharCode(...new Uint8Array((assertion as unknown).response.signature))),
-            userHandle: (assertion as unknown).response.userHandle
-              ? btoa(String.fromCharCode(...new Uint8Array((assertion as unknown).response.userHandle)))
+            authenticatorData: btoa(String.fromCharCode(...new Uint8Array((assertion as any).response.authenticatorData))),
+            clientDataJSON: btoa(String.fromCharCode(...new Uint8Array((assertion as any).response.clientDataJSON))),
+            signature: btoa(String.fromCharCode(...new Uint8Array((assertion as any).response.signature))),
+            userHandle: (assertion as any).response.userHandle
+              ? btoa(String.fromCharCode(...new Uint8Array((assertion as any).response.userHandle)))
               : null,
           },
           type: "public-key",
-          clientExtensionResults: (assertion as unknown).getClientExtensionResults(),
+          clientExtensionResults: (assertion as any).getClientExtensionResults(),
         }),
       });
 
@@ -384,7 +384,7 @@ export default function AdminGate({ onVerified, redirectTo, requiredRole = "admi
       updateGateStatus("webauthn", true);
       const next = getNextStep("webauthn");
       setCurrentStep(next);
-    } catch (err: unknown) {
+    } catch (err: any) {
       setError(err.message || "Hardware key error.");
     } finally {
       setLoading(false);

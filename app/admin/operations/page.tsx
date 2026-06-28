@@ -26,7 +26,7 @@ import {
   Zap,
 } from "lucide-react";
 
-/* ─── Types ─── */
+/*  Types  */
 type RealStatus = "passed" | "executing" | "completed" | "cancelled";
 type FilterStatus = RealStatus | "all";
 
@@ -94,7 +94,7 @@ interface ClosureAlert {
   monthsCritical: number;
 }
 
-/* ─── Config ─── */
+/*  Config  */
 const STATUS_CONFIG: Record<
   RealStatus,
   {
@@ -191,7 +191,7 @@ const TYPE_COLORS: Record<string, string> = {
   performance_review: "border-blue-500/20 text-blue-400 bg-blue-500/10",
 };
 
-/* ─── Stat card styles ─── */
+/*  Stat card styles  */
 const STAT_STYLES: Record<
   string,
   { border: string; bg: string; text: string; icon: React.ElementType }
@@ -240,7 +240,7 @@ const STAT_STYLES: Record<
   },
 };
 
-/* ─── Component ─── */
+/*  Component  */
 export default function OperationsPage() {
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [closureAlerts, setClosureAlerts] = useState<ClosureAlert[]>([]);
@@ -249,7 +249,9 @@ export default function OperationsPage() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [actionLoading, setActionLoading] = useState<Record<string, boolean>>({});
+  const [actionLoading, setActionLoading] = useState<Record<string, boolean>>(
+    {},
+  );
   const [message, setMessage] = useState("");
 
   const [execForms, setExecForms] = useState<
@@ -276,7 +278,8 @@ export default function OperationsPage() {
       const closureData = await closureRes.json();
 
       if (proposalsData.success) setProposals(proposalsData.proposals || []);
-      if (closureData.success) setClosureAlerts(closureData.closureAlerts || []);
+      if (closureData.success)
+        setClosureAlerts(closureData.closureAlerts || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -304,11 +307,11 @@ export default function OperationsPage() {
           p.title.toLowerCase().includes(q) ||
           p.hallName.toLowerCase().includes(q) ||
           p.type.toLowerCase().includes(q) ||
-          p.proposer.displayName.toLowerCase().includes(q)
+          p.proposer.displayName.toLowerCase().includes(q),
       );
     }
     return list.sort(
-      (a, b) => new Date(b.endsAt).getTime() - new Date(a.endsAt).getTime()
+      (a, b) => new Date(b.endsAt).getTime() - new Date(a.endsAt).getTime(),
     );
   }, [proposals, activeFilter, typeFilter, search]);
 
@@ -320,8 +323,13 @@ export default function OperationsPage() {
       executing: proposals.filter((p) => p.status === "executing").length,
       completed: proposals.filter((p) => p.status === "completed").length,
       // PHASE 4
-      inventoryOps: proposals.filter((p) => p.type === "inventory_enable" || p.type === "inventory_list").length,
-      forgeOps: proposals.filter((p) => p.type === "forge_enable" || p.type === "hire" || p.type === "fire").length,
+      inventoryOps: proposals.filter(
+        (p) => p.type === "inventory_enable" || p.type === "inventory_list",
+      ).length,
+      forgeOps: proposals.filter(
+        (p) =>
+          p.type === "forge_enable" || p.type === "hire" || p.type === "fire",
+      ).length,
       ihcpOps: proposals.filter((p) => p.type === "ihcp_create").length,
     };
   }, [proposals]);
@@ -336,7 +344,7 @@ export default function OperationsPage() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ action: "start" }),
-        }
+        },
       );
       const data = await res.json();
       if (data.success) {
@@ -371,7 +379,7 @@ export default function OperationsPage() {
             executionCost: form.cost ? Number(form.cost) : null,
             proofUrls: form.proofs,
           }),
-        }
+        },
       );
       const data = await res.json();
       if (data.success) {
@@ -415,13 +423,13 @@ export default function OperationsPage() {
         },
       }));
     },
-    []
+    [],
   );
 
   const updateForm = (
     proposalId: string,
     field: "result" | "cost",
-    value: string
+    value: string,
   ) => {
     setExecForms((prev) => ({
       ...prev,
@@ -442,7 +450,10 @@ export default function OperationsPage() {
     }));
   };
 
-  async function triggerClosureAction(hallId: string, action: "force" | "liquidate") {
+  async function triggerClosureAction(
+    hallId: string,
+    action: "force" | "liquidate",
+  ) {
     try {
       const res = await fetch(`/api/halls/${hallId}/closure`, {
         method: "POST",
@@ -461,7 +472,7 @@ export default function OperationsPage() {
     }
   }
 
-  /* ─── Render ─── */
+  /*  Render  */
   return (
     <div className="relative min-h-full text-slate-100 overflow-x-hidden selection:bg-cyan-500/30 selection:text-white">
       {/* Header */}
@@ -479,7 +490,8 @@ export default function OperationsPage() {
           </span>
         </h1>
         <p className="mt-1 max-w-lg text-sm text-slate-400">
-          Execute what the community votes. Manage IHCP approvals. Trigger closure protocols. Track forge, inventory, and maintenance operations.
+          Execute what the community votes. Manage IHCP approvals. Trigger
+          closure protocols. Track forge, inventory, and maintenance operations.
         </p>
       </div>
 
@@ -497,31 +509,47 @@ export default function OperationsPage() {
                 alert.phase === "liquidation"
                   ? "border-rose-500/20 bg-rose-500/[0.04]"
                   : alert.phase === "decision"
-                  ? "border-orange-500/20 bg-orange-500/[0.04]"
-                  : "border-amber-500/20 bg-amber-500/[0.04]"
+                    ? "border-orange-500/20 bg-orange-500/[0.04]"
+                    : "border-amber-500/20 bg-amber-500/[0.04]"
               }`}
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <Siren className={`h-5 w-5 ${
-                    alert.phase === "liquidation" ? "text-rose-400" : "text-amber-400"
-                  }`} />
+                  <Siren
+                    className={`h-5 w-5 ${
+                      alert.phase === "liquidation"
+                        ? "text-rose-400"
+                        : "text-amber-400"
+                    }`}
+                  />
                   <div>
-                    <h3 className={`text-sm font-bold ${
-                      alert.phase === "liquidation" ? "text-rose-400" : "text-amber-400"
-                    }`}>
-                      {alert.phase === "liquidation" ? "🔒 Liquidation Scheduled" : 
-                       alert.phase === "decision" ? "⚠️ Final Warning" : "⚠️ Closure Warning"}
+                    <h3
+                      className={`text-sm font-bold ${
+                        alert.phase === "liquidation"
+                          ? "text-rose-400"
+                          : "text-amber-400"
+                      }`}
+                    >
+                      {alert.phase === "liquidation"
+                        ? "🔒 Liquidation Scheduled"
+                        : alert.phase === "decision"
+                          ? "⚠️ Final Warning"
+                          : "⚠️ Closure Warning"}
                     </h3>
                     <p className="text-[10px] text-slate-400">
-                      {alert.hallName} • AHGI: {alert.ahgi} • Revenue: ${alert.revenue.toLocaleString()} • Payroll: ${alert.payroll.toLocaleString()} • Net: ${alert.net.toLocaleString()}
+                      {alert.hallName} • AHGI: {alert.ahgi} • Revenue: $
+                      {alert.revenue.toLocaleString()} • Payroll: $
+                      {alert.payroll.toLocaleString()} • Net: $
+                      {alert.net.toLocaleString()}
                     </p>
                   </div>
                 </div>
                 <div className="flex gap-2">
                   {alert.phase !== "liquidation" && (
                     <button
-                      onClick={() => triggerClosureAction(alert.hallId, "force")}
+                      onClick={() =>
+                        triggerClosureAction(alert.hallId, "force")
+                      }
                       className="flex items-center gap-1.5 rounded-lg border border-amber-500/20 bg-amber-500/10 px-3 py-2 text-[10px] font-semibold text-amber-300 hover:bg-amber-500/20 transition-all"
                     >
                       <Zap className="h-3.5 w-3.5" /> Force Closure
@@ -611,7 +639,7 @@ export default function OperationsPage() {
                   </span>
                 </button>
               );
-            }
+            },
           )}
 
           <select
@@ -669,12 +697,16 @@ export default function OperationsPage() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             className={`mb-4 flex items-center gap-2 rounded-lg border px-4 py-3 text-xs ${
-              message.includes("completed") || message.includes("started") || message.includes("triggered")
+              message.includes("completed") ||
+              message.includes("started") ||
+              message.includes("triggered")
                 ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-400"
                 : "border-rose-500/20 bg-rose-500/10 text-rose-400"
             }`}
           >
-            {message.includes("completed") || message.includes("started") || message.includes("triggered") ? (
+            {message.includes("completed") ||
+            message.includes("started") ||
+            message.includes("triggered") ? (
               <CheckCircle2 className="h-4 w-4" />
             ) : (
               <AlertTriangle className="h-4 w-4" />
@@ -713,8 +745,13 @@ export default function OperationsPage() {
             };
 
             // PHASE 4: Special indicators
-            const isInventoryOp = proposal.type === "inventory_enable" || proposal.type === "inventory_list";
-            const isForgeOp = proposal.type === "forge_enable" || proposal.type === "hire" || proposal.type === "fire";
+            const isInventoryOp =
+              proposal.type === "inventory_enable" ||
+              proposal.type === "inventory_list";
+            const isForgeOp =
+              proposal.type === "forge_enable" ||
+              proposal.type === "hire" ||
+              proposal.type === "fire";
             const isIhcpOp = proposal.type === "ihcp_create";
 
             return (
@@ -851,7 +888,9 @@ export default function OperationsPage() {
                               Proposed
                             </p>
                             <p className="mt-1 text-xs font-semibold text-white">
-                              {new Date(proposal.createdAt).toLocaleDateString()}
+                              {new Date(
+                                proposal.createdAt,
+                              ).toLocaleDateString()}
                             </p>
                           </div>
                           <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
@@ -889,7 +928,8 @@ export default function OperationsPage() {
                           <div className="mb-4 rounded-lg border border-emerald-500/10 bg-emerald-500/[0.04] p-3">
                             <p className="text-[10px] text-emerald-400 flex items-center gap-2">
                               <PiggyBank className="h-3.5 w-3.5" />
-                              IHCP Proposal: 5% priority return. Repaid from revenue before dividends.
+                              IHCP Proposal: 5% priority return. Repaid from
+                              revenue before dividends.
                             </p>
                           </div>
                         )}
@@ -930,7 +970,11 @@ export default function OperationsPage() {
                               <textarea
                                 value={form.result}
                                 onChange={(e) =>
-                                  updateForm(proposal.id, "result", e.target.value)
+                                  updateForm(
+                                    proposal.id,
+                                    "result",
+                                    e.target.value,
+                                  )
                                 }
                                 rows={2}
                                 className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-3 text-xs text-white placeholder:text-slate-600 outline-none focus:border-cyan-500/30 resize-none"
@@ -949,7 +993,11 @@ export default function OperationsPage() {
                                   type="number"
                                   value={form.cost}
                                   onChange={(e) =>
-                                    updateForm(proposal.id, "cost", e.target.value)
+                                    updateForm(
+                                      proposal.id,
+                                      "cost",
+                                      e.target.value,
+                                    )
                                   }
                                   className="w-full rounded-xl border border-white/10 bg-white/[0.03] pl-8 pr-4 py-2.5 text-xs text-white outline-none focus:border-cyan-500/30 sm:w-48"
                                   placeholder="0.00"
@@ -968,7 +1016,10 @@ export default function OperationsPage() {
                                   multiple
                                   accept="image/*"
                                   onChange={(e) =>
-                                    handleProofUpload(proposal.id, e.target.files)
+                                    handleProofUpload(
+                                      proposal.id,
+                                      e.target.files,
+                                    )
                                   }
                                   className="absolute inset-0 cursor-pointer opacity-0"
                                 />
@@ -1038,7 +1089,8 @@ export default function OperationsPage() {
                               <CheckCircle2 className="h-3.5 w-3.5" /> Completed
                             </div>
                             <p className="text-xs text-slate-300">
-                              {proposal.executionResult || "No result recorded."}
+                              {proposal.executionResult ||
+                                "No result recorded."}
                             </p>
                             {proposal.executedAt && (
                               <p className="mt-2 text-[10px] text-slate-500">
@@ -1050,8 +1102,8 @@ export default function OperationsPage() {
                               href={`/admin/operations/${proposal.id}`}
                               className="mt-3 inline-flex items-center gap-1.5 text-[10px] font-semibold text-cyan-400 hover:text-cyan-300"
                             >
-                              <Eye className="h-3.5 w-3.5" /> View Execution
-                              Log <ArrowRight className="h-3 w-3" />
+                              <Eye className="h-3.5 w-3.5" /> View Execution Log{" "}
+                              <ArrowRight className="h-3 w-3" />
                             </Link>
                           </div>
                         )}

@@ -106,7 +106,7 @@ function getItemTags(item: InventoryItem): string[] {
   }
 }
 
-function getVerticalConfig(hall: unknown): typeof VERTICAL_CONFIG[VerticalId] {
+function getVerticalConfig(hall: any): typeof VERTICAL_CONFIG[VerticalId] {
   const vid = (hall?.pool?.verticalId || hall?.verticalId || "ledgerprop") as VerticalId;
   return VERTICAL_CONFIG[vid] || VERTICAL_CONFIG.ledgerprop;
 }
@@ -273,7 +273,7 @@ function ShareForgeModal({
   onClose,
 }: {
   item: InventoryItem | null;
-  hall: unknown;
+  hall: any;
   open: boolean;
   onClose: () => void;
 }) {
@@ -434,7 +434,7 @@ function EscrowModal({
   onConfirm,
 }: {
   item: InventoryItem | null;
-  hall: unknown;
+  hall: any;
   userKycTier: string;
   open: boolean;
   onClose: () => void;

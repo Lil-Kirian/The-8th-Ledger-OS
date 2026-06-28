@@ -7,7 +7,7 @@ const LEDGER_TITHE_PCT = 0.20;
 
 interface TreasuryResponse {
   success: boolean;
-  data?: unknown;
+  data?: any;
   error?: string;
   message?: string;
 }
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get("type") || "all";
 
-    const response: unknown = { success: true };
+    const response: any = { success: true };
 
     // ── Global state ──
     if (type === "all" || type === "state") {

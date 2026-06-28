@@ -32,7 +32,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ─────────────────────────────────────────────────────────
+//  Types
 
 export type SriTier = "platinum" | "gold" | "silver" | "bronze" | "at_risk";
 
@@ -63,7 +63,7 @@ export interface SriDisplayProps {
   className?: string;
 }
 
-// ─── Tier Config ─────────────────────────────────────────────────────
+//  Tier Config ─
 
 const TIER_CONFIG: Record<
   SriTier,
@@ -165,7 +165,7 @@ const COMPONENT_ICONS: Record<string, React.ElementType> = {
   "Marketplace Velocity": ShoppingCart,
 };
 
-// ─── Helpers ─────────────────────────────────────────────────────────
+//  Helpers
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString("en-US", {
@@ -195,7 +195,7 @@ function getScoreBg(score: number): string {
   return "bg-red-500";
 }
 
-// ─── Main Component ────────────────────────────────────────────────
+//  Main Component
 
 export function SriDisplay({
   data,
@@ -474,7 +474,7 @@ export function SriDisplay({
   );
 }
 
-// ─── Skeleton ────────────────────────────────────────────────────────
+//  Skeleton ─
 
 export function SriDisplaySkeleton() {
   return (

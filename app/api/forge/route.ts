@@ -9,7 +9,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
 
-/* ─── TIER CONFIGURATION ─── */
+/*  TIER CONFIGURATION  */
 const TIERS = [
   { level: 1, name: "Novice", minTrust: 0, maxTrust: 199, forgeCost: 0 },
   { level: 2, name: "Adept", minTrust: 200, maxTrust: 399, forgeCost: 50 },
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
     if (!dbUser) {
       return NextResponse.json(
         { success: false, error: "User not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -70,24 +70,30 @@ export async function GET(req: NextRequest) {
     const nextTierProgress = nextTier
       ? Math.min(
           100,
-          Math.round(((trustScore - currentTier.minTrust) / (nextTier.minTrust - currentTier.minTrust)) * 100)
+          Math.round(
+            ((trustScore - currentTier.minTrust) /
+              (nextTier.minTrust - currentTier.minTrust)) *
+              100,
+          ),
         )
       : 100;
 
     // Forge history pulled from audit logs (forgeTransaction table retired)
-    const forgeHistory = await prisma.auditLog.findMany({
-      where: { ledgerId: user.ledgerId, eventType: "forge_completed" },
-      orderBy: { timestamp: "desc" },
-      take: 50,
-      select: {
-        id: true,
-        timestamp: true,
-        metadata: true,
-        txHash: true,
-      },
-    }).catch(() => []);
+    const forgeHistory = await prisma.auditLog
+      .findMany({
+        where: { ledgerId: user.ledgerId, eventType: "forge_completed" },
+        orderBy: { timestamp: "desc" },
+        take: 50,
+        select: {
+          id: true,
+          timestamp: true,
+          metadata: true,
+          txHash: true,
+        },
+      })
+      .catch(() => []);
 
-    const history = forgeHistory.map((tx: unknown) => {
+    const history = forgeHistory.map((tx: any) => {
       const meta = tx.metadata ? JSON.parse(tx.metadata) : {};
       return {
         id: tx.id,
@@ -100,15 +106,17 @@ export async function GET(req: NextRequest) {
       };
     });
 
-    await prisma.auditLog.create({
-      data: {
-        eventType: "forge_viewed",
-        description: "User viewed forge profile",
-        ledgerId: user.ledgerId,
-        txHash: `FORGE-VIEW-${Date.now()}`,
-        visibleToPublic: false,
-      },
-    }).catch(() => {});
+    await prisma.auditLog
+      .create({
+        data: {
+          eventType: "forge_viewed",
+          description: "User viewed forge profile",
+          ledgerId: user.ledgerId,
+          txHash: `FORGE-VIEW-${Date.now()}`,
+          visibleToPublic: false,
+        },
+      })
+      .catch(() => {});
 
     return NextResponse.json({
       success: true,
@@ -129,15 +137,18 @@ export async function GET(req: NextRequest) {
       history,
       supply: {
         total: 21_000_000,
-        burned: history.reduce((a: number, h: unknown) => a + (h.ledgerBurned || 0), 0),
+        burned: history.reduce(
+          (a: number, h: any) => a + (h.ledgerBurned || 0),
+          0,
+        ),
         remainingPercent: "100.0",
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[API/forge GET]", err);
     return NextResponse.json(
       { success: false, error: "Failed to fetch forge data" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -152,7 +163,7 @@ export async function POST(req: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -173,7 +184,7 @@ export async function POST(req: NextRequest) {
     if (!dbUser) {
       return NextResponse.json(
         { success: false, error: "User not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -187,14 +198,17 @@ export async function POST(req: NextRequest) {
     if (!nextTier) {
       return NextResponse.json(
         { success: false, error: "Already at maximum tier" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (targetTier && targetTier !== nextTier.level) {
       return NextResponse.json(
-        { success: false, error: "Can only forge to the next consecutive tier" },
-        { status: 400 }
+        {
+          success: false,
+          error: "Can only forge to the next consecutive tier",
+        },
+        { status: 400 },
       );
     }
 
@@ -204,7 +218,7 @@ export async function POST(req: NextRequest) {
           success: false,
           error: `Insufficient Ledger balance. Need ${nextTier.forgeCost} LED, have ${currentLedger}.`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -260,11 +274,11 @@ export async function POST(req: NextRequest) {
         forgesCompleted: newForges,
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[API/forge POST]", err);
     return NextResponse.json(
       { success: false, error: "Forge failed: " + err.message },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

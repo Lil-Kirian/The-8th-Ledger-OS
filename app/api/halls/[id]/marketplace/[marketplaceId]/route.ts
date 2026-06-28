@@ -6,7 +6,7 @@ import { requireAuth, isFounderSync, getSessionClaims } from "@/lib/auth";
 const PLATFORM_FEE_PCT = 0.05;
 const KYC_THRESHOLD = 500;
 
-/* ── GET — Public product detail ─────────────────────────── */
+/* ── GET — Public product detail  */
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; marketplaceId: string }> }
@@ -85,7 +85,7 @@ export async function GET(
   }
 }
 
-/* ── POST — Buy inventory item ────────────────────────────── */
+/* ── POST — Buy inventory item ─ */
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ id: string; marketplaceId: string }> }

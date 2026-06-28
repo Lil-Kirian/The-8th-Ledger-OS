@@ -18,7 +18,7 @@ interface RecoverApiResponse {
 /* ============================================================
    RESPONSE PARSER
    ============================================================ */
-function parseRecoverResponse(raw: unknown): RecoverApiResponse {
+function parseRecoverResponse(raw: any): RecoverApiResponse {
   if (typeof raw !== "object" || raw === null) {
     return { success: false, error: "Invalid response structure" };
   }
@@ -33,7 +33,7 @@ function parseRecoverResponse(raw: unknown): RecoverApiResponse {
 /* ============================================================
    MAIN PAGE
    ============================================================ */
-export default function RecoverPage(): JSX.Element {
+export default function RecoverPage() {
   const [email, setEmail] = useState<string>("");
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
@@ -51,7 +51,7 @@ export default function RecoverPage(): JSX.Element {
         body: JSON.stringify({ email }),
       });
 
-      const raw: unknown = await res.json();
+      const raw: any = await res.json();
       const data = parseRecoverResponse(raw);
 
       if (!res.ok || !data.success) {

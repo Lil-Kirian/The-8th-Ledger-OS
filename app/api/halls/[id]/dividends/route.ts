@@ -33,7 +33,7 @@ export async function GET(
     const tier = kyc?.tier || "visitor";
 
     // ── Fetch dividends ──
-    const where: unknown = { hallId, userId: user.id };
+    const where: any = { hallId, userId: user.id };
     if (status && ["unclaimed", "claimed"].includes(status)) {
       where.status = status;
     }

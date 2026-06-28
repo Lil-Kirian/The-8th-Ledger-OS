@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
         });
 
         return NextResponse.json({ success: true, message: "Hardware key enrolled" });
-      } catch (libError: unknown) {
+      } catch (libError: any) {
         // Fallback: store raw credential without deep verification
         // ⚠️ Production should use @simplewebauthn/server for full verification
         await prisma.user.update({
@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
     }
 
     return NextResponse.json({ error: "Invalid step. Use 'start' or 'finish'." }, { status: 400 });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[WEBAUTHN REGISTER]", err);
     return NextResponse.json(
       { error: err.message || "Hardware key registration failed" },
