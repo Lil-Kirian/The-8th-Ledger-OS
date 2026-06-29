@@ -8,9 +8,9 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS
-// ─────────────────────────────────────────────────────────────
+//
 
 const PHASE_DURATIONS_MS = {
   hush: 48 * 60 * 60 * 1000,
@@ -22,9 +22,9 @@ const PHASE_DURATIONS_MS = {
 const REVEAL_START_OFFSET_MS = PHASE_DURATIONS_MS.hush + PHASE_DURATIONS_MS.unveil;
 const REVEAL_END_OFFSET_MS = REVEAL_START_OFFSET_MS + PHASE_DURATIONS_MS.reveal;
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function maskPoolId(poolId: string): string {
   if (!poolId || poolId.length < 4) return "POOL-XXXX";
@@ -64,10 +64,10 @@ async function logAudit(props: {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST /api/meridian/cycle/[id]/vote
 // Cast one vote. Reveal phase only. Atomic. Audited.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function POST(
   req: NextRequest,
@@ -81,7 +81,7 @@ export async function POST(
     if (!cycleId || cycleId.length < 10) {
       return NextResponse.json(
         { error: "Invalid cycle ID", code: "VALIDATION_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -89,10 +89,14 @@ export async function POST(
     const body = await req.json();
     const { cyclePoolId } = body as { cyclePoolId?: string };
 
-    if (!cyclePoolId || typeof cyclePoolId !== "string" || cyclePoolId.length < 10) {
+    if (
+      !cyclePoolId ||
+      typeof cyclePoolId !== "string" ||
+      cyclePoolId.length < 10
+    ) {
       return NextResponse.json(
         { error: "Valid cycle pool ID required", code: "VALIDATION_POOL_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -110,7 +114,7 @@ export async function POST(
     if (!cycle) {
       return NextResponse.json(
         { error: "Cycle not found", code: "NOT_FOUND" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -121,14 +125,17 @@ export async function POST(
           code: "PHASE_LOCKED",
           currentPhase: cycle.phase,
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     if (cycle.lockStatus === "locked") {
       return NextResponse.json(
-        { error: "This cycle is locked. Voting is sealed.", code: "CYCLE_LOCKED" },
-        { status: 403 }
+        {
+          error: "This cycle is locked. Voting is sealed.",
+          code: "CYCLE_LOCKED",
+        },
+        { status: 403 },
       );
     }
 
@@ -140,7 +147,7 @@ export async function POST(
           code: "REVEAL_ENDED",
           timeRemaining: 0,
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -165,8 +172,11 @@ export async function POST(
 
     if (!cyclePool) {
       return NextResponse.json(
-        { error: "This contender is not part of the current cycle.", code: "INVALID_POOL" },
-        { status: 400 }
+        {
+          error: "This contender is not part of the current cycle.",
+          code: "INVALID_POOL",
+        },
+        { status: 400 },
       );
     }
 
@@ -187,7 +197,7 @@ export async function POST(
           code: "ALREADY_VOTED",
           votedFor: existingVote.poolId,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -249,37 +259,43 @@ export async function POST(
           timeRemaining: getRevealTimeRemaining(cycle.startAt),
         },
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error: any) {
     console.error("[MERIDIAN_VOTE_POST]", error);
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
         { error: "Authentication required", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     // Prisma unique constraint (race condition)
     if (error.code === "P2002") {
       return NextResponse.json(
-        { error: "Vote already recorded. Refresh and try again.", code: "CONFLICT" },
-        { status: 409 }
+        {
+          error: "Vote already recorded. Refresh and try again.",
+          code: "CONFLICT",
+        },
+        { status: 409 },
       );
     }
 
     return NextResponse.json(
       { error: "Your vote could not be recorded", code: "MERIDIAN_VOTE_001" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/meridian/cycle/[id]/vote
 // Check if current user has voted. Cached 10s.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(
   req: NextRequest,
@@ -292,7 +308,7 @@ export async function GET(
     if (!cycleId || cycleId.length < 10) {
       return NextResponse.json(
         { error: "Invalid cycle ID", code: "VALIDATION_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -355,16 +371,19 @@ export async function GET(
   } catch (error: any) {
     console.error("[MERIDIAN_VOTE_GET]", error);
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
         { error: "Authentication required", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     return NextResponse.json(
       { error: "Cannot retrieve vote status", code: "MERIDIAN_VOTE_002" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

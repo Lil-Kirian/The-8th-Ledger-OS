@@ -6,7 +6,6 @@ import {
   PiggyBank,
   TrendingUp,
   ArrowUpRight,
-  ArrowDownRight,
   Clock,
   AlertCircle,
   CheckCircle2,
@@ -23,15 +22,38 @@ import {
   Calendar,
   Wallet,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { useIhcpStatus, useProposeIhcp, useContributeIhcp } from "@/hooks/use-ihcp";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  useIhcpStatus,
+  useProposeIhcp,
+  useContributeIhcp,
+} from "@/hooks/use-ihcp";
 
 interface IhcpPanelProps {
   hallId: string;
@@ -39,29 +61,84 @@ interface IhcpPanelProps {
   isAdmin?: boolean;
 }
 
+type IhcpPurpose =
+  | "payroll"
+  | "inventory"
+  | "stock"
+  | "marketing"
+  | "upgrade"
+  | "emergency";
+
 // FIX: API uses "stock" not "inventory" for purpose validation
-const PURPOSE_LABELS: Record<string, { label: string; color: string; icon: any }> = {
-  payroll: { label: "Payroll", color: "bg-amber-500/20 text-amber-400", icon: Wallet },
-  stock: { label: "Inventory Stock", color: "bg-cyan-500/20 text-cyan-400", icon: PiggyBank },
-  marketing: { label: "Marketing", color: "bg-violet-500/20 text-violet-400", icon: TrendingUp },
-  upgrade: { label: "Asset Upgrade", color: "bg-emerald-500/20 text-emerald-400", icon: ArrowUpRight },
-  emergency: { label: "Emergency", color: "bg-red-500/20 text-red-400", icon: AlertCircle },
+const PURPOSE_LABELS: Record<
+  string,
+  { label: string; color: string; icon: any }
+> = {
+  payroll: {
+    label: "Payroll",
+    color: "bg-amber-500/20 text-amber-400",
+    icon: Wallet,
+  },
+  stock: {
+    label: "Inventory Stock",
+    color: "bg-cyan-500/20 text-cyan-400",
+    icon: PiggyBank,
+  },
+  marketing: {
+    label: "Marketing",
+    color: "bg-violet-500/20 text-violet-400",
+    icon: TrendingUp,
+  },
+  upgrade: {
+    label: "Asset Upgrade",
+    color: "bg-emerald-500/20 text-emerald-400",
+    icon: ArrowUpRight,
+  },
+  emergency: {
+    label: "Emergency",
+    color: "bg-red-500/20 text-red-400",
+    icon: AlertCircle,
+  },
 };
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; icon: any }> = {
-  active: { label: "Active", color: "bg-amber-500/20 text-amber-400", icon: Clock },
-  repaid: { label: "Repaid", color: "bg-emerald-500/20 text-emerald-400", icon: CheckCircle2 },
-  defaulted: { label: "Defaulted", color: "bg-red-500/20 text-red-400", icon: XCircle },
-  cancelled: { label: "Cancelled", color: "bg-slate-500/20 text-slate-400", icon: XCircle },
+const STATUS_CONFIG: Record<
+  string,
+  { label: string; color: string; icon: any }
+> = {
+  active: {
+    label: "Active",
+    color: "bg-amber-500/20 text-amber-400",
+    icon: Clock,
+  },
+  repaid: {
+    label: "Repaid",
+    color: "bg-emerald-500/20 text-emerald-400",
+    icon: CheckCircle2,
+  },
+  defaulted: {
+    label: "Defaulted",
+    color: "bg-red-500/20 text-red-400",
+    icon: XCircle,
+  },
+  cancelled: {
+    label: "Cancelled",
+    color: "bg-slate-500/20 text-slate-400",
+    icon: XCircle,
+  },
 };
 
-export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) {
+export function IhcpPanel({
+  hallId,
+  balance,
+  isAdmin = false,
+}: IhcpPanelProps) {
   const [showContribute, setShowContribute] = useState(false);
   const [showPropose, setShowPropose] = useState(false);
   const [contributeAmount, setContributeAmount] = useState("");
-  const [contributePurpose, setContributePurpose] = useState("stock"); // FIX: default to "stock" not "inventory"
+  const [contributePurpose, setContributePurpose] =
+    useState<IhcpPurpose>("stock"); // FIX: default to "stock" not "inventory"
   const [proposeAmount, setProposeAmount] = useState(""); // FIX: new state
-  const [proposePurpose, setProposePurpose] = useState("stock"); // FIX: new state
+  const [proposePurpose, setProposePurpose] = useState<IhcpPurpose>("stock"); // FIX: new state
   const [expandedEntry, setExpandedEntry] = useState<string | null>(null);
 
   const { data: ihcpData, isLoading } = useIhcpStatus(hallId);
@@ -69,10 +146,20 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
   const contributeIhcp = useContributeIhcp();
 
   const contributions = ihcpData?.contributions || [];
-  const totalContributed = contributions.reduce((sum: number, c: any) => sum + c.amount, 0);
-  const totalRepaid = contributions.reduce((sum: number, c: any) => sum + c.repaidAmount, 0);
-  const activeContributions = contributions.filter((c: any) => c.status === "active");
-  const repaidContributions = contributions.filter((c: any) => c.status === "repaid");
+  const totalContributed = contributions.reduce(
+    (sum: number, c: any) => sum + c.amount,
+    0,
+  );
+  const totalRepaid = contributions.reduce(
+    (sum: number, c: any) => sum + c.repaidAmount,
+    0,
+  );
+  const activeContributions = contributions.filter(
+    (c: any) => c.status === "active",
+  );
+  const repaidContributions = contributions.filter(
+    (c: any) => c.status === "repaid",
+  );
 
   const handleContribute = async () => {
     const amount = parseInt(contributeAmount);
@@ -114,30 +201,48 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
             <PiggyBank className="w-16 h-16 text-amber-500" />
           </div>
           <CardContent className="p-5">
-            <p className="text-xs text-slate-500 uppercase tracking-wider">Current Balance</p>
-            <p className="text-3xl font-bold text-white mt-2">${balance.toLocaleString()}</p>
-            <p className="text-xs text-slate-400 mt-1">Available for hall operations</p>
+            <p className="text-xs text-slate-500 uppercase tracking-wider">
+              Current Balance
+            </p>
+            <p className="text-3xl font-bold text-white mt-2">
+              ${balance.toLocaleString()}
+            </p>
+            <p className="text-xs text-slate-400 mt-1">
+              Available for hall operations
+            </p>
           </CardContent>
         </Card>
 
         <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-5">
-            <p className="text-xs text-slate-500 uppercase tracking-wider">Total Contributed</p>
-            <p className="text-3xl font-bold text-white mt-2">${totalContributed.toLocaleString()}</p>
+            <p className="text-xs text-slate-500 uppercase tracking-wider">
+              Total Contributed
+            </p>
+            <p className="text-3xl font-bold text-white mt-2">
+              ${totalContributed.toLocaleString()}
+            </p>
             <div className="flex items-center gap-2 mt-1">
               <TrendingUp className="w-3 h-3 text-emerald-400" />
-              <p className="text-xs text-emerald-400">{activeContributions.length} active pools</p>
+              <p className="text-xs text-emerald-400">
+                {activeContributions.length} active pools
+              </p>
             </div>
           </CardContent>
         </Card>
 
         <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-5">
-            <p className="text-xs text-slate-500 uppercase tracking-wider">Total Repaid</p>
-            <p className="text-3xl font-bold text-white mt-2">${totalRepaid.toLocaleString()}</p>
+            <p className="text-xs text-slate-500 uppercase tracking-wider">
+              Total Repaid
+            </p>
+            <p className="text-3xl font-bold text-white mt-2">
+              ${totalRepaid.toLocaleString()}
+            </p>
             <div className="flex items-center gap-2 mt-1">
               <CheckCircle2 className="w-3 h-3 text-cyan-400" />
-              <p className="text-xs text-cyan-400">{repaidContributions.length} completed</p>
+              <p className="text-xs text-cyan-400">
+                {repaidContributions.length} completed
+              </p>
             </div>
           </CardContent>
         </Card>
@@ -161,7 +266,8 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
                 <p className="text-white font-medium">Contribute</p>
               </div>
               <p className="text-slate-400 text-xs pl-10">
-                Owners vote to create an IHCP. Members contribute capital for specific hall needs.
+                Owners vote to create an IHCP. Members contribute capital for
+                specific hall needs.
               </p>
             </div>
             <div className="space-y-2">
@@ -172,7 +278,8 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
                 <p className="text-white font-medium">Spend</p>
               </div>
               <p className="text-slate-400 text-xs pl-10">
-                8th Ledger executes the spending (payroll, stock, upgrades) from the IHCP balance.
+                8th Ledger executes the spending (payroll, stock, upgrades) from
+                the IHCP balance.
               </p>
             </div>
             <div className="space-y-2">
@@ -183,7 +290,8 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
                 <p className="text-white font-medium">Repay</p>
               </div>
               <p className="text-slate-400 text-xs pl-10">
-                Revenue flows in. IHCP gets repaid FIRST before dividends, with 5% priority return.
+                Revenue flows in. IHCP gets repaid FIRST before dividends, with
+                5% priority return.
               </p>
             </div>
             <div className="space-y-2">
@@ -194,7 +302,8 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
                 <p className="text-white font-medium">Distribute</p>
               </div>
               <p className="text-slate-400 text-xs pl-10">
-                Once IHCP is repaid, normal revenue flow resumes. Contributors earn their 5% extra.
+                Once IHCP is repaid, normal revenue flow resumes. Contributors
+                earn their 5% extra.
               </p>
             </div>
           </div>
@@ -235,7 +344,9 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
         </CardHeader>
         <CardContent>
           {isLoading ? (
-            <div className="text-center py-8 text-slate-500">Loading contributions...</div>
+            <div className="text-center py-8 text-slate-500">
+              Loading contributions...
+            </div>
           ) : contributions.length === 0 ? (
             <div className="text-center py-8">
               <PiggyBank className="w-12 h-12 text-slate-700 mx-auto mb-3" />
@@ -247,13 +358,21 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
           ) : (
             <div className="space-y-3">
               {contributions.map((contribution: any) => {
-                const purpose = PURPOSE_LABELS[contribution.purpose] || PURPOSE_LABELS.payroll;
-                const status = STATUS_CONFIG[contribution.status] || STATUS_CONFIG.active;
+                const purpose =
+                  PURPOSE_LABELS[contribution.purpose] ||
+                  PURPOSE_LABELS.payroll;
+                const status =
+                  STATUS_CONFIG[contribution.status] || STATUS_CONFIG.active;
                 const PurposeIcon = purpose.icon;
                 const StatusIcon = status.icon;
-                const repaymentPercent = contribution.amount > 0
-                  ? Math.round((contribution.repaidAmount / (contribution.amount * 1.05)) * 100)
-                  : 0;
+                const repaymentPercent =
+                  contribution.amount > 0
+                    ? Math.round(
+                        (contribution.repaidAmount /
+                          (contribution.amount * 1.05)) *
+                          100,
+                      )
+                    : 0;
                 const isExpanded = expandedEntry === contribution.id;
 
                 return (
@@ -265,31 +384,46 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
                   >
                     <div
                       className="p-4 flex items-center gap-4 cursor-pointer hover:bg-slate-800/30 transition-colors"
-                      onClick={() => setExpandedEntry(isExpanded ? null : contribution.id)}
+                      onClick={() =>
+                        setExpandedEntry(isExpanded ? null : contribution.id)
+                      }
                     >
                       <div className={`p-2 rounded-lg ${purpose.color}`}>
                         <PurposeIcon className="w-4 h-4" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium text-white">{purpose.label}</p>
+                          <p className="text-sm font-medium text-white">
+                            {purpose.label}
+                          </p>
                           <Badge className={status.color}>
                             <StatusIcon className="w-3 h-3 mr-1" />
                             {status.label}
                           </Badge>
                         </div>
                         <p className="text-xs text-slate-500 mt-0.5">
-                          Contributed ${contribution.amount.toLocaleString()} · {new Date(contribution.createdAt).toLocaleDateString()}
+                          Contributed ${contribution.amount.toLocaleString()} ·{" "}
+                          {new Date(
+                            contribution.createdAt,
+                          ).toLocaleDateString()}
                         </p>
                       </div>
                       <div className="text-right">
                         <p className="text-sm font-medium text-white">
-                          ${contribution.repaidAmount.toLocaleString()} / ${Math.round(contribution.amount * 1.05).toLocaleString()}
+                          ${contribution.repaidAmount.toLocaleString()} / $
+                          {Math.round(
+                            contribution.amount * 1.05,
+                          ).toLocaleString()}
                         </p>
-                        <p className="text-xs text-slate-500">{repaymentPercent}% repaid</p>
+                        <p className="text-xs text-slate-500">
+                          {repaymentPercent}% repaid
+                        </p>
                       </div>
                       <div className="w-24">
-                        <Progress value={Math.min(100, repaymentPercent)} className="h-1.5" />
+                        <Progress
+                          value={Math.min(100, repaymentPercent)}
+                          className="h-1.5"
+                        />
                       </div>
                       {isExpanded ? (
                         <ChevronUp className="w-4 h-4 text-slate-500" />
@@ -308,30 +442,51 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
                         >
                           <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div>
-                              <p className="text-xs text-slate-500 uppercase">Original Amount</p>
-                              <p className="text-white font-medium mt-1">${contribution.amount.toLocaleString()}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-slate-500 uppercase">Repaid So Far</p>
-                              <p className="text-emerald-400 font-medium mt-1">${contribution.repaidAmount.toLocaleString()}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-slate-500 uppercase">Total Owed (incl. 5%)</p>
-                              <p className="text-amber-400 font-medium mt-1">
-                                ${Math.round(contribution.amount * 1.05).toLocaleString()}
+                              <p className="text-xs text-slate-500 uppercase">
+                                Original Amount
+                              </p>
+                              <p className="text-white font-medium mt-1">
+                                ${contribution.amount.toLocaleString()}
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-slate-500 uppercase">Remaining</p>
+                              <p className="text-xs text-slate-500 uppercase">
+                                Repaid So Far
+                              </p>
+                              <p className="text-emerald-400 font-medium mt-1">
+                                ${contribution.repaidAmount.toLocaleString()}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-500 uppercase">
+                                Total Owed (incl. 5%)
+                              </p>
+                              <p className="text-amber-400 font-medium mt-1">
+                                $
+                                {Math.round(
+                                  contribution.amount * 1.05,
+                                ).toLocaleString()}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-500 uppercase">
+                                Remaining
+                              </p>
                               <p className="text-violet-400 font-medium mt-1">
-                                ${Math.max(0, Math.round(contribution.amount * 1.05) - contribution.repaidAmount).toLocaleString()}
+                                $
+                                {Math.max(
+                                  0,
+                                  Math.round(contribution.amount * 1.05) -
+                                    contribution.repaidAmount,
+                                ).toLocaleString()}
                               </p>
                             </div>
                           </div>
                           <div className="px-4 pb-4">
                             <p className="text-xs text-slate-500">
                               <Info className="w-3 h-3 inline mr-1" />
-                              Repayment is deducted automatically from hall revenue before dividends are distributed.
+                              Repayment is deducted automatically from hall
+                              revenue before dividends are distributed.
                             </p>
                           </div>
                         </motion.div>
@@ -354,14 +509,20 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
               Contribute to IHCP
             </DialogTitle>
             <DialogDescription className="text-slate-400">
-              Contribute capital to the Internal Hall Contribution Pool. You will be repaid with 5% priority return.
+              Contribute capital to the Internal Hall Contribution Pool. You
+              will be repaid with 5% priority return.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label className="text-slate-300">Purpose</Label>
-              <Select value={contributePurpose} onValueChange={setContributePurpose}>
+              <Select
+                value={contributePurpose}
+                onValueChange={(value) =>
+                  setContributePurpose(value as IhcpPurpose)
+                }
+              >
                 <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
                   <SelectValue />
                 </SelectTrigger>
@@ -389,7 +550,13 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
                 />
               </div>
               <p className="text-xs text-slate-500">
-                Min: $1 · You will receive {contributeAmount ? Math.round(parseInt(contributeAmount) * 1.05).toLocaleString() : "0"} on full repayment
+                Min: $1 · You will receive{" "}
+                {contributeAmount
+                  ? Math.round(
+                      parseInt(contributeAmount) * 1.05,
+                    ).toLocaleString()
+                  : "0"}{" "}
+                on full repayment
               </p>
             </div>
 
@@ -397,9 +564,12 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
               <div className="flex items-start gap-2">
                 <Percent className="w-4 h-4 text-amber-400 mt-0.5" />
                 <div>
-                  <p className="text-sm text-amber-400 font-medium">5% Priority Return</p>
+                  <p className="text-sm text-amber-400 font-medium">
+                    5% Priority Return
+                  </p>
                   <p className="text-xs text-amber-300/70">
-                    IHCP contributors are repaid first from revenue, before dividends. You earn 5% extra on your contribution.
+                    IHCP contributors are repaid first from revenue, before
+                    dividends. You earn 5% extra on your contribution.
                   </p>
                 </div>
               </div>
@@ -416,7 +586,11 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
             </Button>
             <Button
               onClick={handleContribute}
-              disabled={!contributeAmount || parseInt(contributeAmount) < 1 || contributeIhcp.isPending}
+              disabled={
+                !contributeAmount ||
+                parseInt(contributeAmount) < 1 ||
+                contributeIhcp.isPending
+              }
               className="bg-amber-500/20 text-amber-400 border border-amber-500/30 hover:bg-amber-500/30"
             >
               {contributeIhcp.isPending ? "Processing..." : "Contribute"}
@@ -434,14 +608,20 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
               Propose New IHCP
             </DialogTitle>
             <DialogDescription className="text-slate-400">
-              Create a proposal to establish an Internal Hall Contribution Pool for this hall.
+              Create a proposal to establish an Internal Hall Contribution Pool
+              for this hall.
             </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label className="text-slate-300">Purpose</Label>
-              <Select value={proposePurpose} onValueChange={setProposePurpose}>
+              <Select
+                value={proposePurpose}
+                onValueChange={(value) =>
+                  setProposePurpose(value as IhcpPurpose)
+                }
+              >
                 <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
                   <SelectValue />
                 </SelectTrigger>
@@ -476,15 +656,21 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
             <div className="p-3 rounded-lg bg-slate-800/50 border border-slate-700 space-y-3">
               <div className="flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-cyan-400" />
-                <p className="text-sm text-white">Requires 51% hall vote to pass</p>
+                <p className="text-sm text-white">
+                  Requires 51% hall vote to pass
+                </p>
               </div>
               <div className="flex items-center gap-2">
                 <Percent className="w-4 h-4 text-amber-400" />
-                <p className="text-sm text-white">5% priority return for all contributors</p>
+                <p className="text-sm text-white">
+                  5% priority return for all contributors
+                </p>
               </div>
               <div className="flex items-center gap-2">
                 <Shield className="w-4 h-4 text-emerald-400" />
-                <p className="text-sm text-white">Repaid before dividends from revenue</p>
+                <p className="text-sm text-white">
+                  Repaid before dividends from revenue
+                </p>
               </div>
             </div>
           </div>
@@ -499,7 +685,11 @@ export function IhcpPanel({ hallId, balance, isAdmin = false }: IhcpPanelProps) 
             </Button>
             <Button
               onClick={handleProposeIhcp}
-              disabled={!proposeAmount || parseInt(proposeAmount) < 1 || proposeIhcp.isPending}
+              disabled={
+                !proposeAmount ||
+                parseInt(proposeAmount) < 1 ||
+                proposeIhcp.isPending
+              }
               className="bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/30"
             >
               {proposeIhcp.isPending ? "Creating..." : "Create Proposal"}

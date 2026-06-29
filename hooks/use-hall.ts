@@ -31,6 +31,12 @@ export interface Hall {
   hallClass: string | null;
   sriScore: number;
   ahgiScore: number;
+  canManage?: boolean;
+  isAdmin?: boolean;
+  inventoryEnabled?: boolean;
+  forgeEnabled?: boolean;
+  businessStatus?: string;
+  ihcpBalance?: number;
   closureStatus: string; // active | warning | decision | liquidation | dissolved
   executiveCabinet?: ExecutiveCabinet;
   pirDebt: number;
@@ -210,14 +216,20 @@ const LIVE_CONFIG = {
 function enrichHall(raw: Record<string, unknown>): Hall {
   const poolRaw = raw.pool as Record<string, unknown> | undefined;
   const treasuryRaw = raw.treasury as Record<string, unknown> | undefined;
-  const cabinetRaw = raw.executiveCabinet as Record<string, unknown> | undefined;
+  const cabinetRaw = raw.executiveCabinet as
+    | Record<string, unknown>
+    | undefined;
 
   return {
     id: String(raw.id),
     name: String(raw.name || ""),
     status: String(raw.status || "ghost"),
-    createdAt: String(raw.createdAt || raw.created_at || new Date().toISOString()),
-    updatedAt: String(raw.updatedAt || raw.updated_at || new Date().toISOString()),
+    createdAt: String(
+      raw.createdAt || raw.created_at || new Date().toISOString(),
+    ),
+    updatedAt: String(
+      raw.updatedAt || raw.updated_at || new Date().toISOString(),
+    ),
     poolId: String(raw.poolId || raw.pool_id),
     pool: poolRaw
       ? {
@@ -232,29 +244,56 @@ function enrichHall(raw: Record<string, unknown>): Hall {
           country: String(poolRaw.country || ""),
           imageUrl: (poolRaw.imageUrl || poolRaw.image_url) as string | null,
           hallClass: (poolRaw.hallClass || poolRaw.hall_class) as string | null,
-          assetBookValue: Number(poolRaw.assetBookValue || poolRaw.asset_book_value || 0),
+          assetBookValue: Number(
+            poolRaw.assetBookValue || poolRaw.asset_book_value || 0,
+          ),
         }
       : undefined,
     hallClass: (raw.hallClass || raw.hall_class) as string | null,
     sriScore: Number(raw.sriScore || raw.sri_score || 50),
     ahgiScore: Number(raw.ahgiScore || raw.ahgi_score || 50),
+    canManage: Boolean(raw.canManage || raw.can_manage || false),
+    isAdmin: Boolean(raw.isAdmin || raw.is_admin || false),
+    inventoryEnabled: Boolean(
+      raw.inventoryEnabled || raw.inventory_enabled || false,
+    ),
+    forgeEnabled: Boolean(raw.forgeEnabled || raw.forge_enabled || false),
+    businessStatus: String(
+      raw.businessStatus || raw.business_status || "operating",
+    ),
+    ihcpBalance: Number(raw.ihcpBalance || raw.ihcp_balance || 0),
     closureStatus: String(raw.closureStatus || raw.closure_status || "active"),
     executiveCabinet: cabinetRaw ? enrichCabinet(cabinetRaw) : undefined,
     pirDebt: Number(raw.pirDebt || raw.pir_debt || 0),
     payrollReserve: Number(raw.payrollReserve || raw.payroll_reserve || 0),
     deedUrl: (raw.deedUrl || raw.deed_url) as string | null,
-    insuranceCertificateUrl: (raw.insuranceCertificateUrl || raw.insurance_certificate_url) as string | null,
-    spvAgreementUrl: (raw.spvAgreementUrl || raw.spv_agreement_url) as string | null,
-    constitutionUrl: (raw.constitutionUrl || raw.constitution_url) as string | null,
+    insuranceCertificateUrl: (raw.insuranceCertificateUrl ||
+      raw.insurance_certificate_url) as string | null,
+    spvAgreementUrl: (raw.spvAgreementUrl || raw.spv_agreement_url) as
+      | string
+      | null,
+    constitutionUrl: (raw.constitutionUrl || raw.constitution_url) as
+      | string
+      | null,
     treasury: treasuryRaw
       ? {
           balance: Number(treasuryRaw.balance || 0),
-          totalDistributed: Number(treasuryRaw.totalDistributed || treasuryRaw.total_distributed || 0),
-          totalRevenue: Number(treasuryRaw.totalRevenue || treasuryRaw.total_revenue || 0),
-          payrollReserve: Number(treasuryRaw.payrollReserve || treasuryRaw.payroll_reserve || 0),
+          totalDistributed: Number(
+            treasuryRaw.totalDistributed || treasuryRaw.total_distributed || 0,
+          ),
+          totalRevenue: Number(
+            treasuryRaw.totalRevenue || treasuryRaw.total_revenue || 0,
+          ),
+          payrollReserve: Number(
+            treasuryRaw.payrollReserve || treasuryRaw.payroll_reserve || 0,
+          ),
           pirDebt: Number(treasuryRaw.pirDebt || treasuryRaw.pir_debt || 0),
-          closureReserve: Number(treasuryRaw.closureReserve || treasuryRaw.closure_reserve || 0),
-          monthlyRevenue: Number(treasuryRaw.monthlyRevenue || treasuryRaw.monthly_revenue || 0),
+          closureReserve: Number(
+            treasuryRaw.closureReserve || treasuryRaw.closure_reserve || 0,
+          ),
+          monthlyRevenue: Number(
+            treasuryRaw.monthlyRevenue || treasuryRaw.monthly_revenue || 0,
+          ),
         }
       : undefined,
     stats: raw.stats as Hall["stats"],
@@ -267,7 +306,9 @@ function enrichCabinet(raw: Record<string, unknown>): ExecutiveCabinet {
   const wardenRaw = raw.warden as Record<string, unknown> | undefined;
   const scribeRaw = raw.scribe as Record<string, unknown> | undefined;
 
-  const buildMember = (m: Record<string, unknown> | undefined): CabinetMember | null => {
+  const buildMember = (
+    m: Record<string, unknown> | undefined,
+  ): CabinetMember | null => {
     if (!m) return null;
     return {
       ledgerId: String(m.ledgerId || m.vinculumId || ""),
@@ -287,31 +328,49 @@ function enrichCabinet(raw: Record<string, unknown>): ExecutiveCabinet {
     warden: buildMember(wardenRaw),
     scribeId: (raw.scribeId || raw.scribe_id) as string | null,
     scribe: buildMember(scribeRaw),
-    electedAt: String(raw.electedAt || raw.elected_at || new Date().toISOString()),
+    electedAt: String(
+      raw.electedAt || raw.elected_at || new Date().toISOString(),
+    ),
     expiresAt: String(raw.expiresAt || raw.expires_at || ""),
     isImpeached: Boolean(raw.isImpeached || raw.is_impeached || false),
   };
 }
 
 function enrichMembership(raw: Record<string, unknown>): HallMembership {
-  const cabinetRaw = raw.executiveCabinet as Record<string, unknown> | undefined;
-  const isSpeaker = Boolean(raw.isSpeaker || raw.is_speaker || cabinetRaw?.role === "speaker");
-  const isTreasurer = Boolean(raw.isTreasurer || raw.is_treasurer || cabinetRaw?.role === "treasurer");
-  const isWarden = Boolean(raw.isWarden || raw.is_warden || cabinetRaw?.role === "warden");
-  const isScribe = Boolean(raw.isScribe || raw.is_scribe || cabinetRaw?.role === "scribe");
+  const cabinetRaw = raw.executiveCabinet as
+    | Record<string, unknown>
+    | undefined;
+  const isSpeaker = Boolean(
+    raw.isSpeaker || raw.is_speaker || cabinetRaw?.role === "speaker",
+  );
+  const isTreasurer = Boolean(
+    raw.isTreasurer || raw.is_treasurer || cabinetRaw?.role === "treasurer",
+  );
+  const isWarden = Boolean(
+    raw.isWarden || raw.is_warden || cabinetRaw?.role === "warden",
+  );
+  const isScribe = Boolean(
+    raw.isScribe || raw.is_scribe || cabinetRaw?.role === "scribe",
+  );
 
   return {
     id: String(raw.id),
-    ownershipPercent: Number(raw.ownershipPercent || raw.ownership_percent || 0),
+    ownershipPercent: Number(
+      raw.ownershipPercent || raw.ownership_percent || 0,
+    ),
     pacToken: (raw.pacToken || raw.pac_token) as string | null,
     totalReturned: Number(raw.totalReturned || raw.total_returned || 0),
     status: String(raw.status || "active"),
     role: (raw.role as string) || null,
     joinedAt: String(raw.joinedAt || raw.joined_at || new Date().toISOString()),
-    inviteCodesRemaining: Number(raw.inviteCodesRemaining || raw.invite_codes_remaining || 0),
+    inviteCodesRemaining: Number(
+      raw.inviteCodesRemaining || raw.invite_codes_remaining || 0,
+    ),
     isBanned: Boolean(raw.isBanned || raw.is_banned || false),
     dynamicValue: Number(raw.dynamicValue || raw.dynamic_value || 0),
-    accumulatedDividends: Number(raw.accumulatedDividends || raw.accumulated_dividends || 0),
+    accumulatedDividends: Number(
+      raw.accumulatedDividends || raw.accumulated_dividends || 0,
+    ),
     pirDebt: Number(raw.pirDebt || raw.pir_debt || 0),
     isSpeaker,
     isTreasurer,
@@ -330,7 +389,9 @@ function enrichWorker(raw: Record<string, unknown>): Worker {
     contractMonths: Number(raw.contractMonths || raw.contract_months || 0),
     hiredAt: String(raw.hiredAt || raw.hired_at || new Date().toISOString()),
     status: String(raw.status || "active"),
-    performanceScore: Number(raw.performanceScore || raw.performance_score || 0),
+    performanceScore: Number(
+      raw.performanceScore || raw.performance_score || 0,
+    ),
   };
 }
 
@@ -341,12 +402,15 @@ export function useHall(hallId: string | null | undefined) {
   const { data, error, isLoading, isValidating, mutate } = useSWR(
     hallId ? `/api/halls/${hallId}` : null,
     fetcher,
-    SWR_CONFIG
+    SWR_CONFIG,
   );
 
-  const hall = data?.hall ? enrichHall(data.hall as Record<string, unknown>) : undefined;
+  const hall = data?.hall
+    ? enrichHall(data.hall as Record<string, unknown>)
+    : undefined;
 
   return {
+    data: hall,
     hall,
     isLoading,
     isValidating,
@@ -364,7 +428,7 @@ export function useHallMembership(hallId: string | null | undefined) {
   const { data, error, isLoading, isValidating, mutate } = useSWR(
     hallId ? `/api/halls/${hallId}/membership` : null,
     fetcher,
-    SWR_CONFIG
+    SWR_CONFIG,
   );
 
   const membership = data?.membership
@@ -413,11 +477,11 @@ export function useHalls(options: UseHallsOptions = {}) {
   const { data, error, isLoading, isValidating, mutate } = useSWR(
     `/api/halls?${qs}`,
     fetcher,
-    SWR_CONFIG
+    SWR_CONFIG,
   );
 
-  const halls = (data?.halls as Record<string, unknown>[] | undefined)?.map(
-    (h) => {
+  const halls =
+    (data?.halls as Record<string, unknown>[] | undefined)?.map((h) => {
       const poolRaw = h.pool as Record<string, unknown> | undefined;
       return {
         id: String(h.id),
@@ -427,27 +491,40 @@ export function useHalls(options: UseHallsOptions = {}) {
           ? {
               poolId: String(poolRaw.poolId || poolRaw.pool_id || ""),
               name: String(poolRaw.name || ""),
-              verticalId: String(poolRaw.verticalId || poolRaw.vertical_id || ""),
-              listedPrice: Number(poolRaw.listedPrice || poolRaw.listed_price || 0),
+              verticalId: String(
+                poolRaw.verticalId || poolRaw.vertical_id || "",
+              ),
+              listedPrice: Number(
+                poolRaw.listedPrice || poolRaw.listed_price || 0,
+              ),
               committed: Number(poolRaw.committed || 0),
               target: Number(poolRaw.target || 0),
-              fillPercent: Number(poolRaw.fillPercent || poolRaw.fill_percent || 0),
+              fillPercent: Number(
+                poolRaw.fillPercent || poolRaw.fill_percent || 0,
+              ),
               status: String(poolRaw.status || ""),
               country: String(poolRaw.country || ""),
-              imageUrl: (poolRaw.imageUrl || poolRaw.image_url) as string | null,
-              hallClass: (poolRaw.hallClass || poolRaw.hall_class) as string | null,
-              assetBookValue: Number(poolRaw.assetBookValue || poolRaw.asset_book_value || 0),
+              imageUrl: (poolRaw.imageUrl || poolRaw.image_url) as
+                | string
+                | null,
+              hallClass: (poolRaw.hallClass || poolRaw.hall_class) as
+                | string
+                | null,
+              assetBookValue: Number(
+                poolRaw.assetBookValue || poolRaw.asset_book_value || 0,
+              ),
             }
           : undefined,
-        myOwnershipPercent: Number(h.myOwnershipPercent || h.my_ownership_percent || 0),
+        myOwnershipPercent: Number(
+          h.myOwnershipPercent || h.my_ownership_percent || 0,
+        ),
         myRole: (h.myRole || h.my_role) as string | null,
         sriScore: Number(h.sriScore || h.sri_score || 50),
         ahgiScore: Number(h.ahgiScore || h.ahgi_score || 50),
         closureStatus: String(h.closureStatus || h.closure_status || "active"),
         unreadPosts: Number(h.unreadPosts || h.unread_posts || 0),
       } as HallListItem;
-    }
-  ) || [];
+    }) || [];
 
   return {
     halls,
@@ -468,7 +545,7 @@ export function useHallStats(hallId: string | null | undefined) {
   const { data, error, isLoading } = useSWR(
     hallId ? `/api/halls/${hallId}/stats` : null,
     fetcher,
-    LIVE_CONFIG
+    LIVE_CONFIG,
   );
 
   return {
@@ -497,12 +574,21 @@ export function useHallSRI(hallId: string | null | undefined) {
   const { data, error, isLoading, mutate } = useSWR(
     hallId ? `/api/sri/hall/${hallId}` : null,
     fetcher,
-    SWR_CONFIG
+    SWR_CONFIG,
   );
 
   const breakdown = data?.breakdown as SriBreakdown | undefined;
   const score = Number(data?.score || 50);
-  const tier = score >= 90 ? "platinum" : score >= 75 ? "gold" : score >= 60 ? "silver" : score >= 40 ? "bronze" : "at_risk";
+  const tier =
+    score >= 90
+      ? "platinum"
+      : score >= 75
+        ? "gold"
+        : score >= 60
+          ? "silver"
+          : score >= 40
+            ? "bronze"
+            : "at_risk";
 
   return {
     score,
@@ -522,12 +608,21 @@ export function useHallAHGI(hallId: string | null | undefined) {
   const { data, error, isLoading, mutate } = useSWR(
     hallId ? `/api/ahgi/hall/${hallId}` : null,
     fetcher,
-    SWR_CONFIG
+    SWR_CONFIG,
   );
 
   const metrics = data?.metrics as AhgiMetrics | undefined;
   const score = Number(data?.score || 50);
-  const status = score >= 80 ? "thriving" : score >= 60 ? "healthy" : score >= 40 ? "stagnant" : score >= 20 ? "declining" : "critical";
+  const status =
+    score >= 80
+      ? "thriving"
+      : score >= 60
+        ? "healthy"
+        : score >= 40
+          ? "stagnant"
+          : score >= 20
+            ? "declining"
+            : "critical";
 
   return {
     score,
@@ -547,26 +642,31 @@ export function useHallForge(hallId: string | null | undefined) {
   const { data, error, isLoading, mutate } = useSWR(
     hallId ? `/api/halls/${hallId}/forge` : null,
     fetcher,
-    SWR_CONFIG
+    SWR_CONFIG,
   );
 
-  const workers = (data?.workers as Record<string, unknown>[] | undefined)?.map(
-    enrichWorker
-  ) || [];
+  const workers =
+    (data?.workers as Record<string, unknown>[] | undefined)?.map(
+      enrichWorker,
+    ) || [];
 
-  const payrollHistory = (data?.payrollHistory as Record<string, unknown>[] | undefined)?.map(
-    (e) => ({
-      month: String(e.month || ""),
-      totalPayroll: Number(e.totalPayroll || e.total_payroll || 0),
-      workerCount: Number(e.workerCount || e.worker_count || 0),
-      entries: (e.entries as Array<Record<string, unknown>> | undefined) || [],
-    })
-  ) || [];
+  const payrollHistory =
+    (data?.payrollHistory as Record<string, unknown>[] | undefined)?.map(
+      (e) => ({
+        month: String(e.month || ""),
+        totalPayroll: Number(e.totalPayroll || e.total_payroll || 0),
+        workerCount: Number(e.workerCount || e.worker_count || 0),
+        entries:
+          (e.entries as Array<Record<string, unknown>> | undefined) || [],
+      }),
+    ) || [];
 
   return {
     workers,
     payrollHistory,
-    totalPayrollThisMonth: Number(data?.totalPayrollThisMonth || data?.total_payroll_this_month || 0),
+    totalPayrollThisMonth: Number(
+      data?.totalPayrollThisMonth || data?.total_payroll_this_month || 0,
+    ),
     workerCount: workers.length,
     isLoading,
     isError: !!error,
@@ -582,7 +682,7 @@ export function useHallClosure(hallId: string | null | undefined) {
   const { data, error, isLoading, mutate } = useSWR(
     hallId ? `/api/halls/${hallId}/closure` : null,
     fetcher,
-    LIVE_CONFIG
+    LIVE_CONFIG,
   );
 
   const closure = data?.closure as ClosureStatus | undefined;
@@ -607,7 +707,7 @@ export function useHallValuation(hallId: string | null | undefined) {
   const { data, error, isLoading, mutate } = useSWR(
     hallId ? `/api/valuation/hall/${hallId}` : null,
     fetcher,
-    SWR_CONFIG
+    SWR_CONFIG,
   );
 
   const valuation = data?.valuation as DynamicValuation | undefined;
@@ -629,7 +729,7 @@ export function useHallCabinet(hallId: string | null | undefined) {
   const { data, error, isLoading, mutate } = useSWR(
     hallId ? `/api/halls/${hallId}/cabinet` : null,
     fetcher,
-    SWR_CONFIG
+    SWR_CONFIG,
   );
 
   const cabinet = data?.cabinet
@@ -653,17 +753,20 @@ export function useHallLedger(hallId: string | null | undefined) {
   const { data, error, isLoading, mutate } = useSWR(
     hallId ? `/api/halls/${hallId}/ledger` : null,
     fetcher,
-    SWR_CONFIG
+    SWR_CONFIG,
   );
 
-  const updates = (data?.updates as Array<{
-    id: string;
-    type: string;
-    title: string;
-    content: string;
-    amount: number | null;
-    createdAt: string;
-  }> | undefined) || [];
+  const updates =
+    (data?.updates as
+      | Array<{
+          id: string;
+          type: string;
+          title: string;
+          content: string;
+          amount: number | null;
+          createdAt: string;
+        }>
+      | undefined) || [];
 
   return {
     updates,
@@ -681,16 +784,19 @@ export function useHallVault(hallId: string | null | undefined) {
   const { data, error, isLoading, mutate } = useSWR(
     hallId ? `/api/halls/${hallId}/vault` : null,
     fetcher,
-    SWR_CONFIG
+    SWR_CONFIG,
   );
 
-  const documents = (data?.documents as Array<{
-    name: string;
-    url: string;
-    type: string;
-    category: string;
-    uploadedAt: string;
-  }> | undefined) || [];
+  const documents =
+    (data?.documents as
+      | Array<{
+          name: string;
+          url: string;
+          type: string;
+          category: string;
+          uploadedAt: string;
+        }>
+      | undefined) || [];
 
   return {
     documents,

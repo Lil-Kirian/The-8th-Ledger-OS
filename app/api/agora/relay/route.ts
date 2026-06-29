@@ -5,9 +5,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES & CONSTANTS
-// ─────────────────────────────────────────────────────────────
+//
 
 type ActivityType =
   | "vote"
@@ -36,9 +36,9 @@ const PUBLIC_ACTIVITY_TYPES: ActivityType[] = [
   "location_select",
 ];
 
-// ─────────────────────────────────────────────────────────────
+//
 // SRI TIER CALCULATOR (public metric)
-// ─────────────────────────────────────────────────────────────
+//
 
 function getSriTier(score: number): "platinum" | "gold" | "silver" | "bronze" | "at_risk" {
   if (score >= 90) return "platinum";
@@ -48,20 +48,20 @@ function getSriTier(score: number): "platinum" | "gold" | "silver" | "bronze" | 
   return "at_risk";
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // HALL ID MASKING
-// ─────────────────────────────────────────────────────────────
+//
 
 function maskHallId(hallId: string): string {
   if (!hallId || hallId.length < 4) return "HALL-XXXX";
   return `HALL-${hallId.slice(-4).toUpperCase()}`;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // DESCRIPTION SANITIZER
 // // Aggressive defense: strips anything that could be sensitive
 // // even if legacy data was written unsafely.
-// ─────────────────────────────────────────────────────────────
+//
 
 function sanitizeRelayDescription(raw: string): string {
   if (!raw) return "";
@@ -86,11 +86,11 @@ function sanitizeRelayDescription(raw: string): string {
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // SAFE DESCRIPTION GENERATOR
 // // Builds a sanitized description from metadata if available,
 // // falls back to sanitized raw description.
-// ─────────────────────────────────────────────────────────────
+//
 
 function generateSafeDescription(
   type: string,
@@ -146,10 +146,10 @@ function generateSafeDescription(
   return sanitizeRelayDescription(rawDescription) || "Governance activity recorded.";
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/agora/relay
 // Public. Cached 120s. Zero auth. Zero internals.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(req: NextRequest) {
   try {

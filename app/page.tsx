@@ -12,7 +12,6 @@ import {
   Fingerprint,
   ChevronRight,
   Lock,
-  Sparkles,
   Crown,
   BookOpen,
   Compass,

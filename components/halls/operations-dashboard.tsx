@@ -3,15 +3,12 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Settings,
+
   Package,
-  Users,
   TrendingUp,
   Hammer,
   Shield,
   AlertTriangle,
-  ChevronDown,
-  ChevronUp,
   Activity,
   DollarSign,
   BarChart3,

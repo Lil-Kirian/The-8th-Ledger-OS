@@ -3,9 +3,9 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Hexagon, ArrowRight, Cpu, Server, HardDrive, Wifi,
-  Timer, Users, Globe, Target, Search, SlidersHorizontal,
-  ChevronDown, Monitor, Smartphone, CircuitBoard, Database,
+  Hexagon, ArrowRight, Cpu,
+  Timer, Users, Search, SlidersHorizontal,
+  ChevronDown, CircuitBoard,
   MapPin, TrendingUp, Zap, Lock, Radio, ShoppingCart, Wrench
 } from "lucide-react";
 import Link from "next/link";

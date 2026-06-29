@@ -468,17 +468,23 @@ export async function POST(request: NextRequest) {
       const startingPrice = Math.max(Math.ceil(baseValue * 1.2), 1);
 
       await prisma.$transaction(async (tx) => {
-        const vault = await tx.dormancyVault.upsert({
+        const existingVault = await tx.dormancyVault.findFirst({
           where: { ownershipId: ownership.id },
-          update: { status: "auctioned", vaultedAt: new Date() },
-          create: {
+        });
+        const vault = existingVault
+          ? await tx.dormancyVault.update({
+              where: { id: existingVault.id },
+              data: { status: "auctioned", vaultedAt: new Date() },
+            })
+          : await tx.dormancyVault.create({
+              data: {
             userId: ownership.userId,
             ownershipId: ownership.id,
             vaultedAt: new Date(),
             accumulatedDividends: ownership.accumulatedDividends,
             status: "auctioned",
-          },
-        });
+              },
+            });
 
         await tx.dormancyAuction.create({
           data: {

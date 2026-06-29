@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, getSessionUser } from "@/lib/auth";
+import {  getSessionUser } from "@/lib/auth";
 import { logSecurityAudit } from "@/lib/audit";
 
 const MIN_BID_INCREMENT = 0.05; // 5%

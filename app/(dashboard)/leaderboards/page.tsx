@@ -1,11 +1,10 @@
 // app/(dashboard)/leaderboards/page.tsx
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import {
-  Trophy, Crown, Medal, Star, Target, Zap, Eye, BarChart3,
-  TrendingUp, Globe, Award, ArrowRight, Activity, Hash, Flame
+   Crown, Medal, Star, Target, Zap, BarChart3, Award, Hash
 } from "lucide-react";
 
 /* ============================================================

@@ -1,52 +1,87 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser, verifyOwnership, isPrimaryAdmin } from "@/lib/auth";
+import { getSessionUser, isPrimaryAdmin, isFounder } from "@/lib/auth";
 
-/* ============================================================
-   GET /api/halls/[id]/dividends — Personal dividend history
-   ============================================================ */
+const CLAIMABLE_KYC_TIERS = new Set(["sovereign", "verified", "admin"]);
+
+async function getHallAccess(hallId: string, userId: string, ledgerId: string) {
+  const [hall, ownerships, canAdminView] = await Promise.all([
+    prisma.hall.findUnique({
+      where: { id: hallId },
+      select: { id: true, name: true, poolId: true },
+    }),
+    prisma.ownership.findMany({
+      where: { hallId, userId, status: { not: "forfeited" } },
+      select: { id: true, ownershipPercent: true },
+    }),
+    Promise.all([isPrimaryAdmin({ ledgerId }), isFounder({ ledgerId })]).then(
+      ([primaryAdmin, founder]) => primaryAdmin || founder,
+    ),
+  ]);
+
+  return { hall, ownerships, canAdminView };
+}
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: hallId } = await params;
     const { searchParams } = new URL(request.url);
-    const status = searchParams.get("status"); // unclaimed | claimed | all
+    const status = searchParams.get("status");
 
-    // ── Ownership gate ──
-    const ownership = await verifyOwnership(hallId, user.id);
-    if (!ownership && !isPrimaryAdmin(user) && user.role !== "admin") {
-      return NextResponse.json({ success: false, error: "Sovereign access denied" }, { status: 403 });
+    const { hall, ownerships, canAdminView } = await getHallAccess(
+      hallId,
+      user.id,
+      user.ledgerId,
+    );
+    if (!hall) {
+      return NextResponse.json(
+        { success: false, error: "Hall not found" },
+        { status: 404 },
+      );
+    }
+    if (ownerships.length === 0 && !canAdminView && user.role !== "admin") {
+      return NextResponse.json(
+        { success: false, error: "Sovereign access denied" },
+        { status: 403 },
+      );
     }
 
-    // ── KYC tier check (Visitor cannot claim) ──
     const kyc = await prisma.kycRecord.findUnique({
-      where: { ledgerId: user.ledgerId },
+      where: { userId: user.id },
       select: { tier: true },
     });
-    const tier = kyc?.tier || "visitor";
+    const tier = kyc?.tier ?? "visitor";
 
-    // ── Fetch dividends ──
-    const where: any = { hallId, userId: user.id };
-    if (status && ["unclaimed", "claimed"].includes(status)) {
-      where.status = status;
-    }
+    const entryWhere = {
+      ...(ownerships.length > 0
+        ? { ownershipId: { in: ownerships.map((ownership) => ownership.id) } }
+        : { ownership: { hallId } }),
+      ...(status === "claimed" ? { claimed: true } : {}),
+      ...(status === "unclaimed" ? { claimed: false } : {}),
+    };
 
-    const dividends = await prisma.dividend.findMany({
-      where,
-      orderBy: { createdAt: "desc" },
+    const dividends = await prisma.dividendEntry.findMany({
+      where: entryWhere,
+      orderBy: { distribution: { distributedAt: "desc" } },
       include: {
-        revenueLog: {
+        ownership: { select: { ownershipPercent: true, userId: true } },
+        distribution: {
           select: {
-            amount: true,
-            source: true,
-            createdAt: true,
+            id: true,
+            revenueLogId: true,
+            totalAmount: true,
+            distributedAt: true,
           },
         },
       },
@@ -54,37 +89,37 @@ export async function GET(
     });
 
     const totalUnclaimed = dividends
-      .filter((d) => d.status === "unclaimed")
-      .reduce((sum, d) => sum + Number(d.entitlement), 0);
-
+      .filter((entry) => !entry.claimed)
+      .reduce((sum, entry) => sum + entry.amount, 0);
     const totalClaimed = dividends
-      .filter((d) => d.status === "claimed")
-      .reduce((sum, d) => sum + Number(d.entitlement), 0);
-
-    const ownershipPct = ownership?.percentage || ownership?.ownershipPercent || 0;
+      .filter((entry) => entry.claimed)
+      .reduce((sum, entry) => sum + entry.amount, 0);
+    const ownershipPct = ownerships.reduce(
+      (sum, ownership) => sum + ownership.ownershipPercent,
+      0,
+    );
 
     return NextResponse.json({
       success: true,
-      dividends: dividends.map((d) => ({
-        id: d.id,
-        revenueLogId: d.revenueLogId,
-        grossAmount: Number(d.grossAmount),
-        ownershipPercent: Number(d.ownershipPercent),
-        entitlement: Number(d.entitlement),
-        status: d.status,
-        claimedAt: d.claimedAt,
-        createdAt: d.createdAt,
-        source: d.revenueLog?.source,
-        revenueDate: d.revenueLog?.createdAt,
+      dividends: dividends.map((entry) => ({
+        id: entry.id,
+        revenueLogId: entry.distribution.revenueLogId,
+        grossAmount: entry.distribution.totalAmount,
+        ownershipPercent: entry.ownership.ownershipPercent,
+        entitlement: entry.amount,
+        status: entry.claimed ? "claimed" : "unclaimed",
+        claimedAt: entry.claimedAt,
+        createdAt: entry.distribution.distributedAt,
+        revenueDate: entry.distribution.distributedAt,
       })),
       summary: {
-        totalUnclaimed: Number(totalUnclaimed.toFixed(2)),
-        totalClaimed: Number(totalClaimed.toFixed(2)),
+        totalUnclaimed,
+        totalClaimed,
         totalRecords: dividends.length,
-        unclaimedCount: dividends.filter((d) => d.status === "unclaimed").length,
-        claimedCount: dividends.filter((d) => d.status === "claimed").length,
+        unclaimedCount: dividends.filter((entry) => !entry.claimed).length,
+        claimedCount: dividends.filter((entry) => entry.claimed).length,
         ownershipPercent: Number(ownershipPct.toFixed(2)),
-        canClaim: tier !== "visitor",
+        canClaim: CLAIMABLE_KYC_TIERS.has(tier),
         tier,
       },
     });
@@ -92,190 +127,194 @@ export async function GET(
     console.error("[HALL DIVIDENDS GET]", error);
     return NextResponse.json(
       { success: false, error: "Dividend history unreachable" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-/* ============================================================
-   POST /api/halls/[id]/dividends — Claim unclaimed dividends
-   Credits LED to wallet. Marks records claimed. Immutable log.
-   ============================================================ */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: hallId } = await params;
-
-    // ── Ownership gate ──
-    const ownership = await verifyOwnership(hallId, user.id);
-    if (!ownership) {
+    const { hall, ownerships } = await getHallAccess(
+      hallId,
+      user.id,
+      user.ledgerId,
+    );
+    if (!hall) {
       return NextResponse.json(
-        { success: false, error: "Sovereign access denied. Only PAC holders can claim." },
-        { status: 403 }
+        { success: false, error: "Hall not found" },
+        { status: 404 },
+      );
+    }
+    if (ownerships.length === 0) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Sovereign access denied. Only PAC holders can claim.",
+        },
+        { status: 403 },
       );
     }
 
-    // ── KYC tier gate: Visitor cannot claim ──
     const kyc = await prisma.kycRecord.findUnique({
-      where: { ledgerId: user.ledgerId },
-      select: { tier: true, legalName: true },
+      where: { userId: user.id },
+      select: { tier: true },
     });
-    if (!kyc || kyc.tier === "visitor") {
+    if (!kyc || !CLAIMABLE_KYC_TIERS.has(kyc.tier)) {
       return NextResponse.json(
-        { success: false, error: "Visitor tier cannot claim dividends. Complete KYC to Sovereign tier." },
-        { status: 403 }
+        {
+          success: false,
+          error: "Visitor tier cannot claim dividends. Complete KYC first.",
+        },
+        { status: 403 },
       );
     }
 
-    // ── Dormancy check ──
-    const isDormant = await prisma.dormancyLog.findFirst({
+    const dormant = await prisma.dormancyLog.findFirst({
       where: {
-        OR: [{ accountId: user.id }, { hallId }],
+        OR: [{ userId: user.id }, { hallId }],
         type: "account",
-        status: { in: ["critical", "forfeited"] },
+        stage: { in: ["critical", "forfeited"] },
+        resolvedAt: null,
       },
     });
-    if (isDormant) {
+    if (dormant) {
       return NextResponse.json(
         { success: false, error: "Account dormancy critical. Claims frozen." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
-    // ── Find unclaimed dividends ──
-    const unclaimed = await prisma.dividend.findMany({
-      where: {
-        hallId,
-        userId: user.id,
-        status: "unclaimed",
-      },
-      include: {
-        revenueLog: {
-          select: { id: true, amount: true, source: true, createdAt: true },
-        },
-      },
+    const ownershipIds = ownerships.map((ownership) => ownership.id);
+    const unclaimed = await prisma.dividendEntry.findMany({
+      where: { ownershipId: { in: ownershipIds }, claimed: false },
+      include: { distribution: { select: { revenueLogId: true } } },
     });
 
     if (unclaimed.length === 0) {
       return NextResponse.json(
         { success: false, error: "No unclaimed dividends available" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const totalEntitlement = unclaimed.reduce((sum, d) => sum + Number(d.entitlement), 0);
-    const dividendIds = unclaimed.map((d) => d.id);
+    const totalEntitlement = unclaimed.reduce(
+      (sum, entry) => sum + entry.amount,
+      0,
+    );
+    const dividendIds = unclaimed.map((entry) => entry.id);
+    const now = new Date();
 
-    // ── Atomic claim + credit ──
     const result = await prisma.$transaction(async (tx) => {
-      // 1. Mark dividends claimed
-      await tx.dividend.updateMany({
-        where: { id: { in: dividendIds } },
-        data: {
-          status: "claimed",
-          claimedAt: new Date(),
-        },
+      await tx.dividendEntry.updateMany({
+        where: { id: { in: dividendIds }, claimed: false },
+        data: { claimed: true, claimedAt: now },
       });
 
-      // 2. Credit LED to wallet (1 USD entitlement = 1 LED)
-      const creditAmount = Math.floor(totalEntitlement * 100) / 100;
-      const txHash = `DIV-CREDIT-${Date.now().toString(36).toUpperCase()}`;
-
-      // 3. Credit wallet
       await tx.wallet.upsert({
-        where: { userId: user.id },
+        where: { ledgerId: user.ledgerId },
         create: {
-          userId: user.id,
-          balance: creditAmount,
+          ledgerId: user.ledgerId,
+          balance: totalEntitlement,
           lockedBalance: 0,
-          totalDeposited: 0,
-          totalWithdrawn: 0,
         },
         update: {
-          balance: { increment: creditAmount },
+          balance: { increment: totalEntitlement },
         },
       });
 
-      // 4. Treasury outflow tracking
-      await tx.treasury.update({
+      await tx.ownership.updateMany({
+        where: { id: { in: ownershipIds } },
+        data: { totalReturned: { increment: totalEntitlement } },
+      });
+
+      const treasury = await tx.hallTreasury.upsert({
         where: { hallId },
-        data: {
+        create: {
+          hallId,
+          balance: -totalEntitlement,
+          totalDistributed: totalEntitlement,
+          totalRevenue: 0,
+          lastDistribution: now,
+        },
+        update: {
           balance: { decrement: totalEntitlement },
-          totalOut: { increment: totalEntitlement },
+          totalDistributed: { increment: totalEntitlement },
+          lastDistribution: now,
         },
       });
 
-      // 5. Treasury transaction log
-      await tx.treasuryTransaction.create({
+      await tx.hallTreasuryTransaction.create({
         data: {
-          type: "dividend_payout",
+          treasuryId: treasury.id,
+          type: "dividend_claim",
+          amount: -totalEntitlement,
+          description: `Dividend claim by ${user.displayName ?? user.ledgerId}`,
+          metadata: JSON.stringify({ dividendIds, ledgerId: user.ledgerId }),
+        },
+      });
+
+      await tx.ledgerEntry.create({
+        data: {
+          ledgerId: user.ledgerId,
+          type: "dividend",
+          direction: "credit",
           amount: totalEntitlement,
           currency: "USD",
-          hallId,
-          ledgerId: user.ledgerId,
-          description: `Dividend claim: ${unclaimed.length} records — ${user.displayName}`,
-          status: "completed",
-          txHash,
-          timestamp: new Date(),
-          audited: true,
+          referenceType: "dividend_claim",
+          referenceId: hallId,
+          idempotencyKey: `dividend-claim-${user.ledgerId}-${now.getTime()}`,
+          description: `Dividend claim from ${hall.name}`,
+          metadata: { dividendIds },
         },
       });
 
-      // 6. Hall activity
       await tx.hallActivity.create({
         data: {
           hallId,
           userId: user.id,
           type: "dividend",
-          description: `${user.displayName} claimed $${totalEntitlement.toFixed(2)} in dividends (${unclaimed.length} records)`,
-          metadata: JSON.stringify({
-            dividendIds,
-            creditAmount,
-            txHash,
-            ownershipPercent: ownership.percentage || ownership.ownershipPercent,
-          }),
+          description: `${user.displayName ?? user.ledgerId} claimed ${totalEntitlement} in dividends`,
+          metadata: JSON.stringify({ dividendIds, totalEntitlement }),
         },
       });
 
-      // 7. Notification
       await tx.notification.create({
         data: {
           ledgerId: user.ledgerId,
-          hallId,
+          poolId: hall.poolId,
           type: "dividend_claimed",
           title: "Dividends Claimed",
-          message: `$${totalEntitlement.toFixed(2)} claimed from ${unclaimed.length} revenue records. ${creditAmount} LED credited to wallet.`,
+          message: `${totalEntitlement} credited to your wallet from ${unclaimed.length} dividend records.`,
           actionUrl: `/halls/${hallId}/dividends`,
         },
       });
 
-      return { creditAmount, totalEntitlement, count: unclaimed.length, txHash };
+      return { totalEntitlement, count: unclaimed.length };
     });
 
     return NextResponse.json({
       success: true,
-      claim: {
-        hallId,
-        dividendCount: result.count,
-        totalEntitlement: Number(result.totalEntitlement.toFixed(2)),
-        creditedLedger: result.creditAmount,
-        txHash: result.txHash,
-        claimedAt: new Date(),
-      },
-      message: `${result.count} dividends claimed. $${result.totalEntitlement.toFixed(2)} → ${result.creditAmount} LED credited to wallet.`,
+      claimed: result.count,
+      amount: result.totalEntitlement,
+      message: `${result.totalEntitlement} credited to wallet`,
     });
   } catch (error) {
     console.error("[HALL DIVIDENDS POST]", error);
     return NextResponse.json(
       { success: false, error: "Dividend claim failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

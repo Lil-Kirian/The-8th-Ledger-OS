@@ -13,7 +13,10 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getSessionUser();
     if (!user || user.role !== "admin" || !user.isPrimaryAdmin) {
-      return NextResponse.json({ error: "Architect authority required. Primary admin access only." }, { status: 403 });
+      return NextResponse.json(
+        { error: "Architect authority required. Primary admin access only." },
+        { status: 403 },
+      );
     }
 
     const body = await req.json();
@@ -35,11 +38,12 @@ export async function POST(req: NextRequest) {
 
       // If simplewebauthn is available, use proper options
       try {
-        const { generateRegistrationOptions } = await import("@simplewebauthn/server");
+        const { generateRegistrationOptions } =
+          await import("@simplewebauthn/server");
         const options = await generateRegistrationOptions({
           rpName: "8th Ledger Protocol",
           rpID: process.env.WEBAUTHN_RP_ID || "localhost",
-          userID: user.ledgerId,
+          userID: Buffer.from(user.ledgerId),
           userName: user.displayName,
           challenge,
           attestationType: "direct",
@@ -68,7 +72,7 @@ export async function POST(req: NextRequest) {
               displayName: user.displayName,
             },
             pubKeyCredParams: [
-              { alg: -7, type: "public-key" },   // ES256
+              { alg: -7, type: "public-key" }, // ES256
               { alg: -257, type: "public-key" }, // RS256
             ],
             authenticatorSelection: {
@@ -84,17 +88,26 @@ export async function POST(req: NextRequest) {
 
     /* ---- STEP 2: Verify & Store Credential ---- */
     if (step === "finish") {
-      const { credential } = body;
-      if (!credential?.id || !credential?.rawId || !credential?.response) {
-        return NextResponse.json({ error: "Invalid credential payload" }, { status: 400 });
+      const { credential: responseCredential } = body;
+      if (
+        !responseCredential?.id ||
+        !responseCredential?.rawId ||
+        !responseCredential?.response
+      ) {
+        return NextResponse.json(
+          { error: "Invalid credential payload" },
+          { status: 400 },
+        );
       }
 
       try {
-        const { verifyRegistrationResponse } = await import("@simplewebauthn/server");
+        const { verifyRegistrationResponse } =
+          await import("@simplewebauthn/server");
         const verification = await verifyRegistrationResponse({
-          response: credential,
+          response: responseCredential,
           expectedChallenge: async () => true, // Simplified — production should verify exact challenge
-          expectedOrigin: process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
+          expectedOrigin:
+            process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000",
           expectedRPID: process.env.WEBAUTHN_RP_ID || "localhost",
           requireUserVerification: true,
         });
@@ -103,14 +116,16 @@ export async function POST(req: NextRequest) {
           throw new Error("Verification failed");
         }
 
-        const { credentialPublicKey, credentialID, counter } = verification.registrationInfo;
+        const { credential: storedCredential } = verification.registrationInfo;
 
         await prisma.user.update({
           where: { id: user.id },
           data: {
-            webauthnCredentialId: Buffer.from(credentialID).toString("base64url"),
-            webauthnPublicKey: Buffer.from(credentialPublicKey).toString("base64url"),
-            webauthnCounter: counter,
+            webauthnCredentialId: storedCredential.id,
+            webauthnPublicKey: Buffer.from(storedCredential.publicKey).toString(
+              "base64url",
+            ),
+            webauthnCounter: storedCredential.counter,
           },
         });
 
@@ -119,42 +134,53 @@ export async function POST(req: NextRequest) {
           data: {
             ledgerId: user.ledgerId,
             action: "admin_login",
-            ipAddress: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown",
+            ipAddress:
+              req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+              "unknown",
             userAgent: req.headers.get("user-agent") || "unknown",
-            deviceFingerprint: req.headers.get("x-device-fingerprint") || "unknown",
+            deviceFingerprint:
+              req.headers.get("x-device-fingerprint") || "unknown",
             success: true,
             details: "WebAuthn hardware key enrolled for Architect.",
             currentHash: crypto.randomUUID(),
           },
         });
 
-        return NextResponse.json({ success: true, message: "Hardware key enrolled" });
+        return NextResponse.json({
+          success: true,
+          message: "Hardware key enrolled",
+        });
       } catch (libError: any) {
         // Fallback: store raw credential without deep verification
         // ⚠️ Production should use @simplewebauthn/server for full verification
         await prisma.user.update({
           where: { id: user.id },
           data: {
-            webauthnCredentialId: credential.id,
-            webauthnPublicKey: credential.rawId,
+            webauthnCredentialId: responseCredential.id,
+            webauthnPublicKey: responseCredential.rawId,
             webauthnCounter: 0,
           },
         });
 
         return NextResponse.json({
           success: true,
-          warning: "Fallback storage mode. Install @simplewebauthn/server for full attestation verification.",
-          message: "Credential stored. Re-register with library installed for production hardening.",
+          warning:
+            "Fallback storage mode. Install @simplewebauthn/server for full attestation verification.",
+          message:
+            "Credential stored. Re-register with library installed for production hardening.",
         });
       }
     }
 
-    return NextResponse.json({ error: "Invalid step. Use 'start' or 'finish'." }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid step. Use 'start' or 'finish'." },
+      { status: 400 },
+    );
   } catch (err: any) {
     console.error("[WEBAUTHN REGISTER]", err);
     return NextResponse.json(
       { error: err.message || "Hardware key registration failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

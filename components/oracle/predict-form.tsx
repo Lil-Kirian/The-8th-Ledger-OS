@@ -4,12 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Brain,
-  Globe,
-  Target,
-  Send,
   X,
-  CheckCircle2,
-  TrendingUp,
   Sparkles,
   AlertCircle,
 } from "lucide-react";

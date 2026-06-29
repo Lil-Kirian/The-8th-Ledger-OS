@@ -10,11 +10,8 @@ import {
   AlertTriangle,
   Loader2,
   Send,
-  X,
   Shield,
   Hash,
-  TrendingUp,
-  Clock,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

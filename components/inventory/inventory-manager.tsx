@@ -6,11 +6,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Package,
   Plus,
-  Minus,
   TrendingUp,
-  TrendingDown,
   DollarSign,
-  ShoppingCart,
   AlertTriangle,
   CheckCircle2,
   XCircle,
@@ -18,10 +15,6 @@ import {
   Trash2,
   Eye,
   EyeOff,
-  Store,
-  BarChart3,
-  ArrowUpRight,
-  ArrowDownRight,
   Boxes,
   Tag,
   Image as ImageIcon,
@@ -34,14 +27,32 @@ import {
   ImagePlus,
   Calculator,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useInventory } from "@/hooks/use-inventory";
 
 interface InventoryItem {
@@ -65,19 +76,28 @@ interface InventoryItem {
 interface InventoryManagerProps {
   hallId: string;
   isAdmin?: boolean;
+  canManage?: boolean;
   onSuccess?: (message: string) => void;
   onError?: (message: string) => void;
 }
 
-export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }: InventoryManagerProps) {
+export function InventoryManager({
+  hallId,
+  isAdmin = false,
+  canManage = false,
+  onSuccess,
+  onError,
+}: InventoryManagerProps) {
   const [showAddItem, setShowAddItem] = useState(false);
   const [showEditItem, setShowEditItem] = useState<InventoryItem | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState<InventoryItem | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] =
+    useState<InventoryItem | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStatus, setFilterStatus] = useState<string>("all");
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [inlineError, setInlineError] = useState<string | null>(null);
+  const canEditInventory = isAdmin || canManage;
 
   const [newItem, setNewItem] = useState({
     title: "",
@@ -103,17 +123,30 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
   const items: InventoryItem[] = inventoryData?.items || [];
 
   const filteredItems = items.filter((item) => {
-    const matchesSearch = item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch =
+      item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFilter = filterStatus === "all" || item.status === filterStatus;
+    const matchesFilter =
+      filterStatus === "all" || item.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
-  const totalStockValue = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-  const totalSoldValue = items.reduce((sum, item) => sum + item.price * item.quantitySold, 0);
-  const totalCOGS = items.reduce((sum, item) => sum + item.costOfGoods * item.quantitySold, 0);
+  const totalStockValue = items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  );
+  const totalSoldValue = items.reduce(
+    (sum, item) => sum + item.price * item.quantitySold,
+    0,
+  );
+  const totalCOGS = items.reduce(
+    (sum, item) => sum + item.costOfGoods * item.quantitySold,
+    0,
+  );
   const totalProfit = totalSoldValue - totalCOGS;
-  const lowStockItems = items.filter((item) => item.quantity <= item.reorderThreshold && item.quantity > 0);
+  const lowStockItems = items.filter(
+    (item) => item.quantity <= item.reorderThreshold && item.quantity > 0,
+  );
   const outOfStockItems = items.filter((item) => item.quantity === 0);
 
   const handleAddItem = async () => {
@@ -146,10 +179,21 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
       });
 
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || data.message || `Failed to add item (${res.status})`);
+      if (!res.ok)
+        throw new Error(
+          data.error || data.message || `Failed to add item (${res.status})`,
+        );
 
       setShowAddItem(false);
-      setNewItem({ title: "", description: "", price: "", quantity: "", costOfGoods: "", reorderThreshold: "", imageUrl: "" });
+      setNewItem({
+        title: "",
+        description: "",
+        price: "",
+        quantity: "",
+        costOfGoods: "",
+        reorderThreshold: "",
+        imageUrl: "",
+      });
       onSuccess?.("Item added to inventory");
       refetch();
     } catch (err) {
@@ -178,22 +222,28 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
     setInlineError(null);
 
     try {
-      const res = await fetch(`/api/halls/${hallId}/inventory/${showEditItem.id}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: editForm.title,
-          description: editForm.description,
-          price: Math.round(price * 100),
-          quantity,
-          costOfGoods: Math.round(costOfGoods * 100),
-          reorderThreshold,
-          imageUrl: editForm.imageUrl || null,
-        }),
-      });
+      const res = await fetch(
+        `/api/halls/${hallId}/inventory/${showEditItem.id}`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: editForm.title,
+            description: editForm.description,
+            price: Math.round(price * 100),
+            quantity,
+            costOfGoods: Math.round(costOfGoods * 100),
+            reorderThreshold,
+            imageUrl: editForm.imageUrl || null,
+          }),
+        },
+      );
 
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || data.message || `Failed to update item (${res.status})`);
+      if (!res.ok)
+        throw new Error(
+          data.error || data.message || `Failed to update item (${res.status})`,
+        );
 
       setShowEditItem(null);
       onSuccess?.("Item updated successfully");
@@ -226,19 +276,32 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
     setActionLoading(`toggle-${item.id}`);
 
     try {
-      const res = await fetch(`/api/halls/${hallId}/inventory/${item.id}/toggle`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
+      const res = await fetch(
+        `/api/halls/${hallId}/inventory/${item.id}/toggle`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        },
+      );
 
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || data.message || `Failed to toggle listing (${res.status})`);
+      if (!res.ok)
+        throw new Error(
+          data.error ||
+            data.message ||
+            `Failed to toggle listing (${res.status})`,
+        );
 
-      onSuccess?.(newStatus === "active" ? "Item listed on marketplace" : "Item hidden from marketplace");
+      onSuccess?.(
+        newStatus === "active"
+          ? "Item listed on marketplace"
+          : "Item hidden from marketplace",
+      );
       refetch();
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Failed to toggle listing";
+      const msg =
+        err instanceof Error ? err.message : "Failed to toggle listing";
       onError?.(msg);
     } finally {
       setActionLoading(null);
@@ -250,12 +313,18 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
     setActionLoading(`delete-${showDeleteConfirm.id}`);
 
     try {
-      const res = await fetch(`/api/halls/${hallId}/inventory/${showDeleteConfirm.id}`, {
-        method: "DELETE",
-      });
+      const res = await fetch(
+        `/api/halls/${hallId}/inventory/${showDeleteConfirm.id}`,
+        {
+          method: "DELETE",
+        },
+      );
 
       const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || data.message || `Failed to delete item (${res.status})`);
+      if (!res.ok)
+        throw new Error(
+          data.error || data.message || `Failed to delete item (${res.status})`,
+        );
 
       setShowDeleteConfirm(null);
       onSuccess?.("Item removed from inventory");
@@ -269,9 +338,23 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
   };
 
   const getStockStatus = (item: InventoryItem) => {
-    if (item.quantity === 0) return { label: "OUT OF STOCK", color: "bg-red-500/20 text-red-400 border-red-500/30", icon: XCircle };
-    if (item.quantity <= item.reorderThreshold) return { label: "LOW STOCK", color: "bg-amber-500/20 text-amber-400 border-amber-500/30", icon: AlertTriangle };
-    return { label: "IN STOCK", color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30", icon: CheckCircle2 };
+    if (item.quantity === 0)
+      return {
+        label: "OUT OF STOCK",
+        color: "bg-red-500/20 text-red-400 border-red-500/30",
+        icon: XCircle,
+      };
+    if (item.quantity <= item.reorderThreshold)
+      return {
+        label: "LOW STOCK",
+        color: "bg-amber-500/20 text-amber-400 border-amber-500/30",
+        icon: AlertTriangle,
+      };
+    return {
+      label: "IN STOCK",
+      color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+      icon: CheckCircle2,
+    };
   };
 
   const estimatedNet = (() => {
@@ -289,22 +372,34 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
-            <p className="text-xs text-slate-500 uppercase tracking-wider">Total Items</p>
+            <p className="text-xs text-slate-500 uppercase tracking-wider">
+              Total Items
+            </p>
             <p className="text-2xl font-bold text-white mt-1">{items.length}</p>
-            <p className="text-xs text-slate-500 mt-1">{outOfStockItems.length} out of stock</p>
+            <p className="text-xs text-slate-500 mt-1">
+              {outOfStockItems.length} out of stock
+            </p>
           </CardContent>
         </Card>
         <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
-            <p className="text-xs text-slate-500 uppercase tracking-wider">Stock Value</p>
-            <p className="text-2xl font-bold text-white mt-1">${(totalStockValue / 100).toLocaleString()}</p>
+            <p className="text-xs text-slate-500 uppercase tracking-wider">
+              Stock Value
+            </p>
+            <p className="text-2xl font-bold text-white mt-1">
+              ${(totalStockValue / 100).toLocaleString()}
+            </p>
             <p className="text-xs text-slate-500 mt-1">At current prices</p>
           </CardContent>
         </Card>
         <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
-            <p className="text-xs text-slate-500 uppercase tracking-wider">Total Sold</p>
-            <p className="text-2xl font-bold text-white mt-1">${(totalSoldValue / 100).toLocaleString()}</p>
+            <p className="text-xs text-slate-500 uppercase tracking-wider">
+              Total Sold
+            </p>
+            <p className="text-2xl font-bold text-white mt-1">
+              ${(totalSoldValue / 100).toLocaleString()}
+            </p>
             <div className="flex items-center gap-1 mt-1">
               <TrendingUp className="w-3 h-3 text-emerald-400" />
               <p className="text-xs text-emerald-400">Revenue generated</p>
@@ -313,8 +408,12 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
         </Card>
         <Card className="bg-slate-900/50 border-slate-800">
           <CardContent className="p-4">
-            <p className="text-xs text-slate-500 uppercase tracking-wider">Net Profit</p>
-            <p className={`text-2xl font-bold mt-1 ${totalProfit >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+            <p className="text-xs text-slate-500 uppercase tracking-wider">
+              Net Profit
+            </p>
+            <p
+              className={`text-2xl font-bold mt-1 ${totalProfit >= 0 ? "text-emerald-400" : "text-red-400"}`}
+            >
               ${(totalProfit / 100).toLocaleString()}
             </p>
             <p className="text-xs text-slate-500 mt-1">After COGS deduction</p>
@@ -329,8 +428,12 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
             <div className="flex items-center gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/30">
               <XCircle className="w-5 h-5 text-red-400 shrink-0" />
               <div>
-                <p className="text-sm font-medium text-red-400">{outOfStockItems.length} items out of stock</p>
-                <p className="text-xs text-red-300/70">Restock immediately to resume sales</p>
+                <p className="text-sm font-medium text-red-400">
+                  {outOfStockItems.length} items out of stock
+                </p>
+                <p className="text-xs text-red-300/70">
+                  Restock immediately to resume sales
+                </p>
               </div>
             </div>
           )}
@@ -338,8 +441,12 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
             <div className="flex items-center gap-3 p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
               <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
               <div>
-                <p className="text-sm font-medium text-amber-400">{lowStockItems.length} items at reorder threshold</p>
-                <p className="text-xs text-amber-300/70">Consider restocking soon</p>
+                <p className="text-sm font-medium text-amber-400">
+                  {lowStockItems.length} items at reorder threshold
+                </p>
+                <p className="text-xs text-amber-300/70">
+                  Consider restocking soon
+                </p>
               </div>
             </div>
           )}
@@ -361,13 +468,15 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setFilterStatus(filterStatus === "all" ? "active" : "all")}
+            onClick={() =>
+              setFilterStatus(filterStatus === "all" ? "active" : "all")
+            }
             className="border-slate-700 text-slate-400 hover:bg-slate-800"
           >
             <Filter className="w-4 h-4 mr-1" />
             {filterStatus === "all" ? "All" : "Active Only"}
           </Button>
-          {isAdmin && (
+          {canEditInventory && (
             <Button
               size="sm"
               onClick={() => {
@@ -391,7 +500,8 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
             Inventory Registry
           </CardTitle>
           <CardDescription className="text-slate-400">
-            {filteredItems.length} of {items.length} items · Manage stock, pricing, and public listings
+            {filteredItems.length} of {items.length} items · Manage stock,
+            pricing, and public listings
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -405,7 +515,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
               <Package className="w-12 h-12 text-slate-700 mx-auto mb-3" />
               <p className="text-slate-500 text-sm">No inventory items</p>
               <p className="text-slate-600 text-xs mt-1">
-                {isAdmin ? "Add items to start selling on the marketplace" : "Hall inventory is empty"}
+                {canEditInventory
+                  ? "Add items to start selling on the marketplace"
+                  : "Hall inventory is empty"}
               </p>
             </div>
           ) : (
@@ -414,11 +526,18 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                 const status = getStockStatus(item);
                 const StatusIcon = status.icon;
                 const isExpanded = expandedItem === item.id;
-                const stockPercent = item.quantity > 0
-                  ? Math.min(100, (item.quantity / (item.quantity + item.quantitySold || 1)) * 100)
-                  : 0;
+                const stockPercent =
+                  item.quantity > 0
+                    ? Math.min(
+                        100,
+                        (item.quantity /
+                          (item.quantity + item.quantitySold || 1)) *
+                          100,
+                      )
+                    : 0;
                 const margin = item.price - item.costOfGoods;
-                const marginPercent = item.price > 0 ? Math.round((margin / item.price) * 100) : 0;
+                const marginPercent =
+                  item.price > 0 ? Math.round((margin / item.price) * 100) : 0;
                 const isToggling = actionLoading === `toggle-${item.id}`;
                 const isDeleting = actionLoading === `delete-${item.id}`;
 
@@ -432,7 +551,11 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                     <div className="p-4 flex items-center gap-4">
                       <div className="w-12 h-12 rounded-lg bg-slate-800/50 flex items-center justify-center shrink-0 overflow-hidden">
                         {item.imageUrl ? (
-                          <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover" />
+                          <img
+                            src={item.imageUrl}
+                            alt={item.title}
+                            className="w-full h-full object-cover"
+                          />
                         ) : (
                           <ImageIcon className="w-6 h-6 text-slate-600" />
                         )}
@@ -440,7 +563,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
 
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className="text-sm font-medium text-white truncate">{item.title}</p>
+                          <p className="text-sm font-medium text-white truncate">
+                            {item.title}
+                          </p>
                           <Badge className={status.color}>
                             <StatusIcon className="w-3 h-3 mr-1" />
                             {status.label}
@@ -457,11 +582,15 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                             </Badge>
                           )}
                         </div>
-                        <p className="text-xs text-slate-500 mt-0.5 truncate">{item.description}</p>
+                        <p className="text-xs text-slate-500 mt-0.5 truncate">
+                          {item.description}
+                        </p>
                       </div>
 
                       <div className="text-right shrink-0">
-                        <p className="text-sm font-medium text-white">${(item.price / 100).toLocaleString()}</p>
+                        <p className="text-sm font-medium text-white">
+                          ${(item.price / 100).toLocaleString()}
+                        </p>
                         <p className="text-xs text-slate-500">
                           {item.quantitySold} sold · {item.quantity} in stock
                         </p>
@@ -469,7 +598,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
 
                       <div className="w-20 shrink-0">
                         <Progress value={stockPercent} className="h-1.5" />
-                        <p className="text-[10px] text-slate-500 mt-1 text-center">{item.quantity} units</p>
+                        <p className="text-[10px] text-slate-500 mt-1 text-center">
+                          {item.quantity} units
+                        </p>
                       </div>
 
                       <div className="flex items-center gap-1 shrink-0">
@@ -477,15 +608,25 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                           variant="ghost"
                           size="sm"
                           className="h-8 w-8 p-0 text-slate-400 hover:text-white"
-                          onClick={() => setExpandedItem(isExpanded ? null : item.id)}
+                          onClick={() =>
+                            setExpandedItem(isExpanded ? null : item.id)
+                          }
                         >
-                          {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                          {isExpanded ? (
+                            <ChevronUp className="w-4 h-4" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4" />
+                          )}
                         </Button>
 
-                        {isAdmin && (
+                        {canEditInventory && (
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-slate-400 hover:text-white">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-8 w-8 p-0 text-slate-400 hover:text-white"
+                              >
                                 <MoreHorizontal className="w-4 h-4" />
                               </Button>
                             </DropdownMenuTrigger>
@@ -540,39 +681,72 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                         >
                           <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                             <div>
-                              <p className="text-xs text-slate-500 uppercase">Price</p>
-                              <p className="text-white font-medium mt-1">${(item.price / 100).toLocaleString()}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-slate-500 uppercase">Cost of Goods</p>
-                              <p className="text-slate-300 font-medium mt-1">${(item.costOfGoods / 100).toLocaleString()}</p>
-                            </div>
-                            <div>
-                              <p className="text-xs text-slate-500 uppercase">Margin</p>
-                              <p className={`font-medium mt-1 ${margin >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-                                ${(margin / 100).toLocaleString()} ({marginPercent}%)
+                              <p className="text-xs text-slate-500 uppercase">
+                                Price
+                              </p>
+                              <p className="text-white font-medium mt-1">
+                                ${(item.price / 100).toLocaleString()}
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-slate-500 uppercase">Reorder At</p>
-                              <p className="text-amber-400 font-medium mt-1">{item.reorderThreshold} units</p>
+                              <p className="text-xs text-slate-500 uppercase">
+                                Cost of Goods
+                              </p>
+                              <p className="text-slate-300 font-medium mt-1">
+                                ${(item.costOfGoods / 100).toLocaleString()}
+                              </p>
                             </div>
                             <div>
-                              <p className="text-xs text-slate-500 uppercase">In Stock</p>
-                              <p className="text-white font-medium mt-1">{item.quantity} units</p>
+                              <p className="text-xs text-slate-500 uppercase">
+                                Margin
+                              </p>
+                              <p
+                                className={`font-medium mt-1 ${margin >= 0 ? "text-emerald-400" : "text-red-400"}`}
+                              >
+                                ${(margin / 100).toLocaleString()} (
+                                {marginPercent}%)
+                              </p>
                             </div>
                             <div>
-                              <p className="text-xs text-slate-500 uppercase">Total Sold</p>
-                              <p className="text-cyan-400 font-medium mt-1">{item.quantitySold} units</p>
+                              <p className="text-xs text-slate-500 uppercase">
+                                Reorder At
+                              </p>
+                              <p className="text-amber-400 font-medium mt-1">
+                                {item.reorderThreshold} units
+                              </p>
                             </div>
                             <div>
-                              <p className="text-xs text-slate-500 uppercase">Revenue</p>
+                              <p className="text-xs text-slate-500 uppercase">
+                                In Stock
+                              </p>
+                              <p className="text-white font-medium mt-1">
+                                {item.quantity} units
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-500 uppercase">
+                                Total Sold
+                              </p>
+                              <p className="text-cyan-400 font-medium mt-1">
+                                {item.quantitySold} units
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-xs text-slate-500 uppercase">
+                                Revenue
+                              </p>
                               <p className="text-emerald-400 font-medium mt-1">
-                                ${((item.price * item.quantitySold) / 100).toLocaleString()}
+                                $
+                                {(
+                                  (item.price * item.quantitySold) /
+                                  100
+                                ).toLocaleString()}
                               </p>
                             </div>
                             <div>
-                              <p className="text-xs text-slate-500 uppercase">Listed</p>
+                              <p className="text-xs text-slate-500 uppercase">
+                                Listed
+                              </p>
                               <p className="text-slate-300 font-medium mt-1">
                                 {new Date(item.listedAt).toLocaleDateString()}
                               </p>
@@ -590,7 +764,15 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
       </Card>
 
       {/* Add Item Dialog */}
-      <Dialog open={showAddItem} onOpenChange={(open) => { if (!open) { setShowAddItem(false); setInlineError(null); } }}>
+      <Dialog
+        open={showAddItem}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowAddItem(false);
+            setInlineError(null);
+          }
+        }}
+      >
         <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -598,7 +780,8 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
               Add Inventory Item
             </DialogTitle>
             <DialogDescription className="text-slate-400">
-              Add a new product to the hall inventory. It will be listed on the marketplace once set to active.
+              Add a new product to the hall inventory. It will be listed on the
+              marketplace once set to active.
             </DialogDescription>
           </DialogHeader>
 
@@ -615,7 +798,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
               <Input
                 placeholder="e.g., Organic Tomatoes 500g"
                 value={newItem.title}
-                onChange={(e) => setNewItem({ ...newItem, title: e.target.value })}
+                onChange={(e) =>
+                  setNewItem({ ...newItem, title: e.target.value })
+                }
                 className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-600"
               />
             </div>
@@ -625,7 +810,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
               <Input
                 placeholder="Brief description..."
                 value={newItem.description}
-                onChange={(e) => setNewItem({ ...newItem, description: e.target.value })}
+                onChange={(e) =>
+                  setNewItem({ ...newItem, description: e.target.value })
+                }
                 className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-600"
               />
             </div>
@@ -637,7 +824,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                 <Input
                   placeholder="https://..."
                   value={newItem.imageUrl}
-                  onChange={(e) => setNewItem({ ...newItem, imageUrl: e.target.value })}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, imageUrl: e.target.value })
+                  }
                   className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-600"
                 />
               </div>
@@ -653,7 +842,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                     step="0.01"
                     placeholder="0.00"
                     value={newItem.price}
-                    onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
+                    onChange={(e) =>
+                      setNewItem({ ...newItem, price: e.target.value })
+                    }
                     className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-600"
                   />
                 </div>
@@ -664,7 +855,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                   type="number"
                   placeholder="0"
                   value={newItem.quantity}
-                  onChange={(e) => setNewItem({ ...newItem, quantity: e.target.value })}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, quantity: e.target.value })
+                  }
                   className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-600"
                 />
               </div>
@@ -680,7 +873,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                     step="0.01"
                     placeholder="0.00"
                     value={newItem.costOfGoods}
-                    onChange={(e) => setNewItem({ ...newItem, costOfGoods: e.target.value })}
+                    onChange={(e) =>
+                      setNewItem({ ...newItem, costOfGoods: e.target.value })
+                    }
                     className="pl-10 bg-slate-800 border-slate-700 text-white placeholder:text-slate-600"
                   />
                 </div>
@@ -691,7 +886,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                   type="number"
                   placeholder="10"
                   value={newItem.reorderThreshold}
-                  onChange={(e) => setNewItem({ ...newItem, reorderThreshold: e.target.value })}
+                  onChange={(e) =>
+                    setNewItem({ ...newItem, reorderThreshold: e.target.value })
+                  }
                   className="bg-slate-800 border-slate-700 text-white placeholder:text-slate-600"
                 />
               </div>
@@ -703,12 +900,21 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                 <div className="flex items-start gap-2">
                   <Calculator className="w-4 h-4 text-emerald-400 mt-0.5" />
                   <div>
-                    <p className="text-sm text-emerald-400 font-medium">Estimated Net to Hall Treasury</p>
+                    <p className="text-sm text-emerald-400 font-medium">
+                      Estimated Net to Hall Treasury
+                    </p>
                     <p className="text-xs text-emerald-300/70">
-                      Price ${parseFloat(newItem.price || "0").toFixed(2)} → 5% platform fee (${(parseFloat(newItem.price || "0") * 0.05).toFixed(2)}) → est. fulfillment → <span className="text-emerald-400 font-bold">~${estimatedNet.toFixed(2)} net</span>
+                      Price ${parseFloat(newItem.price || "0").toFixed(2)} → 5%
+                      platform fee ($
+                      {(parseFloat(newItem.price || "0") * 0.05).toFixed(2)}) →
+                      est. fulfillment →{" "}
+                      <span className="text-emerald-400 font-bold">
+                        ~${estimatedNet.toFixed(2)} net
+                      </span>
                     </p>
                     <p className="text-[10px] text-emerald-300/50 mt-1">
-                      Net flows to hall treasury before dividends. Actual fulfillment cost varies.
+                      Net flows to hall treasury before dividends. Actual
+                      fulfillment cost varies.
                     </p>
                   </div>
                 </div>
@@ -719,9 +925,12 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
               <div className="flex items-start gap-2">
                 <Tag className="w-4 h-4 text-cyan-400 mt-0.5" />
                 <div>
-                  <p className="text-sm text-cyan-400 font-medium">Marketplace Listing</p>
+                  <p className="text-sm text-cyan-400 font-medium">
+                    Marketplace Listing
+                  </p>
                   <p className="text-xs text-cyan-300/70">
-                    This item will be added to inventory. Set status to "active" to list it publicly on the 8th Ledger Inventory Marketplace.
+                    This item will be added to inventory. Set status to "active"
+                    to list it publicly on the 8th Ledger Inventory Marketplace.
                   </p>
                 </div>
               </div>
@@ -731,7 +940,10 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => { setShowAddItem(false); setInlineError(null); }}
+              onClick={() => {
+                setShowAddItem(false);
+                setInlineError(null);
+              }}
               className="border-slate-700 text-slate-400 hover:bg-slate-800"
               disabled={actionLoading === "add"}
             >
@@ -759,7 +971,15 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
       </Dialog>
 
       {/* Edit Dialog */}
-      <Dialog open={!!showEditItem} onOpenChange={(open) => { if (!open) { setShowEditItem(null); setInlineError(null); } }}>
+      <Dialog
+        open={!!showEditItem}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowEditItem(null);
+            setInlineError(null);
+          }
+        }}
+      >
         <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -783,7 +1003,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
               <Label className="text-slate-300">Item Name</Label>
               <Input
                 value={editForm.title}
-                onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, title: e.target.value })
+                }
                 className="bg-slate-800 border-slate-700 text-white"
               />
             </div>
@@ -792,7 +1014,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
               <Label className="text-slate-300">Description</Label>
               <Input
                 value={editForm.description}
-                onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                onChange={(e) =>
+                  setEditForm({ ...editForm, description: e.target.value })
+                }
                 className="bg-slate-800 border-slate-700 text-white"
               />
             </div>
@@ -803,7 +1027,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                 <ImagePlus className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                 <Input
                   value={editForm.imageUrl}
-                  onChange={(e) => setEditForm({ ...editForm, imageUrl: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, imageUrl: e.target.value })
+                  }
                   className="pl-10 bg-slate-800 border-slate-700 text-white"
                 />
               </div>
@@ -818,7 +1044,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                     type="number"
                     step="0.01"
                     value={editForm.price}
-                    onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, price: e.target.value })
+                    }
                     className="pl-10 bg-slate-800 border-slate-700 text-white"
                   />
                 </div>
@@ -828,7 +1056,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                 <Input
                   type="number"
                   value={editForm.quantity}
-                  onChange={(e) => setEditForm({ ...editForm, quantity: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, quantity: e.target.value })
+                  }
                   className="bg-slate-800 border-slate-700 text-white"
                 />
               </div>
@@ -843,7 +1073,9 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                     type="number"
                     step="0.01"
                     value={editForm.costOfGoods}
-                    onChange={(e) => setEditForm({ ...editForm, costOfGoods: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, costOfGoods: e.target.value })
+                    }
                     className="pl-10 bg-slate-800 border-slate-700 text-white"
                   />
                 </div>
@@ -853,7 +1085,12 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
                 <Input
                   type="number"
                   value={editForm.reorderThreshold}
-                  onChange={(e) => setEditForm({ ...editForm, reorderThreshold: e.target.value })}
+                  onChange={(e) =>
+                    setEditForm({
+                      ...editForm,
+                      reorderThreshold: e.target.value,
+                    })
+                  }
                   className="bg-slate-800 border-slate-700 text-white"
                 />
               </div>
@@ -863,7 +1100,10 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => { setShowEditItem(null); setInlineError(null); }}
+              onClick={() => {
+                setShowEditItem(null);
+                setInlineError(null);
+              }}
               className="border-slate-700 text-slate-400 hover:bg-slate-800"
               disabled={!!actionLoading?.startsWith("edit-")}
             >
@@ -891,7 +1131,12 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
       </Dialog>
 
       {/* Delete Confirm */}
-      <Dialog open={!!showDeleteConfirm} onOpenChange={(open) => { if (!open) setShowDeleteConfirm(null); }}>
+      <Dialog
+        open={!!showDeleteConfirm}
+        onOpenChange={(open) => {
+          if (!open) setShowDeleteConfirm(null);
+        }}
+      >
         <DialogContent className="bg-slate-900 border-slate-800 text-white max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-red-400">
@@ -899,8 +1144,11 @@ export function InventoryManager({ hallId, isAdmin = false, onSuccess, onError }
               Remove Item
             </DialogTitle>
             <DialogDescription className="text-slate-400">
-              Are you sure you want to remove <span className="text-white font-medium">{showDeleteConfirm?.title}</span> from inventory?
-              This action cannot be undone.
+              Are you sure you want to remove{" "}
+              <span className="text-white font-medium">
+                {showDeleteConfirm?.title}
+              </span>{" "}
+              from inventory? This action cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

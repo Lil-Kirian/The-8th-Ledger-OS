@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 /* ============================================================
    8TH LEDGER — PRISMA CLIENT SINGLETON
@@ -10,13 +10,13 @@ interface PrismaGlobal {
   prisma: PrismaClient | undefined;
 }
 
-const globalForPrisma = globalThis as unknown as PrismaGlobal;
+const globalForPrisma = globalThis as any as PrismaGlobal;
 
-const prismaOptions = {
+const prismaOptions: Prisma.PrismaClientOptions = {
   log:
     process.env.NODE_ENV === "development"
-      ? (["query", "error", "warn"] as const)
-      : (["error"] as const),
+      ? (["query", "error", "warn"] as Prisma.LogLevel[])
+      : (["error"] as Prisma.LogLevel[]),
 };
 
 export const prisma: PrismaClient =
@@ -33,7 +33,7 @@ prisma.$use(async (params, next) => {
 
   if (duration > 1000) {
     console.warn(
-      `[8TH LEDGER SLOW QUERY] ${params.model}.${params.action} — ${duration}ms`
+      `[8TH LEDGER SLOW QUERY] ${params.model}.${params.action} — ${duration}ms`,
     );
   }
   return result;

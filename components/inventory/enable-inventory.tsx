@@ -6,9 +6,7 @@ import { motion } from "framer-motion";
 import {
   Package,
   Store,
-  ShoppingCart,
   DollarSign,
-  TrendingUp,
   BarChart3,
   Shield,
   ArrowRight,
@@ -18,7 +16,6 @@ import {
   AlertTriangle,
   Vote,
   Clock,
-  Tag,
   Boxes,
   Truck,
   ChevronRight,

@@ -1,6 +1,12 @@
 "use client";
 
-import { useState, useEffect, useCallback, useMemo } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  type ElementType,
+} from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -16,31 +22,22 @@ import {
   Sprout,
   Sun,
   Search,
-  Filter,
   Shield,
   Ban,
   Eye,
-  ChevronDown,
-  ChevronUp,
   Loader2,
   AlertTriangle,
   CheckCircle2,
   X,
   Users,
   Coins,
-  ArrowRight,
-  Hash,
-  Globe,
   Activity,
   Layers,
   RefreshCw,
-  FileText,
-  Clock,
   Package,
   Hammer,
   PiggyBank,
   BarChart3,
-  TrendingDown,
   ToggleLeft,
   ToggleRight,
 } from "lucide-react";
@@ -73,7 +70,7 @@ interface Hall {
   closureStatus: string;
 }
 
-const VERTICAL_ICONS: Record<string, any> = {
+const VERTICAL_ICONS: Record<string, ElementType> = {
   ledgerprop: Lock,
   ledgerauto: Zap,
   ledgeredu: Crown,
@@ -99,11 +96,49 @@ const VERTICAL_LABELS: Record<string, string> = {
   ledgerenergy: "LedgerEnergy",
 };
 
-const STATUS_CONFIG: Record<HallStatus, { label: string; color: string; bg: string; border: string; icon: any; desc: string }> = {
-  ghost: { label: "Ghost", color: "text-violet-400", bg: "bg-violet-500/10", border: "border-violet-500/20", icon: Ghost, desc: "Invisible to public" },
-  live: { label: "Live", color: "text-emerald-400", bg: "bg-emerald-500/10", border: "border-emerald-500/20", icon: Activity, desc: "Active operations" },
-  mature: { label: "Mature", color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", icon: Crown, desc: "Established revenue" },
-  dormant: { label: "Dormant", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/20", icon: AlertTriangle, desc: "Reclamation risk" },
+const STATUS_CONFIG: Record<
+  HallStatus,
+  {
+    label: string;
+    color: string;
+    bg: string;
+    border: string;
+    icon: any;
+    desc: string;
+  }
+> = {
+  ghost: {
+    label: "Ghost",
+    color: "text-violet-400",
+    bg: "bg-violet-500/10",
+    border: "border-violet-500/20",
+    icon: Ghost,
+    desc: "Invisible to public",
+  },
+  live: {
+    label: "Live",
+    color: "text-emerald-400",
+    bg: "bg-emerald-500/10",
+    border: "border-emerald-500/20",
+    icon: Activity,
+    desc: "Active operations",
+  },
+  mature: {
+    label: "Mature",
+    color: "text-amber-400",
+    bg: "bg-amber-500/10",
+    border: "border-amber-500/20",
+    icon: Crown,
+    desc: "Established revenue",
+  },
+  dormant: {
+    label: "Dormant",
+    color: "text-rose-400",
+    bg: "bg-rose-500/10",
+    border: "border-rose-500/20",
+    icon: AlertTriangle,
+    desc: "Reclamation risk",
+  },
 };
 
 export default function AdminHallsPage() {
@@ -111,7 +146,9 @@ export default function AdminHallsPage() {
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<"all" | HallStatus>("all");
   const [verticalFilter, setVerticalFilter] = useState<string>("all");
-  const [featureFilter, setFeatureFilter] = useState<"all" | "inventory" | "forge" | "ihcp">("all");
+  const [featureFilter, setFeatureFilter] = useState<
+    "all" | "inventory" | "forge" | "ihcp"
+  >("all");
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
@@ -145,9 +182,11 @@ export default function AdminHallsPage() {
       list = list.filter((h) => h.vertical === verticalFilter);
     }
     if (featureFilter !== "all") {
-      if (featureFilter === "inventory") list = list.filter((h) => h.inventoryEnabled);
+      if (featureFilter === "inventory")
+        list = list.filter((h) => h.inventoryEnabled);
       if (featureFilter === "forge") list = list.filter((h) => h.forgeEnabled);
-      if (featureFilter === "ihcp") list = list.filter((h) => h.ihcpBalance > 0);
+      if (featureFilter === "ihcp")
+        list = list.filter((h) => h.ihcpBalance > 0);
     }
     if (search.trim()) {
       const q = search.toLowerCase();
@@ -155,11 +194,16 @@ export default function AdminHallsPage() {
         (h) =>
           h.name.toLowerCase().includes(q) ||
           h.id.toLowerCase().includes(q) ||
-          h.country?.toLowerCase().includes(q)
+          h.country?.toLowerCase().includes(q),
       );
     }
     return list.sort((a, b) => {
-      const statusOrder: Record<string, number> = { dormant: 0, ghost: 1, live: 2, mature: 3 };
+      const statusOrder: Record<string, number> = {
+        dormant: 0,
+        ghost: 1,
+        live: 2,
+        mature: 3,
+      };
       return statusOrder[a.status] - statusOrder[b.status];
     });
   }, [halls, statusFilter, verticalFilter, featureFilter, search]);
@@ -172,12 +216,16 @@ export default function AdminHallsPage() {
       mature: halls.filter((h) => h.status === "mature").length,
       dormant: halls.filter((h) => h.status === "dormant").length,
       totalOwners: halls.reduce((sum, h) => sum + h.ownerCount, 0),
-      totalRevenue: halls.reduce((sum, h) => sum + (h.revenueThisMonth || 0), 0),
+      totalRevenue: halls.reduce(
+        (sum, h) => sum + (h.revenueThisMonth || 0),
+        0,
+      ),
       withInventory: halls.filter((h) => h.inventoryEnabled).length,
       withForge: halls.filter((h) => h.forgeEnabled).length,
       totalIhcp: halls.reduce((sum, h) => sum + h.ihcpBalance, 0),
       inWarning: halls.filter((h) => h.closureStatus === "warning").length,
-      inLiquidation: halls.filter((h) => h.closureStatus === "liquidation").length,
+      inLiquidation: halls.filter((h) => h.closureStatus === "liquidation")
+        .length,
     };
   }, [halls]);
 
@@ -190,13 +238,20 @@ export default function AdminHallsPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setMessage(`${feature === "inventory" ? "Inventory" : "Forge"} ${data.enabled ? "enabled" : "disabled"} for Hall #${hallId.slice(-6)}`);
+        setMessage(
+          `${feature === "inventory" ? "Inventory" : "Forge"} ${data.enabled ? "enabled" : "disabled"} for Hall #${hallId.slice(-6)}`,
+        );
         setHalls((prev) =>
           prev.map((h) =>
             h.id === hallId
-              ? { ...h, [feature === "inventory" ? "inventoryEnabled" : "forgeEnabled"]: data.enabled }
-              : h
-          )
+              ? {
+                  ...h,
+                  [feature === "inventory"
+                    ? "inventoryEnabled"
+                    : "forgeEnabled"]: data.enabled,
+                }
+              : h,
+          ),
         );
       } else {
         setMessage(data.error || "Toggle failed");
@@ -220,13 +275,19 @@ export default function AdminHallsPage() {
       <div className="mb-8">
         <div className="mb-2 inline-flex items-center gap-2 rounded-full border border-violet-500/20 bg-violet-500/[0.08] px-4 py-1.5">
           <LayoutGrid className="h-3.5 w-3.5 text-violet-400" />
-          <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-300">Hall Registry</span>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.2em] text-violet-300">
+            Hall Registry
+          </span>
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-          Sovereign <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">Halls</span>
+          Sovereign{" "}
+          <span className="bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">
+            Halls
+          </span>
         </h1>
         <p className="mt-1 max-w-lg text-sm text-slate-400">
-          Grid view of all Halls. Monitor inventory/forge flags, IHCP balances, SRI/AHGI health, and closure status. Toggle features directly.
+          Grid view of all Halls. Monitor inventory/forge flags, IHCP balances,
+          SRI/AHGI health, and closure status. Toggle features directly.
         </p>
       </div>
 
@@ -235,14 +296,49 @@ export default function AdminHallsPage() {
         {[
           { label: "Total", value: stats.total, color: "violet", icon: Layers },
           { label: "Ghost", value: stats.ghost, color: "violet", icon: Ghost },
-          { label: "Live", value: stats.live, color: "emerald", icon: Activity },
+          {
+            label: "Live",
+            value: stats.live,
+            color: "emerald",
+            icon: Activity,
+          },
           { label: "Mature", value: stats.mature, color: "amber", icon: Crown },
-          { label: "Dormant", value: stats.dormant, color: "rose", icon: AlertTriangle },
-          { label: "Owners", value: stats.totalOwners, color: "cyan", icon: Users },
-          { label: "Revenue", value: `$${(stats.totalRevenue / 100).toLocaleString()}`, color: "emerald", icon: Coins },
-          { label: "Inventory", value: stats.withInventory, color: "sky", icon: Package },
-          { label: "Forge", value: stats.withForge, color: "orange", icon: Hammer },
-          { label: "IHCP", value: `$${(stats.totalIhcp / 100).toLocaleString()}`, color: "emerald", icon: PiggyBank },
+          {
+            label: "Dormant",
+            value: stats.dormant,
+            color: "rose",
+            icon: AlertTriangle,
+          },
+          {
+            label: "Owners",
+            value: stats.totalOwners,
+            color: "cyan",
+            icon: Users,
+          },
+          {
+            label: "Revenue",
+            value: `$${(stats.totalRevenue / 100).toLocaleString()}`,
+            color: "emerald",
+            icon: Coins,
+          },
+          {
+            label: "Inventory",
+            value: stats.withInventory,
+            color: "sky",
+            icon: Package,
+          },
+          {
+            label: "Forge",
+            value: stats.withForge,
+            color: "orange",
+            icon: Hammer,
+          },
+          {
+            label: "IHCP",
+            value: `$${(stats.totalIhcp / 100).toLocaleString()}`,
+            color: "emerald",
+            icon: PiggyBank,
+          },
         ].map((s) => (
           <motion.div
             key={s.label}
@@ -254,7 +350,9 @@ export default function AdminHallsPage() {
               <s.icon className={`h-3 w-3 text-${s.color}-400`} />
               {s.label}
             </div>
-            <p className={`mt-1 text-lg font-bold text-${s.color}-400`}>{s.value}</p>
+            <p className={`mt-1 text-lg font-bold text-${s.color}-400`}>
+              {s.value}
+            </p>
           </motion.div>
         ))}
       </div>
@@ -265,13 +363,15 @@ export default function AdminHallsPage() {
           {stats.inWarning > 0 && (
             <div className="flex items-center gap-2 rounded-lg border border-amber-500/20 bg-amber-500/10 px-4 py-2 text-xs text-amber-400">
               <AlertTriangle className="h-4 w-4" />
-              {stats.inWarning} hall{stats.inWarning > 1 ? "s" : ""} in closure warning
+              {stats.inWarning} hall{stats.inWarning > 1 ? "s" : ""} in closure
+              warning
             </div>
           )}
           {stats.inLiquidation > 0 && (
             <div className="flex items-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/10 px-4 py-2 text-xs text-rose-400">
               <Ban className="h-4 w-4" />
-              {stats.inLiquidation} hall{stats.inLiquidation > 1 ? "s" : ""} liquidating
+              {stats.inLiquidation} hall{stats.inLiquidation > 1 ? "s" : ""}{" "}
+              liquidating
             </div>
           )}
         </div>
@@ -291,11 +391,15 @@ export default function AdminHallsPage() {
                   active && f !== "all"
                     ? `${cfg.bg} ${cfg.border} ${cfg.color} ring-1 ${cfg.border.replace("border", "ring")}`
                     : active && f === "all"
-                    ? "border-cyan-500/20 bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-500/20"
-                    : "border-white/5 bg-white/[0.02] text-slate-400 hover:border-white/10 hover:bg-white/[0.04]"
+                      ? "border-cyan-500/20 bg-cyan-500/10 text-cyan-300 ring-1 ring-cyan-500/20"
+                      : "border-white/5 bg-white/[0.02] text-slate-400 hover:border-white/10 hover:bg-white/[0.04]"
                 }`}
               >
-                {f !== "all" && <cfg.icon className={`h-3.5 w-3.5 ${active ? cfg.color : "text-slate-500"}`} />}
+                {f !== "all" && (
+                  <cfg.icon
+                    className={`h-3.5 w-3.5 ${active ? cfg.color : "text-slate-500"}`}
+                  />
+                )}
                 {f === "all" ? <Layers className="h-3.5 w-3.5" /> : null}
                 {f === "all" ? "All" : cfg.label}
               </button>
@@ -309,7 +413,9 @@ export default function AdminHallsPage() {
           >
             <option value="all">All Verticals</option>
             {uniqueVerticals.map((v) => (
-              <option key={v} value={v}>{VERTICAL_LABELS[v] || v}</option>
+              <option key={v} value={v}>
+                {VERTICAL_LABELS[v] || v}
+              </option>
             ))}
           </select>
 
@@ -358,9 +464,15 @@ export default function AdminHallsPage() {
                 : "border-rose-500/20 bg-rose-500/10 text-rose-400"
             }`}
           >
-            {message.includes("enabled") || message.includes("disabled") ? <CheckCircle2 className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
+            {message.includes("enabled") || message.includes("disabled") ? (
+              <CheckCircle2 className="h-4 w-4" />
+            ) : (
+              <AlertTriangle className="h-4 w-4" />
+            )}
             {message}
-            <button onClick={() => setMessage("")} className="ml-auto"><X className="h-3.5 w-3.5" /></button>
+            <button onClick={() => setMessage("")} className="ml-auto">
+              <X className="h-3.5 w-3.5" />
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -373,7 +485,9 @@ export default function AdminHallsPage() {
       ) : filtered.length === 0 ? (
         <div className="rounded-2xl border border-white/5 bg-[#0a0a14]/60 p-12 text-center">
           <LayoutGrid className="mx-auto h-12 w-12 text-white/10" />
-          <p className="mt-4 text-sm text-slate-500">No halls match your filters.</p>
+          <p className="mt-4 text-sm text-slate-500">
+            No halls match your filters.
+          </p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -403,13 +517,19 @@ export default function AdminHallsPage() {
                   {/* Top Row */}
                   <div className="mb-4 flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className={`flex h-10 w-10 items-center justify-center rounded-xl ${statusCfg.bg} ring-1 ${statusCfg.border}`}>
+                      <div
+                        className={`flex h-10 w-10 items-center justify-center rounded-xl ${statusCfg.bg} ring-1 ${statusCfg.border}`}
+                      >
                         <VIcon className={`h-5 w-5 ${statusCfg.color}`} />
                       </div>
                       <div>
-                        <h3 className="text-sm font-bold text-white truncate max-w-[140px]">{hall.name}</h3>
+                        <h3 className="text-sm font-bold text-white truncate max-w-[140px]">
+                          {hall.name}
+                        </h3>
                         <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
-                          <span>{VERTICAL_LABELS[hall.vertical] || hall.vertical}</span>
+                          <span>
+                            {VERTICAL_LABELS[hall.vertical] || hall.vertical}
+                          </span>
                           <span>•</span>
                           <span>Class {hall.hallClass || "I"}</span>
                           <span>•</span>
@@ -417,7 +537,9 @@ export default function AdminHallsPage() {
                         </div>
                       </div>
                     </div>
-                    <div className={`flex items-center gap-1 rounded-md border px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${statusCfg.bg} ${statusCfg.border} ${statusCfg.color}`}>
+                    <div
+                      className={`flex items-center gap-1 rounded-md border px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider ${statusCfg.bg} ${statusCfg.border} ${statusCfg.color}`}
+                    >
                       <StatusIcon className="h-3 w-3" />
                       {statusCfg.label}
                     </div>
@@ -441,12 +563,15 @@ export default function AdminHallsPage() {
                       </span>
                     )}
                     {hall.closureStatus !== "active" && (
-                      <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] ${
-                        hall.closureStatus === "warning"
-                          ? "bg-amber-500/10 border border-amber-500/20 text-amber-400"
-                          : "bg-rose-500/10 border border-rose-500/20 text-rose-400"
-                      }`}>
-                        <AlertTriangle className="h-3 w-3" /> {hall.closureStatus}
+                      <span
+                        className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[9px] ${
+                          hall.closureStatus === "warning"
+                            ? "bg-amber-500/10 border border-amber-500/20 text-amber-400"
+                            : "bg-rose-500/10 border border-rose-500/20 text-rose-400"
+                        }`}
+                      >
+                        <AlertTriangle className="h-3 w-3" />{" "}
+                        {hall.closureStatus}
                       </span>
                     )}
                   </div>
@@ -454,49 +579,86 @@ export default function AdminHallsPage() {
                   {/* Emoji Set */}
                   <div className="mb-3 flex gap-1">
                     {hall.emojiSet?.map((e, i) => (
-                      <span key={i} className="flex h-6 w-6 items-center justify-center rounded-md bg-white/[0.03] text-sm ring-1 ring-white/5">{e}</span>
-                    )) || <span className="text-[10px] text-slate-600 italic">No emojis</span>}
+                      <span
+                        key={i}
+                        className="flex h-6 w-6 items-center justify-center rounded-md bg-white/[0.03] text-sm ring-1 ring-white/5"
+                      >
+                        {e}
+                      </span>
+                    )) || (
+                      <span className="text-[10px] text-slate-600 italic">
+                        No emojis
+                      </span>
+                    )}
                   </div>
 
                   {/* Metrics Grid */}
                   <div className="mb-4 grid grid-cols-3 gap-2 text-[10px]">
                     <div className="rounded-lg bg-white/[0.02] p-2">
                       <p className="text-slate-500">Owners</p>
-                      <p className="mt-0.5 font-semibold text-white">{hall.ownerCount}</p>
+                      <p className="mt-0.5 font-semibold text-white">
+                        {hall.ownerCount}
+                      </p>
                     </div>
                     <div className="rounded-lg bg-white/[0.02] p-2">
                       <p className="text-slate-500">Proposals</p>
-                      <p className="mt-0.5 font-semibold text-white">{hall.proposalCount}</p>
+                      <p className="mt-0.5 font-semibold text-white">
+                        {hall.proposalCount}
+                      </p>
                     </div>
                     <div className="rounded-lg bg-white/[0.02] p-2">
                       <p className="text-slate-500">Revenue</p>
-                      <p className="mt-0.5 font-semibold text-emerald-300">${(hall.revenueThisMonth || 0).toLocaleString()}</p>
+                      <p className="mt-0.5 font-semibold text-emerald-300">
+                        ${(hall.revenueThisMonth || 0).toLocaleString()}
+                      </p>
                     </div>
                   </div>
 
                   {/* SRI / AHGI / IHCP Row */}
                   <div className="mb-4 grid grid-cols-3 gap-2 text-[10px]">
                     <div className="rounded-lg border border-violet-500/10 bg-violet-500/[0.04] p-2">
-                      <p className="text-slate-500 flex items-center gap-1"><BarChart3 className="h-3 w-3" /> SRI</p>
-                      <p className={`mt-0.5 font-bold ${
-                        hall.sriScore >= 90 ? "text-amber-400" :
-                        hall.sriScore >= 75 ? "text-slate-300" :
-                        hall.sriScore >= 60 ? "text-slate-400" :
-                        "text-rose-400"
-                      }`}>{hall.sriScore}</p>
+                      <p className="text-slate-500 flex items-center gap-1">
+                        <BarChart3 className="h-3 w-3" /> SRI
+                      </p>
+                      <p
+                        className={`mt-0.5 font-bold ${
+                          hall.sriScore >= 90
+                            ? "text-amber-400"
+                            : hall.sriScore >= 75
+                              ? "text-slate-300"
+                              : hall.sriScore >= 60
+                                ? "text-slate-400"
+                                : "text-rose-400"
+                        }`}
+                      >
+                        {hall.sriScore}
+                      </p>
                     </div>
                     <div className="rounded-lg border border-cyan-500/10 bg-cyan-500/[0.04] p-2">
-                      <p className="text-slate-500 flex items-center gap-1"><Activity className="h-3 w-3" /> AHGI</p>
-                      <p className={`mt-0.5 font-bold ${
-                        hall.ahgiScore >= 80 ? "text-emerald-400" :
-                        hall.ahgiScore >= 60 ? "text-slate-300" :
-                        hall.ahgiScore >= 40 ? "text-amber-400" :
-                        "text-rose-400"
-                      }`}>{hall.ahgiScore}</p>
+                      <p className="text-slate-500 flex items-center gap-1">
+                        <Activity className="h-3 w-3" /> AHGI
+                      </p>
+                      <p
+                        className={`mt-0.5 font-bold ${
+                          hall.ahgiScore >= 80
+                            ? "text-emerald-400"
+                            : hall.ahgiScore >= 60
+                              ? "text-slate-300"
+                              : hall.ahgiScore >= 40
+                                ? "text-amber-400"
+                                : "text-rose-400"
+                        }`}
+                      >
+                        {hall.ahgiScore}
+                      </p>
                     </div>
                     <div className="rounded-lg border border-emerald-500/10 bg-emerald-500/[0.04] p-2">
-                      <p className="text-slate-500 flex items-center gap-1"><PiggyBank className="h-3 w-3" /> IHCP</p>
-                      <p className="mt-0.5 font-bold text-emerald-300">${(hall.ihcpBalance / 100).toLocaleString()}</p>
+                      <p className="text-slate-500 flex items-center gap-1">
+                        <PiggyBank className="h-3 w-3" /> IHCP
+                      </p>
+                      <p className="mt-0.5 font-bold text-emerald-300">
+                        ${(hall.ihcpBalance / 100).toLocaleString()}
+                      </p>
                     </div>
                   </div>
 
@@ -505,12 +667,16 @@ export default function AdminHallsPage() {
                     <div className="mb-3 rounded-lg border border-white/5 bg-white/[0.02] p-2">
                       <div className="flex items-center justify-between text-[10px]">
                         <span className="text-slate-500">Listed</span>
-                        <span className="font-semibold text-cyan-300">${hall.listedPrice.toLocaleString()}</span>
+                        <span className="font-semibold text-cyan-300">
+                          ${hall.listedPrice.toLocaleString()}
+                        </span>
                       </div>
                       {hall.pir !== null && (
                         <div className="mt-1 flex items-center justify-between text-[10px]">
                           <span className="text-slate-500">PIR</span>
-                          <span className="font-semibold text-amber-300">${hall.pir.toLocaleString()}</span>
+                          <span className="font-semibold text-amber-300">
+                            ${hall.pir.toLocaleString()}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -520,7 +686,8 @@ export default function AdminHallsPage() {
                   <div className="mb-3 space-y-2">
                     <div className="flex items-center justify-between rounded-lg border border-white/5 bg-white/[0.02] px-3 py-2">
                       <div className="flex items-center gap-2 text-[10px] text-slate-400">
-                        <Package className="h-3.5 w-3.5 text-sky-400" /> Inventory
+                        <Package className="h-3.5 w-3.5 text-sky-400" />{" "}
+                        Inventory
                       </div>
                       <button
                         onClick={() => toggleFeature(hall.id, "inventory")}
@@ -534,9 +701,13 @@ export default function AdminHallsPage() {
                         {actionLoading === `inventory-${hall.id}` ? (
                           <Loader2 className="h-3 w-3 animate-spin" />
                         ) : hall.inventoryEnabled ? (
-                          <><ToggleRight className="h-3.5 w-3.5" /> On</>
+                          <>
+                            <ToggleRight className="h-3.5 w-3.5" /> On
+                          </>
                         ) : (
-                          <><ToggleLeft className="h-3.5 w-3.5" /> Off</>
+                          <>
+                            <ToggleLeft className="h-3.5 w-3.5" /> Off
+                          </>
                         )}
                       </button>
                     </div>
@@ -556,9 +727,13 @@ export default function AdminHallsPage() {
                         {actionLoading === `forge-${hall.id}` ? (
                           <Loader2 className="h-3 w-3 animate-spin" />
                         ) : hall.forgeEnabled ? (
-                          <><ToggleRight className="h-3.5 w-3.5" /> On</>
+                          <>
+                            <ToggleRight className="h-3.5 w-3.5" /> On
+                          </>
                         ) : (
-                          <><ToggleLeft className="h-3.5 w-3.5" /> Off</>
+                          <>
+                            <ToggleLeft className="h-3.5 w-3.5" /> Off
+                          </>
                         )}
                       </button>
                     </div>
@@ -593,19 +768,31 @@ export default function AdminHallsPage() {
                           <div className="grid grid-cols-2 gap-2 text-[10px]">
                             <div className="rounded-lg bg-white/[0.02] p-2">
                               <p className="text-slate-500">Created</p>
-                              <p className="mt-0.5 text-slate-300">{new Date(hall.createdAt).toLocaleDateString()}</p>
+                              <p className="mt-0.5 text-slate-300">
+                                {new Date(hall.createdAt).toLocaleDateString()}
+                              </p>
                             </div>
                             <div className="rounded-lg bg-white/[0.02] p-2">
                               <p className="text-slate-500">Last Activity</p>
-                              <p className="mt-0.5 text-slate-300">{hall.lastActivityAt ? new Date(hall.lastActivityAt).toLocaleDateString() : "—"}</p>
+                              <p className="mt-0.5 text-slate-300">
+                                {hall.lastActivityAt
+                                  ? new Date(
+                                      hall.lastActivityAt,
+                                    ).toLocaleDateString()
+                                  : "—"}
+                              </p>
                             </div>
                             <div className="rounded-lg bg-white/[0.02] p-2">
                               <p className="text-slate-500">Country</p>
-                              <p className="mt-0.5 text-slate-300">{hall.country || "—"}</p>
+                              <p className="mt-0.5 text-slate-300">
+                                {hall.country || "—"}
+                              </p>
                             </div>
                             <div className="rounded-lg bg-white/[0.02] p-2">
                               <p className="text-slate-500">Pool ID</p>
-                              <p className="mt-0.5 font-mono text-slate-300">{hall.poolId.slice(-8)}</p>
+                              <p className="mt-0.5 font-mono text-slate-300">
+                                {hall.poolId.slice(-8)}
+                              </p>
                             </div>
                           </div>
                         </div>

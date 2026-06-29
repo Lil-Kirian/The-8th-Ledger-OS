@@ -5,12 +5,8 @@ import useSWR from "swr";
 import { motion } from "framer-motion";
 import {
   Crown,
-  Award,
-  Medal,
-  Shield,
   AlertTriangle,
   TrendingUp,
-  TrendingDown,
   Users,
   Vote,
   Clock,

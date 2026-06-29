@@ -3,9 +3,7 @@
 import React, { useState } from "react";
 import {
   CheckCircle2,
-  Clock,
   Loader2,
-  Circle,
   ChevronRight,
   Image,
   FileText,

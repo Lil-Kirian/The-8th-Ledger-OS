@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin, getSessionUser } from "@/lib/auth";
+import {  getSessionUser } from "@/lib/auth";
 import { logSecurityAudit } from "@/lib/audit";
 
 // POST /api/halls/[id]/closure/liquidate
@@ -8,7 +8,7 @@ import { logSecurityAudit } from "@/lib/audit";
 // Payout order: 8th Ledger fee (2.5%) → PIR debt → Tax → Worker severance → Owners by %
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id: hallId } = await params;

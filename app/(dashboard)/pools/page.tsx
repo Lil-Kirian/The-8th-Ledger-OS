@@ -1,19 +1,15 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { Suspense, useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import useSWR from "swr";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
   Layers, Users, Timer, Globe, Landmark, Zap, Crown, Lock,
-  HeartPulse, TrendingUp, Hexagon, Plane, Wheat, Sun,
-  ArrowRight, Coins, CheckCircle2, Shield, Radio, Activity,
-  ChevronRight, Sparkles, Terminal, Orbit, Crosshair,
-  BarChart3, Flame, CircleDot, Fingerprint, Satellite,
-  Building2, CircleCheck, XCircle, Diamond, Flame as FlameIcon,
-  LockKeyhole, Target, Percent, TrendingUp as TrendUp,
-  ArrowLeft, Hash, CircleDollarSign, Wallet, Receipt
+  HeartPulse, TrendingUp, Hexagon, Plane, Wheat, Sun, CheckCircle2, Shield, Radio, Activity, Sparkles, Terminal, Orbit, Crosshair,
+  BarChart3, Flame, CircleDot, Fingerprint, Satellite, XCircle, Diamond, Flame as FlameIcon,
+  LockKeyhole, Target
 } from "lucide-react";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());
@@ -545,7 +541,7 @@ function FooterInfo() {
 /* ============================================================
    MAIN PAGE
    ============================================================ */
-export default function PoolsPage() {
+function PoolsPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const activeVertical = searchParams.get("vertical");
@@ -641,5 +637,21 @@ export default function PoolsPage() {
         <FooterInfo />
       </div>
     </div>
+  );
+}
+
+export default function PoolsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-[#050508] text-slate-100">
+          <div className="mx-auto flex min-h-screen max-w-[1400px] items-center justify-center px-4">
+            <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-500 border-t-transparent" />
+          </div>
+        </div>
+      }
+    >
+      <PoolsPageContent />
+    </Suspense>
   );
 }

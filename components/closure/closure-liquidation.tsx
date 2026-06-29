@@ -3,20 +3,11 @@
 import { motion } from "framer-motion";
 import {
   Lock,
-  Shield,
-  CheckCircle2,
   DollarSign,
   Users,
   FileText,
   Download,
-  ArrowRight,
   Hash,
-  Clock,
-  AlertTriangle,
-  Heart,
-  XCircle,
-  Flame,
-  TrendingDown,
   Wallet,
 } from "lucide-react";
 

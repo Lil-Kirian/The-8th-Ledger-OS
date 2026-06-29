@@ -3,21 +3,19 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  Globe,
+
   ArrowLeft,
-  Clock,
   ChevronRight,
   MapPin,
   Lock,
   Unlock,
   Sparkles,
   Trophy,
-  AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import useSWR from "swr";
 
-// ── Types ───────────────────────────────────────────────────
+// ── Types
 
 interface Cycle {
   id: string;
@@ -36,11 +34,11 @@ interface PastWinner {
   forgedAt: string;
 }
 
-// ── Fetcher ─────────────────────────────────────────────────
+// ── Fetcher
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-// ── Continent Data ──────────────────────────────────────────
+// ── Continent Data
 
 const CONTINENTS = [
   { id: "africa", name: "Africa", emoji: "🌍", color: "from-amber-500/20 to-transparent", locked: false },
@@ -59,7 +57,7 @@ const PHASES = [
   { id: "complete", name: "Complete", duration: 0, desc: "Cycle complete. Next continent prepares." },
 ];
 
-// ── Countdown Hook ──────────────────────────────────────────
+// ── Countdown Hook
 
 function useCountdown(targetDate: string) {
   const [timeLeft, setTimeLeft] = useState({ hours: 0, minutes: 0, seconds: 0 });
@@ -81,7 +79,7 @@ function useCountdown(targetDate: string) {
   return timeLeft;
 }
 
-// ── Components ──────────────────────────────────────────────
+// ── Components
 
 function ContinentCard({
   continent,
@@ -108,7 +106,7 @@ function ContinentCard({
       }`}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${continent.color} opacity-30`} />
-      
+
       <div className="relative">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -175,7 +173,7 @@ function PhaseTimeline({ currentPhase }: { currentPhase: string }) {
   );
 }
 
-// ── Main Page ───────────────────────────────────────────────
+// ── Main Page ─
 
 export default function MapPage() {
   const { data: cycleData } = useSWR("/api/meridian/cycle", fetcher);

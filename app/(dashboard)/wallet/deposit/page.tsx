@@ -6,8 +6,8 @@ import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import {
   Wallet, ArrowDownLeft, Landmark, CreditCard, Globe,
-  CheckCircle2, AlertCircle, Loader2, Clock, Shield,
-  ChevronLeft, Copy, ExternalLink
+  CheckCircle2, AlertCircle, Loader2, Clock,
+  ChevronLeft
 } from "lucide-react";
 import Link from "next/link";
 

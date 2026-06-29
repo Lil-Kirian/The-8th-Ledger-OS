@@ -2,13 +2,12 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { motion, useScroll, useTransform, useSpring, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import {
-  Crown, Shield, ShieldCheck, ShieldAlert, ShieldQuestion, Zap, Eye, TrendingUp, Landmark, Globe,
+  Crown, Shield, ShieldCheck, ShieldAlert, Zap, Eye, TrendingUp, Landmark, Globe,
   Hexagon, Activity, ChevronRight, Lock, Unlock, Flame,
-  Sparkles, BarChart3, Wallet, Vote, Trophy, Radio,
-  ArrowUpRight, Fingerprint, Clock, CircleDollarSign,
-  Target, Users, FileCheck, AlertTriangle, Diamond, BadgeCheck, UserX, UserCheck, Crown as CrownIcon
+  Sparkles, Vote, Trophy, Radio, Fingerprint, CircleDollarSign,
+  Target, FileCheck, AlertTriangle, Diamond, BadgeCheck, UserX, Crown as CrownIcon
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { formatCurrency } from "@/lib/utils";

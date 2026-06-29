@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isPrimaryAdmin } from "@/lib/auth";
+import { generateTxHash } from "@/lib/utils";
 
 /* ============================================================
    8TH LEDGER — ASSET ADMIN API
@@ -12,8 +13,16 @@ import { getSessionUser, isPrimaryAdmin } from "@/lib/auth";
    ============================================================ */
 export async function GET(req: NextRequest) {
   const user = await getSessionUser();
-  if (!user) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-  if (!isPrimaryAdmin(user)) return NextResponse.json({ success: false, error: "Primary admin authority required" }, { status: 403 });
+  if (!user)
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 },
+    );
+  if (!isPrimaryAdmin(user))
+    return NextResponse.json(
+      { success: false, error: "Primary admin authority required" },
+      { status: 403 },
+    );
 
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q") || "";
@@ -34,7 +43,15 @@ export async function GET(req: NextRequest) {
   }
 
   const orderBy: any = {};
-  if (["assetValue", "committed", "participants", "createdAt", "reportedCount"].includes(sort)) {
+  if (
+    [
+      "assetValue",
+      "committed",
+      "participants",
+      "createdAt",
+      "reportedCount",
+    ].includes(sort)
+  ) {
     orderBy[sort] = dir;
   } else {
     orderBy.createdAt = "desc";
@@ -75,7 +92,9 @@ export async function GET(req: NextRequest) {
       where: { ledgerId: { in: creatorIds } },
       select: { ledgerId: true, displayName: true },
     });
-    const creatorMap = new Map(creators.map((c) => [c.ledgerId, c.displayName]));
+    const creatorMap = new Map(
+      creators.map((c) => [c.ledgerId, c.displayName]),
+    );
 
     const enrichedAssets = assets.map((a) => ({
       ...a,
@@ -102,8 +121,14 @@ export async function GET(req: NextRequest) {
     const reportPoolIds = [...new Set(reports.map((r) => r.poolId))];
     const reportUserIds = [...new Set(reports.map((r) => r.ledgerId))];
     const [pools, users] = await Promise.all([
-      prisma.pool.findMany({ where: { poolId: { in: reportPoolIds } }, select: { poolId: true, name: true } }),
-      prisma.user.findMany({ where: { ledgerId: { in: reportUserIds } }, select: { ledgerId: true, displayName: true } }),
+      prisma.pool.findMany({
+        where: { poolId: { in: reportPoolIds } },
+        select: { poolId: true, name: true },
+      }),
+      prisma.user.findMany({
+        where: { ledgerId: { in: reportUserIds } },
+        select: { ledgerId: true, displayName: true },
+      }),
     ]);
     const poolMap = new Map(pools.map((p) => [p.poolId, p.name]));
     const userMap = new Map(users.map((u) => [u.ledgerId, u.displayName]));
@@ -114,10 +139,17 @@ export async function GET(req: NextRequest) {
       reporterName: userMap.get(r.ledgerId) || r.ledgerId,
     }));
 
-    return NextResponse.json({ success: true, assets: enrichedAssets, reports: enrichedReports });
+    return NextResponse.json({
+      success: true,
+      assets: enrichedAssets,
+      reports: enrichedReports,
+    });
   } catch (err) {
     console.error("[ADMIN_ASSETS ERROR]", err);
-    return NextResponse.json({ success: false, error: "Database error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Database error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -126,14 +158,25 @@ export async function GET(req: NextRequest) {
    ============================================================ */
 export async function PATCH(req: NextRequest) {
   const user = await getSessionUser();
-  if (!user) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-  if (!isPrimaryAdmin(user)) return NextResponse.json({ success: false, error: "Primary admin authority required" }, { status: 403 });
+  if (!user)
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 },
+    );
+  if (!isPrimaryAdmin(user))
+    return NextResponse.json(
+      { success: false, error: "Primary admin authority required" },
+      { status: 403 },
+    );
 
   let body: any;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ success: false, error: "Invalid JSON" }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: "Invalid JSON" },
+      { status: 400 },
+    );
   }
 
   const { action, poolId, reportId } = body;
@@ -142,23 +185,43 @@ export async function PATCH(req: NextRequest) {
     let message = "";
 
     if (action === "approve" && poolId) {
-      await prisma.pool.update({ where: { poolId }, data: { isVerified: true } });
+      await prisma.pool.update({
+        where: { poolId },
+        data: { isVerified: true },
+      });
       message = `Asset ${poolId} approved and is now live.`;
     } else if (action === "reject" && poolId) {
-      await prisma.pool.update({ where: { poolId }, data: { status: "rejected", isVerified: false } });
+      await prisma.pool.update({
+        where: { poolId },
+        data: { status: "rejected", isVerified: false },
+      });
       message = `Asset ${poolId} rejected and removed from public view.`;
     } else if (action === "dismiss-report" && reportId) {
-      await prisma.assetReport.update({ where: { id: reportId }, data: { status: "dismissed", reviewedAt: new Date() } });
+      await prisma.assetReport.update({
+        where: { id: reportId },
+        data: { status: "dismissed", reviewedAt: new Date() },
+      });
       message = "Report dismissed.";
     } else if (action === "remove-reported" && reportId) {
-      const report = await prisma.assetReport.findUnique({ where: { id: reportId } });
+      const report = await prisma.assetReport.findUnique({
+        where: { id: reportId },
+      });
       if (report) {
-        await prisma.pool.update({ where: { poolId: report.poolId }, data: { status: "rejected", isVerified: false } });
-        await prisma.assetReport.update({ where: { id: reportId }, data: { status: "resolved", reviewedAt: new Date() } });
+        await prisma.pool.update({
+          where: { poolId: report.poolId },
+          data: { status: "rejected", isVerified: false },
+        });
+        await prisma.assetReport.update({
+          where: { id: reportId },
+          data: { status: "resolved", reviewedAt: new Date() },
+        });
         message = "Asset removed and report resolved.";
       }
     } else {
-      return NextResponse.json({ success: false, error: "Invalid action" }, { status: 400 });
+      return NextResponse.json(
+        { success: false, error: "Invalid action" },
+        { status: 400 },
+      );
     }
 
     // Audit log
@@ -169,7 +232,7 @@ export async function PATCH(req: NextRequest) {
         poolId: poolId || undefined,
         ledgerId: user.ledgerId,
         metadata: JSON.stringify({ action, reportId, admin: user.ledgerId }),
-        txHash: `AUD-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        txHash: generateTxHash("AUD-ASSET"),
         visibleToPublic: false,
       },
     });
@@ -177,6 +240,9 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ success: true, message });
   } catch (err) {
     console.error("[ADMIN_ASSETS PATCH ERROR]", err);
-    return NextResponse.json({ success: false, error: "Database error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Database error" },
+      { status: 500 },
+    );
   }
 }

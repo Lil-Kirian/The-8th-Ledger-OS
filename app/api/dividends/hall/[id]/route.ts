@@ -10,7 +10,7 @@ import { requireAuth, requireHallAccess } from "@/lib/auth";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: hallId } = await params;
@@ -18,17 +18,26 @@ export async function GET(
     // Auth check
     const auth = await requireAuth(request);
     if (!auth.success) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
     }
 
     // Hall access check
     const access = await requireHallAccess(request, hallId);
     if (!access.success) {
-      return NextResponse.json({ error: "Hall access denied" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Hall access denied" },
+        { status: 403 },
+      );
     }
 
     const { searchParams } = new URL(request.url);
-    const limit = Math.min(parseInt(searchParams.get("limit") || "50", 10), 100);
+    const limit = Math.min(
+      parseInt(searchParams.get("limit") || "50", 10),
+      100,
+    );
     const offset = parseInt(searchParams.get("offset") || "0", 10);
 
     // Get hall with pool info
@@ -51,25 +60,33 @@ export async function GET(
       orderBy: { createdAt: "desc" },
       take: limit,
       skip: offset,
+    });
+
+    const distributions = await prisma.dividendDistribution.findMany({
+      where: { revenueLogId: { in: revenueLogs.map((log) => log.id) } },
       include: {
-        dividendDistributions: {
+        entries: {
           include: {
-            entries: {
-              include: {
-                ownership: {
-                  select: {
-                    id: true,
-                    userId: true,
-                    ledgerId: true,
-                    ownershipPercent: true,
-                  },
-                },
+            ownership: {
+              select: {
+                id: true,
+                userId: true,
+                ledgerId: true,
+                ownershipPercent: true,
               },
             },
           },
         },
       },
     });
+    const distributionsByRevenueLogId = new Map<string, typeof distributions>();
+    for (const distribution of distributions) {
+      if (!distribution.revenueLogId) continue;
+      const existing =
+        distributionsByRevenueLogId.get(distribution.revenueLogId) ?? [];
+      existing.push(distribution);
+      distributionsByRevenueLogId.set(distribution.revenueLogId, existing);
+    }
 
     // Get user's ownership in this hall for personalized view
     const userOwnership = await prisma.ownership.findFirst({
@@ -119,22 +136,24 @@ export async function GET(
       distributed: log.distributed,
       distributionTx: log.distributionTx,
       createdAt: log.createdAt,
-      distributions: log.dividendDistributions.map((dist) => ({
-        distributionId: dist.id,
-        totalAmount: dist.totalAmount,
-        totalOwners: dist.totalOwners,
-        distributedAt: dist.distributedAt,
-        entries: dist.entries.map((entry) => ({
-          entryId: entry.id,
-          ownershipId: entry.ownershipId,
-          userId: entry.ownership?.userId,
-          ledgerId: entry.ownership?.ledgerId,
-          ownershipPercent: entry.ownership?.ownershipPercent,
-          amount: entry.amount,
-          claimed: entry.claimed,
-          claimedAt: entry.claimedAt,
-        })),
-      })),
+      distributions: (distributionsByRevenueLogId.get(log.id) ?? []).map(
+        (dist) => ({
+          distributionId: dist.id,
+          totalAmount: dist.totalAmount,
+          totalOwners: dist.totalOwners,
+          distributedAt: dist.distributedAt,
+          entries: dist.entries.map((entry) => ({
+            entryId: entry.id,
+            ownershipId: entry.ownershipId,
+            userId: entry.ownership?.userId,
+            ledgerId: entry.ownership?.ledgerId,
+            ownershipPercent: entry.ownership?.ownershipPercent,
+            amount: entry.amount,
+            claimed: entry.claimed,
+            claimedAt: entry.claimedAt,
+          })),
+        }),
+      ),
     }));
 
     // Calculate user's lifetime earnings from this hall
@@ -194,7 +213,7 @@ export async function GET(
     console.error("[DIVIDEND HALL]", error);
     return NextResponse.json(
       { error: "Failed to fetch dividend history", detail: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

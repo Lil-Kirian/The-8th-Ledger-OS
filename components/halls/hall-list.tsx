@@ -9,8 +9,6 @@ import {
   List,
   SlidersHorizontal,
   ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
   X,
   MapPin,
   Building2,
@@ -23,7 +21,6 @@ import {
   Wheat,
   Sun,
   Wifi,
-  Crown,
   Shield,
   AlertTriangle,
   Lock,
@@ -37,10 +34,6 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import {
@@ -52,7 +45,7 @@ import {
 } from "@/components/ui/select";
 import { HallCard, HallCardSkeleton, HallCardData, VerticalKey, HallStatus, HallClass, SriTier } from "./hall-card";
 
-// ─── Types ───
+//  Types
 export type SortKey =
   | "sriDesc"
   | "sriAsc"
@@ -89,7 +82,7 @@ export interface HallFilters {
   hasOwnership: boolean | null;
 }
 
-// ─── Vertical Options ───
+//  Vertical Options
 const VERTICAL_OPTIONS: { key: VerticalKey; label: string; icon: React.ElementType }[] = [
   { key: "ledgerprop",   label: "LedgerProp",   icon: Building2 },
   { key: "ledgerauto",   label: "LedgerAuto",   icon: Car },
@@ -140,7 +133,7 @@ const SORT_OPTIONS: { key: SortKey; label: string }[] = [
   { key: "oldest",        label: "Oldest First" },
 ];
 
-// ─── Helpers ───
+//  Helpers
 function getContinents(halls: HallCardData[]): string[] {
   const set = new Set(halls.map((h) => h.continent));
   return Array.from(set).sort();
@@ -161,7 +154,7 @@ function countActiveFilters(filters: HallFilters): number {
   return count;
 }
 
-// ─── Component ───
+//  Component
 export function HallList({
   halls,
   isLoading = false,
@@ -309,30 +302,44 @@ export function HallList({
 
   return (
     <div className="space-y-5">
-      {/* ─── Header Bar ─── */}
+      {/*  Header Bar  */}
       <div className="flex flex-col gap-4">
         {/* Title + Stats */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h2 className="text-xl font-semibold text-slate-100">Sovereign Halls</h2>
+            <h2 className="text-xl font-semibold text-slate-100">
+              Sovereign Halls
+            </h2>
             <p className="text-sm text-slate-500 mt-0.5">
-              {halls.length} hall{halls.length === 1 ? "" : "s"} across the 8th Ledger
+              {halls.length} hall{halls.length === 1 ? "" : "s"} across the 8th
+              Ledger
               {yourHallsCount > 0 && (
-                <span className="text-cyan-400 ml-1">· {yourHallsCount} owned</span>
+                <span className="text-cyan-400 ml-1">
+                  · {yourHallsCount} owned
+                </span>
               )}
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="outline" className="border-emerald-500/20 text-emerald-400 bg-emerald-500/5 text-xs">
+            <Badge
+              variant="outline"
+              className="border-emerald-500/20 text-emerald-400 bg-emerald-500/5 text-xs"
+            >
               <Activity className="w-3 h-3 mr-1" />
               {liveCount} Live
             </Badge>
-            <Badge variant="outline" className="border-slate-600/20 text-slate-400 bg-slate-500/5 text-xs">
+            <Badge
+              variant="outline"
+              className="border-slate-600/20 text-slate-400 bg-slate-500/5 text-xs"
+            >
               <Lock className="w-3 h-3 mr-1" />
               {ghostCount} Ghost
             </Badge>
             {closingCount > 0 && (
-              <Badge variant="outline" className="border-red-500/20 text-red-400 bg-red-500/5 text-xs">
+              <Badge
+                variant="outline"
+                className="border-red-500/20 text-red-400 bg-red-500/5 text-xs"
+              >
                 <AlertTriangle className="w-3 h-3 mr-1" />
                 {closingCount} Closing
               </Badge>
@@ -362,14 +369,21 @@ export function HallList({
           </div>
 
           {/* Sort */}
-          <Select value={sortKey} onValueChange={(v) => setSortKey(v as SortKey)}>
+          <Select
+            value={sortKey}
+            onValueChange={(v) => setSortKey(v as SortKey)}
+          >
             <SelectTrigger className="w-full sm:w-56 bg-slate-900/50 border-slate-800 text-slate-300 text-xs">
               <ArrowUpDown className="w-3.5 h-3.5 mr-2 text-slate-500" />
               <SelectValue />
             </SelectTrigger>
             <SelectContent className="bg-slate-900 border-slate-800">
               {SORT_OPTIONS.map((opt) => (
-                <SelectItem key={opt.key} value={opt.key} className="text-xs text-slate-300 focus:bg-slate-800">
+                <SelectItem
+                  key={opt.key}
+                  value={opt.key}
+                  className="text-xs text-slate-300 focus:bg-slate-800"
+                >
                   {opt.label}
                 </SelectItem>
               ))}
@@ -419,7 +433,7 @@ export function HallList({
           </div>
         </div>
 
-        {/* ─── Filter Panel ─── */}
+        {/*  Filter Panel  */}
         <AnimatePresence>
           {showFilters && (
             <motion.div
@@ -608,7 +622,9 @@ export function HallList({
                       min={0}
                       max={100}
                       value={filters.minSri}
-                      onChange={(e) => updateFilters({ minSri: Number(e.target.value) })}
+                      onChange={(e) =>
+                        updateFilters({ minSri: Number(e.target.value) })
+                      }
                       className="w-full h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer accent-cyan-500"
                     />
                     <div className="flex justify-between text-[10px] text-slate-600 mt-1">
@@ -628,7 +644,9 @@ export function HallList({
                       min={0}
                       max={100}
                       value={filters.minAhgi}
-                      onChange={(e) => updateFilters({ minAhgi: Number(e.target.value) })}
+                      onChange={(e) =>
+                        updateFilters({ minAhgi: Number(e.target.value) })
+                      }
                       className="w-full h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer accent-emerald-500"
                     />
                     <div className="flex justify-between text-[10px] text-slate-600 mt-1">
@@ -646,7 +664,10 @@ export function HallList({
                     <div className="flex gap-2">
                       <button
                         onClick={() =>
-                          updateFilters({ hasOwnership: filters.hasOwnership === true ? null : true })
+                          updateFilters({
+                            hasOwnership:
+                              filters.hasOwnership === true ? null : true,
+                          })
                         }
                         className={`px-3 py-1.5 rounded-md text-xs border transition-all ${
                           filters.hasOwnership === true
@@ -658,7 +679,10 @@ export function HallList({
                       </button>
                       <button
                         onClick={() =>
-                          updateFilters({ hasOwnership: filters.hasOwnership === false ? null : false })
+                          updateFilters({
+                            hasOwnership:
+                              filters.hasOwnership === false ? null : false,
+                          })
                         }
                         className={`px-3 py-1.5 rounded-md text-xs border transition-all ${
                           filters.hasOwnership === false
@@ -675,7 +699,10 @@ export function HallList({
                     <div className="flex gap-2">
                       <button
                         onClick={() =>
-                          updateFilters({ hasRevenue: filters.hasRevenue === true ? null : true })
+                          updateFilters({
+                            hasRevenue:
+                              filters.hasRevenue === true ? null : true,
+                          })
                         }
                         className={`px-3 py-1.5 rounded-md text-xs border transition-all ${
                           filters.hasRevenue === true
@@ -687,7 +714,10 @@ export function HallList({
                       </button>
                       <button
                         onClick={() =>
-                          updateFilters({ hasRevenue: filters.hasRevenue === false ? null : false })
+                          updateFilters({
+                            hasRevenue:
+                              filters.hasRevenue === false ? null : false,
+                          })
                         }
                         className={`px-3 py-1.5 rounded-md text-xs border transition-all ${
                           filters.hasRevenue === false
@@ -729,9 +759,14 @@ export function HallList({
                 key={v}
                 variant="outline"
                 className="border-cyan-500/20 text-cyan-400 bg-cyan-500/5 text-xs cursor-pointer hover:bg-cyan-500/10"
-                onClick={() => updateFilters({ verticals: filters.verticals.filter((x) => x !== v) })}
+                onClick={() =>
+                  updateFilters({
+                    verticals: filters.verticals.filter((x) => x !== v),
+                  })
+                }
               >
-                {VERTICAL_OPTIONS.find((o) => o.key === v)?.label} <X className="w-3 h-3 ml-1" />
+                {VERTICAL_OPTIONS.find((o) => o.key === v)?.label}{" "}
+                <X className="w-3 h-3 ml-1" />
               </Badge>
             ))}
             {filters.statuses.map((s) => (
@@ -739,9 +774,14 @@ export function HallList({
                 key={s}
                 variant="outline"
                 className="border-cyan-500/20 text-cyan-400 bg-cyan-500/5 text-xs cursor-pointer hover:bg-cyan-500/10"
-                onClick={() => updateFilters({ statuses: filters.statuses.filter((x) => x !== s) })}
+                onClick={() =>
+                  updateFilters({
+                    statuses: filters.statuses.filter((x) => x !== s),
+                  })
+                }
               >
-                {STATUS_OPTIONS.find((o) => o.key === s)?.label} <X className="w-3 h-3 ml-1" />
+                {STATUS_OPTIONS.find((o) => o.key === s)?.label}{" "}
+                <X className="w-3 h-3 ml-1" />
               </Badge>
             ))}
             {filters.classes.map((c) => (
@@ -749,7 +789,11 @@ export function HallList({
                 key={c}
                 variant="outline"
                 className="border-cyan-500/20 text-cyan-400 bg-cyan-500/5 text-xs cursor-pointer hover:bg-cyan-500/10"
-                onClick={() => updateFilters({ classes: filters.classes.filter((x) => x !== c) })}
+                onClick={() =>
+                  updateFilters({
+                    classes: filters.classes.filter((x) => x !== c),
+                  })
+                }
               >
                 Class {c} <X className="w-3 h-3 ml-1" />
               </Badge>
@@ -759,9 +803,14 @@ export function HallList({
                 key={t}
                 variant="outline"
                 className="border-cyan-500/20 text-cyan-400 bg-cyan-500/5 text-xs cursor-pointer hover:bg-cyan-500/10"
-                onClick={() => updateFilters({ sriTiers: filters.sriTiers.filter((x) => x !== t) })}
+                onClick={() =>
+                  updateFilters({
+                    sriTiers: filters.sriTiers.filter((x) => x !== t),
+                  })
+                }
               >
-                {SRI_TIER_OPTIONS.find((o) => o.key === t)?.label} <X className="w-3 h-3 ml-1" />
+                {SRI_TIER_OPTIONS.find((o) => o.key === t)?.label}{" "}
+                <X className="w-3 h-3 ml-1" />
               </Badge>
             ))}
             {filters.continents.map((c) => (
@@ -769,7 +818,11 @@ export function HallList({
                 key={c}
                 variant="outline"
                 className="border-cyan-500/20 text-cyan-400 bg-cyan-500/5 text-xs cursor-pointer hover:bg-cyan-500/10"
-                onClick={() => updateFilters({ continents: filters.continents.filter((x) => x !== c) })}
+                onClick={() =>
+                  updateFilters({
+                    continents: filters.continents.filter((x) => x !== c),
+                  })
+                }
               >
                 {c} <X className="w-3 h-3 ml-1" />
               </Badge>
@@ -796,16 +849,26 @@ export function HallList({
         )}
       </div>
 
-      {/* ─── Results ─── */}
+      {/*  Results  */}
       <div>
         {/* Count */}
         <div className="flex items-center justify-between mb-4">
           <span className="text-sm text-slate-500">
-            Showing <span className="text-slate-300 font-medium">{filteredHalls.length}</span> of{" "}
-            <span className="text-slate-300 font-medium">{halls.length}</span> halls
+            Showing{" "}
+            <span className="text-slate-300 font-medium">
+              {filteredHalls.length}
+            </span>{" "}
+            of{" "}
+            <span className="text-slate-300 font-medium">{halls.length}</span>{" "}
+            halls
           </span>
           {filteredHalls.length !== halls.length && (
-            <Button variant="ghost" size="sm" onClick={clearFilters} className="text-xs text-cyan-400 hover:text-cyan-300">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearFilters}
+              className="text-xs text-cyan-400 hover:text-cyan-300"
+            >
               Reset
             </Button>
           )}
@@ -883,7 +946,9 @@ export function HallList({
             <div className="w-16 h-16 rounded-2xl bg-slate-800/50 flex items-center justify-center mb-4">
               <Filter className="w-8 h-8 text-slate-600" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-300 mb-1">{emptyTitle}</h3>
+            <h3 className="text-lg font-semibold text-slate-300 mb-1">
+              {emptyTitle}
+            </h3>
             <p className="text-sm text-slate-500 max-w-sm">{emptySubtitle}</p>
             {activeFilterCount > 0 && (
               <Button
@@ -903,7 +968,7 @@ export function HallList({
   );
 }
 
-// ─── List Row Variant ───
+//  List Row Variant
 function HallListRow({ hall }: { hall: HallCardData }) {
   const v = VERTICAL_OPTIONS.find((o) => o.key === hall.vertical)!;
   const VIcon = v.icon;

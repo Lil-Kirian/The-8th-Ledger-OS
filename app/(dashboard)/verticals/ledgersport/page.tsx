@@ -11,7 +11,6 @@ import {
   Users,
   Shield,
   Globe,
-  Clock,
   Zap,
   ChevronRight,
   Landmark,

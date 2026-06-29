@@ -12,7 +12,6 @@ import {
   Package,
   Gavel,
   TrendingUp,
-  TrendingDown,
   Clock,
   CheckCircle2,
   XCircle,

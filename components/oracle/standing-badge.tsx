@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Eye, Sparkles, Crown, Brain, Target } from "lucide-react";
+import { Eye, Crown, Brain } from "lucide-react";
 
 interface StandingBadgeProps {
   tier: "none" | "seer" | "oracle" | "prophet";

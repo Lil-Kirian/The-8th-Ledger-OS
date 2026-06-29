@@ -9,20 +9,16 @@ import {
   ShieldCheck,
   Globe,
   Star,
-  ChevronRight,
   AlertTriangle,
   CheckCircle2,
   X,
   Loader2,
-  Download,
   Eye,
   Lock,
-  TrendingUp,
   Users,
   BarChart3,
   Sparkles,
   ArrowLeft,
-  RotateCcw,
 } from "lucide-react";
 
 /* ============================================================

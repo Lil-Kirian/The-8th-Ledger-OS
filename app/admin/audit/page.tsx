@@ -2,16 +2,14 @@
 "use client";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
   ScrollText,
   Search,
-  Filter,
   Download,
   ChevronDown,
   ChevronUp,
   Loader2,
-  Shield,
   PiggyBank,
   ShoppingCart,
   Wallet,
@@ -19,12 +17,8 @@ import {
   Globe,
   Clock,
   CheckCircle2,
-  XCircle,
   AlertTriangle,
   FileText,
-  Hash,
-  Calendar,
-  ArrowRight,
   TrendingUp,
   Activity,
   Ban,

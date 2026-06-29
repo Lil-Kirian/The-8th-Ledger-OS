@@ -18,15 +18,15 @@ async function isHallOwner(hallId: string, userId: string): Promise<boolean> {
   return !!ownership;
 }
 
-// ── GET — List hall inventory with stats ────────────────────
+// ── GET — List hall inventory with stats
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: hallId } = await params;
     const user = await requireAuth(req);
-    const claims = getSessionClaims(req);
+    const claims = await getSessionClaims(req);
     const isFounder = isFounderSync(claims);
 
     const hall = await prisma.hall.findUnique({
@@ -43,14 +43,14 @@ export async function GET(
     if (!hall) {
       return NextResponse.json(
         { success: false, error: "Hall not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     if (!hall.inventoryEnabled) {
       return NextResponse.json(
         { success: false, error: "Inventory not enabled for this hall" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -59,14 +59,17 @@ export async function GET(
     if (!isOwner && !isFounder) {
       return NextResponse.json(
         { success: false, error: "Hall membership required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     const { searchParams } = new URL(req.url);
     const status = searchParams.get("status") || "active";
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const limit = Math.min(
+      50,
+      Math.max(1, parseInt(searchParams.get("limit") || "20", 10)),
+    );
     const skip = (page - 1) * limit;
 
     const where: Prisma.InventoryItemWhereInput = { hallId };
@@ -102,7 +105,10 @@ export async function GET(
 
       // Account for pending orders in available stock
       const pendingOrders = item._count.orders - totalSold;
-      const availableStock = Math.max(0, item.quantity - (item.quantitySold || 0) - pendingOrders);
+      const availableStock = Math.max(
+        0,
+        item.quantity - (item.quantitySold || 0) - pendingOrders,
+      );
 
       // Safe JSON parsing
       let parsedImages: string[] | null = null;
@@ -110,13 +116,19 @@ export async function GET(
       let parsedSpecs: Record<string, unknown> | null = null;
       try {
         if (item.images) parsedImages = JSON.parse(item.images);
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
       try {
         if (item.tags) parsedTags = JSON.parse(item.tags);
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
       try {
         if (item.specs) parsedSpecs = JSON.parse(item.specs);
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
 
       const primaryImage = item.imageUrl || (parsedImages?.[0] ?? null);
 
@@ -136,7 +148,8 @@ export async function GET(
         tags: parsedTags,
         specs: parsedSpecs,
         costOfGoods: isOwner || isFounder ? item.costOfGoods : undefined,
-        reorderThreshold: isOwner || isFounder ? item.reorderThreshold : undefined,
+        reorderThreshold:
+          isOwner || isFounder ? item.reorderThreshold : undefined,
         listedAt: item.listedAt,
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
@@ -165,25 +178,25 @@ export async function GET(
         pages: Math.ceil(total / limit),
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[HALL_MARKETPLACE_GET]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
       { success: false, error: message || "Failed to load hall marketplace" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-// ── POST — Create inventory item for hall ───────────────────
+// ── POST — Create inventory item for hall
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: hallId } = await params;
     const user = await requireAuth(req);
-    const claims = getSessionClaims(req);
+    const claims = await getSessionClaims(req);
     const isFounder = isFounderSync(claims);
 
     const hall = await prisma.hall.findUnique({
@@ -196,21 +209,25 @@ export async function POST(
     if (!hall) {
       return NextResponse.json(
         { success: false, error: "Hall not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     if (!hall.inventoryEnabled) {
       return NextResponse.json(
-        { success: false, error: "Inventory not enabled for this hall. Propose enablement via vote." },
-        { status: 403 }
+        {
+          success: false,
+          error:
+            "Inventory not enabled for this hall. Propose enablement via vote.",
+        },
+        { status: 403 },
       );
     }
 
     if (hall.status !== "live") {
       return NextResponse.json(
         { success: false, error: "Hall must be live to list inventory" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -219,7 +236,7 @@ export async function POST(
     if (!isOwner && !isFounder) {
       return NextResponse.json(
         { success: false, error: "Hall ownership required to list inventory" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -241,7 +258,7 @@ export async function POST(
     if (!trimmedTitle || trimmedTitle.length < 3 || trimmedTitle.length > 200) {
       return NextResponse.json(
         { success: false, error: "Title must be 3-200 characters" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -249,7 +266,7 @@ export async function POST(
     if (!Number.isFinite(numPrice) || numPrice <= 0) {
       return NextResponse.json(
         { success: false, error: "Price must be a positive number" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -257,7 +274,7 @@ export async function POST(
     if (!Number.isInteger(numQty) || numQty < 1) {
       return NextResponse.json(
         { success: false, error: "Quantity must be a whole number >= 1" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -265,8 +282,11 @@ export async function POST(
     const numReorder = reorderThreshold != null ? Number(reorderThreshold) : 0;
     if (numCost < 0 || numReorder < 0) {
       return NextResponse.json(
-        { success: false, error: "costOfGoods and reorderThreshold must be non-negative" },
-        { status: 400 }
+        {
+          success: false,
+          error: "costOfGoods and reorderThreshold must be non-negative",
+        },
+        { status: 400 },
       );
     }
 
@@ -286,7 +306,8 @@ export async function POST(
         imageUrl,
         images: imagesArray ? JSON.stringify(imagesArray) : null,
         tags: Array.isArray(tags) ? JSON.stringify(tags) : null,
-        specs: specs && typeof specs === "object" ? JSON.stringify(specs) : null,
+        specs:
+          specs && typeof specs === "object" ? JSON.stringify(specs) : null,
         status: "active",
         listedAt: new Date(),
         createdAt: new Date(),
@@ -312,51 +333,66 @@ export async function POST(
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      item: {
-        id: item.id,
-        title: item.title,
-        description: item.description,
-        price: item.price,
-        quantity: item.quantity,
-        imageUrl: item.imageUrl,
-        images: imagesArray,
-        tags: tags || null,
-        specs: specs || null,
-        status: item.status,
-        listedAt: item.listedAt,
-        createdAt: item.createdAt,
+    return NextResponse.json(
+      {
+        success: true,
+        item: {
+          id: item.id,
+          title: item.title,
+          description: item.description,
+          price: item.price,
+          quantity: item.quantity,
+          imageUrl: item.imageUrl,
+          images: imagesArray,
+          tags: tags || null,
+          specs: specs || null,
+          status: item.status,
+          listedAt: item.listedAt,
+          createdAt: item.createdAt,
+        },
       },
-    }, { status: 201 });
-  } catch (err: unknown) {
+      { status: 201 },
+    );
+  } catch (err: any) {
     console.error("[HALL_MARKETPLACE_POST]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
       { success: false, error: message || "Failed to create inventory item" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-// ── PATCH — Update inventory item ───────────────────────────
+// ── PATCH — Update inventory item
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: hallId } = await params;
     const user = await requireAuth(req);
-    const claims = getSessionClaims(req);
+    const claims = await getSessionClaims(req);
     const isFounder = isFounderSync(claims);
 
     const body = await req.json();
-    const { itemId, title, description, price, quantity, status, costOfGoods, reorderThreshold, images, tags, specs } = body;
+    const {
+      itemId,
+      title,
+      description,
+      price,
+      quantity,
+      status,
+      costOfGoods,
+      reorderThreshold,
+      images,
+      tags,
+      specs,
+    } = body;
 
     if (!itemId) {
       return NextResponse.json(
         { success: false, error: "itemId required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -372,7 +408,7 @@ export async function PATCH(
     if (!existing) {
       return NextResponse.json(
         { success: false, error: "Item not found in this hall" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -380,8 +416,11 @@ export async function PATCH(
     const isOwner = await isHallOwner(hallId, user.id);
     if (!isOwner && !isFounder) {
       return NextResponse.json(
-        { success: false, error: "Hall ownership required to update inventory" },
-        { status: 403 }
+        {
+          success: false,
+          error: "Hall ownership required to update inventory",
+        },
+        { status: 403 },
       );
     }
 
@@ -394,7 +433,7 @@ export async function PATCH(
       if (trimmed.length < 3 || trimmed.length > 200) {
         return NextResponse.json(
           { success: false, error: "Title must be 3-200 chars" },
-          { status: 400 }
+          { status: 400 },
         );
       }
       updateData.title = trimmed;
@@ -409,7 +448,7 @@ export async function PATCH(
       if (!Number.isFinite(num) || num <= 0) {
         return NextResponse.json(
           { success: false, error: "Price must be a positive number" },
-          { status: 400 }
+          { status: 400 },
         );
       }
       updateData.price = num;
@@ -420,7 +459,7 @@ export async function PATCH(
       if (!Number.isInteger(num) || num < 0) {
         return NextResponse.json(
           { success: false, error: "Quantity must be a whole number >= 0" },
-          { status: 400 }
+          { status: 400 },
         );
       }
       updateData.quantity = num;
@@ -430,8 +469,11 @@ export async function PATCH(
       const allowed = ["active", "inactive", "deleted", "sold_out"];
       if (!allowed.includes(status)) {
         return NextResponse.json(
-          { success: false, error: `Status must be one of: ${allowed.join(", ")}` },
-          { status: 400 }
+          {
+            success: false,
+            error: `Status must be one of: ${allowed.join(", ")}`,
+          },
+          { status: 400 },
         );
       }
       updateData.status = status;
@@ -442,7 +484,7 @@ export async function PATCH(
       if (!Number.isFinite(num) || num < 0) {
         return NextResponse.json(
           { success: false, error: "costOfGoods must be non-negative" },
-          { status: 400 }
+          { status: 400 },
         );
       }
       updateData.costOfGoods = num;
@@ -453,7 +495,7 @@ export async function PATCH(
       if (!Number.isFinite(num) || num < 0) {
         return NextResponse.json(
           { success: false, error: "reorderThreshold must be non-negative" },
-          { status: 400 }
+          { status: 400 },
         );
       }
       updateData.reorderThreshold = num;
@@ -471,7 +513,8 @@ export async function PATCH(
     }
 
     if (specs !== undefined) {
-      updateData.specs = specs && typeof specs === "object" ? JSON.stringify(specs) : null;
+      updateData.specs =
+        specs && typeof specs === "object" ? JSON.stringify(specs) : null;
     }
 
     const item = await prisma.inventoryItem.update({
@@ -504,25 +547,25 @@ export async function PATCH(
         updatedAt: item.updatedAt,
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[HALL_MARKETPLACE_PATCH]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
       { success: false, error: message || "Failed to update inventory item" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-// ── DELETE — Soft-delete inventory item ─────────────────────
+// ── DELETE — Soft-delete inventory item ─
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: hallId } = await params;
     const user = await requireAuth(req);
-    const claims = getSessionClaims(req);
+    const claims = await getSessionClaims(req);
     const isFounder = isFounderSync(claims);
 
     const { searchParams } = new URL(req.url);
@@ -531,7 +574,7 @@ export async function DELETE(
     if (!itemId) {
       return NextResponse.json(
         { success: false, error: "itemId query param required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -545,7 +588,7 @@ export async function DELETE(
     if (!existing) {
       return NextResponse.json(
         { success: false, error: "Item not found in this hall" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -553,8 +596,11 @@ export async function DELETE(
     const isOwner = await isHallOwner(hallId, user.id);
     if (!isOwner && !isFounder) {
       return NextResponse.json(
-        { success: false, error: "Hall ownership required to delete inventory" },
-        { status: 403 }
+        {
+          success: false,
+          error: "Hall ownership required to delete inventory",
+        },
+        { status: 403 },
       );
     }
 
@@ -584,12 +630,12 @@ export async function DELETE(
         updatedAt: item.updatedAt,
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[HALL_MARKETPLACE_DELETE]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
       { success: false, error: message || "Failed to delete inventory item" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

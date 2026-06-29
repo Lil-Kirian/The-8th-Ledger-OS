@@ -25,7 +25,19 @@ export interface AuthUser {
   // Optional fields
   referrals?: number;
   forgesCompleted?: number;
+  totalCommitted?: number;
+  reportsSubmitted?: number;
   phone?: string | null;
+  bio?: string | null;
+  avatar?: string | null;
+  beneficiaryName?: string | null;
+  beneficiaryEmail?: string | null;
+  lastLoginAt?: string | Date | null;
+  createdAt?: string | Date | null;
+  totpEnabled?: boolean;
+  recoveryCodes?: unknown;
+  livenessVerified?: boolean;
+  addressProofUrl?: string | null;
   oracleStanding?: number;
   globalSriScore?: number;
 }
@@ -66,17 +78,13 @@ export function useAuth(): AuthState & {
   mutate: () => void;
   logout: () => Promise<void>;
 } {
-  const { data, error, isLoading, mutate } = useSWR(
-    "/api/auth",
-    fetcher,
-    {
-      refreshInterval: 30000,
-      revalidateOnFocus: true,
-      revalidateOnReconnect: true,
-      dedupingInterval: 5000,
-      shouldRetryOnError: false,
-    }
-  );
+  const { data, error, isLoading, mutate } = useSWR("/api/auth", fetcher, {
+    refreshInterval: 30000,
+    revalidateOnFocus: true,
+    revalidateOnReconnect: true,
+    dedupingInterval: 5000,
+    shouldRetryOnError: false,
+  });
 
   const logout = useCallback(async () => {
     await fetch("/api/auth", {
@@ -111,7 +119,11 @@ export function useAuthRequired(): AuthState & {
 } {
   const auth = useAuth();
 
-  if (typeof window !== "undefined" && !auth.isLoading && !auth.isAuthenticated) {
+  if (
+    typeof window !== "undefined" &&
+    !auth.isLoading &&
+    !auth.isAuthenticated
+  ) {
     window.location.replace("/enter");
   }
 

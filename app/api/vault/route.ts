@@ -4,12 +4,10 @@
    ============================================================ */
 
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { getSessionUser } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 
-const prisma = new PrismaClient();
-
-/* ─── VERTICAL META ─── */
+/*  VERTICAL META  */
 const VERTICAL_META: Record<string, { name: string; emoji: string }> = {
   ledgerprop: { name: "LedgerProp", emoji: "🏛" },
   ledgerauto: { name: "LedgerAuto", emoji: "🚗" },
@@ -27,7 +25,10 @@ function getVerticalMeta(key: string) {
   return VERTICAL_META[key.toLowerCase()] || { name: key, emoji: "◎" };
 }
 
-function mapStatus(ownStatus: string, lastDiv: Date | null): "active" | "maturing" | "dormant" {
+function mapStatus(
+  ownStatus: string,
+  lastDiv: Date | null,
+): "active" | "maturing" | "dormant" {
   if (ownStatus === "forfeited" || ownStatus === "revoked") return "dormant";
   if (ownStatus === "pending") return "maturing";
   if (!lastDiv) return "maturing";
@@ -35,10 +36,14 @@ function mapStatus(ownStatus: string, lastDiv: Date | null): "active" | "maturin
   return days > 90 ? "dormant" : "active";
 }
 
-/* ─── ESTIMATE MONTHLY INCOME ───
+/*  ESTIMATE MONTHLY INCOME
    Real dividends preferred. Falls back to asset-value × ownership% × 0.25% monthly.
 */
-function estimateMonthlyIncome(dividends: { amount: number; periodEnd: Date }[], assetValue: number, ownershipPct: number): number {
+function estimateMonthlyIncome(
+  dividends: { amount: number; periodEnd: Date }[],
+  assetValue: number,
+  ownershipPct: number,
+): number {
   if (dividends.length > 0) {
     const recent = dividends.slice(0, Math.min(3, dividends.length));
     return recent.reduce((s, d) => s + d.amount, 0) / recent.length;
@@ -46,12 +51,12 @@ function estimateMonthlyIncome(dividends: { amount: number; periodEnd: Date }[],
   return Math.round(assetValue * (ownershipPct / 100) * 0.0025);
 }
 
-/* ─── BUILD 12-MONTH HISTORY ───
+/*  BUILD 12-MONTH HISTORY
    Aggregates ALL dividends across ALL ownerships into month buckets.
    Missing months are forward-filled from the most recent known month.
 */
 function buildMonthlyHistory(
-  allDividends: { amount: number; periodEnd: Date }[]
+  allDividends: { amount: number; periodEnd: Date }[],
 ): number[] {
   const now = new Date();
   const buckets: number[] = new Array(12).fill(0);
@@ -59,7 +64,9 @@ function buildMonthlyHistory(
 
   for (let i = 11; i >= 0; i--) {
     const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    bucketLabels.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+    bucketLabels.push(
+      `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+    );
   }
 
   for (const div of allDividends) {
@@ -75,14 +82,6 @@ function buildMonthlyHistory(
     }
   }
 
-  if (buckets.every((v) => v === 0)) {
-    let base = 5000;
-    for (let i = 0; i < 12; i++) {
-      base = base * (1 + (Math.random() * 0.08 - 0.02));
-      buckets[i] = Math.round(base);
-    }
-  }
-
   return buckets;
 }
 
@@ -95,7 +94,7 @@ export async function GET(req: NextRequest) {
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -125,10 +124,16 @@ export async function GET(req: NextRequest) {
 
     /* ── Fetch all dividends for these ownerships ── */
     const ownershipIds = ownerships.map((o) => o.id);
-    const allDividends = await prisma.dividend.findMany({
+    const dividendEntries = await prisma.dividendEntry.findMany({
       where: { ownershipId: { in: ownershipIds } },
-      orderBy: { periodEnd: "desc" },
+      orderBy: { distribution: { distributedAt: "desc" } },
+      include: { distribution: { select: { distributedAt: true } } },
     });
+    const allDividends = dividendEntries.map((entry) => ({
+      ownershipId: entry.ownershipId,
+      amount: entry.amount,
+      periodEnd: entry.claimedAt ?? entry.distribution.distributedAt,
+    }));
 
     const divByOwnership: Record<string, typeof allDividends> = {};
     for (const d of allDividends) {
@@ -146,15 +151,22 @@ export async function GET(req: NextRequest) {
       const ownershipPct = own.ownershipPercent || 0;
       const divs = divByOwnership[own.id] || [];
       const lastDiv = divs[0]?.periodEnd || null;
-      const monthlyIncome = estimateMonthlyIncome(divs, assetValue, ownershipPct);
-      const annualYield = assetValue > 0 ? (monthlyIncome * 12 / assetValue) * 100 : 0;
+      const monthlyIncome = estimateMonthlyIncome(
+        divs,
+        assetValue,
+        ownershipPct,
+      );
+      const annualYield =
+        assetValue > 0 ? ((monthlyIncome * 12) / assetValue) * 100 : 0;
 
       return {
         id: own.id,
         hallName: hall?.name || pool?.name || "Unnamed Asset",
         vertical: meta.name,
         emoji: meta.emoji,
-        pacToken: own.pacToken || `PAC-${vKey.toUpperCase()}-${own.id.slice(-8).toUpperCase()}`,
+        pacToken:
+          own.pacToken ||
+          `PAC-${vKey.toUpperCase()}-${own.id.slice(-8).toUpperCase()}`,
         ownershipPercent: Math.round(ownershipPct * 100) / 100,
         monthlyIncome: Math.round(monthlyIncome * 100) / 100,
         annualYield: Math.round(annualYield * 10) / 10,
@@ -183,9 +195,10 @@ export async function GET(req: NextRequest) {
     const totalValue = assets.reduce((s, a) => s + a.value, 0);
     const totalMonthly = assets.reduce((s, a) => s + a.monthlyIncome, 0);
     const totalAnnual = totalMonthly * 12;
-    const avgYield = assets.length > 0
-      ? assets.reduce((s, a) => s + a.annualYield, 0) / assets.length
-      : 0;
+    const avgYield =
+      assets.length > 0
+        ? assets.reduce((s, a) => s + a.annualYield, 0) / assets.length
+        : 0;
 
     /* ── Audit ── */
     await prisma.auditLog.create({
@@ -193,7 +206,10 @@ export async function GET(req: NextRequest) {
         eventType: "vault_viewed",
         ledgerId: user.ledgerId,
         description: JSON.stringify({ assets: assets.length }),
-        ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+        txHash: `VAULT-VIEW-${user.ledgerId}-${Date.now()}`,
+        metadata: JSON.stringify({
+          ipAddress: req.headers.get("x-forwarded-for") || "unknown",
+        }),
       },
     });
 
@@ -214,7 +230,7 @@ export async function GET(req: NextRequest) {
     console.error("[API/vault]", err);
     return NextResponse.json(
       { success: false, error: "Failed to fetch vault" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

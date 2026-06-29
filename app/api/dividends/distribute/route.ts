@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, requireAdmin } from "@/lib/auth";
-import { calculateRevenueSplit, distributeByOwnership } from "@/lib/dividends";
+import {  requireAdmin } from "@/lib/auth";
+import {  distributeByOwnership } from "@/lib/dividends";
 
 /* ============================================================
    POST /api/dividends/distribute
@@ -407,10 +407,18 @@ export async function GET(request: NextRequest) {
             hall: { select: { id: true, name: true } },
           },
         },
-        _count: { select: { dividendDistributions: true } },
       },
       take: 100,
     });
+
+    const distributionCounts = await prisma.dividendDistribution.groupBy({
+      by: ["revenueLogId"],
+      where: { revenueLogId: { in: logs.map((log) => log.id) } },
+      _count: { _all: true },
+    });
+    const countByRevenueLogId = new Map(
+      distributionCounts.map((entry) => [entry.revenueLogId, entry._count._all])
+    );
 
     return NextResponse.json({
       queue: logs.map((l) => ({
@@ -423,7 +431,7 @@ export async function GET(request: NextRequest) {
         netAfterPayroll: l.netAfterPayroll,
         source: l.source,
         createdAt: l.createdAt,
-        pendingDistributions: l._count.dividendDistributions,
+        pendingDistributions: countByRevenueLogId.get(l.id) ?? 0,
       })),
     });
   } catch (error) {

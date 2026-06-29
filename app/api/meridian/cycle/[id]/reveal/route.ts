@@ -8,9 +8,9 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS
-// ─────────────────────────────────────────────────────────────
+//
 
 const PHASE_DURATIONS_MS = {
   hush: 48 * 60 * 60 * 1000,
@@ -19,33 +19,39 @@ const PHASE_DURATIONS_MS = {
   forge: 6 * 60 * 60 * 1000,
 } as const;
 
-const TOTAL_CYCLE_DURATION_MS = Object.values(PHASE_DURATIONS_MS).reduce((a, b) => a + b, 0);
+const TOTAL_CYCLE_DURATION_MS = Object.values(PHASE_DURATIONS_MS).reduce(
+  (a, b) => a + b,
+  0,
+);
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function maskPoolId(poolId: string): string {
   if (!poolId || poolId.length < 4) return "POOL-XXXX";
   return `POOL-${poolId.slice(-4).toUpperCase()}`;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST /api/meridian/cycle/[id]/reveal
 // Admin-only. Reveal winner. Tiebreaker: Architect's Hand. Atomic.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     // 1. Auth
     const user = await requireAuth(req);
     if (user.role !== "admin") {
       return NextResponse.json(
-        { error: "The Architect only. Admin role required.", code: "FORBIDDEN" },
-        { status: 403 }
+        {
+          error: "The Architect only. Admin role required.",
+          code: "FORBIDDEN",
+        },
+        { status: 403 },
       );
     }
 
@@ -53,7 +59,7 @@ export async function POST(
     if (!cycleId || cycleId.length < 10) {
       return NextResponse.json(
         { error: "Invalid cycle ID", code: "VALIDATION_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -87,7 +93,7 @@ export async function POST(
     if (!cycle) {
       return NextResponse.json(
         { error: "Cycle not found", code: "NOT_FOUND" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -98,19 +104,21 @@ export async function POST(
           code: "PHASE_LOCKED",
           currentPhase: cycle.phase,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     if (cycle.cyclePools.length === 0) {
       return NextResponse.json(
         { error: "No pools in this cycle to reveal", code: "EMPTY_CYCLE" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // 4. Determine winner
-    const sortedPools = [...cycle.cyclePools].sort((a, b) => b.voteCount - a.voteCount);
+    const sortedPools = [...cycle.cyclePools].sort(
+      (a, b) => b.voteCount - a.voteCount,
+    );
     const topVoteCount = sortedPools[0].voteCount;
     const tiedPools = sortedPools.filter((p) => p.voteCount === topVoteCount);
 
@@ -125,7 +133,8 @@ export async function POST(
       if (!architectHandPoolId) {
         return NextResponse.json(
           {
-            error: "Tie detected. The Architect's Hand is required to break the tie.",
+            error:
+              "Tie detected. The Architect's Hand is required to break the tie.",
             code: "TIE_BREAKER_REQUIRED",
             tiedPools: tiedPools.map((p) => ({
               cyclePoolId: p.id,
@@ -135,7 +144,7 @@ export async function POST(
             })),
             message: "Provide architectHandPoolId to declare the winner.",
           },
-          { status: 422 }
+          { status: 422 },
         );
       }
 
@@ -151,7 +160,7 @@ export async function POST(
               name: p.pool.name,
             })),
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -162,7 +171,7 @@ export async function POST(
     if (!winner) {
       return NextResponse.json(
         { error: "Could not determine a winner", code: "WINNER_ERROR" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -196,7 +205,6 @@ export async function POST(
         where: { id: winner.pool.id },
         data: {
           status: "filling",
-          meridianCycleId: cycleId,
         },
       });
 
@@ -229,7 +237,9 @@ export async function POST(
         id: result.id,
         continent: result.continent,
         phase: result.phase,
-        winnerPoolId: result.winnerPoolId ? maskPoolId(result.winnerPoolId) : null,
+        winnerPoolId: result.winnerPoolId
+          ? maskPoolId(result.winnerPoolId)
+          : null,
         endAt: result.endAt,
       },
       winner: {
@@ -251,28 +261,34 @@ export async function POST(
   } catch (error: any) {
     console.error("[MERIDIAN_REVEAL_POST]", error);
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
         { error: "Authentication required", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     return NextResponse.json(
-      { error: "The winner could not be revealed", code: "MERIDIAN_REVEAL_001" },
-      { status: 500 }
+      {
+        error: "The winner could not be revealed",
+        code: "MERIDIAN_REVEAL_001",
+      },
+      { status: 500 },
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/meridian/cycle/[id]/reveal
 // Public tally. Vote distribution. Cached 30s.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id: cycleId } = await params;
@@ -280,7 +296,7 @@ export async function GET(
     if (!cycleId || cycleId.length < 10) {
       return NextResponse.json(
         { error: "Invalid cycle ID", code: "VALIDATION_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -308,15 +324,19 @@ export async function GET(
     if (!cycle) {
       return NextResponse.json(
         { error: "Cycle not found", code: "NOT_FOUND" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    const totalVotes = cycle.cyclePools.reduce((sum, cp) => sum + cp.voteCount, 0);
+    const totalVotes = cycle.cyclePools.reduce(
+      (sum, cp) => sum + cp.voteCount,
+      0,
+    );
     const maxVotes = Math.max(...cycle.cyclePools.map((cp) => cp.voteCount), 0);
 
     const tally = cycle.cyclePools.map((cp) => {
-      const votePercent = totalVotes > 0 ? (cp.voteCount / totalVotes) * 100 : 0;
+      const votePercent =
+        totalVotes > 0 ? (cp.voteCount / totalVotes) * 100 : 0;
       return {
         id: cp.id,
         cyclePoolId: cp.id,
@@ -338,7 +358,9 @@ export async function GET(
         id: cycle.id,
         continent: cycle.continent,
         phase: cycle.phase,
-        winnerPoolId: cycle.winnerPoolId ? maskPoolId(cycle.winnerPoolId) : null,
+        winnerPoolId: cycle.winnerPoolId
+          ? maskPoolId(cycle.winnerPoolId)
+          : null,
       },
       tally,
       stats: {
@@ -351,18 +373,21 @@ export async function GET(
           cycle.phase === "reveal"
             ? "The votes are being counted."
             : cycle.phase === "forge"
-            ? "The winner has been revealed. The Forge is open."
-            : "Cycle complete.",
+              ? "The winner has been revealed. The Forge is open."
+              : "Cycle complete.",
       },
     });
 
-    response.headers.set("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=30, stale-while-revalidate=60",
+    );
     return response;
   } catch (error) {
     console.error("[MERIDIAN_REVEAL_GET]", error);
     return NextResponse.json(
       { error: "Cannot retrieve reveal state", code: "MERIDIAN_REVEAL_002" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

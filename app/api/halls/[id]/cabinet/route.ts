@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser, requireAuth, requireHallAccess } from "@/lib/auth";
+import {  requireAuth } from "@/lib/auth";
 
 // GET /api/halls/[id]/cabinet
 // Returns current Executive Cabinet with enriched member profiles
 // Only hall owners and admins may access
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth(req);
@@ -124,7 +124,7 @@ export async function GET(
           }
         : null;
       return acc;
-    }, {} as Record<string, any>);
+    }, {} as Record<string, unknown>);
 
     // Calculate term status
     const now = new Date();

@@ -170,7 +170,7 @@ export function sanitizeStreamContent(input: string): { clean: string; valid: bo
 /* ============================================================
    BATCH SANITIZER — For request body objects
    ============================================================ */
-export function sanitizeBody<T extends Record<string, any>>(
+export function sanitizeBody<T extends Record<string, unknown>>(
   body: T,
   schema: Record<string, (val: string) => { clean: string; valid: boolean; error?: string }>
 ): { data: Partial<T>; valid: boolean; errors: Record<string, string> } {

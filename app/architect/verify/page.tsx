@@ -1,7 +1,7 @@
 // app/architect/verify/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   Shield,
@@ -13,7 +13,6 @@ import {
   Loader2,
   AlertTriangle,
   Crown,
-  ChevronRight,
   ChevronLeft,
   CheckCircle2,
   QrCode,
@@ -21,7 +20,18 @@ import {
   Settings,
 } from "lucide-react";
 
-type Step = "checking" | "setup-totp" | "setup-pin" | "setup-webauthn" | "setup-geo" | "totp" | "pin" | "webauthn" | "geo" | "complete";
+type Step =
+  | "checking"
+  | "setup-totp"
+  | "setup-totp-verify"
+  | "setup-pin"
+  | "setup-webauthn"
+  | "setup-geo"
+  | "totp"
+  | "pin"
+  | "webauthn"
+  | "geo"
+  | "complete";
 
 type Status = {
   totpEnabled: boolean;
@@ -34,7 +44,7 @@ type Status = {
   windowEnd: number;
 };
 
-export default function ArchitectVerifyPage() {
+function ArchitectVerifyPageContent() {
   const [step, setStep] = useState<Step>("checking");
   const [status, setStatus] = useState<Status | null>(null);
   const [totpCode, setTotpCode] = useState("");
@@ -85,10 +95,22 @@ export default function ArchitectVerifyPage() {
         return;
       }
 
-      if (!s.totpEnabled) { setStep("setup-totp"); return; }
-      if (!s.pinSet) { setStep("setup-pin"); return; }
-      if (!s.webauthnEnrolled) { setStep("setup-webauthn"); return; }
-      if (!s.geoEnrolled) { setStep("setup-geo"); return; }
+      if (!s.totpEnabled) {
+        setStep("setup-totp");
+        return;
+      }
+      if (!s.pinSet) {
+        setStep("setup-pin");
+        return;
+      }
+      if (!s.webauthnEnrolled) {
+        setStep("setup-webauthn");
+        return;
+      }
+      if (!s.geoEnrolled) {
+        setStep("setup-geo");
+        return;
+      }
 
       setStep("totp");
     } catch (err: any) {
@@ -99,7 +121,8 @@ export default function ArchitectVerifyPage() {
 
   /* ===== SETUP TOTP ===== */
   async function setupTotp() {
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/auth/founder/totp", {
         method: "POST",
@@ -111,8 +134,11 @@ export default function ArchitectVerifyPage() {
       setSetupTotpSecret(data.secret);
       setSetupTotpUrl(data.otpauthUrl || "");
       setStep("setup-totp-verify");
-    } catch (err: any) { setError(err.message); }
-    finally { setLoading(false); }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function verifySetupTotp(e: React.FormEvent) {
@@ -129,20 +155,26 @@ export default function ArchitectVerifyPage() {
       if (!res.ok) throw new Error(data.error);
       setTotpCode("");
       setStep("setup-pin");
-    } catch (err: any) { setError(err.message); }
-    finally { setLoading(false); }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   /* ===== SETUP PIN ===== */
   async function setupPinSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (setupPin.length !== 6 || confirmPin.length !== 6) {
-      setError("PIN must be 6 digits"); return;
+      setError("PIN must be 6 digits");
+      return;
     }
     if (setupPin !== confirmPin) {
-      setError("PINs do not match"); return;
+      setError("PINs do not match");
+      return;
     }
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/auth/founder/pin", {
         method: "POST",
@@ -151,15 +183,20 @@ export default function ArchitectVerifyPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setSetupPin(""); setConfirmPin("");
+      setSetupPin("");
+      setConfirmPin("");
       setStep("setup-webauthn");
-    } catch (err: any) { setError(err.message); }
-    finally { setLoading(false); }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   /* ===== SETUP WEBAUTHN ===== */
   async function enrollWebAuthn() {
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/auth/webauthn/register", {
         method: "POST",
@@ -170,14 +207,24 @@ export default function ArchitectVerifyPage() {
       if (!res.ok) throw new Error(data.error);
 
       if (!window.PublicKeyCredential) {
-        throw new Error("Hardware key not supported. Use Safari or Chrome with security key.");
+        throw new Error(
+          "Hardware key not supported. Use Safari or Chrome with security key.",
+        );
       }
 
       const options = data.options;
-      options.challenge = Uint8Array.from(atob(options.challenge.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
-      options.user.id = Uint8Array.from(atob(options.user.id.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
+      options.challenge = Uint8Array.from(
+        atob(options.challenge.replace(/-/g, "+").replace(/_/g, "/")),
+        (c) => c.charCodeAt(0),
+      );
+      options.user.id = Uint8Array.from(
+        atob(options.user.id.replace(/-/g, "+").replace(/_/g, "/")),
+        (c) => c.charCodeAt(0),
+      );
 
-      const credential = await navigator.credentials.create({ publicKey: options }) as PublicKeyCredential;
+      const credential = (await navigator.credentials.create({
+        publicKey: options,
+      })) as PublicKeyCredential;
       if (!credential) throw new Error("Enrollment cancelled");
 
       const finishRes = await fetch("/api/auth/webauthn/register", {
@@ -187,10 +234,24 @@ export default function ArchitectVerifyPage() {
           step: "finish",
           credential: {
             id: credential.id,
-            rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
+            rawId: btoa(
+              String.fromCharCode(...new Uint8Array(credential.rawId)),
+            ),
             response: {
-              clientDataJSON: btoa(String.fromCharCode(...new Uint8Array((credential.response as any).clientDataJSON))),
-              attestationObject: btoa(String.fromCharCode(...new Uint8Array((credential.response as any).attestationObject))),
+              clientDataJSON: btoa(
+                String.fromCharCode(
+                  ...new Uint8Array(
+                    (credential.response as any).clientDataJSON,
+                  ),
+                ),
+              ),
+              attestationObject: btoa(
+                String.fromCharCode(
+                  ...new Uint8Array(
+                    (credential.response as any).attestationObject,
+                  ),
+                ),
+              ),
             },
             type: credential.type,
           },
@@ -198,23 +259,34 @@ export default function ArchitectVerifyPage() {
       });
 
       const finishData = await finishRes.json();
-      if (!finishRes.ok) throw new Error(finishData.error || "Enrollment failed");
+      if (!finishRes.ok)
+        throw new Error(finishData.error || "Enrollment failed");
       setStep("setup-geo");
-    } catch (err: any) { setError(err.message); }
-    finally { setLoading(false); }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   /* ===== SETUP GEO ===== */
   async function enrollGeo() {
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000 });
-      });
+      const position = await new Promise<GeolocationPosition>(
+        (resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+          });
+        },
+      );
 
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
-      setGeoLat(lat); setGeoLng(lng);
+      setGeoLat(lat);
+      setGeoLng(lng);
 
       const res = await fetch("/api/auth/geo-check", {
         method: "POST",
@@ -225,17 +297,24 @@ export default function ArchitectVerifyPage() {
       if (!res.ok) throw new Error(data.error);
 
       setStep("complete");
-      setTimeout(() => { window.location.href = redirect; }, 2000);
+      setTimeout(() => {
+        window.location.href = redirect;
+      }, 2000);
     } catch (err: any) {
-      setError(err.message || "Location access required for fortress enrollment.");
-    } finally { setLoading(false); }
+      setError(
+        err.message || "Location access required for fortress enrollment.",
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   /* ===== VERIFICATION: TOTP ===== */
   async function handleTotp(e: React.FormEvent) {
     e.preventDefault();
     if (totpCode.length !== 6) return;
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/auth/founder/totp", {
         method: "POST",
@@ -246,15 +325,19 @@ export default function ArchitectVerifyPage() {
       if (!res.ok) throw new Error(data.error);
       setTotpCode("");
       setStep("pin");
-    } catch (err: any) { setError(err.message); }
-    finally { setLoading(false); }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   /* ===== VERIFICATION: PIN ===== */
   async function handlePin(e: React.FormEvent) {
     e.preventDefault();
     if (pin.length !== 6) return;
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/auth/founder/pin", {
         method: "POST",
@@ -272,13 +355,17 @@ export default function ArchitectVerifyPage() {
       setLocked(false);
       setPin("");
       setStep("webauthn");
-    } catch (err: any) { setError(err.message); }
-    finally { setLoading(false); }
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   /* ===== VERIFICATION: WEBAUTHN ===== */
   async function startWebAuthn() {
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
       const res = await fetch("/api/auth/webauthn/verify", {
         method: "POST",
@@ -293,15 +380,25 @@ export default function ArchitectVerifyPage() {
       }
 
       const options = data.options;
-      options.challenge = Uint8Array.from(atob(options.challenge.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
+      options.challenge = Uint8Array.from(
+        atob(options.challenge.replace(/-/g, "+").replace(/_/g, "/")),
+        (c) => c.charCodeAt(0),
+      );
       if (options.allowCredentials) {
-        options.allowCredentials = options.allowCredentials.map((cred: any) => ({
-          ...cred,
-          id: Uint8Array.from(atob(cred.id.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0)),
-        }));
+        options.allowCredentials = options.allowCredentials.map(
+          (cred: any) => ({
+            ...cred,
+            id: Uint8Array.from(
+              atob(cred.id.replace(/-/g, "+").replace(/_/g, "/")),
+              (c) => c.charCodeAt(0),
+            ),
+          }),
+        );
       }
 
-      const credential = await navigator.credentials.get({ publicKey: options }) as PublicKeyCredential;
+      const credential = (await navigator.credentials.get({
+        publicKey: options,
+      })) as PublicKeyCredential;
       if (!credential) throw new Error("Authentication cancelled");
 
       const authRes = await fetch("/api/auth/webauthn/verify", {
@@ -311,12 +408,38 @@ export default function ArchitectVerifyPage() {
           step: "finish",
           credential: {
             id: credential.id,
-            rawId: btoa(String.fromCharCode(...new Uint8Array(credential.rawId))),
+            rawId: btoa(
+              String.fromCharCode(...new Uint8Array(credential.rawId)),
+            ),
             response: {
-              authenticatorData: btoa(String.fromCharCode(...new Uint8Array((credential.response as any).authenticatorData))),
-              clientDataJSON: btoa(String.fromCharCode(...new Uint8Array((credential.response as any).clientDataJSON))),
-              signature: btoa(String.fromCharCode(...new Uint8Array((credential.response as any).signature))),
-              userHandle: (credential.response as any).userHandle ? btoa(String.fromCharCode(...new Uint8Array((credential.response as any).userHandle))) : null,
+              authenticatorData: btoa(
+                String.fromCharCode(
+                  ...new Uint8Array(
+                    (credential.response as any).authenticatorData,
+                  ),
+                ),
+              ),
+              clientDataJSON: btoa(
+                String.fromCharCode(
+                  ...new Uint8Array(
+                    (credential.response as any).clientDataJSON,
+                  ),
+                ),
+              ),
+              signature: btoa(
+                String.fromCharCode(
+                  ...new Uint8Array((credential.response as any).signature),
+                ),
+              ),
+              userHandle: (credential.response as any).userHandle
+                ? btoa(
+                    String.fromCharCode(
+                      ...new Uint8Array(
+                        (credential.response as any).userHandle,
+                      ),
+                    ),
+                  )
+                : null,
             },
             type: credential.type,
           },
@@ -324,24 +447,35 @@ export default function ArchitectVerifyPage() {
       });
 
       const authData = await authRes.json();
-      if (!authRes.ok) throw new Error(authData.error || "Hardware key verification failed");
+      if (!authRes.ok)
+        throw new Error(authData.error || "Hardware key verification failed");
 
       setStep("geo");
       runGeoCheck();
-    } catch (err: any) { setError(err.message); setLoading(false); }
+    } catch (err: any) {
+      setError(err.message);
+      setLoading(false);
+    }
   }
 
   /* ===== VERIFICATION: GEO ===== */
   async function runGeoCheck() {
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
-      const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000 });
-      });
+      const position = await new Promise<GeolocationPosition>(
+        (resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+          });
+        },
+      );
 
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
-      setGeoLat(lat); setGeoLng(lng);
+      setGeoLat(lat);
+      setGeoLng(lng);
 
       const res = await fetch("/api/auth/geo-check", {
         method: "POST",
@@ -352,7 +486,9 @@ export default function ArchitectVerifyPage() {
       if (!res.ok) throw new Error(data.error);
 
       setStep("complete");
-      setTimeout(() => { window.location.href = redirect; }, 2000);
+      setTimeout(() => {
+        window.location.href = redirect;
+      }, 2000);
     } catch (err: any) {
       try {
         const res = await fetch("/api/auth/geo-check", {
@@ -363,12 +499,16 @@ export default function ArchitectVerifyPage() {
         const data = await res.json();
         if (res.ok) {
           setStep("complete");
-          setTimeout(() => { window.location.href = redirect; }, 2000);
+          setTimeout(() => {
+            window.location.href = redirect;
+          }, 2000);
           return;
         }
       } catch {}
       setError(err.message || "Geographic verification failed.");
-    } finally { setLoading(false); }
+    } finally {
+      setLoading(false);
+    }
   }
 
   /* ===== RENDER ===== */
@@ -393,7 +533,9 @@ export default function ArchitectVerifyPage() {
             {isSetup ? "Fortress Enrollment" : "Architect Override"}
           </h1>
           <p className="text-gray-500 mt-2 text-sm">
-            {isSetup ? "Configure your 6 security layers" : "6-factor authentication required"}
+            {isSetup
+              ? "Configure your 6 security layers"
+              : "6-factor authentication required"}
           </p>
         </div>
 
@@ -404,13 +546,30 @@ export default function ArchitectVerifyPage() {
               const isActive = i === currentIndex;
               const isDone = i < currentIndex;
               return (
-                <div key={s.id} className="flex-1 flex flex-col items-center gap-1">
-                  <div className={`flex h-8 w-8 items-center justify-center rounded-full border transition-all ${
-                    isDone ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400" : isActive ? "bg-amber-500/20 border-amber-500/30 text-amber-400" : "bg-white/5 border-white/10 text-white/20"
-                  }`}>
-                    {isDone ? <CheckCircle2 className="h-4 w-4" /> : <Icon className="h-4 w-4" />}
+                <div
+                  key={s.id}
+                  className="flex-1 flex flex-col items-center gap-1"
+                >
+                  <div
+                    className={`flex h-8 w-8 items-center justify-center rounded-full border transition-all ${
+                      isDone
+                        ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400"
+                        : isActive
+                          ? "bg-amber-500/20 border-amber-500/30 text-amber-400"
+                          : "bg-white/5 border-white/10 text-white/20"
+                    }`}
+                  >
+                    {isDone ? (
+                      <CheckCircle2 className="h-4 w-4" />
+                    ) : (
+                      <Icon className="h-4 w-4" />
+                    )}
                   </div>
-                  <span className={`text-[9px] uppercase tracking-wider ${isActive ? "text-amber-400" : "text-white/20"}`}>{s.label}</span>
+                  <span
+                    className={`text-[9px] uppercase tracking-wider ${isActive ? "text-amber-400" : "text-white/20"}`}
+                  >
+                    {s.label}
+                  </span>
                 </div>
               );
             })}
@@ -421,7 +580,9 @@ export default function ArchitectVerifyPage() {
           {step === "checking" && (
             <div className="text-center py-8">
               <Loader2 className="h-8 w-8 text-amber-400 animate-spin mx-auto mb-4" />
-              <p className="text-sm text-gray-400">Scanning fortress security layers...</p>
+              <p className="text-sm text-gray-400">
+                Scanning fortress security layers...
+              </p>
             </div>
           )}
 
@@ -430,12 +591,24 @@ export default function ArchitectVerifyPage() {
               <div className="flex items-center gap-3 mb-4">
                 <Settings className="w-5 h-5 text-amber-400" />
                 <div>
-                  <p className="text-white text-sm font-medium">Step 1: Configure TOTP</p>
-                  <p className="text-gray-500 text-xs">Set up your authenticator</p>
+                  <p className="text-white text-sm font-medium">
+                    Step 1: Configure TOTP
+                  </p>
+                  <p className="text-gray-500 text-xs">
+                    Set up your authenticator
+                  </p>
                 </div>
               </div>
-              <button onClick={setupTotp} disabled={loading} className="w-full bg-amber-500 text-black font-semibold py-3 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all">
-                {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Generate Secret"}
+              <button
+                onClick={setupTotp}
+                disabled={loading}
+                className="w-full bg-amber-500 text-black font-semibold py-3 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                ) : (
+                  "Generate Secret"
+                )}
               </button>
             </div>
           )}
@@ -445,13 +618,19 @@ export default function ArchitectVerifyPage() {
               <div className="flex items-center gap-3 mb-4">
                 <QrCode className="w-5 h-5 text-amber-400" />
                 <div>
-                  <p className="text-white text-sm font-medium">Verify Authenticator</p>
-                  <p className="text-gray-500 text-xs">Enter the 6-digit code to confirm</p>
+                  <p className="text-white text-sm font-medium">
+                    Verify Authenticator
+                  </p>
+                  <p className="text-gray-500 text-xs">
+                    Enter the 6-digit code to confirm
+                  </p>
                 </div>
               </div>
               {setupTotpUrl && (
                 <div className="p-3 rounded-lg bg-white/5 border border-white/10">
-                  <p className="text-[10px] text-gray-500 font-mono break-all">{setupTotpUrl}</p>
+                  <p className="text-[10px] text-gray-500 font-mono break-all">
+                    {setupTotpUrl}
+                  </p>
                 </div>
               )}
               <input
@@ -466,9 +645,21 @@ export default function ArchitectVerifyPage() {
                 autoFocus
                 required
               />
-              {error && <p className="text-red-400 text-sm text-center bg-red-950/30 border border-red-900/50 rounded-lg py-2">{error}</p>}
-              <button type="submit" disabled={loading || totpCode.length !== 6} className="w-full bg-amber-500 text-black font-semibold py-3 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all">
-                {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Confirm & Continue"}
+              {error && (
+                <p className="text-red-400 text-sm text-center bg-red-950/30 border border-red-900/50 rounded-lg py-2">
+                  {error}
+                </p>
+              )}
+              <button
+                type="submit"
+                disabled={loading || totpCode.length !== 6}
+                className="w-full bg-amber-500 text-black font-semibold py-3 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                ) : (
+                  "Confirm & Continue"
+                )}
               </button>
             </form>
           )}
@@ -478,7 +669,9 @@ export default function ArchitectVerifyPage() {
               <div className="flex items-center gap-3 mb-4">
                 <Lock className="w-5 h-5 text-amber-400" />
                 <div>
-                  <p className="text-white text-sm font-medium">Step 2: Create PIN</p>
+                  <p className="text-white text-sm font-medium">
+                    Step 2: Create PIN
+                  </p>
                   <p className="text-gray-500 text-xs">6-digit Architect PIN</p>
                 </div>
               </div>
@@ -499,14 +692,30 @@ export default function ArchitectVerifyPage() {
                 pattern="[0-9]{6}"
                 maxLength={6}
                 value={confirmPin}
-                onChange={(e) => setConfirmPin(e.target.value.replace(/\D/g, ""))}
+                onChange={(e) =>
+                  setConfirmPin(e.target.value.replace(/\D/g, ""))
+                }
                 className="w-full bg-[#0a0a14] border border-[#333] rounded-xl px-4 py-3 text-white text-center text-2xl tracking-[0.5em] font-mono focus:border-amber-500 focus:outline-none placeholder:text-[#333]"
                 placeholder="Confirm PIN"
                 required
               />
-              {error && <p className="text-red-400 text-sm text-center bg-red-950/30 border border-red-900/50 rounded-lg py-2">{error}</p>}
-              <button type="submit" disabled={loading || setupPin.length !== 6 || confirmPin.length !== 6} className="w-full bg-amber-500 text-black font-semibold py-3 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all">
-                {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Set PIN"}
+              {error && (
+                <p className="text-red-400 text-sm text-center bg-red-950/30 border border-red-900/50 rounded-lg py-2">
+                  {error}
+                </p>
+              )}
+              <button
+                type="submit"
+                disabled={
+                  loading || setupPin.length !== 6 || confirmPin.length !== 6
+                }
+                className="w-full bg-amber-500 text-black font-semibold py-3 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                ) : (
+                  "Set PIN"
+                )}
               </button>
             </form>
           )}
@@ -516,17 +725,35 @@ export default function ArchitectVerifyPage() {
               <div className="flex items-center gap-3 mb-4">
                 <Fingerprint className="w-5 h-5 text-amber-400" />
                 <div>
-                  <p className="text-white text-sm font-medium">Step 3: Enroll Hardware Key</p>
-                  <p className="text-gray-500 text-xs">TouchID, FaceID, or YubiKey</p>
+                  <p className="text-white text-sm font-medium">
+                    Step 3: Enroll Hardware Key
+                  </p>
+                  <p className="text-gray-500 text-xs">
+                    TouchID, FaceID, or YubiKey
+                  </p>
                 </div>
               </div>
               <div className="w-20 h-20 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
                 <Fingerprint className="w-10 h-10 text-amber-400" />
               </div>
-              <p className="text-sm text-gray-400">When prompted, authenticate to enroll your security key.</p>
-              {error && <p className="text-red-400 text-sm bg-red-950/30 border border-red-900/50 rounded-lg py-2">{error}</p>}
-              <button onClick={enrollWebAuthn} disabled={loading} className="w-full bg-amber-500 text-black font-semibold py-3 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all">
-                {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Enroll Hardware Key"}
+              <p className="text-sm text-gray-400">
+                When prompted, authenticate to enroll your security key.
+              </p>
+              {error && (
+                <p className="text-red-400 text-sm bg-red-950/30 border border-red-900/50 rounded-lg py-2">
+                  {error}
+                </p>
+              )}
+              <button
+                onClick={enrollWebAuthn}
+                disabled={loading}
+                className="w-full bg-amber-500 text-black font-semibold py-3 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                ) : (
+                  "Enroll Hardware Key"
+                )}
               </button>
             </div>
           )}
@@ -536,17 +763,35 @@ export default function ArchitectVerifyPage() {
               <div className="flex items-center gap-3 mb-4">
                 <MapPin className="w-5 h-5 text-amber-400" />
                 <div>
-                  <p className="text-white text-sm font-medium">Step 4: Set Trusted Location</p>
-                  <p className="text-gray-500 text-xs">Your current location becomes the anchor</p>
+                  <p className="text-white text-sm font-medium">
+                    Step 4: Set Trusted Location
+                  </p>
+                  <p className="text-gray-500 text-xs">
+                    Your current location becomes the anchor
+                  </p>
                 </div>
               </div>
               <div className="w-20 h-20 mx-auto rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
                 <Globe className="w-10 h-10 text-cyan-400 animate-pulse" />
               </div>
-              <p className="text-sm text-gray-400">Allow location access to set your trusted geographic anchor.</p>
-              {error && <p className="text-red-400 text-sm bg-red-950/30 border border-red-900/50 rounded-lg py-2">{error}</p>}
-              <button onClick={enrollGeo} disabled={loading} className="w-full bg-amber-500 text-black font-semibold py-3 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all">
-                {loading ? <Loader2 className="w-4 h-4 animate-spin mx-auto" /> : "Set Trusted Location"}
+              <p className="text-sm text-gray-400">
+                Allow location access to set your trusted geographic anchor.
+              </p>
+              {error && (
+                <p className="text-red-400 text-sm bg-red-950/30 border border-red-900/50 rounded-lg py-2">
+                  {error}
+                </p>
+              )}
+              <button
+                onClick={enrollGeo}
+                disabled={loading}
+                className="w-full bg-amber-500 text-black font-semibold py-3 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin mx-auto" />
+                ) : (
+                  "Set Trusted Location"
+                )}
               </button>
             </div>
           )}
@@ -556,14 +801,20 @@ export default function ArchitectVerifyPage() {
               <div className="flex items-center gap-3 mb-4">
                 <KeyRound className="w-5 h-5 text-amber-400" />
                 <div>
-                  <p className="text-white text-sm font-medium">Primary Admin TOTP</p>
-                  <p className="text-gray-500 text-xs">6-digit code from authenticator</p>
+                  <p className="text-white text-sm font-medium">
+                    Primary Admin TOTP
+                  </p>
+                  <p className="text-gray-500 text-xs">
+                    6-digit code from authenticator
+                  </p>
                 </div>
               </div>
               {locked && (
                 <div className="p-3 rounded-lg bg-red-950/20 border border-red-900/30 text-center">
                   <AlertTriangle className="w-5 h-5 text-red-400 mx-auto mb-1" />
-                  <p className="text-xs text-red-400">Account locked for {lockMinutes} minutes</p>
+                  <p className="text-xs text-red-400">
+                    Account locked for {lockMinutes} minutes
+                  </p>
                 </div>
               )}
               <input
@@ -579,9 +830,23 @@ export default function ArchitectVerifyPage() {
                 required
                 disabled={locked}
               />
-              {error && !locked && <p className="text-red-400 text-sm text-center bg-red-950/30 border border-red-900/50 rounded-lg py-2">{error}</p>}
-              <button type="submit" disabled={loading || totpCode.length !== 6 || locked} className="w-full bg-amber-500 text-black font-semibold py-4 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all flex items-center justify-center gap-2">
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Verify TOTP <ArrowRight className="w-4 h-4" /></>}
+              {error && !locked && (
+                <p className="text-red-400 text-sm text-center bg-red-950/30 border border-red-900/50 rounded-lg py-2">
+                  {error}
+                </p>
+              )}
+              <button
+                type="submit"
+                disabled={loading || totpCode.length !== 6 || locked}
+                className="w-full bg-amber-500 text-black font-semibold py-4 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    Verify TOTP <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
             </form>
           )}
@@ -591,8 +856,12 @@ export default function ArchitectVerifyPage() {
               <div className="flex items-center gap-3 mb-4">
                 <Lock className="w-5 h-5 text-amber-400" />
                 <div>
-                  <p className="text-white text-sm font-medium">Architect PIN</p>
-                  <p className="text-gray-500 text-xs">6-digit personal identification number</p>
+                  <p className="text-white text-sm font-medium">
+                    Architect PIN
+                  </p>
+                  <p className="text-gray-500 text-xs">
+                    6-digit personal identification number
+                  </p>
                 </div>
               </div>
               <input
@@ -611,13 +880,34 @@ export default function ArchitectVerifyPage() {
                 <p className="text-red-400 text-sm text-center bg-red-950/30 border border-red-900/50 rounded-lg py-2 flex items-center justify-center gap-2">
                   <AlertTriangle className="w-4 h-4" />
                   {error}
-                  {locked && <span className="block text-xs mt-1">Locked {lockMinutes} min</span>}
+                  {locked && (
+                    <span className="block text-xs mt-1">
+                      Locked {lockMinutes} min
+                    </span>
+                  )}
                 </p>
               )}
-              <button type="submit" disabled={loading || pin.length !== 6 || locked} className="w-full bg-amber-500 text-black font-semibold py-4 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all flex items-center justify-center gap-2">
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Verify PIN <ArrowRight className="w-4 h-4" /></>}
+              <button
+                type="submit"
+                disabled={loading || pin.length !== 6 || locked}
+                className="w-full bg-amber-500 text-black font-semibold py-4 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    Verify PIN <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
-              <button onClick={() => { setStep("totp"); setTotpCode(""); setError(""); }} className="w-full text-xs text-gray-500 hover:text-gray-300 flex items-center justify-center gap-1">
+              <button
+                onClick={() => {
+                  setStep("totp");
+                  setTotpCode("");
+                  setError("");
+                }}
+                className="w-full text-xs text-gray-500 hover:text-gray-300 flex items-center justify-center gap-1"
+              >
                 <ChevronLeft className="w-3 h-3" /> Back to TOTP
               </button>
             </form>
@@ -629,18 +919,43 @@ export default function ArchitectVerifyPage() {
                 <Fingerprint className="w-5 h-5 text-amber-400" />
                 <div>
                   <p className="text-white text-sm font-medium">Hardware Key</p>
-                  <p className="text-gray-500 text-xs">TouchID, FaceID, or YubiKey required</p>
+                  <p className="text-gray-500 text-xs">
+                    TouchID, FaceID, or YubiKey required
+                  </p>
                 </div>
               </div>
               <div className="w-20 h-20 mx-auto rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
                 <Fingerprint className="w-10 h-10 text-amber-400" />
               </div>
-              <p className="text-sm text-gray-400">When prompted, authenticate with your enrolled security key.</p>
-              {error && <p className="text-red-400 text-sm bg-red-950/30 border border-red-900/50 rounded-lg py-2">{error}</p>}
-              <button onClick={startWebAuthn} disabled={loading} className="w-full bg-amber-500 text-black font-semibold py-4 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all flex items-center justify-center gap-2">
-                {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>Authenticate Key <ArrowRight className="w-4 h-4" /></>}
+              <p className="text-sm text-gray-400">
+                When prompted, authenticate with your enrolled security key.
+              </p>
+              {error && (
+                <p className="text-red-400 text-sm bg-red-950/30 border border-red-900/50 rounded-lg py-2">
+                  {error}
+                </p>
+              )}
+              <button
+                onClick={startWebAuthn}
+                disabled={loading}
+                className="w-full bg-amber-500 text-black font-semibold py-4 rounded-xl hover:bg-amber-400 disabled:opacity-30 transition-all flex items-center justify-center gap-2"
+              >
+                {loading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <>
+                    Authenticate Key <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
               </button>
-              <button onClick={() => { setStep("pin"); setPin(""); setError(""); }} className="text-xs text-gray-500 hover:text-gray-300 flex items-center justify-center gap-1 mx-auto">
+              <button
+                onClick={() => {
+                  setStep("pin");
+                  setPin("");
+                  setError("");
+                }}
+                className="text-xs text-gray-500 hover:text-gray-300 flex items-center justify-center gap-1 mx-auto"
+              >
                 <ChevronLeft className="w-3 h-3" /> Back to PIN
               </button>
             </div>
@@ -651,8 +966,12 @@ export default function ArchitectVerifyPage() {
               <div className="flex items-center gap-3 mb-4">
                 <Globe className="w-5 h-5 text-amber-400" />
                 <div>
-                  <p className="text-white text-sm font-medium">Geographic Verification</p>
-                  <p className="text-gray-500 text-xs">Confirming trusted location</p>
+                  <p className="text-white text-sm font-medium">
+                    Geographic Verification
+                  </p>
+                  <p className="text-gray-500 text-xs">
+                    Confirming trusted location
+                  </p>
                 </div>
               </div>
               <div className="w-20 h-20 mx-auto rounded-full bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
@@ -663,7 +982,11 @@ export default function ArchitectVerifyPage() {
                   Lat: {geoLat.toFixed(4)} · Lng: {geoLng.toFixed(4)}
                 </p>
               )}
-              {error && <p className="text-red-400 text-sm bg-red-950/30 border border-red-900/50 rounded-lg py-2">{error}</p>}
+              {error && (
+                <p className="text-red-400 text-sm bg-red-950/30 border border-red-900/50 rounded-lg py-2">
+                  {error}
+                </p>
+              )}
               {loading && (
                 <div className="flex items-center justify-center gap-2 text-sm text-gray-400">
                   <Loader2 className="w-4 h-4 animate-spin" />
@@ -678,7 +1001,9 @@ export default function ArchitectVerifyPage() {
               <div className="w-20 h-20 mx-auto rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
                 <Shield className="w-10 h-10 text-emerald-400" />
               </div>
-              <h3 className="text-lg font-bold text-white">Architect Verified</h3>
+              <h3 className="text-lg font-bold text-white">
+                Architect Verified
+              </h3>
               <p className="text-sm text-gray-400">
                 All 6 factors verified. Redirecting to command center...
               </p>
@@ -698,5 +1023,13 @@ export default function ArchitectVerifyPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function ArchitectVerifyPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-black" />}>
+      <ArchitectVerifyPageContent />
+    </Suspense>
   );
 }

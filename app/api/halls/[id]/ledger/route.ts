@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser, requireAuth, requireAdmin } from "@/lib/auth";
+import { getSessionUser, requireAdmin } from "@/lib/auth";
 import { logSecurityAudit } from "@/lib/audit";
 
 // GET /api/halls/[id]/ledger
@@ -8,7 +8,7 @@ import { logSecurityAudit } from "@/lib/audit";
 // Owners and admins only
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id: hallId } = await params;
@@ -75,7 +75,7 @@ export async function GET(
 // Create a new 8th Ledger update. Admin only.
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id: hallId } = await params;

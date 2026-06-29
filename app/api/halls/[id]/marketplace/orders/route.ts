@@ -18,21 +18,24 @@ async function isHallOwner(hallId: string, userId: string): Promise<boolean> {
   return !!ownership;
 }
 
-// ── GET — List hall inventory orders ────────────────────────
+// ── GET — List hall inventory orders
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireAuth(request);
-    const claims = getSessionClaims(request);
+    const claims = await getSessionClaims(request);
     const isFounder = isFounderSync(claims) || user.role === "founder";
 
     const { id: hallId } = await params;
     const { searchParams } = new URL(request.url);
     const status = searchParams.get("status") || "all";
     const page = Math.max(1, Number(searchParams.get("page") || "1"));
-    const limit = Math.min(50, Math.max(1, Number(searchParams.get("limit") || "20")));
+    const limit = Math.min(
+      50,
+      Math.max(1, Number(searchParams.get("limit") || "20")),
+    );
     const skip = (page - 1) * limit;
 
     // Gate: hall owner or founder/admin
@@ -40,7 +43,7 @@ export async function GET(
     if (!isOwner && !isFounder) {
       return NextResponse.json(
         { success: false, error: "Hall ownership required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -67,14 +70,24 @@ export async function GET(
             },
           },
           buyer: {
-            select: { id: true, ledgerId: true, displayName: true, avatar: true },
+            select: {
+              id: true,
+              ledgerId: true,
+              displayName: true,
+              avatar: true,
+            },
           },
         },
       }),
       prisma.inventoryOrder.count({ where }),
       prisma.inventoryOrder.aggregate({
         where: { inventory: { hallId }, status: "completed" },
-        _sum: { amount: true, netToHall: true, platformFee: true, fulfillmentCost: true },
+        _sum: {
+          amount: true,
+          netToHall: true,
+          platformFee: true,
+          fulfillmentCost: true,
+        },
       }),
     ]);
 
@@ -123,24 +136,24 @@ export async function GET(
         pages: Math.ceil(total / limit),
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[HALL_INVENTORY_ORDERS_GET]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
       { success: false, error: message || "Order registry unreachable" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-// ── POST — Fulfillment & escrow release ───────────────────
+// ── POST — Fulfillment & escrow release
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireAuth(request);
-    const claims = getSessionClaims(request);
+    const claims = await getSessionClaims(request);
     const isFounder = isFounderSync(claims) || user.role === "founder";
 
     const { id: hallId } = await params;
@@ -150,15 +163,24 @@ export async function POST(
     if (!orderId || !action) {
       return NextResponse.json(
         { success: false, error: "orderId and action required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    const validActions = ["processing", "shipped", "delivered", "completed", "cancelled"];
+    const validActions = [
+      "processing",
+      "shipped",
+      "delivered",
+      "completed",
+      "cancelled",
+    ];
     if (!validActions.includes(action)) {
       return NextResponse.json(
-        { success: false, error: `Invalid action. Must be: ${validActions.join(", ")}` },
-        { status: 400 }
+        {
+          success: false,
+          error: `Invalid action. Must be: ${validActions.join(", ")}`,
+        },
+        { status: 400 },
       );
     }
 
@@ -185,7 +207,7 @@ export async function POST(
     if (!order) {
       return NextResponse.json(
         { success: false, error: "Order not found in this hall" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -193,8 +215,11 @@ export async function POST(
     const isOwner = await isHallOwner(hallId, user.id);
     if (!isOwner && !isFounder) {
       return NextResponse.json(
-        { success: false, error: "Hall ownership or 8th Ledger authority required" },
-        { status: 403 }
+        {
+          success: false,
+          error: "Hall ownership or 8th Ledger authority required",
+        },
+        { status: 403 },
       );
     }
 
@@ -210,8 +235,11 @@ export async function POST(
 
     if (!validTransitions[order.status]?.includes(action)) {
       return NextResponse.json(
-        { success: false, error: `Cannot '${action}' from status '${order.status}'` },
-        { status: 400 }
+        {
+          success: false,
+          error: `Cannot '${action}' from status '${order.status}'`,
+        },
+        { status: 400 },
       );
     }
 
@@ -222,7 +250,6 @@ export async function POST(
       // 1. Update order
       const updateData: Prisma.InventoryOrderUpdateInput = {
         status: action,
-        updatedAt: new Date(),
       };
       if (action === "completed") {
         updateData.completedAt = new Date();
@@ -405,7 +432,7 @@ export async function POST(
             actionUrl: `/marketplace/inventory/${order.inventoryId}`,
             read: false,
           },
-        })
+        }),
       );
     } else if (action === "completed" && result.distribution) {
       notifPromises.push(
@@ -419,7 +446,7 @@ export async function POST(
             actionUrl: `/marketplace/inventory/${order.inventoryId}`,
             read: false,
           },
-        })
+        }),
       );
     }
 
@@ -437,18 +464,19 @@ export async function POST(
         escrowReleasedAt: result.updated.escrowReleasedAt,
       },
       distribution: result.distribution,
-      message: action === "completed" && result.distribution
-        ? `Order complete. $${result.distribution.total.toFixed(2)} distributed: $${result.distribution.netToHall.toFixed(2)} to hall treasury, $${result.distribution.platformFee.toFixed(2)} platform fee, $${result.distribution.fulfillmentCost.toFixed(2)} fulfillment.`
-        : action === "cancelled"
-        ? `Order cancelled. Buyer refunded $${totalPrice.toFixed(2)}.`
-        : `Order status updated to ${action}.`,
+      message:
+        action === "completed" && result.distribution
+          ? `Order complete. $${result.distribution.total.toFixed(2)} distributed: $${result.distribution.netToHall.toFixed(2)} to hall treasury, $${result.distribution.platformFee.toFixed(2)} platform fee, $${result.distribution.fulfillmentCost.toFixed(2)} fulfillment.`
+          : action === "cancelled"
+            ? `Order cancelled. Buyer refunded $${totalPrice.toFixed(2)}.`
+            : `Order status updated to ${action}.`,
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[HALL_INVENTORY_ORDERS_POST]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
       { success: false, error: message || "Order processing failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

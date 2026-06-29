@@ -4,8 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth, isFounderSync, getSessionClaims } from "@/lib/auth";
 
 const THRESHOLDS = {
-  warning: 3,      // 3 months no sales = warning
-  takeover: 6,     // 6 months = community split drops to 50%
+  warning: 3, // 3 months no sales = warning
+  takeover: 6, // 6 months = community split drops to 50%
   reclamation: 24, // 24 months = asset eligible for reclamation
 };
 
@@ -14,11 +14,11 @@ const THRESHOLDS = {
    ============================================================ */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireAuth(request);
-    const claims = getSessionClaims(request);
+    const claims = await getSessionClaims(request);
     const isFounder = isFounderSync(claims) || user.role === "founder";
 
     const { id: hallId } = await params;
@@ -30,14 +30,21 @@ export async function GET(
     if (!ownership && !isFounder) {
       return NextResponse.json(
         { success: false, error: "Hall access required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     const hall = await prisma.hall.findUnique({
       where: { id: hallId },
       include: {
-        pool: { select: { listedPrice: true, trueCost: true, verticalId: true, name: true } },
+        pool: {
+          select: {
+            listedPrice: true,
+            trueCost: true,
+            verticalId: true,
+            name: true,
+          },
+        },
         _count: { select: { ownerships: true, inventoryItems: true } },
       },
     });
@@ -45,7 +52,7 @@ export async function GET(
     if (!hall) {
       return NextResponse.json(
         { success: false, error: "Hall not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -53,7 +60,9 @@ export async function GET(
     const threeMonthsAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
     const sixMonthsAgo = new Date(now.getTime() - 180 * 24 * 60 * 60 * 1000);
     const twelveMonthsAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000);
-    const twentyFourMonthsAgo = new Date(now.getTime() - 730 * 24 * 60 * 60 * 1000);
+    const twentyFourMonthsAgo = new Date(
+      now.getTime() - 730 * 24 * 60 * 60 * 1000,
+    );
 
     const [
       totalItems,
@@ -66,18 +75,36 @@ export async function GET(
       revenueAgg,
     ] = await prisma.$transaction([
       prisma.inventoryItem.count({ where: { hallId } }),
-      prisma.inventoryOrder.count({ where: { inventory: { hallId }, status: "completed" } }),
       prisma.inventoryOrder.count({
-        where: { inventory: { hallId }, status: "completed", completedAt: { gte: threeMonthsAgo } },
+        where: { inventory: { hallId }, status: "completed" },
       }),
       prisma.inventoryOrder.count({
-        where: { inventory: { hallId }, status: "completed", completedAt: { gte: sixMonthsAgo } },
+        where: {
+          inventory: { hallId },
+          status: "completed",
+          completedAt: { gte: threeMonthsAgo },
+        },
       }),
       prisma.inventoryOrder.count({
-        where: { inventory: { hallId }, status: "completed", completedAt: { gte: twelveMonthsAgo } },
+        where: {
+          inventory: { hallId },
+          status: "completed",
+          completedAt: { gte: sixMonthsAgo },
+        },
       }),
       prisma.inventoryOrder.count({
-        where: { inventory: { hallId }, status: "completed", completedAt: { gte: twentyFourMonthsAgo } },
+        where: {
+          inventory: { hallId },
+          status: "completed",
+          completedAt: { gte: twelveMonthsAgo },
+        },
+      }),
+      prisma.inventoryOrder.count({
+        where: {
+          inventory: { hallId },
+          status: "completed",
+          completedAt: { gte: twentyFourMonthsAgo },
+        },
       }),
       prisma.inventoryOrder.findFirst({
         where: { inventory: { hallId }, status: "completed" },
@@ -99,8 +126,13 @@ export async function GET(
     const avgMonthlySales12mo = completedLast12Mo / 12;
     const avgMonthlySales24mo = completedLast24Mo / 24;
 
-    const bestPace = Math.max(avgMonthlySales3mo, avgMonthlySales6mo, avgMonthlySales12mo);
-    const conservativePace = avgMonthlySales6mo > 0 ? avgMonthlySales6mo : avgMonthlySales12mo;
+    const bestPace = Math.max(
+      avgMonthlySales3mo,
+      avgMonthlySales6mo,
+      avgMonthlySales12mo,
+    );
+    const conservativePace =
+      avgMonthlySales6mo > 0 ? avgMonthlySales6mo : avgMonthlySales12mo;
 
     // Days to clear active inventory at current pace
     let daysToClear: number | null = null;
@@ -117,10 +149,14 @@ export async function GET(
       monthsToClear = null;
     }
 
-    let velocityStatus: "healthy" | "warning" | "takeover" | "reclamation" = "healthy";
+    let velocityStatus: "healthy" | "warning" | "takeover" | "reclamation" =
+      "healthy";
     let reviewFlagged = false;
 
-    if (monthsToClear === null || (monthsToClear !== null && monthsToClear > THRESHOLDS.reclamation)) {
+    if (
+      monthsToClear === null ||
+      (monthsToClear !== null && monthsToClear > THRESHOLDS.reclamation)
+    ) {
       velocityStatus = "reclamation";
       reviewFlagged = true;
     } else if (monthsToClear !== null && monthsToClear > THRESHOLDS.takeover) {
@@ -131,7 +167,10 @@ export async function GET(
     }
 
     const daysSinceLastSale = lastSale?.completedAt
-      ? Math.floor((now.getTime() - new Date(lastSale.completedAt).getTime()) / (1000 * 60 * 60 * 24))
+      ? Math.floor(
+          (now.getTime() - new Date(lastSale.completedAt).getTime()) /
+            (1000 * 60 * 60 * 24),
+        )
       : null;
 
     const totalRevenue = Number(revenueAgg._sum.amount || 0);
@@ -161,30 +200,32 @@ export async function GET(
         completedLast24Months: completedLast24Mo,
         avgMonthlySales: Number(conservativePace.toFixed(2)),
         daysToClear,
-        monthsToClear: monthsToClear !== null ? Number(monthsToClear.toFixed(1)) : null,
+        monthsToClear:
+          monthsToClear !== null ? Number(monthsToClear.toFixed(1)) : null,
         daysSinceLastSale,
         velocityStatus,
         reviewFlagged: reviewFlagged || !!existingReview,
         thresholds: THRESHOLDS,
         totalRevenue: Number(totalRevenue.toFixed(2)),
         totalNetToHall: Number(totalNetToHall.toFixed(2)),
-        message: velocityStatus === "reclamation"
-          ? "CRITICAL: Inventory stagnant for 24+ months. Reclamation protocol recommended."
-          : velocityStatus === "takeover"
-          ? "8th Ledger takeover flagged. Sales velocity below 6-month threshold. Community split drops to 50%."
-          : velocityStatus === "warning"
-          ? `WARNING: At current pace, inventory clears in ${monthsToClear !== null ? Number(monthsToClear.toFixed(1)) : "∞"} months. Consider marketing.`
-          : activeItems === 0
-          ? "No active inventory. Add products to generate sales."
-          : `Healthy: Inventory clears in ~${monthsToClear !== null ? Number(monthsToClear.toFixed(1)) : "∞"} months.`,
+        message:
+          velocityStatus === "reclamation"
+            ? "CRITICAL: Inventory stagnant for 24+ months. Reclamation protocol recommended."
+            : velocityStatus === "takeover"
+              ? "8th Ledger takeover flagged. Sales velocity below 6-month threshold. Community split drops to 50%."
+              : velocityStatus === "warning"
+                ? `WARNING: At current pace, inventory clears in ${monthsToClear !== null ? Number(monthsToClear.toFixed(1)) : "∞"} months. Consider marketing.`
+                : activeItems === 0
+                  ? "No active inventory. Add products to generate sales."
+                  : `Healthy: Inventory clears in ~${monthsToClear !== null ? Number(monthsToClear.toFixed(1)) : "∞"} months.`,
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[HALL_VELOCITY_GET]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
       { success: false, error: message || "Velocity tracker unreachable" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -195,17 +236,17 @@ export async function GET(
    ============================================================ */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireAuth(request);
-    const claims = getSessionClaims(request);
+    const claims = await getSessionClaims(request);
     const isFounder = isFounderSync(claims) || user.role === "founder";
 
     if (!isFounder && user.role !== "admin") {
       return NextResponse.json(
         { success: false, error: "8th Ledger authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -213,11 +254,19 @@ export async function POST(
     const body = await request.json();
     const { action, reason } = body;
 
-    const validActions = ["flag_review", "clear_review", "trigger_takeover", "force_reclamation"];
+    const validActions = [
+      "flag_review",
+      "clear_review",
+      "trigger_takeover",
+      "force_reclamation",
+    ];
     if (!action || !validActions.includes(action)) {
       return NextResponse.json(
-        { success: false, error: `action must be one of: ${validActions.join(", ")}` },
-        { status: 400 }
+        {
+          success: false,
+          error: `action must be one of: ${validActions.join(", ")}`,
+        },
+        { status: 400 },
       );
     }
 
@@ -235,7 +284,7 @@ export async function POST(
     if (!hall) {
       return NextResponse.json(
         { success: false, error: "Hall not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -400,8 +449,11 @@ export async function POST(
     if (action === "force_reclamation") {
       if (!isFounder) {
         return NextResponse.json(
-          { success: false, error: "Founder authority required for reclamation" },
-          { status: 403 }
+          {
+            success: false,
+            error: "Founder authority required for reclamation",
+          },
+          { status: 403 },
         );
       }
 
@@ -471,14 +523,14 @@ export async function POST(
 
     return NextResponse.json(
       { success: false, error: "Invalid action" },
-      { status: 400 }
+      { status: 400 },
     );
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[HALL_VELOCITY_POST]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json(
       { success: false, error: message || "Velocity action failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -1,10 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   Radio,
   ArrowLeft,
-  Filter,
   Shield,
   Crown,
   Wrench,
@@ -20,7 +20,7 @@ import {
 import Link from "next/link";
 import useSWR from "swr";
 
-// ── Types ───────────────────────────────────────────────────
+// ── Types
 
 interface RelayEvent {
   id: string;
@@ -41,11 +41,11 @@ interface RelayEvent {
   };
 }
 
-// ── Fetcher ─────────────────────────────────────────────────
+// ── Fetcher
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-// ── Event Type Icons ────────────────────────────────────────
+// ── Event Type Icons
 
 const EVENT_ICONS: Record<string, React.ElementType> = {
   vote: Gavel,
@@ -63,13 +63,24 @@ const EVENT_ICONS: Record<string, React.ElementType> = {
 
 function CheckIcon(props: any) {
   return (
-    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M20 6 9 17l-5-5" />
     </svg>
   );
 }
 
-// ── SRI Badge ───────────────────────────────────────────────
+// ── SRI Badge ─
 
 function SriBadge({ tier, score }: { tier: string; score: number }) {
   const colors: Record<string, string> = {
@@ -87,7 +98,7 @@ function SriBadge({ tier, score }: { tier: string; score: number }) {
   );
 }
 
-// ── Main Page ───────────────────────────────────────────────
+// ── Main Page ─
 
 export default function RelayPage() {
   const [typeFilter, setTypeFilter] = useState<string>("");

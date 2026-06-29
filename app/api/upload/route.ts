@@ -20,7 +20,7 @@ const UPLOAD_DIR = join(process.cwd(), "public", "uploads");
 /* ============================================================
    HELPERS
    ============================================================ */
-function handleError(error: unknown): NextResponse {
+function handleError(error: any): NextResponse {
   console.error("[UPLOAD ERROR]", error);
   return NextResponse.json(
     { success: false, error: "Upload failed" },

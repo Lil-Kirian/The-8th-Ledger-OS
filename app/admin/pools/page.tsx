@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Layers,
-  Flame,
   Landmark,
   Zap,
   Crown,
@@ -25,17 +24,12 @@ import {
   EyeOff,
   Trash2,
   Edit3,
-  ArrowRight,
   Ghost,
   Globe,
   Users,
-  DollarSign,
-  Calendar,
-  Filter,
   X,
   ChevronDown,
   AlertTriangle,
-  CheckCircle2,
   Loader2,
   BarChart3,
 } from "lucide-react";

@@ -8,12 +8,15 @@ import { getSessionUser, generatePacToken } from "@/lib/auth";
    ============================================================ */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: poolId } = await params;
@@ -52,10 +55,14 @@ export async function GET(
     ]);
 
     if (!pool) {
-      return NextResponse.json({ success: false, error: "Pool not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Pool not found" },
+        { status: 404 },
+      );
     }
 
-    const fillPercent = pool.target > 0 ? Math.round((pool.committed / pool.target) * 100) : 0;
+    const fillPercent =
+      pool.target > 0 ? Math.round((pool.committed / pool.target) * 100) : 0;
 
     return NextResponse.json({
       success: true,
@@ -78,7 +85,10 @@ export async function GET(
     });
   } catch (error) {
     console.error("[COMMIT GET]", error);
-    return NextResponse.json({ success: false, error: "Status check failed" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Status check failed" },
+      { status: 500 },
+    );
   }
 }
 
@@ -88,18 +98,18 @@ export async function GET(
    ============================================================ */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
-    // ── 1. KYC TIER GATE ─────────────────────────────────────
+    // ── 1. KYC TIER GATE
     const kycTier = user.kycTier || "visitor";
     if (kycTier === "visitor") {
       return NextResponse.json(
@@ -110,7 +120,7 @@ export async function POST(
           requiredTier: "sovereign",
           currentTier: kycTier,
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -120,12 +130,15 @@ export async function POST(
 
     if (!amount || typeof amount !== "number" || amount < 1) {
       return NextResponse.json(
-        { success: false, error: "Valid commitment amount required (minimum $1)" },
-        { status: 400 }
+        {
+          success: false,
+          error: "Valid commitment amount required (minimum $1)",
+        },
+        { status: 400 },
       );
     }
 
-    // ── 2. IDEMPOTENCY ───────────────────────────────────────
+    // ── 2. IDEMPOTENCY ─
     const existing = await prisma.ownership.findUnique({
       where: { poolId_userId: { poolId, userId: user.id } },
     });
@@ -136,12 +149,12 @@ export async function POST(
           error: "Already committed to this pool",
           detail: `Committed $${existing.amountCommitted.toLocaleString()}. Your PAC: ${existing.pacToken}.`,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     const result = await prisma.$transaction(async (tx) => {
-      // ── 3. LOCK POOL ───────────────────────────────────────
+      // ── 3. LOCK POOL ─
       const pool = await tx.pool.findUnique({
         where: { poolId },
         include: { hall: true },
@@ -149,31 +162,44 @@ export async function POST(
 
       if (!pool) throw new Error("Pool not found in registry");
       if (!pool.hall) throw new Error("Hall not yet initialized for this pool");
-      if (pool.status !== "filling") throw new Error(`Pool is ${pool.status}. No new commitments accepted.`);
-      if (pool.participants >= pool.maxParticipants) throw new Error("Pool has reached maximum sovereign capacity");
+      if (pool.status !== "filling")
+        throw new Error(`Pool is ${pool.status}. No new commitments accepted.`);
+      if (pool.participants >= pool.maxParticipants)
+        throw new Error("Pool has reached maximum sovereign capacity");
       if (pool.committed + amount > pool.target) {
         const remaining = pool.target - pool.committed;
-        throw new Error(`Commitment exceeds pool target. Only $${remaining.toLocaleString()} remaining.`);
+        throw new Error(
+          `Commitment exceeds pool target. Only $${remaining.toLocaleString()} remaining.`,
+        );
       }
       if (user.creditPool < amount) {
-        throw new Error(`Insufficient credit pool balance. Available: $${user.creditPool.toLocaleString()}. Required: $${amount.toLocaleString()}.`);
+        throw new Error(
+          `Insufficient credit pool balance. Available: $${user.creditPool.toLocaleString()}. Required: $${amount.toLocaleString()}.`,
+        );
       }
 
       // Min/max per pool
       if (pool.minCommitment && amount < pool.minCommitment) {
-        throw new Error(`Minimum commitment for this pool is $${pool.minCommitment.toLocaleString()}`);
+        throw new Error(
+          `Minimum commitment for this pool is $${pool.minCommitment.toLocaleString()}`,
+        );
       }
       if (pool.maxCommitment && amount > pool.maxCommitment) {
-        throw new Error(`Maximum commitment for this pool is $${pool.maxCommitment.toLocaleString()}`);
+        throw new Error(
+          `Maximum commitment for this pool is $${pool.maxCommitment.toLocaleString()}`,
+        );
       }
 
-      // ── 4. INVITE VALIDATION (>80% full) ───────────────────
-      const fillPercent = pool.target > 0 ? (pool.committed / pool.target) * 100 : 0;
+      // ── 4. INVITE VALIDATION (>80% full)
+      const fillPercent =
+        pool.target > 0 ? (pool.committed / pool.target) * 100 : 0;
       const requiresInvite = fillPercent > 80;
 
       if (requiresInvite) {
         if (!inviteCode || typeof inviteCode !== "string") {
-          throw new Error("This pool is >80% filled. A Sovereign Invite code is required from a current member.");
+          throw new Error(
+            "This pool is >80% filled. A Sovereign Invite code is required from a current member.",
+          );
         }
 
         const validInvite = await tx.hallInvite.findFirst({
@@ -187,7 +213,9 @@ export async function POST(
         });
 
         if (!validInvite) {
-          throw new Error("Invalid, expired, or fully-used invite code. Request a new invite from a member.");
+          throw new Error(
+            "Invalid, expired, or fully-used invite code. Request a new invite from a member.",
+          );
         }
 
         // Mark used
@@ -196,7 +224,7 @@ export async function POST(
           data: { usedCount: { increment: 1 } },
         });
 
-        // ── 5. INVITER BONUS (1% Knot reward) ────────────────
+        // ── 5. INVITER BONUS (1% Knot reward)
         if (validInvite.creatorId !== user.id) {
           const inviter = await tx.user.findUnique({
             where: { id: validInvite.creatorId },
@@ -220,7 +248,7 @@ export async function POST(
         }
       }
 
-      // ── 6. DEDUCT CREDIT ───────────────────────────────────
+      // ── 6. DEDUCT CREDIT
       await tx.user.update({
         where: { id: user.id },
         data: {
@@ -230,13 +258,13 @@ export async function POST(
         },
       });
 
-      // ── 7. CALCULATE ───────────────────────────────────────
+      // ── 7. CALCULATE ─
       const newCommitted = pool.committed + Number(amount);
       const newParticipants = pool.participants + 1;
       const ownershipPercent = Number(amount) / Number(pool.target);
       const isFilled = newCommitted >= pool.target;
 
-      // ── 8. OWNERSHIP + PAC (authoritative record) ──────────
+      // ── 8. OWNERSHIP + PAC (authoritative record) ──
       const pacToken = generatePacToken();
       const ownership = await tx.ownership.create({
         data: {
@@ -254,7 +282,7 @@ export async function POST(
         },
       });
 
-      // ── 9. UPDATE POOL ────────────────────────────────────
+      // ── 9. UPDATE POOL ─
       const updatedPool = await tx.pool.update({
         where: { id: pool.id },
         data: {
@@ -265,7 +293,7 @@ export async function POST(
         },
       });
 
-      // ── 10. HALL UNLOCK: Ghost → Live ──────────────────────
+      // ── 10. HALL UNLOCK: Ghost → Live ──
       if (isFilled && pool.hall) {
         await tx.hall.update({
           where: { id: pool.hall.id },
@@ -304,7 +332,7 @@ export async function POST(
         });
       }
 
-      // ── 11. TREASURY LOG ───────────────────────────────────
+      // ── 11. TREASURY LOG
       await tx.treasuryTransaction.create({
         data: {
           type: "commit",
@@ -318,7 +346,7 @@ export async function POST(
         },
       });
 
-      // ── 12. AUDIT ──────────────────────────────────────────
+      // ── 12. AUDIT
       await tx.auditEntry.create({
         data: {
           type: "commit",
@@ -340,7 +368,13 @@ export async function POST(
         name: result.pool.name,
         committed: result.updatedPool.committed,
         target: result.updatedPool.target,
-        fillPercent: result.updatedPool.target > 0 ? Math.round((result.updatedPool.committed / result.updatedPool.target) * 100) : 0,
+        fillPercent:
+          result.updatedPool.target > 0
+            ? Math.round(
+                (result.updatedPool.committed / result.updatedPool.target) *
+                  100,
+              )
+            : 0,
         status: result.updatedPool.status,
         participants: result.updatedPool.participants,
       },
@@ -364,7 +398,7 @@ export async function POST(
     console.error("[COMMIT POST]", error);
     return NextResponse.json(
       { success: false, error: error.message || "Commitment failed" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 }

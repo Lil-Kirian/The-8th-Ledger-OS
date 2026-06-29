@@ -22,8 +22,6 @@ import {
   XCircle,
   RefreshCw,
   Info,
-  FileText,
-  Landmark,
 } from "lucide-react";
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -33,7 +31,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { toast } from "sonner";
 import Link from "next/link";
 
-// ─── Types ───────────────────────────────────────────────────────────
+//  Types
 
 interface CabinetMember {
   ledgerId: string;
@@ -109,7 +107,7 @@ const ROLE_META = {
   },
 };
 
-// ─── Component ─────────────────────────────────────────────────────
+//  Component ─
 
 export default function ExecutiveCabinetPage() {
   const params = useParams();

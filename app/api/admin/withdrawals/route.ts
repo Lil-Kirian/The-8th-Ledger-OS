@@ -2,25 +2,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isPrimaryAdmin } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
+import { generateTxHash } from "@/lib/utils";
 
 /* ============================================================
    8TH LEDGER — WITHDRAWAL ADMIN API
    Sovereign treasury outflows: approval, rejection, oversight
    ============================================================ */
 
-function handlePrismaError(error: unknown): NextResponse {
+function handlePrismaError(error: any): NextResponse {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2025") {
       return NextResponse.json(
         { success: false, error: "Record not found." },
-        { status: 404 }
+        { status: 404 },
       );
     }
   }
   console.error("[ADMIN_WITHDRAWALS ERROR]", error);
   return NextResponse.json(
     { success: false, error: "Withdrawal operation failed" },
-    { status: 500 }
+    { status: 500 },
   );
 }
 
@@ -31,12 +32,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
     if (!isPrimaryAdmin(user)) {
       return NextResponse.json(
         { success: false, error: "Primary admin authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -45,7 +49,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const type = searchParams.get("type") || "modern"; // modern | legacy | all
     const search = searchParams.get("search");
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const limit = Math.min(
+      50,
+      Math.max(1, parseInt(searchParams.get("limit") || "20", 10)),
+    );
     const sort = searchParams.get("sort") || "createdAt";
     const dir = searchParams.get("dir") === "asc" ? "asc" : "desc";
 
@@ -68,7 +75,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           { ledgerId: { contains: search, mode: "insensitive" } },
           { destination: { contains: search, mode: "insensitive" } },
           { reference: { contains: search, mode: "insensitive" } },
-          { wallet: { user: { displayName: { contains: search, mode: "insensitive" } } } },
+          {
+            wallet: {
+              user: { displayName: { contains: search, mode: "insensitive" } },
+            },
+          },
         ];
       }
 
@@ -153,7 +164,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         id: w.id,
         type: "legacy",
         ledgerId: w.ledgerId,
-        user: w.user || { ledgerId: w.ledgerId, displayName: w.displayName, kycTier: null },
+        user: w.user || {
+          ledgerId: w.ledgerId,
+          displayName: w.displayName,
+          kycTier: null,
+        },
         amount: w.amount,
         currency: "USD",
         status: w.status,
@@ -197,10 +212,25 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     ]);
 
     const stats = {
-      modern: Object.fromEntries(modernStats.map((s) => [s.status, { count: s._count, total: s._sum.amount }])),
-      legacy: Object.fromEntries(legacyStats.map((s) => [s.status, { count: s._count, total: s._sum.amount }])),
-      combinedPending: modernStats.filter((s) => s.status === "pending").reduce((sum, s) => sum + s._count, 0)
-        + legacyStats.filter((s) => s.status === "pending").reduce((sum, s) => sum + s._count, 0),
+      modern: Object.fromEntries(
+        modernStats.map((s) => [
+          s.status,
+          { count: s._count, total: s._sum.amount },
+        ]),
+      ),
+      legacy: Object.fromEntries(
+        legacyStats.map((s) => [
+          s.status,
+          { count: s._count, total: s._sum.amount },
+        ]),
+      ),
+      combinedPending:
+        modernStats
+          .filter((s) => s.status === "pending")
+          .reduce((sum, s) => sum + s._count, 0) +
+        legacyStats
+          .filter((s) => s.status === "pending")
+          .reduce((sum, s) => sum + s._count, 0),
     };
 
     return NextResponse.json({
@@ -221,12 +251,15 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
     if (!isPrimaryAdmin(user)) {
       return NextResponse.json(
         { success: false, error: "Primary admin authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -235,15 +268,21 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
 
     if (!action || !id || !type) {
       return NextResponse.json(
-        { success: false, error: "action, id, and type (modern|legacy) required" },
-        { status: 400 }
+        {
+          success: false,
+          error: "action, id, and type (modern|legacy) required",
+        },
+        { status: 400 },
       );
     }
 
     if (!["approve", "reject", "reprocess"].includes(action)) {
       return NextResponse.json(
-        { success: false, error: "action must be approve, reject, or reprocess" },
-        { status: 400 }
+        {
+          success: false,
+          error: "action must be approve, reject, or reprocess",
+        },
+        { status: 400 },
       );
     }
 
@@ -273,7 +312,10 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       });
 
       if (!withdrawal) {
-        return NextResponse.json({ success: false, error: "Withdrawal not found" }, { status: 404 });
+        return NextResponse.json(
+          { success: false, error: "Withdrawal not found" },
+          { status: 404 },
+        );
       }
 
       amount = withdrawal.amount;
@@ -282,16 +324,25 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       if (action === "approve") {
         if (withdrawal.status !== "pending") {
           return NextResponse.json(
-            { success: false, error: `Withdrawal is already ${withdrawal.status}` },
-            { status: 409 }
+            {
+              success: false,
+              error: `Withdrawal is already ${withdrawal.status}`,
+            },
+            { status: 409 },
           );
         }
 
         // Verify wallet has sufficient balance
-        if (withdrawal.wallet && withdrawal.wallet.balance < withdrawal.amount) {
+        if (
+          withdrawal.wallet &&
+          withdrawal.wallet.balance < withdrawal.amount
+        ) {
           return NextResponse.json(
-            { success: false, error: "Insufficient wallet balance. Cannot approve." },
-            { status: 409 }
+            {
+              success: false,
+              error: "Insufficient wallet balance. Cannot approve.",
+            },
+            { status: 409 },
           );
         }
 
@@ -323,8 +374,11 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       if (action === "reject") {
         if (withdrawal.status !== "pending") {
           return NextResponse.json(
-            { success: false, error: `Withdrawal is already ${withdrawal.status}` },
-            { status: 409 }
+            {
+              success: false,
+              error: `Withdrawal is already ${withdrawal.status}`,
+            },
+            { status: 409 },
           );
         }
 
@@ -344,8 +398,11 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       if (action === "reprocess") {
         if (withdrawal.status !== "rejected") {
           return NextResponse.json(
-            { success: false, error: "Only rejected withdrawals can be reprocessed" },
-            { status: 409 }
+            {
+              success: false,
+              error: "Only rejected withdrawals can be reprocessed",
+            },
+            { status: 409 },
           );
         }
 
@@ -379,7 +436,10 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       });
 
       if (!req) {
-        return NextResponse.json({ success: false, error: "Withdrawal request not found" }, { status: 404 });
+        return NextResponse.json(
+          { success: false, error: "Withdrawal request not found" },
+          { status: 404 },
+        );
       }
 
       amount = req.amount;
@@ -389,7 +449,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
         if (req.status !== "pending") {
           return NextResponse.json(
             { success: false, error: `Request is already ${req.status}` },
-            { status: 409 }
+            { status: 409 },
           );
         }
 
@@ -409,7 +469,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
         if (req.status !== "pending") {
           return NextResponse.json(
             { success: false, error: `Request is already ${req.status}` },
-            { status: 409 }
+            { status: 409 },
           );
         }
 
@@ -429,8 +489,11 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
       if (action === "reprocess") {
         if (req.status !== "rejected") {
           return NextResponse.json(
-            { success: false, error: "Only rejected requests can be reprocessed" },
-            { status: 409 }
+            {
+              success: false,
+              error: "Only rejected requests can be reprocessed",
+            },
+            { status: 409 },
           );
         }
 
@@ -455,8 +518,14 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
         description: message,
         ledgerId,
         amount,
-        metadata: JSON.stringify({ action, id, type, reason, admin: user.ledgerId }),
-        txHash: `AUD-WD-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        metadata: JSON.stringify({
+          action,
+          id,
+          type,
+          reason,
+          admin: user.ledgerId,
+        }),
+        txHash: generateTxHash("AUD-WD"),
         visibleToPublic: false,
       },
     });

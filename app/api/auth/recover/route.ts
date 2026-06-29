@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import crypto from "crypto";
 
 /* ============================================================
    ACCOUNT RECOVERY — 8th Ledger
@@ -28,16 +27,9 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    // Generate recovery token
-    const token = crypto.randomBytes(32).toString("hex");
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 min
-
-    // Store token in a new model or session field
-    // For now, just log it (replace with email service in production)
-    console.log(`[RECOVERY] User: ${user.ledgerId} | Token: ${token} | Expires: ${expiresAt}`);
-
-    // TODO: Send email via Resend/SendGrid/AWS SES
-    // await sendRecoveryEmail(user.email, user.ledgerId, token);
+    // The recovery flow intentionally avoids returning or logging secrets.
+    // A dedicated email-token table/service should issue expiring tokens once
+    // outbound email is configured.
 
     return NextResponse.json({
       success: true,
@@ -47,7 +39,7 @@ export async function POST(request: NextRequest) {
     console.error("[RECOVER]", error);
     return NextResponse.json(
       { error: "Recovery protocol malfunctioned" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

@@ -20,7 +20,6 @@ import {
   Globe,
   Terminal,
   Crown,
-  Target,
   X,
   Loader2,
   CheckCircle2,
@@ -28,7 +27,6 @@ import {
   Building2,
   Scale,
   PieChart,
-  Landmark,
   ScanEye,
   Sparkles,
 } from "lucide-react";

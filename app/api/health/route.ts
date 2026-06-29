@@ -31,7 +31,7 @@ export async function GET() {
         database: {
           status: dbStatus,
           latencyMs: dbLatency,
-          provider: "sqlite",
+          provider: "postgresql",
         },
         api: {
           latencyMs: totalLatency,
@@ -45,6 +45,6 @@ export async function GET() {
       headers: {
         "Cache-Control": "no-store, max-age=0",
       },
-    }
+    },
   );
 }

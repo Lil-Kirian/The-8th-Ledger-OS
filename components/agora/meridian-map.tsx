@@ -18,9 +18,9 @@ import {
   RotateCcw,
 } from "lucide-react";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES — Schema-Aligned
-// ─────────────────────────────────────────────────────────────
+//
 
 export interface MeridianMapData {
   currentCycle: {
@@ -48,9 +48,9 @@ interface MeridianMapProps {
   data: MeridianMapData;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // DESIGN SYSTEM
-// ─────────────────────────────────────────────────────────────
+//
 
 const CONTINENTS = [
   { id: "africa", name: "Africa", short: "AFR", emoji: "🌍", x: 52, y: 58, size: "lg" },
@@ -114,9 +114,9 @@ const PHASE_CONFIG = {
   },
 } as const;
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function formatTimeRemaining(seconds: number): string {
   const hrs = Math.floor(seconds / 3600);
@@ -131,9 +131,9 @@ function getContinentStatus(id: string, rotation: MeridianMapData["rotation"]) {
   return rotation.find((r) => r.continent === id)?.status || "available";
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // SUB-COMPONENTS
-// ─────────────────────────────────────────────────────────────
+//
 
 function ContinentNode({
   continent,
@@ -352,9 +352,9 @@ function WinnerRow({
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────
+//
 
 export function MeridianMap({ data }: MeridianMapProps) {
   const currentPhase = data.currentCycle?.phase || "hush";

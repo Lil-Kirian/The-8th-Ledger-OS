@@ -1,16 +1,12 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import {
   Calculator,
-  TrendingUp,
   DollarSign,
   Percent,
-  Clock,
-  Calendar,
   ArrowRight,
   Sparkles,
-  BarChart3,
   PieChart,
   Target,
   ChevronDown,

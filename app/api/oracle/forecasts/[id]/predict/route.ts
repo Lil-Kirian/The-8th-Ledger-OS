@@ -8,9 +8,9 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser, requireAuth } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS & TYPES
-// ─────────────────────────────────────────────────────────────
+//
 
 const VALID_VERTICALS = [
   "ledgerprop",
@@ -31,9 +31,9 @@ type OracleTier = "novice" | "seer" | "oracle" | "prophet";
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const RATE_LIMIT_MAX_PREDICTIONS = 20; // per user per hour
 
-// ─────────────────────────────────────────────────────────────
+//
 // IN-MEMORY RATE LIMITER (swap for Redis at scale)
-// ─────────────────────────────────────────────────────────────
+//
 
 interface RateLimitEntry {
   count: number;
@@ -42,13 +42,24 @@ interface RateLimitEntry {
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
-function checkRateLimit(userId: string): { allowed: boolean; resetAt: number; remaining: number } {
+function checkRateLimit(userId: string): {
+  allowed: boolean;
+  resetAt: number;
+  remaining: number;
+} {
   const now = Date.now();
   const entry = rateLimitStore.get(userId);
 
   if (!entry || now > entry.resetAt) {
-    rateLimitStore.set(userId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true, resetAt: now + RATE_LIMIT_WINDOW_MS, remaining: RATE_LIMIT_MAX_PREDICTIONS - 1 };
+    rateLimitStore.set(userId, {
+      count: 1,
+      resetAt: now + RATE_LIMIT_WINDOW_MS,
+    });
+    return {
+      allowed: true,
+      resetAt: now + RATE_LIMIT_WINDOW_MS,
+      remaining: RATE_LIMIT_MAX_PREDICTIONS - 1,
+    };
   }
 
   if (entry.count >= RATE_LIMIT_MAX_PREDICTIONS) {
@@ -56,12 +67,16 @@ function checkRateLimit(userId: string): { allowed: boolean; resetAt: number; re
   }
 
   entry.count += 1;
-  return { allowed: true, resetAt: entry.resetAt, remaining: RATE_LIMIT_MAX_PREDICTIONS - entry.count };
+  return {
+    allowed: true,
+    resetAt: entry.resetAt,
+    remaining: RATE_LIMIT_MAX_PREDICTIONS - entry.count,
+  };
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function safeJsonParse<T>(str: string | null, fallback: T): T {
   if (!str) return fallback;
@@ -87,9 +102,9 @@ function sanitizeText(input: string, maxLength: number): string {
   return input.replace(/[<>]/g, "").trim().slice(0, maxLength);
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // AUDIT LOGGING
-// ─────────────────────────────────────────────────────────────
+//
 
 async function logAudit(props: {
   eventType: string;
@@ -114,12 +129,20 @@ async function logAudit(props: {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // FORECAST LOCK CHECK
-// ─────────────────────────────────────────────────────────────
+//
 
 async function checkForecastLock(forecastId: string): Promise<{
-  forecast: Awaited<ReturnType<typeof prisma.oracleForecast.findUnique>>;
+  forecast: {
+    id: string;
+    title: string;
+    status: string;
+    lockDate: Date;
+    verticalOptions: string;
+    countryOptions: string;
+    resolvedOutcome: string | null;
+  } | null;
   isLocked: boolean;
   isResolved: boolean;
   isCancelled: boolean;
@@ -145,14 +168,14 @@ async function checkForecastLock(forecastId: string): Promise<{
   return { forecast, isLocked, isResolved, isCancelled };
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST /api/oracle/forecasts/[id]/predict
 // Seal a prediction. One per user per forecast. Free. No stakes.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     // 1. Auth gate (strict — predictions require auth)
@@ -162,7 +185,7 @@ export async function POST(
     if (!forecastId || forecastId.length < 10) {
       return NextResponse.json(
         { error: "Invalid forecast ID.", code: "VALIDATION_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -177,8 +200,12 @@ export async function POST(
         },
         {
           status: 429,
-          headers: { "Retry-After": String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)) },
-        }
+          headers: {
+            "Retry-After": String(
+              Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
+            ),
+          },
+        },
       );
     }
 
@@ -192,39 +219,46 @@ export async function POST(
           error: `Invalid vertical. Must be one of: ${VALID_VERTICALS.join(", ")}`,
           code: "VALIDATION_VERTICAL",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     const country = sanitizeText(countryRaw, 2).toUpperCase();
     if (country.length !== 2) {
       return NextResponse.json(
-        { error: "Country must be a 2-letter ISO code.", code: "VALIDATION_COUNTRY" },
-        { status: 400 }
+        {
+          error: "Country must be a 2-letter ISO code.",
+          code: "VALIDATION_COUNTRY",
+        },
+        { status: 400 },
       );
     }
 
     // 4. Forecast state check
-    const { forecast, isLocked, isResolved, isCancelled } = await checkForecastLock(forecastId);
+    const { forecast, isLocked, isResolved, isCancelled } =
+      await checkForecastLock(forecastId);
 
     if (!forecast) {
       return NextResponse.json(
         { error: "Forecast not found.", code: "NOT_FOUND" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     if (isCancelled) {
       return NextResponse.json(
         { error: "This forecast was cancelled.", code: "FORECAST_CANCELLED" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     if (isResolved) {
       return NextResponse.json(
-        { error: "This forecast has already been resolved.", code: "FORECAST_RESOLVED" },
-        { status: 403 }
+        {
+          error: "This forecast has already been resolved.",
+          code: "FORECAST_RESOLVED",
+        },
+        { status: 403 },
       );
     }
 
@@ -235,12 +269,15 @@ export async function POST(
           code: "FORECAST_LOCKED",
           lockedAt: forecast.lockDate,
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     // 5. Validate against forecast options
-    const verticalOptions = safeJsonParse<VerticalSlug[]>(forecast.verticalOptions, []);
+    const verticalOptions = safeJsonParse<VerticalSlug[]>(
+      forecast.verticalOptions,
+      [],
+    );
     const countryOptions = safeJsonParse<string[]>(forecast.countryOptions, []);
 
     if (!verticalOptions.includes(vertical)) {
@@ -250,7 +287,7 @@ export async function POST(
           code: "VALIDATION_VERTICAL_OPTION",
           valid: verticalOptions,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -261,7 +298,7 @@ export async function POST(
           code: "VALIDATION_COUNTRY_OPTION",
           valid: countryOptions,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -286,7 +323,7 @@ export async function POST(
             predictedAt: existingPrediction.createdAt,
           },
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -366,7 +403,16 @@ export async function POST(
           correctCount: standing.correctCount,
           tier: standing.tier,
           nextTier: calculateTier(standing.correctCount + 1),
-          pointsToNextTier: Math.max(0, (standing.tier === "novice" ? 10 : standing.tier === "seer" ? 50 : standing.tier === "oracle" ? 100 : 999) - standing.correctCount),
+          pointsToNextTier: Math.max(
+            0,
+            (standing.tier === "novice"
+              ? 10
+              : standing.tier === "seer"
+                ? 50
+                : standing.tier === "oracle"
+                  ? 100
+                  : 999) - standing.correctCount,
+          ),
         },
         meta: {
           rateLimitRemaining: rateLimit.remaining,
@@ -375,7 +421,7 @@ export async function POST(
         },
         message: "Your foresight is sealed. The Oracle awaits the truth.",
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error: any) {
     console.error("[ORACLE_PREDICT_POST]", error);
@@ -383,41 +429,50 @@ export async function POST(
     // Prisma unique constraint violation (race condition)
     if (error.code === "P2002") {
       return NextResponse.json(
-        { error: "Prediction already recorded. Refresh and try again.", code: "CONFLICT" },
-        { status: 409 }
+        {
+          error: "Prediction already recorded. Refresh and try again.",
+          code: "CONFLICT",
+        },
+        { status: 409 },
       );
     }
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
         { error: "Authentication required to predict.", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     return NextResponse.json(
-      { error: "Your prediction could not be recorded.", code: "ORACLE_PREDICT_001" },
-      { status: 500 }
+      {
+        error: "Your prediction could not be recorded.",
+        code: "ORACLE_PREDICT_001",
+      },
+      { status: 500 },
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/oracle/forecasts/[id]/predict
 // Check if current user has predicted on this forecast.
 // Also returns forecast state (locked, resolved, etc.).
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await getSessionUser(req);
     if (!user) {
       return NextResponse.json(
         { error: "Authentication required.", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -426,7 +481,7 @@ export async function GET(
     if (!forecastId || forecastId.length < 10) {
       return NextResponse.json(
         { error: "Invalid forecast ID.", code: "VALIDATION_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -454,7 +509,7 @@ export async function GET(
     if (!forecast) {
       return NextResponse.json(
         { error: "Forecast not found.", code: "NOT_FOUND" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -469,7 +524,10 @@ export async function GET(
           isResolved,
           isCancelled,
           lockDate: forecast.lockDate,
-          verticalOptions: safeJsonParse<VerticalSlug[]>(forecast.verticalOptions, []),
+          verticalOptions: safeJsonParse<VerticalSlug[]>(
+            forecast.verticalOptions,
+            [],
+          ),
           countryOptions: safeJsonParse<string[]>(forecast.countryOptions, []),
         },
         message: "You have not predicted on this forecast.",
@@ -501,8 +559,11 @@ export async function GET(
   } catch (error) {
     console.error("[ORACLE_PREDICT_GET]", error);
     return NextResponse.json(
-      { error: "Cannot retrieve prediction status.", code: "ORACLE_PREDICT_002" },
-      { status: 500 }
+      {
+        error: "Cannot retrieve prediction status.",
+        code: "ORACLE_PREDICT_002",
+      },
+      { status: 500 },
     );
   }
 }

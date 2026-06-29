@@ -1,29 +1,20 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useRef } from "react";
 import {
   Upload,
   Image,
   FileText,
   Receipt,
   X,
-  ChevronRight,
   ChevronDown,
   ChevronUp,
-  Eye,
   ZoomIn,
   Trash2,
   CheckCircle2,
-  AlertTriangle,
-  Camera,
   Plus,
-  GripVertical,
   Hash,
-  Calendar,
   DollarSign,
-  Crown,
-  Lock,
-  ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

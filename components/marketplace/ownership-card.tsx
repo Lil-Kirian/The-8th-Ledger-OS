@@ -16,11 +16,8 @@ import {
   Activity,
   Building2,
   AlertTriangle,
-  Lock,
   Unlock,
   Hash,
-  Ban,
-  ImageIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

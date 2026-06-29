@@ -14,10 +14,7 @@ interface AdminTokenPayload {
 }
 
 function encodeBase64Url(input: string): string {
-  return btoa(input)
-    .replace(/\+/g, "-")
-    .replace(/\//g, "_")
-    .replace(/=+$/, "");
+  return btoa(input).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 function decodeBase64Url(input: string): string {
@@ -40,14 +37,17 @@ async function importHmacKey(secret: string): Promise<CryptoKey> {
   const encoder = new TextEncoder();
   return crypto.subtle.importKey(
     "raw",
-    encoder.encode(secret),
+    encoder.encode(secret) as unknown as BufferSource,
     { name: "HMAC", hash: "SHA-256" },
     false,
-    ["sign", "verify"]
+    ["sign", "verify"],
   );
 }
 
-export async function createAdminToken(ledgerId: string, isPrimaryAdmin: boolean = false): Promise<string> {
+export async function createAdminToken(
+  ledgerId: string,
+  isPrimaryAdmin: boolean = false,
+): Promise<string> {
   const secret = getAdminSecret();
   const payload: AdminTokenPayload = {
     ledgerId,
@@ -59,15 +59,19 @@ export async function createAdminToken(ledgerId: string, isPrimaryAdmin: boolean
   const payloadB64 = encodeBase64Url(JSON.stringify(payload));
   const encoder = new TextEncoder();
   const key = await importHmacKey(secret);
-  const sig = await crypto.subtle.sign("HMAC", key, encoder.encode(payloadB64));
-  const sigB64 = encodeBase64Url(
-    String.fromCharCode(...new Uint8Array(sig))
+  const sig = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    encoder.encode(payloadB64) as unknown as BufferSource,
   );
+  const sigB64 = encodeBase64Url(String.fromCharCode(...new Uint8Array(sig)));
 
   return `${payloadB64}.${sigB64}`;
 }
 
-export async function verifyAdminToken(token: string): Promise<AdminTokenPayload | null> {
+export async function verifyAdminToken(
+  token: string,
+): Promise<AdminTokenPayload | null> {
   const secret = getAdminSecret();
   const [payloadB64, sigB64] = token.split(".");
   if (!payloadB64 || !sigB64) return null;
@@ -77,10 +81,7 @@ export async function verifyAdminToken(token: string): Promise<AdminTokenPayload
 
   let sigBytes: Uint8Array;
   try {
-    sigBytes = Uint8Array.from(
-      decodeBase64Url(sigB64),
-      (c) => c.charCodeAt(0)
-    );
+    sigBytes = Uint8Array.from(decodeBase64Url(sigB64), (c) => c.charCodeAt(0));
   } catch {
     return null;
   }
@@ -88,13 +89,13 @@ export async function verifyAdminToken(token: string): Promise<AdminTokenPayload
   const valid = await crypto.subtle.verify(
     "HMAC",
     key,
-    sigBytes,
-    encoder.encode(payloadB64)
+    sigBytes as unknown as BufferSource,
+    encoder.encode(payloadB64) as unknown as BufferSource,
   );
   if (!valid) return null;
 
   try {
-    const raw: unknown = JSON.parse(decodeBase64Url(payloadB64));
+    const raw: any = JSON.parse(decodeBase64Url(payloadB64));
     if (
       typeof raw !== "object" ||
       raw === null ||

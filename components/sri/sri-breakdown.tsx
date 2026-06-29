@@ -92,8 +92,7 @@ const COMPONENT_META: Record<string, ComponentMeta> = {
     label: "Revenue Consistency",
     weight: 25,
     icon: <TrendingUp className="w-5 h-5" />,
-    description:
-      "Ratio of positive revenue months to total operating months.",
+    description: "Ratio of positive revenue months to total operating months.",
     goodThreshold: 80,
   },
   dividendReliability: {
@@ -195,7 +194,7 @@ function getTrend(score: number, meta: ComponentMeta): TrendResult {
   };
 }
 
-function getDetailText(key: string, detail: unknown): string {
+function getDetailText(key: string, detail: any): string {
   switch (key) {
     case "governanceActivity": {
       const d = detail as GovernanceDetail;
@@ -241,7 +240,7 @@ export default function SRIBreakdown({
         if (!meta) return null;
 
         const trend = getTrend(score, meta);
-        const detail = (details as Record<string, unknown>)[key];
+        const detail = (details as unknown as Record<string, unknown>)[key];
         const barColor = getScoreBarColor(score);
 
         return (

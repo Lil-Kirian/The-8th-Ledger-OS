@@ -8,18 +8,11 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Lock,
-  Unlock,
-  Vote,
-  CheckCircle2,
   AlertCircle,
   X,
   Globe,
-  TrendingUp,
   Shield,
-  Loader2,
   Fingerprint,
-  Hash,
-  Seal,
   Stamp,
   KeyRound,
   Radio,
@@ -28,9 +21,9 @@ import {
   Crown,
 } from "lucide-react";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES
-// ─────────────────────────────────────────────────────────────
+//
 
 type VoteStep = "confirm" | "locking" | "locked" | "error";
 
@@ -39,15 +32,20 @@ interface VoteLockProps {
   poolTitle: string;
   verticalId: string;
   country: string;
-  onConfirm: (cyclePoolId: string) => Promise<{ success: boolean; txHash?: string; error?: string }>;
+  onConfirm: (
+    cyclePoolId: string,
+  ) => Promise<{ success: boolean; txHash?: string; error?: string }>;
   onCancel: () => void;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONFIG
-// ─────────────────────────────────────────────────────────────
+//
 
-const VERTICAL_CONFIG: Record<string, { label: string; emoji: string; color: string }> = {
+const VERTICAL_CONFIG: Record<
+  string,
+  { label: string; emoji: string; color: string }
+> = {
   ledgerprop: { label: "LedgerProp", emoji: "🏠", color: "text-blue-400" },
   ledgerauto: { label: "LedgerAuto", emoji: "🚗", color: "text-red-400" },
   ledgertech: { label: "LedgerTech", emoji: "📱", color: "text-purple-400" },
@@ -56,30 +54,40 @@ const VERTICAL_CONFIG: Record<string, { label: string; emoji: string; color: str
   ledgerbiz: { label: "LedgerBiz", emoji: "🏗️", color: "text-amber-400" },
   ledgertravel: { label: "LedgerTravel", emoji: "✈️", color: "text-sky-400" },
   ledgeragri: { label: "LedgerAgri", emoji: "🌾", color: "text-emerald-400" },
-  ledgerenergy: { label: "LedgerEnergy", emoji: "⚡", color: "text-yellow-400" },
+  ledgerenergy: {
+    label: "LedgerEnergy",
+    emoji: "⚡",
+    color: "text-yellow-400",
+  },
   ledgeraccess: { label: "LedgerAccess", emoji: "📡", color: "text-teal-400" },
 };
 
-// ─────────────────────────────────────────────────────────────
+//
 // HASH GENERATOR — Deterministic vote receipt hash
-// ─────────────────────────────────────────────────────────────
+//
 
 function generateVoteHash(cyclePoolId: string, timestamp: number): string {
   const input = `${cyclePoolId}:${timestamp}:8TH_LEDGER_VOTE`;
   let hash = 0;
   for (let i = 0; i < input.length; i++) {
     const char = input.charCodeAt(i);
-    hash = ((hash < 5) - hash + char) | 0;
+    hash = ((hash << 5) - hash + char) | 0;
   }
   const hex = Math.abs(hash).toString(16).padStart(16, "0").toUpperCase();
   return `LEDGER-${hex.slice(0, 4)}-${hex.slice(4, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}`;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // SUB-COMPONENTS
-// ─────────────────────────────────────────────────────────────
+//
 
-function SealRing({ step, progress = 0 }: { step: VoteStep; progress?: number }) {
+function SealRing({
+  step,
+  progress = 0,
+}: {
+  step: VoteStep;
+  progress?: number;
+}) {
   const circumference = 2 * Math.PI * 58;
   const offset = circumference - (progress / 100) * circumference;
 
@@ -87,7 +95,14 @@ function SealRing({ step, progress = 0 }: { step: VoteStep; progress?: number })
     <div className="relative w-32 h-32 shrink-0">
       <svg className="w-full h-full -rotate-90" viewBox="0 0 128 128">
         {/* Outer ring */}
-        <circle cx="64" cy="64" r="60" fill="none" stroke="#0f172a" strokeWidth="2" />
+        <circle
+          cx="64"
+          cy="64"
+          r="60"
+          fill="none"
+          stroke="#0f172a"
+          strokeWidth="2"
+        />
         {/* Progress ring */}
         <motion.circle
           cx="64"
@@ -101,10 +116,24 @@ function SealRing({ step, progress = 0 }: { step: VoteStep; progress?: number })
           initial={{ strokeDashoffset: circumference }}
           animate={{ strokeDashoffset: offset }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className={step === "locked" ? "text-emerald-400" : step === "error" ? "text-red-400" : "text-cyan-400"}
+          className={
+            step === "locked"
+              ? "text-emerald-400"
+              : step === "error"
+                ? "text-red-400"
+                : "text-cyan-400"
+          }
         />
         {/* Inner decorative ring */}
-        <circle cx="64" cy="64" r="48" fill="none" stroke="#1e293b" strokeWidth="1" strokeDasharray="4 4" />
+        <circle
+          cx="64"
+          cy="64"
+          r="48"
+          fill="none"
+          stroke="#1e293b"
+          strokeWidth="1"
+          strokeDasharray="4 4"
+        />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
         <AnimatePresence mode="wait">
@@ -125,7 +154,10 @@ function SealRing({ step, progress = 0 }: { step: VoteStep; progress?: number })
               initial={{ scale: 0 }}
               animate={{ scale: 1, rotate: 360 }}
               exit={{ scale: 0 }}
-              transition={{ rotate: { duration: 2, repeat: Infinity, ease: "linear" }, scale: { type: "spring" } }}
+              transition={{
+                rotate: { duration: 2, repeat: Infinity, ease: "linear" },
+                scale: { type: "spring" },
+              }}
             >
               <Fingerprint className="w-10 h-10 text-cyan-400" />
             </motion.div>
@@ -138,7 +170,7 @@ function SealRing({ step, progress = 0 }: { step: VoteStep; progress?: number })
               exit={{ scale: 0 }}
               transition={{ type: "spring", stiffness: 200, delay: 0.2 }}
             >
-              <Seal className="w-10 h-10 text-emerald-400" />
+              <Stamp className="w-10 h-10 text-emerald-400" />
             </motion.div>
           )}
           {step === "error" && (
@@ -158,18 +190,32 @@ function SealRing({ step, progress = 0 }: { step: VoteStep; progress?: number })
   );
 }
 
-function ReceiptRow({ label, value, mono = false }: { label: string; value: string; mono?: boolean }) {
+function ReceiptRow({
+  label,
+  value,
+  mono = false,
+}: {
+  label: string;
+  value: string;
+  mono?: boolean;
+}) {
   return (
     <div className="flex items-center justify-between py-2 border-b border-slate-800/40 last:border-b-0">
-      <span className="text-[11px] text-slate-500 uppercase tracking-wider">{label}</span>
-      <span className={`text-xs text-slate-300 ${mono ? "font-mono" : "font-medium"}`}>{value}</span>
+      <span className="text-[11px] text-slate-500 uppercase tracking-wider">
+        {label}
+      </span>
+      <span
+        className={`text-xs text-slate-300 ${mono ? "font-mono" : "font-medium"}`}
+      >
+        {value}
+      </span>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────
+//
 
 export default function VoteLock({
   cyclePoolId,
@@ -185,9 +231,13 @@ export default function VoteLock({
   const [errorMessage, setErrorMessage] = useState("");
   const dialogRef = useRef<HTMLDivElement>(null);
 
-  const vertical = VERTICAL_CONFIG[verticalId] || { label: verticalId, emoji: "📋", color: "text-slate-400" };
+  const vertical = VERTICAL_CONFIG[verticalId] || {
+    label: verticalId,
+    emoji: "📋",
+    color: "text-slate-400",
+  };
 
-  // ── Keyboard: Escape to cancel ────────────────────────────
+  // ── Keyboard: Escape to cancel ─
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && step === "confirm") onCancel();
@@ -196,12 +246,12 @@ export default function VoteLock({
     return () => window.removeEventListener("keydown", handleKey);
   }, [step, onCancel]);
 
-  // ── Focus trap ────────────────────────────────────────────
+  // ── Focus trap
   useEffect(() => {
     dialogRef.current?.focus();
   }, [step]);
 
-  // ── Confirm handler ─────────────────────────────────────
+  // ── Confirm handler
   const handleConfirm = useCallback(async () => {
     setStep("locking");
     const timestamp = Date.now();
@@ -220,22 +270,26 @@ export default function VoteLock({
         setTxHash(result.txHash || generateVoteHash(cyclePoolId, timestamp));
         setTimeout(() => setStep("locked"), 600);
       } else {
-        setErrorMessage(result.error || "Vote failed. The Ledger rejected the seal.");
+        setErrorMessage(
+          result.error || "Vote failed. The Ledger rejected the seal.",
+        );
         setStep("error");
       }
     } catch (err: any) {
       clearInterval(progressInterval);
-      setErrorMessage(err.message || "Network failure. Vote may not be recorded.");
+      setErrorMessage(
+        err.message || "Network failure. Vote may not be recorded.",
+      );
       setStep("error");
     }
   }, [cyclePoolId, onConfirm]);
 
-  // ── Backdrop click ────────────────────────────────────────
+  // ── Backdrop click
   const handleBackdropClick = useCallback(
     (e: React.MouseEvent) => {
       if (e.target === e.currentTarget && step === "confirm") onCancel();
     },
-    [step, onCancel]
+    [step, onCancel],
   );
 
   const stepTitles = {
@@ -294,7 +348,10 @@ export default function VoteLock({
           <div className="flex flex-col items-center text-center gap-3">
             <SealRing step={step} progress={progress} />
             <div>
-              <h2 id="vote-lock-title" className="text-xl font-bold text-slate-100 tracking-tight">
+              <h2
+                id="vote-lock-title"
+                className="text-xl font-bold text-slate-100 tracking-tight"
+              >
                 {stepTitles[step]}
               </h2>
               <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto leading-relaxed">
@@ -327,9 +384,13 @@ export default function VoteLock({
                     {cyclePoolId.slice(0, 8)}...{cyclePoolId.slice(-4)}
                   </span>
                 </div>
-                <h3 className="text-base font-bold text-slate-100 leading-snug">{poolTitle}</h3>
+                <h3 className="text-base font-bold text-slate-100 leading-snug">
+                  {poolTitle}
+                </h3>
                 <div className="flex items-center gap-3 text-xs">
-                  <span className={`flex items-center gap-1.5 ${vertical.color}`}>
+                  <span
+                    className={`flex items-center gap-1.5 ${vertical.color}`}
+                  >
                     <span className="text-sm">{vertical.emoji}</span>
                     {vertical.label}
                   </span>
@@ -353,19 +414,22 @@ export default function VoteLock({
                   <div className="flex items-start gap-2.5">
                     <Lock className="w-3.5 h-3.5 text-amber-400/60 shrink-0 mt-0.5" />
                     <span className="text-xs text-amber-300/70 leading-relaxed">
-                      One vote per subject per cycle. Once sealed, it cannot be changed, withdrawn, or transferred.
+                      One vote per subject per cycle. Once sealed, it cannot be
+                      changed, withdrawn, or transferred.
                     </span>
                   </div>
                   <div className="flex items-start gap-2.5">
                     <Clock className="w-3.5 h-3.5 text-amber-400/60 shrink-0 mt-0.5" />
                     <span className="text-xs text-amber-300/70 leading-relaxed">
-                      Tally remains hidden for the first 12 hours. Then live bars appear.
+                      Tally remains hidden for the first 12 hours. Then live
+                      bars appear.
                     </span>
                   </div>
                   <div className="flex items-start gap-2.5">
                     <KeyRound className="w-3.5 h-3.5 text-amber-400/60 shrink-0 mt-0.5" />
                     <span className="text-xs text-amber-300/70 leading-relaxed">
-                      Tiebreaker: The Architect&apos;s Hand. The 8th Ledger holds the final word.
+                      Tiebreaker: The Architect&apos;s Hand. The 8th Ledger
+                      holds the final word.
                     </span>
                   </div>
                 </div>
@@ -374,7 +438,10 @@ export default function VoteLock({
               {/* Vote weight hint */}
               <div className="flex items-center gap-2 text-[11px] text-slate-600">
                 <Shield className="w-3.5 h-3.5" />
-                <span>Your vote weight is determined by your total ownership stake across all halls.</span>
+                <span>
+                  Your vote weight is determined by your total ownership stake
+                  across all halls.
+                </span>
               </div>
             </motion.div>
           )}
@@ -407,8 +474,12 @@ export default function VoteLock({
               <div className="space-y-1 text-center">
                 <p className="text-sm text-slate-400 animate-pulse font-mono">
                   {progress < 30 && "Generating cryptographic nonce..."}
-                  {progress >= 30 && progress < 60 && "Hashing vote with ledger salt..."}
-                  {progress >= 60 && progress < 90 && "Writing to immutable audit trail..."}
+                  {progress >= 30 &&
+                    progress < 60 &&
+                    "Hashing vote with ledger salt..."}
+                  {progress >= 60 &&
+                    progress < 90 &&
+                    "Writing to immutable audit trail..."}
                   {progress >= 90 && "Finalizing seal..."}
                 </p>
                 <p className="text-[10px] text-slate-700">
@@ -418,7 +489,9 @@ export default function VoteLock({
 
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/60 border border-slate-800/40">
                 <Radio className="w-3 h-3 text-cyan-400 animate-pulse" />
-                <span className="text-[10px] text-slate-500 font-mono">Live connection to 8th Ledger</span>
+                <span className="text-[10px] text-slate-500 font-mono">
+                  Live connection to 8th Ledger
+                </span>
               </div>
             </motion.div>
           )}
@@ -438,7 +511,9 @@ export default function VoteLock({
               <div className="flex items-center gap-3 p-3 rounded-xl bg-emerald-950/20 border border-emerald-500/15">
                 <FileCheck className="w-5 h-5 text-emerald-400 shrink-0" />
                 <div>
-                  <div className="text-sm font-bold text-emerald-400">Vote Recorded</div>
+                  <div className="text-sm font-bold text-emerald-400">
+                    Vote Recorded
+                  </div>
                   <div className="text-[11px] text-emerald-400/60">
                     Your choice has been sealed to the ledger
                   </div>
@@ -455,17 +530,24 @@ export default function VoteLock({
                 </div>
                 <div className="space-y-0">
                   <ReceiptRow label="Pool" value={poolTitle} />
-                  <ReceiptRow label="Vertical" value={`${vertical.emoji} ${vertical.label}`} />
+                  <ReceiptRow
+                    label="Vertical"
+                    value={`${vertical.emoji} ${vertical.label}`}
+                  />
                   <ReceiptRow label="Country" value={country} />
                   <ReceiptRow label="Cycle Pool ID" value={cyclePoolId} mono />
-                  <ReceiptRow label="Timestamp" value={new Date().toISOString()} mono />
+                  <ReceiptRow
+                    label="Timestamp"
+                    value={new Date().toISOString()}
+                    mono
+                  />
                   <ReceiptRow label="Receipt Hash" value={txHash} mono />
                 </div>
               </div>
 
               <p className="text-xs text-slate-500 text-center leading-relaxed">
-                This receipt is your proof of participation. Screenshot or save it.
-                The 8th Ledger maintains the canonical record.
+                This receipt is your proof of participation. Screenshot or save
+                it. The 8th Ledger maintains the canonical record.
               </p>
 
               <motion.button
@@ -493,7 +575,9 @@ export default function VoteLock({
                 <AlertCircle className="w-8 h-8 text-red-400" />
               </div>
               <div className="text-center">
-                <h3 className="text-lg font-bold text-red-400 mb-1">The Seal Broke</h3>
+                <h3 className="text-lg font-bold text-red-400 mb-1">
+                  The Seal Broke
+                </h3>
                 <p className="text-sm text-slate-400 max-w-xs leading-relaxed">
                   {errorMessage}
                 </p>

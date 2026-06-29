@@ -8,19 +8,19 @@ import { Prisma } from "@prisma/client";
    3-Year Protocol: Warning → Vault → Auction → Liquidation
    ============================================================ */
 
-function handlePrismaError(error: unknown): NextResponse {
+function handlePrismaError(error: any): NextResponse {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2025") {
       return NextResponse.json(
         { success: false, error: "Record not found." },
-        { status: 404 }
+        { status: 404 },
       );
     }
   }
   console.error("[ADMIN_DORMANCY ERROR]", error);
   return NextResponse.json(
     { success: false, error: "Dormancy operation failed" },
-    { status: 500 }
+    { status: 500 },
   );
 }
 
@@ -32,19 +32,25 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
     if (!isPrimaryAdmin(user)) {
       return NextResponse.json(
         { success: false, error: "Primary admin authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     const { searchParams } = new URL(request.url);
     const view = searchParams.get("view") || "vaults";
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const limit = Math.min(
+      50,
+      Math.max(1, parseInt(searchParams.get("limit") || "20", 10)),
+    );
 
     /* ── VAULTS (Year 2) ── */
     if (view === "vaults") {
@@ -58,7 +64,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         where.OR = [
           { user: { displayName: { contains: search, mode: "insensitive" } } },
           { user: { ledgerId: { contains: search, mode: "insensitive" } } },
-          { ownership: { hall: { name: { contains: search, mode: "insensitive" } } } },
+          {
+            ownership: {
+              hall: { name: { contains: search, mode: "insensitive" } },
+            },
+          },
         ];
       }
 
@@ -70,7 +80,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           take: limit,
           include: {
             user: {
-              select: { ledgerId: true, displayName: true, email: true, kycTier: true },
+              select: {
+                ledgerId: true,
+                displayName: true,
+                email: true,
+                kycTier: true,
+              },
             },
             ownership: {
               select: {
@@ -81,7 +96,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
                   select: {
                     id: true,
                     name: true,
-                    pool: { select: { poolId: true, name: true, verticalId: true } },
+                    pool: {
+                      select: { poolId: true, name: true, verticalId: true },
+                    },
                   },
                 },
               },
@@ -100,7 +117,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         accumulatedDividends: v.accumulatedDividends,
         status: v.status,
         reclaimedAt: v.reclaimedAt,
-        daysInVault: Math.floor((Date.now() - new Date(v.vaultedAt).getTime()) / (1000 * 60 * 60 * 24)),
+        daysInVault: Math.floor(
+          (Date.now() - new Date(v.vaultedAt).getTime()) /
+            (1000 * 60 * 60 * 24),
+        ),
       }));
 
       return NextResponse.json({
@@ -121,7 +141,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       if (search) {
         where.vault = {
           OR: [
-            { user: { displayName: { contains: search, mode: "insensitive" } } },
+            {
+              user: { displayName: { contains: search, mode: "insensitive" } },
+            },
             { user: { ledgerId: { contains: search, mode: "insensitive" } } },
           ],
         };
@@ -168,7 +190,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         buyerId: a.buyerId,
         status: a.status,
         completedAt: a.completedAt,
-        daysListed: Math.floor((Date.now() - new Date(a.listedAt).getTime()) / (1000 * 60 * 60 * 24)),
+        daysListed: Math.floor(
+          (Date.now() - new Date(a.listedAt).getTime()) / (1000 * 60 * 60 * 24),
+        ),
         originalOwner: a.vault?.user,
         ownership: a.vault?.ownership,
         hall: a.vault?.ownership?.hall,
@@ -200,28 +224,40 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     ]);
 
     // Enrich with user/hall/pool names
-    const userIds = [...new Set(logs.filter((l) => l.userId).map((l) => l.userId!))];
-    const hallIds = [...new Set(logs.filter((l) => l.hallId).map((l) => l.hallId!))];
-    const poolIds = [...new Set(logs.filter((l) => l.poolId).map((l) => l.poolId!))];
+    const userIds = [
+      ...new Set(logs.filter((l) => l.userId).map((l) => l.userId!)),
+    ];
+    const hallIds = [
+      ...new Set(logs.filter((l) => l.hallId).map((l) => l.hallId!)),
+    ];
+    const poolIds = [
+      ...new Set(logs.filter((l) => l.poolId).map((l) => l.poolId!)),
+    ];
 
     const [users, halls, pools] = await Promise.all([
-      userIds.length > 0 ? prisma.user.findMany({
-        where: { id: { in: userIds } },
-        select: { id: true, ledgerId: true, displayName: true },
-      }) : [],
-      hallIds.length > 0 ? prisma.hall.findMany({
-        where: { id: { in: hallIds } },
-        select: { id: true, name: true },
-      }) : [],
-      poolIds.length > 0 ? prisma.pool.findMany({
-        where: { id: { in: poolIds } },
-        select: { id: true, poolId: true, name: true },
-      }) : [],
+      userIds.length > 0
+        ? prisma.user.findMany({
+            where: { id: { in: userIds } },
+            select: { id: true, ledgerId: true, displayName: true },
+          })
+        : [],
+      hallIds.length > 0
+        ? prisma.hall.findMany({
+            where: { id: { in: hallIds } },
+            select: { id: true, name: true },
+          })
+        : [],
+      poolIds.length > 0
+        ? prisma.pool.findMany({
+            where: { id: { in: poolIds } },
+            select: { id: true, poolId: true, name: true },
+          })
+        : [],
     ]);
 
-    const userMap = new Map(users.map((u) => [u.id, u]));
-    const hallMap = new Map(halls.map((h) => [h.id, h]));
-    const poolMap = new Map(pools.map((p) => [p.id, p]));
+    const userMap = new Map(users.map((u) => [u.id, u] as const));
+    const hallMap = new Map(halls.map((h) => [h.id, h] as const));
+    const poolMap = new Map(pools.map((p) => [p.id, p] as const));
 
     const enriched = logs.map((l) => ({
       ...l,
@@ -248,12 +284,15 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
     if (!isPrimaryAdmin(user)) {
       return NextResponse.json(
         { success: false, error: "Primary admin authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -266,7 +305,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (!ownershipId) {
         return NextResponse.json(
           { success: false, error: "ownershipId required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -279,7 +318,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
 
       if (!ownership) {
-        return NextResponse.json({ success: false, error: "Ownership not found" }, { status: 404 });
+        return NextResponse.json(
+          { success: false, error: "Ownership not found" },
+          { status: 404 },
+        );
       }
 
       const result = await prisma.$transaction(async (tx) => {
@@ -334,7 +376,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (!vaultId || !startingPrice) {
         return NextResponse.json(
           { success: false, error: "vaultId and startingPrice required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -350,12 +392,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
 
       if (!vault) {
-        return NextResponse.json({ success: false, error: "Vault entry not found" }, { status: 404 });
+        return NextResponse.json(
+          { success: false, error: "Vault entry not found" },
+          { status: 404 },
+        );
       }
       if (vault.status !== "vaulted") {
         return NextResponse.json(
-          { success: false, error: `Vault status is ${vault.status}, not vaulted` },
-          { status: 409 }
+          {
+            success: false,
+            error: `Vault status is ${vault.status}, not vaulted`,
+          },
+          { status: 409 },
         );
       }
 
@@ -380,7 +428,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             hallId: vault.ownership?.hallId,
             type: "account",
             stage: "auction_36mo",
-            message: reason || `Ownership listed for auction by admin ${user.ledgerId}. Starting price: $${startingPrice}`,
+            message:
+              reason ||
+              `Ownership listed for auction by admin ${user.ledgerId}. Starting price: $${startingPrice}`,
           },
         });
 
@@ -410,7 +460,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (!vaultId) {
         return NextResponse.json(
           { success: false, error: "vaultId required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -427,7 +477,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
 
       if (!vault) {
-        return NextResponse.json({ success: false, error: "Vault entry not found" }, { status: 404 });
+        return NextResponse.json(
+          { success: false, error: "Vault entry not found" },
+          { status: 404 },
+        );
       }
 
       const result = await prisma.$transaction(async (tx) => {
@@ -448,7 +501,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             hallId: vault.ownership?.hallId,
             type: "account",
             stage: "reclaimed",
-            message: reason || `Ownership reclaimed from vault by admin ${user.ledgerId}`,
+            message:
+              reason ||
+              `Ownership reclaimed from vault by admin ${user.ledgerId}`,
           },
         });
 
@@ -478,7 +533,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       if (!hallId) {
         return NextResponse.json(
           { success: false, error: "hallId required" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -496,7 +551,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
 
       if (!hall) {
-        return NextResponse.json({ success: false, error: "Hall not found" }, { status: 404 });
+        return NextResponse.json(
+          { success: false, error: "Hall not found" },
+          { status: 404 },
+        );
       }
 
       const result = await prisma.$transaction(async (tx) => {
@@ -536,7 +594,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             hallId: hall.id,
             type: "asset",
             stage: "executed",
-            message: reason || `Hall force-liquidated by admin ${user.ledgerId}. ${hall.ownerships.length} ownership(s) dissolved.`,
+            message:
+              reason ||
+              `Hall force-liquidated by admin ${user.ledgerId}. ${hall.ownerships.length} ownership(s) dissolved.`,
           },
         });
 
@@ -566,8 +626,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     return NextResponse.json(
-      { success: false, error: 'Invalid action. Use "vault", "auction", "reclaim", or "force_liquidate"' },
-      { status: 400 }
+      {
+        success: false,
+        error:
+          'Invalid action. Use "vault", "auction", "reclaim", or "force_liquidate"',
+      },
+      { status: 400 },
     );
   } catch (error) {
     return handlePrismaError(error);

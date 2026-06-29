@@ -8,25 +8,25 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS
-// ─────────────────────────────────────────────────────────────
+//
 
 const EARLY_LEDGER_MAX = 100;
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function maskPoolId(poolId: string): string {
   if (!poolId || poolId.length < 4) return "POOL-XXXX";
   return `POOL-${poolId.slice(-4).toUpperCase()}`;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/meridian/cycle/[id]/forge
 // Public. Forge status. Cached 15s (commitment data changes fast).
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(
   req: NextRequest,
@@ -177,10 +177,10 @@ export async function GET(
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST /api/meridian/cycle/[id]/forge
 // Admin-only. Complete the forge. Lock cycle. Ensure hall exists.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function POST(
   req: NextRequest,
@@ -191,8 +191,11 @@ export async function POST(
     const user = await requireAuth(req);
     if (user.role !== "admin") {
       return NextResponse.json(
-        { error: "The Architect only. Admin role required.", code: "FORBIDDEN" },
-        { status: 403 }
+        {
+          error: "The Architect only. Admin role required.",
+          code: "FORBIDDEN",
+        },
+        { status: 403 },
       );
     }
 
@@ -200,7 +203,7 @@ export async function POST(
     if (!cycleId || cycleId.length < 10) {
       return NextResponse.json(
         { error: "Invalid cycle ID", code: "VALIDATION_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -229,7 +232,7 @@ export async function POST(
     if (!cycle) {
       return NextResponse.json(
         { error: "Cycle not found", code: "NOT_FOUND" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -240,7 +243,7 @@ export async function POST(
           code: "PHASE_LOCKED",
           currentPhase: cycle.phase,
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -248,7 +251,7 @@ export async function POST(
     if (!winnerCyclePool) {
       return NextResponse.json(
         { error: "No winner to forge", code: "NO_WINNER" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -336,16 +339,19 @@ export async function POST(
   } catch (error: any) {
     console.error("[MERIDIAN_FORGE_POST]", error);
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
         { error: "Authentication required", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     return NextResponse.json(
       { error: "The forge could not be completed", code: "MERIDIAN_FORGE_002" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

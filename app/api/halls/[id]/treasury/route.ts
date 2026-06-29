@@ -2,90 +2,90 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, verifyOwnership, isFounder } from "@/lib/auth";
 
-/* ============================================================
-   GET /api/halls/[id]/treasury — Per-Hall financials
-   ============================================================ */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: hallId } = await params;
     const { searchParams } = new URL(request.url);
     const months = Math.min(Number(searchParams.get("months") || "12"), 24);
 
-    // ── Gate ──
-    const isOwner = await verifyOwnership(hallId, user.id);
-    if (!isOwner && !isFounder(user) && user.role !== "admin") {
-      return NextResponse.json({ success: false, error: "Sovereign access denied" }, { status: 403 });
+    const hall = await prisma.hall.findUnique({
+      where: { id: hallId },
+      select: { id: true, name: true, poolId: true },
+    });
+    if (!hall) {
+      return NextResponse.json(
+        { success: false, error: "Hall not found" },
+        { status: 404 },
+      );
     }
 
-    // ── Treasury snapshot ──
-    const treasury = await prisma.treasury.findUnique({
+    const isOwner = await verifyOwnership(user.id, undefined, hallId);
+    if (!isOwner && !(await isFounder(user)) && user.role !== "admin") {
+      return NextResponse.json(
+        { success: false, error: "Sovereign access denied" },
+        { status: 403 },
+      );
+    }
+
+    const treasury = await prisma.hallTreasury.findUnique({
       where: { hallId },
+      include: {
+        transactions: {
+          orderBy: { createdAt: "desc" },
+          take: 50,
+        },
+      },
     });
 
-    if (!treasury) {
-      return NextResponse.json({
-        success: true,
-        treasury: {
-          hallId,
-          balance: 0,
-          totalIn: 0,
-          totalOut: 0,
-          reserveAllocation: 0,
-          reserveBalance: 0,
-          liquidBalance: 0,
-        },
-        revenueHistory: [],
-        monthlyBreakdown: [],
-        burnRate: 0,
-        runwayMonths: null,
-        dividendStats: {
-          totalDistributed: 0,
-          totalClaimed: 0,
-          totalUnclaimed: 0,
-          claimRate: 0,
-        },
-        message: "No treasury activity recorded for this Hall yet.",
-      });
-    }
-
-    // ── Revenue history (last N months) ──
     const since = new Date();
     since.setMonth(since.getMonth() - months);
 
     const revenueLogs = await prisma.revenueLog.findMany({
-      where: { hallId, createdAt: { gte: since } },
+      where: { poolId: hall.poolId, createdAt: { gte: since } },
       orderBy: { createdAt: "desc" },
+    });
+
+    const distributions = await prisma.dividendDistribution.findMany({
+      where: {
+        poolId: hall.poolId,
+        distributedAt: { gte: since },
+      },
       include: {
-        _count: { select: { dividends: true } },
+        entries: { select: { amount: true, claimed: true } },
       },
     });
 
-    // ── Monthly breakdown skeleton ──
-    const monthlyMap = new Map<string, {
-      month: string;
-      grossRevenue: number;
-      vinFee: number;
-      communityNet: number;
-      dividendsQueued: number;
-      outflow: number;
-    }>();
+    const monthlyMap = new Map<
+      string,
+      {
+        month: string;
+        grossRevenue: number;
+        ledgerFee: number;
+        communityNet: number;
+        dividendsQueued: number;
+        outflow: number;
+      }
+    >();
 
     for (let i = 0; i < months; i++) {
-      const d = new Date();
-      d.setMonth(d.getMonth() - i);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      const date = new Date();
+      date.setMonth(date.getMonth() - i);
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
       monthlyMap.set(key, {
         month: key,
         grossRevenue: 0,
-        vinFee: 0,
+        ledgerFee: 0,
         communityNet: 0,
         dividendsQueued: 0,
         outflow: 0,
@@ -94,90 +94,104 @@ export async function GET(
 
     for (const log of revenueLogs) {
       const key = `${log.createdAt.getFullYear()}-${String(log.createdAt.getMonth() + 1).padStart(2, "0")}`;
-      if (monthlyMap.has(key)) {
-        const entry = monthlyMap.get(key)!;
-        entry.grossRevenue += Number(log.amount);
-        entry.vinFee += Number(log.vinFee);
-        entry.communityNet += Number(log.communityNet);
-        entry.dividendsQueued += log._count.dividends;
-      }
+      const entry = monthlyMap.get(key);
+      if (!entry) continue;
+      entry.grossRevenue += log.amount;
+      entry.ledgerFee += log.ledgerFee;
+      entry.communityNet += log.communityNet;
     }
 
-    // ── Dividend aggregates ──
-    const [dividendAgg, claimedAgg] = await prisma.$transaction([
-      prisma.dividend.aggregate({
-        where: { hallId },
-        _sum: { entitlement: true },
-        _count: true,
-      }),
-      prisma.dividend.aggregate({
-        where: { hallId, status: "claimed" },
-        _sum: { entitlement: true },
-        _count: true,
-      }),
-    ]);
+    for (const distribution of distributions) {
+      const key = `${distribution.distributedAt.getFullYear()}-${String(distribution.distributedAt.getMonth() + 1).padStart(2, "0")}`;
+      const entry = monthlyMap.get(key);
+      if (!entry) continue;
+      const total = distribution.entries.reduce(
+        (sum, item) => sum + item.amount,
+        0,
+      );
+      const claimed = distribution.entries
+        .filter((item) => item.claimed)
+        .reduce((sum, item) => sum + item.amount, 0);
+      entry.dividendsQueued += total;
+      entry.outflow += claimed;
+    }
 
-    const totalDistributed = Number(dividendAgg._sum.entitlement || 0);
-    const totalClaimed = Number(claimedAgg._sum.entitlement || 0);
+    const totalDistributed = distributions.reduce(
+      (sum, distribution) =>
+        sum +
+        distribution.entries.reduce(
+          (entrySum, entry) => entrySum + entry.amount,
+          0,
+        ),
+      0,
+    );
+    const totalClaimed = distributions.reduce(
+      (sum, distribution) =>
+        sum +
+        distribution.entries
+          .filter((entry) => entry.claimed)
+          .reduce((entrySum, entry) => entrySum + entry.amount, 0),
+      0,
+    );
     const totalUnclaimed = totalDistributed - totalClaimed;
-    const claimRate = totalDistributed > 0 ? (totalClaimed / totalDistributed) * 100 : 0;
+    const claimRate =
+      totalDistributed > 0 ? (totalClaimed / totalDistributed) * 100 : 0;
 
-    // ── Burn rate: avg monthly outflow ──
-    const claimedDividends = await prisma.dividend.findMany({
-      where: { hallId, status: "claimed", claimedAt: { gte: since } },
-      select: { claimedAt: true, entitlement: true },
-    });
-
-    for (const d of claimedDividends) {
-      const key = `${d.claimedAt!.getFullYear()}-${String(d.claimedAt!.getMonth() + 1).padStart(2, "0")}`;
-      if (monthlyMap.has(key)) {
-        monthlyMap.get(key)!.outflow += Number(d.entitlement);
-      }
-    }
-
-    const monthlyValues = Array.from(monthlyMap.values()).sort((a, b) => a.month.localeCompare(b.month));
-    const monthsWithOutflow = monthlyValues.filter((m) => m.outflow > 0);
-    const burnRate = monthsWithOutflow.length > 0
-      ? monthsWithOutflow.reduce((sum, m) => sum + m.outflow, 0) / monthsWithOutflow.length
-      : 0;
-
-    // ── Reserve split ──
-    const reservePct = Number(treasury.reserveAllocation || 0);
-    const balance = Number(treasury.balance);
-    const reserveBalance = balance * (reservePct / 100);
-    const liquidBalance = balance - reserveBalance;
+    const monthlyValues = Array.from(monthlyMap.values()).sort((a, b) =>
+      a.month.localeCompare(b.month),
+    );
+    const monthsWithOutflow = monthlyValues.filter(
+      (month) => month.outflow > 0,
+    );
+    const burnRate =
+      monthsWithOutflow.length > 0
+        ? monthsWithOutflow.reduce((sum, month) => sum + month.outflow, 0) /
+          monthsWithOutflow.length
+        : 0;
+    const balance = treasury?.balance ?? 0;
 
     return NextResponse.json({
       success: true,
       treasury: {
         hallId,
-        balance: Number(balance.toFixed(2)),
-        totalIn: Number(treasury.totalIn),
-        totalOut: Number(treasury.totalOut),
-        reserveAllocation: reservePct,
-        reserveBalance: Number(reserveBalance.toFixed(2)),
-        liquidBalance: Number(liquidBalance.toFixed(2)),
-        netFlow: Number((Number(treasury.totalIn) - Number(treasury.totalOut)).toFixed(2)),
+        balance,
+        totalIn: treasury?.totalRevenue ?? 0,
+        totalOut: treasury?.totalDistributed ?? 0,
+        payrollReserve: treasury?.payrollReserve ?? 0,
+        pirDebt: treasury?.pirDebt ?? 0,
+        closureReserve: treasury?.closureReserve ?? 0,
+        monthlyRevenue: treasury?.monthlyRevenue ?? 0,
+        netFlow:
+          (treasury?.totalRevenue ?? 0) - (treasury?.totalDistributed ?? 0),
       },
-      revenueHistory: revenueLogs.map((r) => ({
-        id: r.id,
-        grossAmount: Number(r.amount),
-        vinFee: Number(r.vinFee),
-        communityNet: Number(r.communityNet),
-        source: r.source,
-        distributed: !!r.distributedAt,
-        createdAt: r.createdAt,
+      revenueHistory: revenueLogs.map((log) => ({
+        id: log.id,
+        grossAmount: log.amount,
+        ledgerFee: log.ledgerFee,
+        communityNet: log.communityNet,
+        source: log.source,
+        distributed: log.distributed,
+        createdAt: log.createdAt,
       })),
+      transactions: treasury?.transactions ?? [],
       monthlyBreakdown: monthlyValues,
       burnRate: Number(burnRate.toFixed(2)),
-      runwayMonths: burnRate > 0 ? Number((balance / burnRate).toFixed(1)) : null,
+      runwayMonths:
+        burnRate > 0 ? Number((balance / burnRate).toFixed(1)) : null,
       dividendStats: {
-        totalDistributed: Number(totalDistributed.toFixed(2)),
-        totalClaimed: Number(totalClaimed.toFixed(2)),
-        totalUnclaimed: Number(totalUnclaimed.toFixed(2)),
+        totalDistributed,
+        totalClaimed,
+        totalUnclaimed,
         claimRate: Number(claimRate.toFixed(2)),
-        totalRecords: dividendAgg._count,
-        claimedRecords: claimedAgg._count,
+        totalRecords: distributions.reduce(
+          (sum, distribution) => sum + distribution.entries.length,
+          0,
+        ),
+        claimedRecords: distributions.reduce(
+          (sum, distribution) =>
+            sum + distribution.entries.filter((entry) => entry.claimed).length,
+          0,
+        ),
       },
       splitRatio: "80/20",
     });
@@ -185,49 +199,49 @@ export async function GET(
     console.error("[HALL TREASURY GET]", error);
     return NextResponse.json(
       { success: false, error: "Treasury data unreachable" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-/* ============================================================
-   POST /api/halls/[id]/treasury — Founder adjusts reserve allocation
-   ============================================================ */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
-    if (!user || !isFounder(user)) {
+    if (!user || !(await isFounder(user))) {
       return NextResponse.json(
         { success: false, error: "Sovereign authority required" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     const { id: hallId } = await params;
     const body = await request.json();
-    const { reserveAllocation } = body;
+    const payrollReserve = Number(body.payrollReserve ?? 0);
+    const closureReserve = Number(body.closureReserve ?? 0);
 
-    if (typeof reserveAllocation !== "number" || reserveAllocation < 0 || reserveAllocation > 100) {
+    if (payrollReserve < 0 || closureReserve < 0) {
       return NextResponse.json(
-        { success: false, error: "reserveAllocation must be 0–100" },
-        { status: 400 }
+        { success: false, error: "Reserve values must be non-negative" },
+        { status: 400 },
       );
     }
 
-    const updated = await prisma.treasury.upsert({
+    const updated = await prisma.hallTreasury.upsert({
       where: { hallId },
       create: {
         hallId,
         balance: 0,
-        totalIn: 0,
-        totalOut: 0,
-        reserveAllocation,
+        totalDistributed: 0,
+        totalRevenue: 0,
+        payrollReserve,
+        closureReserve,
       },
       update: {
-        reserveAllocation,
+        payrollReserve,
+        closureReserve,
       },
     });
 
@@ -236,8 +250,8 @@ export async function POST(
         hallId,
         userId: user.id,
         type: "treasury",
-        description: `Reserve allocation set to ${reserveAllocation}%`,
-        metadata: JSON.stringify({ reserveAllocation }),
+        description: "Treasury reserves updated",
+        metadata: JSON.stringify({ payrollReserve, closureReserve }),
       },
     });
 
@@ -245,16 +259,17 @@ export async function POST(
       success: true,
       treasury: {
         hallId,
-        reserveAllocation: updated.reserveAllocation,
-        balance: Number(updated.balance),
+        payrollReserve: updated.payrollReserve,
+        closureReserve: updated.closureReserve,
+        balance: updated.balance,
       },
-      message: `Reserve allocation updated to ${reserveAllocation}%. ${100 - reserveAllocation}% remains liquid for dividends.`,
+      message: "Treasury reserves updated.",
     });
   } catch (error) {
     console.error("[HALL TREASURY POST]", error);
     return NextResponse.json(
       { success: false, error: "Reserve update failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

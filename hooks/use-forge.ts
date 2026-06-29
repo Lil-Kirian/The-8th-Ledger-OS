@@ -1,4 +1,5 @@
 import useSWR from "swr";
+import { useCallback, useState } from "react";
 
 /* ============================================================
    TYPES
@@ -149,7 +150,7 @@ export function useForge(hallId: string | undefined) {
   const { data, error, isLoading, mutate } = useSWR<ForgeLedgerData>(
     hallId ? `/api/halls/${hallId}/forge` : null,
     fetchJson,
-    { refreshInterval: 30000 }
+    { refreshInterval: 30000 },
   );
 
   return {
@@ -164,7 +165,7 @@ export function useWorkers(hallId: string | undefined) {
   const { data, error, isLoading, mutate } = useSWR<WorkersListResponse>(
     hallId ? `/api/halls/${hallId}/forge/workers` : null,
     fetchJson,
-    { refreshInterval: 30000 }
+    { refreshInterval: 30000 },
   );
 
   return {
@@ -182,14 +183,14 @@ export function useWorkers(hallId: string | undefined) {
 
 export function useWorker(
   hallId: string | undefined,
-  workerId: string | undefined
+  workerId: string | undefined,
 ) {
   const { data, error, isLoading, mutate } = useSWR<WorkerDetail>(
     hallId && workerId
       ? `/api/halls/${hallId}/forge/workers/${workerId}`
       : null,
     fetchJson,
-    { refreshInterval: 30000 }
+    { refreshInterval: 30000 },
   );
 
   return {
@@ -203,14 +204,14 @@ export function useWorker(
 export function useRelay(
   hallId: string | undefined,
   workerId: string | undefined,
-  limit: number = 50
+  limit: number = 50,
 ) {
   const { data, error, isLoading, mutate } = useSWR<RelayResponse>(
     hallId && workerId
       ? `/api/halls/${hallId}/forge/workers/${workerId}/relay?limit=${limit}`
       : null,
     fetchJson,
-    { refreshInterval: 10000 }
+    { refreshInterval: 10000 },
   );
 
   return {
@@ -226,7 +227,7 @@ export function usePayroll(hallId: string | undefined) {
   const { data, error, isLoading, mutate } = useSWR<PayrollHistory>(
     hallId ? `/api/halls/${hallId}/forge/payroll` : null,
     fetchJson,
-    { refreshInterval: 60000 }
+    { refreshInterval: 60000 },
   );
 
   return {
@@ -250,7 +251,7 @@ export async function proposeHire(
     expectedOutcome: string;
     contractMonths: number;
     fundingSource?: string;
-  }
+  },
 ) {
   const res = await fetch(`/api/halls/${hallId}/forge/workers`, {
     method: "POST",
@@ -258,7 +259,11 @@ export async function proposeHire(
     credentials: "include",
     body: JSON.stringify(payload),
   });
-  return res.json() as Promise<{ success: boolean; proposalId?: string; error?: string }>;
+  return res.json() as Promise<{
+    success: boolean;
+    proposalId?: string;
+    error?: string;
+  }>;
 }
 
 export async function submitPerformanceReview(
@@ -270,7 +275,7 @@ export async function submitPerformanceReview(
     improvementPlan?: string;
     recommendTermination?: boolean;
     notes?: string;
-  }
+  },
 ) {
   const res = await fetch(
     `/api/halls/${hallId}/forge/workers/${workerId}/performance`,
@@ -279,9 +284,13 @@ export async function submitPerformanceReview(
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify(payload),
-    }
+    },
   );
-  return res.json() as Promise<{ success: boolean; reviewId?: string; error?: string }>;
+  return res.json() as Promise<{
+    success: boolean;
+    reviewId?: string;
+    error?: string;
+  }>;
 }
 
 export async function sendRelayMessage(
@@ -290,7 +299,7 @@ export async function sendRelayMessage(
   payload: {
     content: string;
     direction: "hall_to_worker" | "worker_to_hall";
-  }
+  },
 ) {
   const res = await fetch(
     `/api/halls/${hallId}/forge/workers/${workerId}/relay`,
@@ -299,15 +308,19 @@ export async function sendRelayMessage(
       headers: { "Content-Type": "application/json" },
       credentials: "include",
       body: JSON.stringify(payload),
-    }
+    },
   );
-  return res.json() as Promise<{ success: boolean; messageId?: string; error?: string }>;
+  return res.json() as Promise<{
+    success: boolean;
+    messageId?: string;
+    error?: string;
+  }>;
 }
 
 export async function executePayroll(
   hallId: string,
   month?: string,
-  force?: boolean
+  force?: boolean,
 ) {
   const res = await fetch(`/api/halls/${hallId}/forge/payroll`, {
     method: "POST",
@@ -329,7 +342,7 @@ export async function executePayroll(
    ============================================================ */
 export async function toggleForge(
   hallId: string,
-  enabled: boolean
+  enabled: boolean,
 ): Promise<{ success: boolean; error?: string }> {
   const res = await fetch(`/api/halls/${hallId}/forge/toggle`, {
     method: "POST",
@@ -338,4 +351,29 @@ export async function toggleForge(
     body: JSON.stringify({ enabled }),
   });
   return res.json() as Promise<{ success: boolean; error?: string }>;
+}
+
+export function useToggleForge() {
+  const [isPending, setIsPending] = useState(false);
+  const mutateAsync = useCallback(
+    async ({
+      hallId,
+      enable,
+      enabled,
+    }: {
+      hallId: string;
+      enable?: boolean;
+      enabled?: boolean;
+    }) => {
+      setIsPending(true);
+      try {
+        return await toggleForge(hallId, enable ?? enabled ?? true);
+      } finally {
+        setIsPending(false);
+      }
+    },
+    [],
+  );
+
+  return { mutateAsync, isPending };
 }

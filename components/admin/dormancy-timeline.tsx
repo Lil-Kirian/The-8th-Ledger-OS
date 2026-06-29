@@ -6,18 +6,11 @@ import {
   AlertTriangle,
   Skull,
   Crown,
-  ChevronRight,
-  Calendar,
   RotateCcw,
-  Lock,
-  Eye,
   Ban,
   Zap,
-  TrendingDown,
   CheckCircle2,
-  X,
   Timer,
-  Activity,
   ShieldAlert,
 } from "lucide-react";
 import { cn } from "@/lib/utils";

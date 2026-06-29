@@ -10,21 +10,9 @@ import {
   Fingerprint,
   ScanFace,
   FileText,
-  MapPin,
   Clock,
-  ChevronRight,
-  ChevronDown,
-  ChevronUp,
   Search,
-  Filter,
-  Download,
-  Loader2,
-  Star,
-  Ban,
-  Crown,
-  MessageSquare,
   Hash,
-  UserCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

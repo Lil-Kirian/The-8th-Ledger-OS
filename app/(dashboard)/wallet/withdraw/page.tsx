@@ -5,9 +5,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 import {
-  Wallet, ArrowUpRight, Landmark, CreditCard, Globe,
+   ArrowUpRight,
   CheckCircle2, AlertCircle, Loader2, Clock, Shield,
-  ChevronLeft, Lock, Unlock, Fingerprint
+  ChevronLeft
 } from "lucide-react";
 import Link from "next/link";
 

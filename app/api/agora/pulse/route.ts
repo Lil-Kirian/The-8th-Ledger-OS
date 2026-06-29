@@ -5,9 +5,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES
-// ─────────────────────────────────────────────────────────────
+//
 
 interface PulseMetrics {
   pools: {
@@ -65,9 +65,9 @@ interface PulseMetrics {
   };
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function getMonthBounds(date: Date) {
   const start = new Date(date.getFullYear(), date.getMonth(), 1);
@@ -120,19 +120,20 @@ function determineStatus(score: number, changePercent: number): PulseMetrics["sy
   return "FLAT";
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/agora/pulse
 // Public. 30s cache. 12 parallel queries for sub-100ms response.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(req: NextRequest) {
   try {
     const now = new Date();
     const last24h = new Date(now.getTime() - 24 * 60 * 60 * 1000);
     const { start: startOfMonth } = getMonthBounds(now);
-    const { start: startOfLastMonth, end: endOfLastMonth } = getPreviousMonthBounds(now);
+    const { start: startOfLastMonth, end: endOfLastMonth } =
+      getPreviousMonthBounds(now);
 
-    // ── Parallel aggregation queries ───────────────────────
+    // ── Parallel aggregation queries
     const [
       // Pools
       activePools,
@@ -179,7 +180,7 @@ export async function GET(req: NextRequest) {
       answeredQuestions,
       totalSuggestions,
     ] = await Promise.all([
-      // ── Pools ─────────────────────────────────────────────
+      // ── Pools ─
       prisma.pool.count({
         where: { status: { in: ["filling", "filled", "forged", "active"] } },
       }),
@@ -195,7 +196,7 @@ export async function GET(req: NextRequest) {
         _sum: { target: true },
       }),
 
-      // ── Halls ─────────────────────────────────────────────
+      // ── Halls ─
       prisma.hall.count({ where: { status: "live" } }),
       prisma.hall.count({ where: { status: "mature" } }),
       prisma.hall.count(),
@@ -204,17 +205,22 @@ export async function GET(req: NextRequest) {
         _avg: { sriScore: true },
       }),
       prisma.hall.count({ where: { status: "live", sriScore: { gte: 90 } } }),
-      prisma.hall.count({ where: { status: "live", sriScore: { gte: 75, lt: 90 } } }),
+      prisma.hall.count({
+        where: { status: "live", sriScore: { gte: 75, lt: 90 } },
+      }),
       prisma.hall.count({ where: { closureStatus: "warning" } }),
       prisma.hall.count({ where: { closureStatus: "liquidation" } }),
 
-      // ── Capital ───────────────────────────────────────────
+      // ── Capital ─
       prisma.revenueLog.aggregate({
         where: { createdAt: { gte: startOfMonth }, distributed: true },
         _sum: { communityNet: true },
       }),
       prisma.revenueLog.aggregate({
-        where: { createdAt: { gte: startOfLastMonth, lt: endOfLastMonth }, distributed: true },
+        where: {
+          createdAt: { gte: startOfLastMonth, lt: endOfLastMonth },
+          distributed: true,
+        },
         _sum: { communityNet: true },
       }),
       prisma.revenueLog.aggregate({
@@ -222,7 +228,7 @@ export async function GET(req: NextRequest) {
         _sum: { communityNet: true },
       }),
 
-      // ── Governance ────────────────────────────────────────
+      // ── Governance
       prisma.proposal.count({ where: { createdAt: { gte: last24h } } }),
       prisma.vote.count({ where: { createdAt: { gte: last24h } } }),
       prisma.ownership.count({ where: { createdAt: { gte: last24h } } }),
@@ -230,11 +236,17 @@ export async function GET(req: NextRequest) {
         where: { status: { in: ["pending", "active"] }, endsAt: { gt: now } },
       }),
 
-      // ── Meridian ────────────────────────────────────────────
+      // ── Meridian
       prisma.meridianCycle.findFirst({
         where: { phase: { not: "complete" } },
         orderBy: { startAt: "desc" },
-        select: { phase: true, continent: true, startAt: true, endAt: true, id: true },
+        select: {
+          phase: true,
+          continent: true,
+          startAt: true,
+          endAt: true,
+          id: true,
+        },
       }),
       prisma.cyclePool.count({
         where: {
@@ -248,7 +260,7 @@ export async function GET(req: NextRequest) {
         },
       }),
 
-      // ── Oracle ──────────────────────────────────────────────
+      // ── Oracle
       prisma.oracleForecast.count({ where: { status: "active" } }),
       prisma.oraclePrediction.count(),
       prisma.oracleStanding.aggregate({ _sum: { totalPoints: true } }),
@@ -257,13 +269,13 @@ export async function GET(req: NextRequest) {
         select: { tier: true, totalPoints: true },
       }),
 
-      // ── Agora ───────────────────────────────────────────────
+      // ── Agora ─
       prisma.agoraSuggestion.count({ where: { status: "pending" } }),
       prisma.agoraQA.count({ where: { status: "answered" } }),
       prisma.agoraSuggestion.count(),
     ]);
 
-    // ── Shape metrics ────────────────────────────────────────
+    // ── Shape metrics
 
     const totalCommitted = committedAgg._sum.committed || 0;
     const totalTarget = targetAgg._sum.target || 1;
@@ -275,15 +287,21 @@ export async function GET(req: NextRequest) {
 
     const changePercent =
       dividendsLastMonth > 0
-        ? Math.round(((dividendsThisMonth - dividendsLastMonth) / dividendsLastMonth) * 100)
+        ? Math.round(
+            ((dividendsThisMonth - dividendsLastMonth) / dividendsLastMonth) *
+              100,
+          )
         : dividendsThisMonth > 0
-        ? 100
-        : 0;
+          ? 100
+          : 0;
 
     const avgSri = Math.round(sriAgg._avg.sriScore || 0);
 
     const meridianTimeRemaining = currentCycle?.endAt
-      ? Math.max(0, Math.floor((currentCycle.endAt.getTime() - now.getTime()) / 1000))
+      ? Math.max(
+          0,
+          Math.floor((currentCycle.endAt.getTime() - now.getTime()) / 1000),
+        )
       : null;
 
     const metrics: PulseMetrics = {
@@ -342,11 +360,14 @@ export async function GET(req: NextRequest) {
       },
     };
 
-    // ── System status calculation ────────────────────────────
+    // ── System status calculation ─
     metrics.system.score = calculateSystemScore(metrics);
-    metrics.system.status = determineStatus(metrics.system.score, changePercent);
+    metrics.system.status = determineStatus(
+      metrics.system.score,
+      changePercent,
+    );
 
-    // ── Response ─────────────────────────────────────────────
+    // ── Response ─
     const response = NextResponse.json({
       pulse: metrics,
       display: {
@@ -366,7 +387,10 @@ export async function GET(req: NextRequest) {
     });
 
     // 30s public cache — pulse must feel live but not hammer the DB
-    response.headers.set("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=30, stale-while-revalidate=60",
+    );
     return response;
   } catch (error) {
     console.error("[AGORA_PULSE_GET]", error);

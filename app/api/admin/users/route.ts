@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { generateTxHash } from "@/lib/utils";
 
 /* ============================================================
    GET — List Users
@@ -8,8 +9,16 @@ import { getSessionUser } from "@/lib/auth";
    ============================================================ */
 export async function GET(req: NextRequest) {
   const user = await getSessionUser();
-  if (!user) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-  if (user.role !== "admin") return NextResponse.json({ success: false, error: "Admin access only" }, { status: 403 });
+  if (!user)
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 },
+    );
+  if (user.role !== "admin")
+    return NextResponse.json(
+      { success: false, error: "Admin access only" },
+      { status: 403 },
+    );
 
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q") || "";
@@ -19,7 +28,10 @@ export async function GET(req: NextRequest) {
   const sort = searchParams.get("sort") || "trustScore";
   const dir = searchParams.get("dir") === "asc" ? "asc" : "desc";
   const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-  const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "25", 10)));
+  const limit = Math.min(
+    100,
+    Math.max(1, parseInt(searchParams.get("limit") || "25", 10)),
+  );
   const skip = (page - 1) * limit;
 
   const where: any = {};
@@ -39,7 +51,17 @@ export async function GET(req: NextRequest) {
   }
 
   const orderBy: any = {};
-  if (["trustScore", "tier", "identityScore", "ledgerBalance", "creditPool", "displayName", "createdAt"].includes(sort)) {
+  if (
+    [
+      "trustScore",
+      "tier",
+      "identityScore",
+      "ledgerBalance",
+      "creditPool",
+      "displayName",
+      "createdAt",
+    ].includes(sort)
+  ) {
     orderBy[sort] = dir;
   } else {
     orderBy.trustScore = dir;
@@ -92,7 +114,10 @@ export async function GET(req: NextRequest) {
     });
   } catch (err) {
     console.error("Admin users GET error:", err);
-    return NextResponse.json({ success: false, error: "Database error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Database error" },
+      { status: 500 },
+    );
   }
 }
 
@@ -102,24 +127,42 @@ export async function GET(req: NextRequest) {
    ============================================================ */
 export async function PATCH(req: NextRequest) {
   const user = await getSessionUser();
-  if (!user) return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
-  if (user.role !== "admin") return NextResponse.json({ success: false, error: "Admin access only" }, { status: 403 });
+  if (!user)
+    return NextResponse.json(
+      { success: false, error: "Unauthorized" },
+      { status: 401 },
+    );
+  if (user.role !== "admin")
+    return NextResponse.json(
+      { success: false, error: "Admin access only" },
+      { status: 403 },
+    );
 
   let body: any;
   try {
     body = await req.json();
   } catch {
-    return NextResponse.json({ success: false, error: "Invalid JSON" }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: "Invalid JSON" },
+      { status: 400 },
+    );
   }
 
   const { action, ledgerId, tierDelta } = body;
   if (!action || !ledgerId) {
-    return NextResponse.json({ success: false, error: "Missing action or ledgerId" }, { status: 400 });
+    return NextResponse.json(
+      { success: false, error: "Missing action or ledgerId" },
+      { status: 400 },
+    );
   }
 
   try {
     const targetUser = await prisma.user.findUnique({ where: { ledgerId } });
-    if (!targetUser) return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
+    if (!targetUser)
+      return NextResponse.json(
+        { success: false, error: "User not found" },
+        { status: 404 },
+      );
 
     let updateData: any = {};
     let message = "";
@@ -162,7 +205,9 @@ export async function PATCH(req: NextRequest) {
         message = `Sovereign ${ledgerId} promoted to Tier ${updateData.tier}.`;
         break;
       case "demote":
-        updateData = { tier: Math.max(1, targetUser.tier - (Math.abs(tierDelta) || 1)) };
+        updateData = {
+          tier: Math.max(1, targetUser.tier - (Math.abs(tierDelta) || 1)),
+        };
         message = `Sovereign ${ledgerId} demoted to Tier ${updateData.tier}.`;
         break;
       case "make-admin":
@@ -171,7 +216,10 @@ export async function PATCH(req: NextRequest) {
         break;
       case "make-primary-admin":
         if (!user.isPrimaryAdmin) {
-          return NextResponse.json({ success: false, error: "Primary Admin access only" }, { status: 403 });
+          return NextResponse.json(
+            { success: false, error: "Primary Admin access only" },
+            { status: 403 },
+          );
         }
         updateData = { role: "admin", isPrimaryAdmin: true };
         message = `Sovereign ${ledgerId} granted Primary Admin privileges.`;
@@ -181,7 +229,10 @@ export async function PATCH(req: NextRequest) {
         message = `Privileges revoked for ${ledgerId}.`;
         break;
       default:
-        return NextResponse.json({ success: false, error: "Unknown action" }, { status: 400 });
+        return NextResponse.json(
+          { success: false, error: "Unknown action" },
+          { status: 400 },
+        );
     }
 
     await prisma.user.update({ where: { ledgerId }, data: updateData });
@@ -195,7 +246,9 @@ export async function PATCH(req: NextRequest) {
           tier: action === "verify-kyc" ? "verified" : "visitor",
           reviewedBy: user.ledgerId,
           reviewedAt: new Date(),
-          ...(action === "unverify-kyc" ? { rejectionReason: "Revoked by admin" } : {}),
+          ...(action === "unverify-kyc"
+            ? { rejectionReason: "Revoked by admin" }
+            : {}),
         },
       });
     }
@@ -207,7 +260,7 @@ export async function PATCH(req: NextRequest) {
         description: message,
         ledgerId,
         metadata: JSON.stringify({ action, updateData }),
-        txHash: `AUD-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+        txHash: generateTxHash("AUD-USER"),
         visibleToPublic: false,
       },
     });
@@ -215,6 +268,9 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ success: true, message });
   } catch (err) {
     console.error("Admin users PATCH error:", err);
-    return NextResponse.json({ success: false, error: "Database error" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Database error" },
+      { status: 500 },
+    );
   }
 }

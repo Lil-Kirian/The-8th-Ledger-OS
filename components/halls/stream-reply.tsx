@@ -14,13 +14,12 @@ import {
   Mic,
   Landmark,
   ScrollText,
-  User,
   CornerDownRight,
   MoreHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ─────────────────────────────────────────────────────────
+//  Types
 
 export type ExecutiveRole = "speaker" | "treasurer" | "warden" | "scribe" | "admin";
 
@@ -58,7 +57,7 @@ export interface StreamReplyInputProps {
   className?: string;
 }
 
-// ─── Role Config ───────────────────────────────────────────────────
+//  Role Config
 
 const ROLE_CONFIG: Record<ExecutiveRole, { label: string; color: string; bg: string; icon: React.ElementType }> = {
   speaker: { label: "Speaker", color: "text-amber-400", bg: "bg-amber-500/15", icon: Mic },
@@ -68,7 +67,7 @@ const ROLE_CONFIG: Record<ExecutiveRole, { label: string; color: string; bg: str
   admin: { label: "8th Ledger", color: "text-rose-400", bg: "bg-rose-500/15", icon: BadgeCheck },
 };
 
-// ─── Helpers ─────────────────────────────────────────────────────────
+//  Helpers
 
 function formatTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -91,7 +90,7 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
-// ─── Reply Card ────────────────────────────────────────────────────
+//  Reply Card
 
 export function StreamReply({
   reply,
@@ -293,7 +292,7 @@ export function StreamReply({
   );
 }
 
-// ─── Reply Input ─────────────────────────────────────────────────────
+//  Reply Input ─
 
 export function StreamReplyInput({
   parentPostId,
@@ -362,7 +361,7 @@ export function StreamReplyInput({
   );
 }
 
-// ─── Skeleton ────────────────────────────────────────────────────────
+//  Skeleton ─
 
 export function StreamReplySkeleton({ isNested = false }: { isNested?: boolean }) {
   return (

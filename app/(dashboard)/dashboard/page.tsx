@@ -2,20 +2,18 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import {
-  TrendingUp, TrendingDown, Wallet, Landmark, Zap, Shield,
-  Bell, ArrowUpRight, ArrowDownRight, Clock, Globe, Crown,
-  Flame, Target, BarChart3, PieChart, Activity, Layers,
-  ChevronRight, RefreshCw, Download, Plus, Eye, EyeOff,
-  Hexagon, Star, CircleDollarSign, Users, MessageSquare,
-  Gavel, CheckCircle2, AlertTriangle, Loader2,
+  TrendingUp, Wallet, Zap, Shield,
+  Bell, ArrowDownRight, Clock, Globe, Crown,
+  Flame, Target, Activity, Layers,
+  ChevronRight, Plus, Eye, EyeOff, MessageSquare,
+  Gavel, CheckCircle2,
   MapPin, Package, Plane, Car, Home, GraduationCap,
-  HeartPulse, Briefcase, Cpu, Sun, Leaf, Radio, Lock,
+  HeartPulse, Briefcase, Cpu, Sun, Leaf, Lock,
   Sparkles, Diamond, ArrowRight, Coins,
-  Receipt, Banknote, Percent, Timer, ShieldCheck,
-  FileBadge, Landmark as BuildingIcon, ArrowUpFromLine,
-  CircleArrowRight, BadgeDollarSign, Vault, Swords
+  Receipt, Banknote, Timer, ShieldCheck, Landmark as BuildingIcon, ArrowUpFromLine,
+  CircleArrowRight, Swords
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 

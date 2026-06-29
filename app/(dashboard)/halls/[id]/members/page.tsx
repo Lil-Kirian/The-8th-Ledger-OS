@@ -8,13 +8,10 @@ import {
   Landmark, Zap, Crown, Lock, HeartPulse, TrendingUp, Hexagon, Plane,
   Sprout, Sun, ChevronLeft, Search, Users, Shield, Star, Award,
   ShieldCheck, AlertTriangle, Ban, Scale, MessageCircle, Clock,
-  Activity, ChevronRight, MoreHorizontal, Filter, Crown as CrownIcon,
-  Diamond, Zap as ZapIcon, Flame as FlameIcon, Swords, UserX,
-  UserCheck, Fingerprint, Eye, Flag, Bookmark, Share2,
-  TrendingUp as TrendIcon, BarChart3, PieChart, Layers,
-  MapPin, Calendar, Mail, Phone, Hash, Percent, Target,
-  CheckCircle2, XCircle, AlertOctagon, Info, Download,
-  QrCode, Lock as LockIcon, Unlock, Send, X
+  Activity, ChevronRight, MoreHorizontal, Crown as CrownIcon,
+  Diamond, Zap as ZapIcon, Flame as FlameIcon, Flag, BarChart3, PieChart, Layers,
+  MapPin, Percent, Target, Wallet,
+  CheckCircle2, X
 } from "lucide-react";
 
 /* ============================================================

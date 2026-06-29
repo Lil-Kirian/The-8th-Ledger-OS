@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, requireHallAccess, requireAdmin, getSessionUser } from "@/lib/auth";
+import { requireAuth, requireAdmin, getSessionUser } from "@/lib/auth";
 import {
   getHallClassWorkerRules,
   getForgeLedgerHistory,

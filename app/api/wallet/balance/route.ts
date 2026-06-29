@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/auth";
+import { getOrCreateWallet } from "@/server/services/wallet.service";
 
 /* ============================================================
    GET /api/wallet/balance — 8th Ledger Sovereign Balance
@@ -9,22 +9,13 @@ export async function GET(request: NextRequest) {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
-    let wallet = await prisma.wallet.findUnique({
-      where: { ledgerId: user.ledgerId },
-    });
-
-    if (!wallet) {
-      wallet = await prisma.wallet.create({
-        data: {
-          ledgerId: user.ledgerId,
-          balance: 0,
-          lockedBalance: 0,
-        },
-      });
-    }
+    const wallet = await getOrCreateWallet(user.ledgerId);
 
     return NextResponse.json({
       success: true,
@@ -36,6 +27,9 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("[BALANCE GET]", error);
-    return NextResponse.json({ success: false, error: "Balance check failed" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Balance check failed" },
+      { status: 500 },
+    );
   }
 }

@@ -3,17 +3,12 @@
 import React, { useState, useEffect } from "react";
 import {
   TrendingUp,
-  TrendingDown,
   AlertTriangle,
   Zap,
   Clock,
   ShoppingCart,
-  ChevronRight,
   Gauge,
-  Target,
   Skull,
-  ArrowRight,
-  BarChart3,
   Flame,
   ShieldAlert,
   Package,

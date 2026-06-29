@@ -14,15 +14,8 @@ import {
   Clock,
   Zap,
   Info,
-  Cross,
-  Ban,
-  FileText,
   Send,
-  Crown,
   Lock,
-  Eye,
-  TrendingUp,
-  Users,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

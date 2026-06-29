@@ -3,8 +3,8 @@
 import { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Landmark, ArrowRight, Home, MapPin, Search, SlidersHorizontal,
-  ChevronDown, Building2, TreePine, Warehouse, TrendingUp, Zap,
+   ArrowRight, Home, MapPin, Search, SlidersHorizontal,
+  ChevronDown, Building2, Warehouse, TrendingUp, Zap,
   Users, Timer, Lock, Crown, Radio, Globe
 } from "lucide-react";
 import Link from "next/link";

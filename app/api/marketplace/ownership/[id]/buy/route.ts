@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
+import { generateTxHash } from "@/lib/utils";
 import crypto from "crypto";
 
 const KYC_TIER_RANK: Record<string, number> = {
@@ -17,7 +18,7 @@ const KYC_TIER_RANK: Record<string, number> = {
    ============================================================ */
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -26,7 +27,7 @@ export async function POST(
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Unauthorized" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -34,7 +35,7 @@ export async function POST(
     if (user.kycTier === "visitor") {
       return NextResponse.json(
         { success: false, error: "KYC verification required to purchase PACs" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -73,30 +74,36 @@ export async function POST(
     if (!listing) {
       return NextResponse.json(
         { success: false, error: "Listing not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Listing must be active and not expired
     if (listing.status !== "active") {
       return NextResponse.json(
-        { success: false, error: `Listing is ${listing.status}. Cannot purchase.` },
-        { status: 400 }
+        {
+          success: false,
+          error: `Listing is ${listing.status}. Cannot purchase.`,
+        },
+        { status: 400 },
       );
     }
 
     if (listing.expiresAt && listing.expiresAt <= new Date()) {
       return NextResponse.json(
         { success: false, error: "Listing has expired" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // Hall must be live and not in closure
-    if (listing.hall.status !== "live" || listing.hall.closureStatus !== "active") {
+    if (
+      listing.hall.status !== "live" ||
+      listing.hall.closureStatus !== "active"
+    ) {
       return NextResponse.json(
         { success: false, error: "Hall is not active. Purchases suspended." },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -104,13 +111,14 @@ export async function POST(
     if (listing.sellerId === user.id) {
       return NextResponse.json(
         { success: false, error: "Cannot purchase your own listing" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // KYC tier gate: buyer must match or exceed seller's tier
     const buyerRank = KYC_TIER_RANK[user.kycTier] || 0;
-    const sellerTier = listing.sellerKycTier || listing.seller.kycTier || "visitor";
+    const sellerTier =
+      listing.sellerKycTier || listing.seller.kycTier || "visitor";
     const sellerRank = KYC_TIER_RANK[sellerTier] || 0;
 
     if (buyerRank < sellerRank) {
@@ -119,7 +127,7 @@ export async function POST(
           success: false,
           error: `Your KYC tier (${user.kycTier}) is below the seller's tier (${sellerTier}). Upgrade required.`,
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -133,9 +141,10 @@ export async function POST(
       return NextResponse.json(
         {
           success: false,
-          error: "Complete identity verification required before purchase. Legal name and ID document must be on file.",
+          error:
+            "Complete identity verification required before purchase. Legal name and ID document must be on file.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -146,18 +155,24 @@ export async function POST(
     if (buyerDormant) {
       return NextResponse.json(
         { success: false, error: "Dormant accounts cannot purchase ownership" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     // Anti-fraud: dormancy check on seller
     const daysSinceActivity = listing.seller.lastActivityAt
-      ? Math.floor((Date.now() - listing.seller.lastActivityAt.getTime()) / (1000 * 60 * 60 * 24))
+      ? Math.floor(
+          (Date.now() - listing.seller.lastActivityAt.getTime()) /
+            (1000 * 60 * 60 * 24),
+        )
       : 999;
     if (daysSinceActivity > 365) {
       return NextResponse.json(
-        { success: false, error: "Seller account is dormant. Purchase blocked pending review." },
-        { status: 400 }
+        {
+          success: false,
+          error: "Seller account is dormant. Purchase blocked pending review.",
+        },
+        { status: 400 },
       );
     }
 
@@ -170,8 +185,12 @@ export async function POST(
     });
     if (recentPurchases >= 5) {
       return NextResponse.json(
-        { success: false, error: "Purchase velocity limit reached. Maximum 5 PAC acquisitions per 7 days." },
-        { status: 429 }
+        {
+          success: false,
+          error:
+            "Purchase velocity limit reached. Maximum 5 PAC acquisitions per 7 days.",
+        },
+        { status: 429 },
       );
     }
 
@@ -188,8 +207,11 @@ export async function POST(
 
     if (!wallet) {
       return NextResponse.json(
-        { success: false, error: "No wallet found. Please deposit funds first." },
-        { status: 400 }
+        {
+          success: false,
+          error: "No wallet found. Please deposit funds first.",
+        },
+        { status: 400 },
       );
     }
 
@@ -199,7 +221,7 @@ export async function POST(
           success: false,
           error: `Insufficient balance. Required: $${buyerTotal.toFixed(2)}, Available: $${wallet.balance.toFixed(2)}`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -207,7 +229,9 @@ export async function POST(
     const timestamp = new Date().toISOString();
     const transferHash = crypto
       .createHash("sha256")
-      .update(`${listing.seller.ledgerId}:${user.id}:${listing.hallId}:${listing.percentListed}:${listing.totalPrice}:${timestamp}`)
+      .update(
+        `${listing.seller.ledgerId}:${user.id}:${listing.hallId}:${listing.percentListed}:${listing.totalPrice}:${timestamp}`,
+      )
       .digest("hex");
 
     const escrowEndsAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
@@ -237,7 +261,6 @@ export async function POST(
           escrowExpiresAt: escrowEndsAt,
           auditHash: transferHash,
           interestCount: { increment: 1 },
-          updatedAt: new Date(),
         },
       });
 
@@ -261,7 +284,7 @@ export async function POST(
           isFullSale,
           auditHash: transferHash,
         }),
-        txHash: `LED-BUY-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`,
+        txHash: generateTxHash("LED-BUY"),
         visibleToPublic: true,
       },
     });
@@ -289,9 +312,11 @@ export async function POST(
     });
 
     // Fire and forget notifications — purchase already committed
-    Promise.all([auditPromise, sellerNotifPromise, buyerNotifPromise]).catch((err) => {
-      console.error("[OWNERSHIP_BUY_NOTIFICATIONS]", err);
-    });
+    Promise.all([auditPromise, sellerNotifPromise, buyerNotifPromise]).catch(
+      (err) => {
+        console.error("[OWNERSHIP_BUY_NOTIFICATIONS]", err);
+      },
+    );
 
     return NextResponse.json({
       success: true,
@@ -309,21 +334,22 @@ export async function POST(
         sellerCanCancel: false,
         auditHash: transferHash,
       },
-      message: "Purchase initiated. Funds held in 48-hour escrow. Buyer may cancel for full refund during this period.",
+      message:
+        "Purchase initiated. Funds held in 48-hour escrow. Buyer may cancel for full refund during this period.",
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[OWNERSHIP_BUY_POST]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
 
     if (message === "INSUFFICIENT_BALANCE") {
       return NextResponse.json(
         { success: false, error: "Insufficient balance. Please try again." },
-        { status: 400 }
+        { status: 400 },
       );
     }
     return NextResponse.json(
       { success: false, error: message || "Failed to initiate purchase" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

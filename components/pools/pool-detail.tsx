@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PoolStatusBadge } from "./pool-status-badge";
@@ -14,13 +14,31 @@ import { PoolSriAhgi } from "./pool-sri-ahgi";
 import { PoolMeridianTimer } from "./pool-meridian-timer";
 import { useAuth } from "@/hooks/use-auth";
 import {
-  MapPin, Users, TrendingUp, Clock, Shield, ArrowUpRight, Lock, Globe, FileText,
-  ChevronRight, Zap, Diamond
+  MapPin,
+  Users,
+  TrendingUp,
+  Clock,
+  Shield,
+  ArrowUpRight,
+  Lock,
+  Globe,
+  FileText,
+  ChevronRight,
+  Zap,
+  Diamond,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Animated counter
-function AnimatedNumber({ value, prefix = "", suffix = "" }: { value: number; prefix?: string; suffix?: string }) {
+function AnimatedNumber({
+  value,
+  prefix = "",
+  suffix = "",
+}: {
+  value: number;
+  prefix?: string;
+  suffix?: string;
+}) {
   const [display, setDisplay] = useState(0);
   useEffect(() => {
     const duration = 800;
@@ -34,7 +52,13 @@ function AnimatedNumber({ value, prefix = "", suffix = "" }: { value: number; pr
     };
     requestAnimationFrame(animate);
   }, [value]);
-  return <span>{prefix}{display.toLocaleString()}{suffix}</span>;
+  return (
+    <span>
+      {prefix}
+      {display.toLocaleString()}
+      {suffix}
+    </span>
+  );
 }
 
 interface PoolDetailProps {
@@ -91,33 +115,107 @@ interface PoolDetailProps {
   onCommitSuccess?: () => void;
 }
 
-const verticalLabels: Record<string, { name: string; emoji: string; color: string; gradient: string }> = {
-  ledgerprop: { name: "LedgerProp", emoji: "🏠", color: "text-blue-400", gradient: "from-blue-500/30 to-blue-400/10" },
-  ledgerauto: { name: "LedgerAuto", emoji: "🚗", color: "text-red-400", gradient: "from-red-500/30 to-red-400/10" },
-  ledgertech: { name: "LedgerTech", emoji: "📱", color: "text-purple-400", gradient: "from-purple-500/30 to-purple-400/10" },
-  ledgeredu: { name: "LedgerEdu", emoji: "🎓", color: "text-indigo-400", gradient: "from-indigo-500/30 to-indigo-400/10" },
-  ledgerhealth: { name: "LedgerHealth", emoji: "🏥", color: "text-pink-400", gradient: "from-pink-500/30 to-pink-400/10" },
-  ledgerbiz: { name: "LedgerBiz", emoji: "🏗️", color: "text-orange-400", gradient: "from-orange-500/30 to-orange-400/10" },
-  ledgertravel: { name: "LedgerTravel", emoji: "✈️", color: "text-sky-400", gradient: "from-sky-500/30 to-sky-400/10" },
-  ledgeragri: { name: "LedgerAgri", emoji: "🌾", color: "text-green-400", gradient: "from-green-500/30 to-green-400/10" },
-  ledgerenergy: { name: "LedgerEnergy", emoji: "⚡", color: "text-yellow-400", gradient: "from-yellow-500/30 to-yellow-400/10" },
-  ledgeraccess: { name: "LedgerAccess", emoji: "📡", color: "text-cyan-400", gradient: "from-cyan-500/30 to-cyan-400/10" },
+const verticalLabels: Record<
+  string,
+  { name: string; emoji: string; color: string; gradient: string }
+> = {
+  ledgerprop: {
+    name: "LedgerProp",
+    emoji: "🏠",
+    color: "text-blue-400",
+    gradient: "from-blue-500/30 to-blue-400/10",
+  },
+  ledgerauto: {
+    name: "LedgerAuto",
+    emoji: "🚗",
+    color: "text-red-400",
+    gradient: "from-red-500/30 to-red-400/10",
+  },
+  ledgertech: {
+    name: "LedgerTech",
+    emoji: "📱",
+    color: "text-purple-400",
+    gradient: "from-purple-500/30 to-purple-400/10",
+  },
+  ledgeredu: {
+    name: "LedgerEdu",
+    emoji: "🎓",
+    color: "text-indigo-400",
+    gradient: "from-indigo-500/30 to-indigo-400/10",
+  },
+  ledgerhealth: {
+    name: "LedgerHealth",
+    emoji: "🏥",
+    color: "text-pink-400",
+    gradient: "from-pink-500/30 to-pink-400/10",
+  },
+  ledgerbiz: {
+    name: "LedgerBiz",
+    emoji: "🏗️",
+    color: "text-orange-400",
+    gradient: "from-orange-500/30 to-orange-400/10",
+  },
+  ledgertravel: {
+    name: "LedgerTravel",
+    emoji: "✈️",
+    color: "text-sky-400",
+    gradient: "from-sky-500/30 to-sky-400/10",
+  },
+  ledgeragri: {
+    name: "LedgerAgri",
+    emoji: "🌾",
+    color: "text-green-400",
+    gradient: "from-green-500/30 to-green-400/10",
+  },
+  ledgerenergy: {
+    name: "LedgerEnergy",
+    emoji: "⚡",
+    color: "text-yellow-400",
+    gradient: "from-yellow-500/30 to-yellow-400/10",
+  },
+  ledgeraccess: {
+    name: "LedgerAccess",
+    emoji: "📡",
+    color: "text-cyan-400",
+    gradient: "from-cyan-500/30 to-cyan-400/10",
+  },
 };
 
-const tabVariants = {
+const tabVariants: Variants = {
   hidden: { opacity: 0, y: 10, filter: "blur(4px)" },
-  visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
-  exit: { opacity: 0, y: -10, filter: "blur(4px)", transition: { duration: 0.2 } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: "blur(0px)",
+    transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] as const },
+  },
+  exit: {
+    opacity: 0,
+    y: -10,
+    filter: "blur(4px)",
+    transition: { duration: 0.2 },
+  },
 };
 
-export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailProps) {
+export function PoolDetail({
+  pool,
+  userOwnership,
+  onCommitSuccess,
+}: PoolDetailProps) {
   const { user } = useAuth();
   const [commitOpen, setCommitOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"overview" | "media" | "location" | "pir" | "governance">("overview");
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "media" | "location" | "pir" | "governance"
+  >("overview");
   const [heroLoaded, setHeroLoaded] = useState(false);
 
   const fillPercent = Math.min((pool.committed / pool.target) * 100, 100);
-  const vertical = verticalLabels[pool.verticalId] || { name: pool.verticalId, emoji: "📦", color: "text-white", gradient: "from-white/10 to-white/5" };
+  const vertical = verticalLabels[pool.verticalId] || {
+    name: pool.verticalId,
+    emoji: "📦",
+    color: "text-white",
+    gradient: "from-white/10 to-white/5",
+  };
   const timeLeft = Math.max(0, new Date(pool.closesAt).getTime() - Date.now());
   const daysLeft = Math.ceil(timeLeft / (1000 * 60 * 60 * 24));
   const isCommitted = !!userOwnership;
@@ -128,7 +226,9 @@ export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailP
     { id: "media" as const, label: "Media Vault", icon: Globe },
     { id: "location" as const, label: "Location", icon: MapPin },
     { id: "pir" as const, label: "PIR", icon: Shield },
-    ...(pool.hall ? [{ id: "governance" as const, label: "Governance", icon: Lock }] : []),
+    ...(pool.hall
+      ? [{ id: "governance" as const, label: "Governance", icon: Lock }]
+      : []),
   ];
 
   return (
@@ -149,14 +249,19 @@ export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailP
                 onLoad={() => setHeroLoaded(true)}
                 className={cn(
                   "h-full w-full object-cover transition-all duration-1000",
-                  heroLoaded ? "scale-100 blur-0" : "scale-105 blur-sm"
+                  heroLoaded ? "scale-100 blur-0" : "scale-105 blur-sm",
                 )}
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
               <div className="absolute inset-0 bg-gradient-to-r from-black/40 to-transparent" />
             </>
           ) : (
-            <div className={cn("h-full w-full bg-gradient-to-br flex items-center justify-center text-7xl", vertical.gradient)}>
+            <div
+              className={cn(
+                "h-full w-full bg-gradient-to-br flex items-center justify-center text-7xl",
+                vertical.gradient,
+              )}
+            >
               {vertical.emoji}
             </div>
           )}
@@ -165,8 +270,15 @@ export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailP
           <div className="absolute bottom-0 left-0 right-0 p-6 md:p-8">
             <div className="flex items-center gap-2.5 mb-3">
               <PoolStatusBadge status={pool.status} />
-              {pool.hallClass && <PoolHallClassBadge hallClass={pool.hallClass} />}
-              <span className={cn("text-[11px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-black/30 backdrop-blur-md border border-white/10", vertical.color)}>
+              {pool.hallClass && (
+                <PoolHallClassBadge hallClass={pool.hallClass} />
+              )}
+              <span
+                className={cn(
+                  "text-[11px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-md bg-black/30 backdrop-blur-md border border-white/10",
+                  vertical.color,
+                )}
+              >
                 {vertical.name}
               </span>
             </div>
@@ -183,7 +295,8 @@ export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailP
                 <Clock className="h-3.5 w-3.5" /> {daysLeft} days remaining
               </span>
               <span className="flex items-center gap-1.5">
-                <Users className="h-3.5 w-3.5" /> {pool.participants} / {pool.maxParticipants} participants
+                <Users className="h-3.5 w-3.5" /> {pool.participants} /{" "}
+                {pool.maxParticipants} participants
               </span>
             </div>
           </div>
@@ -195,7 +308,12 @@ export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailP
             <span>
               <AnimatedNumber value={pool.committed} prefix="$" /> committed
             </span>
-            <span className={cn("tabular-nums", fillPercent >= 90 ? "text-emerald-400" : "text-white/50")}>
+            <span
+              className={cn(
+                "tabular-nums",
+                fillPercent >= 90 ? "text-emerald-400" : "text-white/50",
+              )}
+            >
               {fillPercent.toFixed(1)}%
             </span>
           </div>
@@ -205,7 +323,7 @@ export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailP
                 "h-full rounded-full",
                 fillPercent >= 90
                   ? "bg-gradient-to-r from-emerald-500 via-emerald-400 to-emerald-300"
-                  : "bg-gradient-to-r from-cyan-600 via-cyan-400 to-cyan-300"
+                  : "bg-gradient-to-r from-cyan-600 via-cyan-400 to-cyan-300",
               )}
               initial={{ width: 0 }}
               animate={{ width: `${fillPercent}%` }}
@@ -247,7 +365,10 @@ export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailP
             </div>
             <div className="text-right">
               <p className="text-sm font-semibold text-white/60">
-                <AnimatedNumber value={userOwnership.amountCommitted} prefix="$" />
+                <AnimatedNumber
+                  value={userOwnership.amountCommitted}
+                  prefix="$"
+                />
               </p>
               <p className="text-[10px] text-white/20">committed</p>
             </div>
@@ -274,7 +395,7 @@ export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailP
               "flex items-center gap-2 px-4 py-2.5 rounded-lg text-[11px] font-semibold transition-all duration-300 whitespace-nowrap",
               activeTab === tab.id
                 ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/25 shadow-[0_0_20px_rgba(6,182,212,0.06)]"
-                : "text-white/25 hover:text-white/50 hover:bg-white/[0.03] border border-transparent"
+                : "text-white/25 hover:text-white/50 hover:bg-white/[0.03] border border-transparent",
             )}
           >
             <tab.icon className="h-3.5 w-3.5" />
@@ -297,9 +418,12 @@ export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailP
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               <div className="lg:col-span-2 space-y-5">
                 <Card className="p-6 border-white/[0.05] bg-[#0a0a0a]/80 backdrop-blur-sm rounded-xl">
-                  <h3 className="text-sm font-bold text-white mb-4 tracking-tight">About This Asset</h3>
+                  <h3 className="text-sm font-bold text-white mb-4 tracking-tight">
+                    About This Asset
+                  </h3>
                   <p className="text-[13px] text-white/35 leading-[1.7]">
-                    {pool.description || "No description provided by the Architect."}
+                    {pool.description ||
+                      "No description provided by the Architect."}
                   </p>
                 </Card>
 
@@ -310,15 +434,45 @@ export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailP
                   </h3>
                   <div className="grid grid-cols-2 gap-3">
                     {[
-                      { label: "True Acquisition Cost", value: pool.trueCost, hidden: true },
-                      { label: "Listed Price", value: pool.listedPrice, hidden: true },
-                      { label: "PIR (Reserve)", value: pool.surplus, color: "text-cyan-400" },
-                      { label: "Asset Book Value", value: pool.assetBookValue, color: "text-white/60" },
+                      {
+                        label: "True Acquisition Cost",
+                        value: pool.trueCost,
+                        hidden: true,
+                      },
+                      {
+                        label: "Listed Price",
+                        value: pool.listedPrice,
+                        hidden: true,
+                      },
+                      {
+                        label: "PIR (Reserve)",
+                        value: pool.surplus,
+                        color: "text-cyan-400",
+                      },
+                      {
+                        label: "Asset Book Value",
+                        value: pool.assetBookValue,
+                        color: "text-white/60",
+                      },
                     ].map((item) => (
-                      <div key={item.label} className="rounded-lg bg-white/[0.02] border border-white/[0.04] p-4 hover:border-white/[0.08] transition-colors">
-                        <p className="text-[10px] text-white/20 uppercase tracking-wider mb-1.5">{item.label}</p>
-                        <p className={cn("text-sm font-mono font-semibold", item.color || "text-white/50")}>
-                          {item.hidden ? "Protected by 8th Ledger" : item.value ? `$${item.value.toLocaleString()}` : "—"}
+                      <div
+                        key={item.label}
+                        className="rounded-lg bg-white/[0.02] border border-white/[0.04] p-4 hover:border-white/[0.08] transition-colors"
+                      >
+                        <p className="text-[10px] text-white/20 uppercase tracking-wider mb-1.5">
+                          {item.label}
+                        </p>
+                        <p
+                          className={cn(
+                            "text-sm font-mono font-semibold",
+                            item.color || "text-white/50",
+                          )}
+                        >
+                          {item.hidden
+                            ? "Protected by 8th Ledger"
+                            : item.value
+                              ? `$${item.value.toLocaleString()}`
+                              : "—"}
                         </p>
                       </div>
                     ))}
@@ -328,17 +482,35 @@ export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailP
 
               <div className="space-y-5">
                 <Card className="p-6 border-white/[0.05] bg-[#0a0a0a]/80 backdrop-blur-sm rounded-xl">
-                  <h3 className="text-sm font-bold text-white mb-5 tracking-tight">Commitment</h3>
+                  <h3 className="text-sm font-bold text-white mb-5 tracking-tight">
+                    Commitment
+                  </h3>
                   <div className="space-y-4">
                     {[
                       { label: "Minimum", value: `$${pool.minCommitment}` },
-                      { label: "Maximum", value: pool.maxCommitment ? `$${pool.maxCommitment.toLocaleString()}` : "Unlimited" },
-                      { label: "Participants", value: `${pool.participants} / ${pool.maxParticipants}` },
-                      { label: "8th Ledger Tithe", value: "20% of net revenue" },
+                      {
+                        label: "Maximum",
+                        value: pool.maxCommitment
+                          ? `$${pool.maxCommitment.toLocaleString()}`
+                          : "Unlimited",
+                      },
+                      {
+                        label: "Participants",
+                        value: `${pool.participants} / ${pool.maxParticipants}`,
+                      },
+                      {
+                        label: "8th Ledger Tithe",
+                        value: "20% of net revenue",
+                      },
                     ].map((item) => (
-                      <div key={item.label} className="flex justify-between items-center text-[13px]">
+                      <div
+                        key={item.label}
+                        className="flex justify-between items-center text-[13px]"
+                      >
                         <span className="text-white/25">{item.label}</span>
-                        <span className="text-white/60 font-medium">{item.value}</span>
+                        <span className="text-white/60 font-medium">
+                          {item.value}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -355,13 +527,17 @@ export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailP
 
                   {canCommit && !user && (
                     <div className="mt-6 rounded-lg bg-white/[0.02] border border-white/[0.05] p-4 text-center">
-                      <p className="text-xs text-white/25">Sign in to commit capital</p>
+                      <p className="text-xs text-white/25">
+                        Sign in to commit capital
+                      </p>
                     </div>
                   )}
 
                   {!canCommit && pool.status === "filling" && isCommitted && (
                     <div className="mt-6 rounded-lg bg-emerald-500/[0.04] border border-emerald-500/15 p-4 text-center">
-                      <p className="text-xs text-emerald-400 font-medium">You are committed to this pool</p>
+                      <p className="text-xs text-emerald-400 font-medium">
+                        You are committed to this pool
+                      </p>
                     </div>
                   )}
                 </Card>
@@ -387,10 +563,15 @@ export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailP
           )}
 
           {activeTab === "location" && (
-            <PoolLocationOptions options={pool.locationOptions} selected={pool.selectedLocation} />
+            <PoolLocationOptions
+              options={pool.locationOptions}
+              selected={pool.selectedLocation}
+            />
           )}
 
-          {activeTab === "pir" && <PoolPirPreview trueCost={pool.trueCost} surplus={pool.surplus} />}
+          {activeTab === "pir" && (
+            <PoolPirPreview trueCost={pool.trueCost} surplus={pool.surplus} />
+          )}
 
           {activeTab === "governance" && pool.hall && (
             <Card className="p-6 border-white/[0.05] bg-[#0a0a0a]/80 backdrop-blur-sm rounded-xl">
@@ -401,11 +582,15 @@ export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailP
               <div className="space-y-3">
                 <div className="flex items-center justify-between p-4 rounded-lg bg-white/[0.02] border border-white/[0.04]">
                   <span className="text-[13px] text-white/40">Hall Status</span>
-                  <span className="text-[13px] font-medium text-white/70 capitalize">{pool.hall.status}</span>
+                  <span className="text-[13px] font-medium text-white/70 capitalize">
+                    {pool.hall.status}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between p-4 rounded-lg bg-white/[0.02] border border-white/[0.04]">
                   <span className="text-[13px] text-white/40">Hall ID</span>
-                  <span className="text-[13px] font-mono text-white/50">#{pool.hall.id.slice(-6).toUpperCase()}</span>
+                  <span className="text-[13px] font-mono text-white/50">
+                    #{pool.hall.id.slice(-6).toUpperCase()}
+                  </span>
                 </div>
                 {pool.hall.closureStatus !== "active" && (
                   <div className="p-4 rounded-lg bg-red-500/[0.04] border border-red-500/15">
@@ -413,7 +598,8 @@ export function PoolDetail({ pool, userOwnership, onCommitSuccess }: PoolDetailP
                       Closure Protocol Active: {pool.hall.closureStatus}
                     </p>
                     <p className="text-[11px] text-white/20 mt-1">
-                      The 8th Ledger has initiated protective measures for this asset.
+                      The 8th Ledger has initiated protective measures for this
+                      asset.
                     </p>
                   </div>
                 )}

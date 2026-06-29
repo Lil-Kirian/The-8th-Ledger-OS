@@ -18,15 +18,13 @@ import {
   TrendingUp,
   DollarSign,
   Users,
-  ArrowRight,
   CheckCircle2,
-  XCircle,
   FileText,
   Hash,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ─────────────────────────────────────────────────────────
+//  Types
 
 export type ClosurePhase = "warning" | "decision" | "liquidation";
 
@@ -68,7 +66,7 @@ export interface ClosureWarningProps {
   className?: string;
 }
 
-// ─── Helpers ─────────────────────────────────────────────────────────
+//  Helpers
 
 function formatCurrency(n: number): string {
   return `$${n.toLocaleString()}`;
@@ -116,7 +114,7 @@ function getPhaseConfig(phase: ClosurePhase) {
   return configs[phase];
 }
 
-// ─── Metric Card ───────────────────────────────────────────────────
+//  Metric Card
 
 function MetricCard({
   label,
@@ -167,7 +165,7 @@ function MetricCard({
   );
 }
 
-// ─── Main Component ────────────────────────────────────────────────
+//  Main Component
 
 export function ClosureWarning({
   data,
@@ -196,7 +194,7 @@ export function ClosureWarning({
         cfg.border,
         cfg.glow,
         cfg.ring,
-        className
+        className,
       )}
     >
       {/* Animated top bar */}
@@ -220,11 +218,18 @@ export function ClosureWarning({
         {/* Header */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className={cn("flex h-12 w-12 shrink-0 items-center justify-center rounded-xl", cfg.bg)}>
+            <div
+              className={cn(
+                "flex h-12 w-12 shrink-0 items-center justify-center rounded-xl",
+                cfg.bg,
+              )}
+            >
               <PhaseIcon className={cn("h-6 w-6", cfg.color)} />
             </div>
             <div>
-              <h2 className={cn("text-base font-bold tracking-wide", cfg.color)}>
+              <h2
+                className={cn("text-base font-bold tracking-wide", cfg.color)}
+              >
                 {cfg.title}
               </h2>
               <p className="text-xs text-slate-400 mt-0.5 leading-relaxed max-w-md">
@@ -233,12 +238,14 @@ export function ClosureWarning({
             </div>
           </div>
           <div className="flex flex-col items-end gap-1.5 shrink-0">
-            <span className={cn(
-              "inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider border",
-              cfg.bg,
-              cfg.color,
-              cfg.border
-            )}>
+            <span
+              className={cn(
+                "inline-flex items-center gap-1 rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-wider border",
+                cfg.bg,
+                cfg.color,
+                cfg.border,
+              )}
+            >
               <Clock className="h-3 w-3" />
               {data.daysRemaining} days
             </span>
@@ -290,7 +297,11 @@ export function ClosureWarning({
           <MetricCard
             label="Monthly Revenue"
             value={formatCurrency(data.revenue)}
-            trend={Math.round(((data.revenue - data.revenueLastMonth) / Math.max(1, data.revenueLastMonth)) * 100)}
+            trend={Math.round(
+              ((data.revenue - data.revenueLastMonth) /
+                Math.max(1, data.revenueLastMonth)) *
+                100,
+            )}
             trendLabel="vs last month"
             isNegative={data.revenue < data.revenueLastMonth}
             isPositive={data.revenue > data.revenueLastMonth}
@@ -308,29 +319,40 @@ export function ClosureWarning({
             isNegative={!isProfitable}
             isPositive={isProfitable}
             icon={isProfitable ? TrendingUp : TrendingDown}
-            className={!isProfitable ? "border-red-500/10" : "border-emerald-500/10"}
+            className={
+              !isProfitable ? "border-red-500/10" : "border-emerald-500/10"
+            }
           />
         </div>
 
         {/* Net Position Bar */}
         <div className="mt-4 rounded-xl bg-slate-900/50 p-4 border border-slate-800/50">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-slate-400">Revenue vs Expenses</span>
-            <span className={cn(
-              "text-xs font-bold",
-              isProfitable ? "text-emerald-400" : "text-red-400"
-            )}>
-              {isProfitable ? "SURPLUS" : "DEFICIT"}: {formatCurrency(Math.abs(data.net))}
+            <span className="text-xs font-medium text-slate-400">
+              Revenue vs Expenses
+            </span>
+            <span
+              className={cn(
+                "text-xs font-bold",
+                isProfitable ? "text-emerald-400" : "text-red-400",
+              )}
+            >
+              {isProfitable ? "SURPLUS" : "DEFICIT"}:{" "}
+              {formatCurrency(Math.abs(data.net))}
             </span>
           </div>
           <div className="h-3 w-full rounded-full bg-slate-800 overflow-hidden flex">
             <div
               className="h-full bg-emerald-500 transition-all duration-700"
-              style={{ width: `${Math.min(100, Math.max(0, (data.revenue / Math.max(data.revenue, data.payroll + data.ledgerTithe)) * 100))}%` }}
+              style={{
+                width: `${Math.min(100, Math.max(0, (data.revenue / Math.max(data.revenue, data.payroll + data.ledgerTithe)) * 100))}%`,
+              }}
             />
             <div
               className="h-full bg-red-500 transition-all duration-700"
-              style={{ width: `${Math.min(100, Math.max(0, ((data.payroll + data.ledgerTithe) / Math.max(data.revenue, data.payroll + data.ledgerTithe)) * 100))}%` }}
+              style={{
+                width: `${Math.min(100, Math.max(0, ((data.payroll + data.ledgerTithe) / Math.max(data.revenue, data.payroll + data.ledgerTithe)) * 100))}%`,
+              }}
             />
           </div>
           <div className="flex items-center justify-between mt-2 text-[10px] text-slate-500">
@@ -354,7 +376,8 @@ export function ClosureWarning({
                 Vote to Sell Voluntarily
               </span>
               <span className="text-xs font-bold text-slate-300">
-                {data.voteToSellCurrent.toFixed(1)}% / {data.voteToSellRequired}% required
+                {data.voteToSellCurrent.toFixed(1)}% / {data.voteToSellRequired}
+                % required
               </span>
             </div>
             <div className="h-2.5 w-full rounded-full bg-slate-800 overflow-hidden">
@@ -364,16 +387,19 @@ export function ClosureWarning({
                 transition={{ duration: 1, ease: "easeOut" }}
                 className={cn(
                   "h-full rounded-full",
-                  voteProgress >= 100 ? "bg-emerald-500" : "bg-amber-500"
+                  voteProgress >= 100 ? "bg-emerald-500" : "bg-amber-500",
                 )}
               />
             </div>
             <div className="flex items-center justify-between mt-2">
               <p className="text-[10px] text-slate-500">
                 {data.voteToSellStatus === "none" && "No vote initiated yet."}
-                {data.voteToSellStatus === "pending" && "Vote is active. 66% required to pass."}
-                {data.voteToSellStatus === "passed" && "Vote passed. 8th Ledger will prepare sale."}
-                {data.voteToSellStatus === "rejected" && "Vote rejected. Hall must improve or face liquidation."}
+                {data.voteToSellStatus === "pending" &&
+                  "Vote is active. 66% required to pass."}
+                {data.voteToSellStatus === "passed" &&
+                  "Vote passed. 8th Ledger will prepare sale."}
+                {data.voteToSellStatus === "rejected" &&
+                  "Vote rejected. Hall must improve or face liquidation."}
               </p>
               {data.voteToSellStatus !== "passed" && onVoteSell && (
                 <button
@@ -389,103 +415,133 @@ export function ClosureWarning({
         )}
 
         {/* Liquidation Preview (Decision phase) */}
-        {data.phase === "decision" && data.estimatedLiquidationValue !== undefined && (
-          <div className="mt-4 rounded-xl bg-orange-500/5 p-4 border border-orange-500/15 space-y-3">
-            <p className="text-xs font-semibold text-orange-400 flex items-center gap-2">
-              <FileText className="h-3.5 w-3.5" />
-              Estimated Liquidation Preview
-            </p>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">Asset Sale Estimate</span>
-                <span className="text-slate-200 font-medium">{formatCurrency(data.estimatedLiquidationValue)}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">8th Ledger Liquidation Fee (2.5%)</span>
-                <span className="text-red-400 font-medium">-{formatCurrency(data.estimatedLiquidationValue * 0.025)}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">Outstanding PIR Debt</span>
-                <span className="text-red-400 font-medium">-{formatCurrency(data.outstandingPirDebt)}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">Tax Obligations</span>
-                <span className="text-red-400 font-medium">-{formatCurrency(data.taxObligations)}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-400">Worker Severance ({data.workerCount} workers)</span>
-                <span className="text-red-400 font-medium">-{formatCurrency(data.workerCount * 1500)}</span>
-              </div>
-              <div className="h-px bg-slate-800" />
-              <div className="flex items-center justify-between text-sm font-bold">
-                <span className="text-slate-200">Net to Owners</span>
-                <span className="text-emerald-400">
-                  {formatCurrency(
-                    data.estimatedLiquidationValue -
-                    data.estimatedLiquidationValue * 0.025 -
-                    data.outstandingPirDebt -
-                    data.taxObligations -
-                    data.workerCount * 1500
-                  )}
-                </span>
-              </div>
-            </div>
-            {onViewLiquidationTerms && (
-              <button
-                onClick={onViewLiquidationTerms}
-                className="w-full rounded-lg bg-orange-500/15 px-4 py-2.5 text-xs font-semibold text-orange-400 border border-orange-500/30 hover:bg-orange-500/25 transition-colors flex items-center justify-center gap-2"
-              >
+        {data.phase === "decision" &&
+          data.estimatedLiquidationValue !== undefined && (
+            <div className="mt-4 rounded-xl bg-orange-500/5 p-4 border border-orange-500/15 space-y-3">
+              <p className="text-xs font-semibold text-orange-400 flex items-center gap-2">
                 <FileText className="h-3.5 w-3.5" />
-                View Full Liquidation Terms
-              </button>
-            )}
-          </div>
-        )}
+                Estimated Liquidation Preview
+              </p>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">Asset Sale Estimate</span>
+                  <span className="text-slate-200 font-medium">
+                    {formatCurrency(data.estimatedLiquidationValue)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">
+                    8th Ledger Liquidation Fee (2.5%)
+                  </span>
+                  <span className="text-red-400 font-medium">
+                    -{formatCurrency(data.estimatedLiquidationValue * 0.025)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">Outstanding PIR Debt</span>
+                  <span className="text-red-400 font-medium">
+                    -{formatCurrency(data.outstandingPirDebt)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">Tax Obligations</span>
+                  <span className="text-red-400 font-medium">
+                    -{formatCurrency(data.taxObligations)}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-400">
+                    Worker Severance ({data.workerCount} workers)
+                  </span>
+                  <span className="text-red-400 font-medium">
+                    -{formatCurrency(data.workerCount * 1500)}
+                  </span>
+                </div>
+                <div className="h-px bg-slate-800" />
+                <div className="flex items-center justify-between text-sm font-bold">
+                  <span className="text-slate-200">Net to Owners</span>
+                  <span className="text-emerald-400">
+                    {formatCurrency(
+                      data.estimatedLiquidationValue -
+                        data.estimatedLiquidationValue * 0.025 -
+                        data.outstandingPirDebt -
+                        data.taxObligations -
+                        data.workerCount * 1500,
+                    )}
+                  </span>
+                </div>
+              </div>
+              {onViewLiquidationTerms && (
+                <button
+                  onClick={onViewLiquidationTerms}
+                  className="w-full rounded-lg bg-orange-500/15 px-4 py-2.5 text-xs font-semibold text-orange-400 border border-orange-500/30 hover:bg-orange-500/25 transition-colors flex items-center justify-center gap-2"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  View Full Liquidation Terms
+                </button>
+              )}
+            </div>
+          )}
 
         {/* Liquidation Payout (Liquidation phase) */}
-        {data.phase === "liquidation" && data.estimatedLiquidationValue !== undefined && (
-          <div className="mt-4 rounded-xl bg-red-500/5 p-4 border border-red-500/15 space-y-3">
-            <p className="text-xs font-semibold text-red-400 flex items-center gap-2">
-              <ShieldAlert className="h-3.5 w-3.5" />
-              Liquidation in Progress
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="rounded-lg bg-slate-800/40 p-2.5 border border-slate-800/50">
-                <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Asset Sold</p>
-                <p className="text-sm font-bold text-slate-200">{formatCurrency(data.estimatedLiquidationValue)}</p>
+        {data.phase === "liquidation" &&
+          data.estimatedLiquidationValue !== undefined && (
+            <div className="mt-4 rounded-xl bg-red-500/5 p-4 border border-red-500/15 space-y-3">
+              <p className="text-xs font-semibold text-red-400 flex items-center gap-2">
+                <ShieldAlert className="h-3.5 w-3.5" />
+                Liquidation in Progress
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-lg bg-slate-800/40 p-2.5 border border-slate-800/50">
+                  <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+                    Asset Sold
+                  </p>
+                  <p className="text-sm font-bold text-slate-200">
+                    {formatCurrency(data.estimatedLiquidationValue)}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-slate-800/40 p-2.5 border border-slate-800/50">
+                  <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+                    Net Proceeds
+                  </p>
+                  <p className="text-sm font-bold text-emerald-400">
+                    {formatCurrency(
+                      data.estimatedLiquidationValue -
+                        data.estimatedLiquidationValue * 0.025 -
+                        data.outstandingPirDebt -
+                        data.taxObligations -
+                        data.workerCount * 1500,
+                    )}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-slate-800/40 p-2.5 border border-slate-800/50">
+                  <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+                    Owners
+                  </p>
+                  <p className="text-sm font-bold text-slate-200">
+                    {data.ownerCount}
+                  </p>
+                </div>
+                <div className="rounded-lg bg-slate-800/40 p-2.5 border border-slate-800/50">
+                  <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+                    Workers
+                  </p>
+                  <p className="text-sm font-bold text-slate-200">
+                    {data.workerCount}
+                  </p>
+                </div>
               </div>
-              <div className="rounded-lg bg-slate-800/40 p-2.5 border border-slate-800/50">
-                <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Net Proceeds</p>
-                <p className="text-sm font-bold text-emerald-400">
-                  {formatCurrency(
-                    data.estimatedLiquidationValue -
-                    data.estimatedLiquidationValue * 0.025 -
-                    data.outstandingPirDebt -
-                    data.taxObligations -
-                    data.workerCount * 1500
-                  )}
-                </p>
-              </div>
-              <div className="rounded-lg bg-slate-800/40 p-2.5 border border-slate-800/50">
-                <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Owners</p>
-                <p className="text-sm font-bold text-slate-200">{data.ownerCount}</p>
-              </div>
-              <div className="rounded-lg bg-slate-800/40 p-2.5 border border-slate-800/50">
-                <p className="text-[9px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Workers</p>
-                <p className="text-sm font-bold text-slate-200">{data.workerCount}</p>
-              </div>
+              {onViewFullAudit && (
+                <button
+                  onClick={onViewFullAudit}
+                  className="w-full rounded-lg bg-red-500/15 px-4 py-2.5 text-xs font-semibold text-red-400 border border-red-500/30 hover:bg-red-500/25 transition-colors flex items-center justify-center gap-2"
+                >
+                  <Hash className="h-3.5 w-3.5" />
+                  View Full Audit Trail
+                </button>
+              )}
             </div>
-            {onViewFullAudit && (
-              <button
-                onClick={onViewFullAudit}
-                className="w-full rounded-lg bg-red-500/15 px-4 py-2.5 text-xs font-semibold text-red-400 border border-red-500/30 hover:bg-red-500/25 transition-colors flex items-center justify-center gap-2"
-              >
-                <Hash className="h-3.5 w-3.5" />
-                View Full Audit Trail
-              </button>
-            )}
-          </div>
-        )}
+          )}
 
         {/* Actions */}
         <div className="mt-5 flex flex-wrap items-center gap-2">
@@ -500,15 +556,17 @@ export function ClosureWarning({
             </button>
           )}
 
-          {data.phase === "warning" && data.voteToSellStatus === "none" && onVoteSell && (
-            <button
-              onClick={() => setShowVoteModal(true)}
-              className="flex items-center gap-2 rounded-xl bg-amber-500/15 px-4 py-2.5 text-xs font-semibold text-amber-400 border border-amber-500/30 hover:bg-amber-500/25 transition-colors"
-            >
-              <Vote className="h-3.5 w-3.5" />
-              Initiate Sell Vote
-            </button>
-          )}
+          {data.phase === "warning" &&
+            data.voteToSellStatus === "none" &&
+            onVoteSell && (
+              <button
+                onClick={() => setShowVoteModal(true)}
+                className="flex items-center gap-2 rounded-xl bg-amber-500/15 px-4 py-2.5 text-xs font-semibold text-amber-400 border border-amber-500/30 hover:bg-amber-500/25 transition-colors"
+              >
+                <Vote className="h-3.5 w-3.5" />
+                Initiate Sell Vote
+              </button>
+            )}
 
           {data.phase === "decision" && onViewLiquidationTerms && (
             <button
@@ -534,7 +592,9 @@ export function ClosureWarning({
         {/* Footer note */}
         <div className="mt-4 pt-4 border-t border-slate-800/50">
           <p className="text-[10px] text-slate-600 leading-relaxed">
-            <span className="font-semibold text-slate-500">8th Ledger Protocol:</span>{" "}
+            <span className="font-semibold text-slate-500">
+              8th Ledger Protocol:
+            </span>{" "}
             {data.phase === "warning" &&
               "You have 60 days to improve operations or vote to sell. If conditions persist, the 8th Ledger will execute liquidation to protect owner capital."}
             {data.phase === "decision" &&
@@ -558,14 +618,18 @@ export function ClosureWarning({
                 <Gavel className="h-5 w-5 text-amber-400" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-100">Vote to Sell Asset</h3>
-                <p className="text-[11px] text-slate-500">Requires 66% hall approval</p>
+                <h3 className="text-sm font-bold text-slate-100">
+                  Vote to Sell Asset
+                </h3>
+                <p className="text-[11px] text-slate-500">
+                  Requires 66% hall approval
+                </p>
               </div>
             </div>
             <p className="text-xs text-slate-400 leading-relaxed mb-5">
-              This will initiate a proposal to sell the hall asset on the open market. 
-              If passed, the 8th Ledger will handle the sale and distribute proceeds to all owners.
-              This action cannot be undone.
+              This will initiate a proposal to sell the hall asset on the open
+              market. If passed, the 8th Ledger will handle the sale and
+              distribute proceeds to all owners. This action cannot be undone.
             </p>
             <div className="flex items-center gap-2">
               <button
@@ -591,7 +655,7 @@ export function ClosureWarning({
   );
 }
 
-// ─── Skeleton ────────────────────────────────────────────────────────
+//  Skeleton ─
 
 export function ClosureWarningSkeleton() {
   return (

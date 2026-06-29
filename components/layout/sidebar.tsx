@@ -29,7 +29,6 @@ import {
   Crown,
   Activity,
   ScanFace,
-  Globe,
   Timer,
   Archive,
 } from "lucide-react";

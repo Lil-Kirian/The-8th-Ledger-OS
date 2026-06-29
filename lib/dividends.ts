@@ -1,21 +1,10 @@
 import { prisma } from "./prisma";
-import { Prisma } from "@prisma/client";
 import {
+  getAssetTypeById,
   getAssetTypePayrollReservePercent,
   getAssetTypeTitheRate,
-  getAssetTypeDividendFrequency,
-  getAssetTypeById,
 } from "./asset-types";
-import { calculateTotalIhcpDebt } from "./ihcp";
 
-/* ============================================================
-   8TH LEDGER — DIVIDEND & REVENUE ENGINE V4.0
-   Phase 4 Flow: Gross → Tithe 20% → IHCP Repayment → Payroll → COGS → Net → Split
-   ============================================================ */
-
-/* ============================================================
-   TYPES
-   ============================================================ */
 export interface RevenueSplitV4 {
   gross: number;
   ledgerTithe: number;
@@ -53,253 +42,237 @@ export interface RoiResult {
   daysHeld: number;
 }
 
-/* ============================================================
-   CONSTANTS
-   ============================================================ */
 const ROUNDING_PRECISION = 100;
 
-/* ============================================================
-   PURE FUNCTIONS — PHASE 4 REVENUE SPLIT
-   ============================================================ */
-
-/**
- * Phase 4 Revenue Flow:
- * Gross Revenue
- *   → 8th Ledger Tithe (20%)
- *   → IHCP Repayment (if active)
- *   → Payroll (Forge)
- *   → COGS (Class III only)
- *   → Net Hall Revenue
- *   → Split by ownership %
- */
 export function calculateRevenueSplitV4(
   gross: number,
   assetTypeId: string,
-  ihcpDebt: number = 0,
-  workerCount: number = 0,
-  customPayroll?: number
+  ihcpDebt = 0,
+  _workerCount = 0,
+  customPayroll?: number,
 ): RevenueSplitV4 {
   const asset = getAssetTypeById(assetTypeId);
   const titheRate = getAssetTypeTitheRate(assetTypeId) / 100;
-  const ledgerTithe = Math.round(gross * titheRate * ROUNDING_PRECISION) / ROUNDING_PRECISION;
+  const ledgerTithe =
+    Math.round(gross * titheRate * ROUNDING_PRECISION) / ROUNDING_PRECISION;
+  let remaining = gross - ledgerTithe;
 
-  let afterTithe = gross - ledgerTithe;
+  const ihcpRepayment =
+    ihcpDebt > 0
+      ? Math.min(
+          ihcpDebt,
+          Math.round(remaining * 0.1 * ROUNDING_PRECISION) / ROUNDING_PRECISION,
+        )
+      : 0;
+  remaining -= ihcpRepayment;
 
-  // IHCP repayment: 10% of net revenue until debt cleared
-  const ihcpRepayment = ihcpDebt > 0
-    ? Math.min(ihcpDebt, Math.round(afterTithe * 0.1 * ROUNDING_PRECISION) / ROUNDING_PRECISION)
-    : 0;
-  afterTithe -= ihcpRepayment;
+  const payrollReserve =
+    customPayroll ??
+    (asset
+      ? Math.round(
+          gross *
+            (getAssetTypePayrollReservePercent(assetTypeId) / 100) *
+            ROUNDING_PRECISION,
+        ) / ROUNDING_PRECISION
+      : 0);
+  const payrollDeducted = Math.min(payrollReserve, remaining);
+  remaining -= payrollDeducted;
 
-  // Payroll: either custom amount or asset-type reserve percent
-  const payrollReserve = customPayroll ?? (asset
-    ? Math.round(gross * (getAssetTypePayrollReservePercent(assetTypeId) / 100) * ROUNDING_PRECISION) / ROUNDING_PRECISION
-    : 0);
-  const payrollDeducted = Math.min(payrollReserve, afterTithe);
-  afterTithe -= payrollDeducted;
-
-  // COGS: Class III only (approx 35% of gross for active operations)
   let cogs = 0;
   if (asset?.hallClass === "III") {
-    cogs = Math.round(gross * 0.35 * ROUNDING_PRECISION) / ROUNDING_PRECISION;
-    cogs = Math.min(cogs, afterTithe); // Cannot exceed remaining
-    afterTithe -= cogs;
+    cogs = Math.min(
+      Math.round(gross * 0.35 * ROUNDING_PRECISION) / ROUNDING_PRECISION,
+      remaining,
+    );
+    remaining -= cogs;
   }
 
-  const netHallRevenue = Math.max(0, Math.round(afterTithe * ROUNDING_PRECISION) / ROUNDING_PRECISION);
-
-  return { gross, ledgerTithe, ihcpRepayment, payrollDeducted, cogs, netHallRevenue };
+  return {
+    gross,
+    ledgerTithe,
+    ihcpRepayment,
+    payrollDeducted,
+    cogs,
+    netHallRevenue: Math.max(
+      0,
+      Math.round(remaining * ROUNDING_PRECISION) / ROUNDING_PRECISION,
+    ),
+  };
 }
 
-/**
- * Distribute net revenue proportionally by ownership %.
- * Remainder goes to largest owner.
- */
 export function distributeByOwnership(
   netPool: number,
-  owners: Array<{ ownershipId: string; userId: string; ownershipPercent: number }>
-): Array<{ ownershipId: string; userId: string; amount: number; ownershipPercent: number }> {
+  owners: Array<{
+    ownershipId: string;
+    userId: string;
+    ownershipPercent: number;
+  }>,
+): Array<{
+  ownershipId: string;
+  userId: string;
+  amount: number;
+  ownershipPercent: number;
+}> {
   if (owners.length === 0) return [];
-  if (netPool <= 0) return owners.map((o) => ({ ...o, amount: 0 }));
+  if (netPool <= 0) return owners.map((owner) => ({ ...owner, amount: 0 }));
 
-  const totalOwnership = owners.reduce((s, o) => s + o.ownershipPercent, 0);
-  if (totalOwnership <= 0) return owners.map((o) => ({ ...o, amount: 0 }));
+  const totalOwnership = owners.reduce(
+    (sum, owner) => sum + owner.ownershipPercent,
+    0,
+  );
+  if (totalOwnership <= 0)
+    return owners.map((owner) => ({ ...owner, amount: 0 }));
 
   let distributed = 0;
-  const entries = owners.map((o) => {
-    const raw = (o.ownershipPercent / totalOwnership) * netPool;
-    const amount = Math.floor(raw * ROUNDING_PRECISION) / ROUNDING_PRECISION;
+  const entries = owners.map((owner) => {
+    const amount =
+      Math.floor(
+        (owner.ownershipPercent / totalOwnership) *
+          netPool *
+          ROUNDING_PRECISION,
+      ) / ROUNDING_PRECISION;
     distributed += amount;
-    return { ...o, amount };
+    return { ...owner, amount };
   });
 
-  const remainder = Math.round((netPool - distributed) * ROUNDING_PRECISION) / ROUNDING_PRECISION;
-  if (remainder > 0 && entries.length > 0) {
-    entries.sort((a, b) => b.ownershipPercent - a.ownershipPercent);
-    entries[0].amount = Math.round((entries[0].amount + remainder) * ROUNDING_PRECISION) / ROUNDING_PRECISION;
+  const remainder =
+    Math.round((netPool - distributed) * ROUNDING_PRECISION) /
+    ROUNDING_PRECISION;
+  if (remainder > 0) {
+    const largest = entries.reduce((winner, entry) =>
+      entry.ownershipPercent > winner.ownershipPercent ? entry : winner,
+    );
+    largest.amount =
+      Math.round((largest.amount + remainder) * ROUNDING_PRECISION) /
+      ROUNDING_PRECISION;
   }
 
   return entries;
 }
 
-/* ============================================================
-   REVENUE INGESTION — PHASE 4
-   ============================================================ */
-
-/**
- * Ingest new revenue into a hall.
- * Phase 4: Gross → Tithe → IHCP → Payroll → COGS → Net → Ownership % split
- */
 export async function ingestRevenue(input: {
   hallId: string;
   amount: number;
   source: string;
   businessSource?: string;
   payrollDeducted?: number;
-  metadata?: Record<string, unknown>;
-}): Promise<{ success: boolean; distribution?: DistributionResultV4; error?: string }> {
-  const { hallId, amount, source, businessSource, payrollDeducted, metadata } = input;
-
-  if (amount <= 0) {
+}): Promise<{
+  success: boolean;
+  distribution?: DistributionResultV4;
+  error?: string;
+}> {
+  if (input.amount <= 0)
     return { success: false, error: "Revenue amount must be positive" };
-  }
 
   const hall = await prisma.hall.findUnique({
-    where: { id: hallId },
+    where: { id: input.hallId },
     include: {
       ownerships: {
         where: { status: "active" },
-        select: {
-          id: true,
-          userId: true,
-          ownershipPercent: true,
-          accumulatedDividends: true,
-        },
+        select: { id: true, userId: true, ownershipPercent: true },
       },
-      hallTreasury: true,
-      pool: { select: { id: true, poolId: true, assetType: true } },
+      pool: { select: { assetType: true } },
       hallContributions: {
         where: { status: "active" },
-        select: { id: true, amount: true, repaidAmount: true },
+        select: { amount: true, repaidAmount: true },
       },
     },
   });
 
-  if (!hall) {
-    return { success: false, error: "Hall not found" };
-  }
+  if (!hall) return { success: false, error: "Hall not found" };
 
-  // Calculate outstanding IHCP debt
-  const ihcpDebt = calculateTotalIhcpDebt(hall.hallContributions);
-
+  const ihcpDebt = hall.hallContributions.reduce((sum, contribution) => {
+    const owed = Math.round(contribution.amount * 1.05);
+    return sum + Math.max(0, owed - contribution.repaidAmount);
+  }, 0);
   const split = calculateRevenueSplitV4(
-    amount,
-    hall.pool?.assetType || "",
+    input.amount,
+    hall.pool.assetType || "",
     ihcpDebt,
     0,
-    payrollDeducted
+    input.payrollDeducted,
   );
-
   const ownerEntries = distributeByOwnership(
     split.netHallRevenue,
-    hall.ownerships.map((o) => ({
-      ownershipId: o.id,
-      userId: o.userId,
-      ownershipPercent: Number(o.ownershipPercent),
-    }))
+    hall.ownerships.map((ownership) => ({
+      ownershipId: ownership.id,
+      userId: ownership.userId,
+      ownershipPercent: ownership.ownershipPercent,
+    })),
   );
 
   const result = await prisma.$transaction(async (tx) => {
-    // Create revenue log with Phase 4 fields
     const revenueLog = await tx.revenueLog.create({
       data: {
         poolId: hall.poolId,
-        amount,
-        source: source.trim(),
+        amount: Math.round(input.amount),
+        source: input.source.trim(),
         ledgerFee: Math.round(split.ledgerTithe),
-        communityNet: split.netHallRevenue,
-        payrollDeducted: split.payrollDeducted,
-        netAfterPayroll: split.netHallRevenue,
-        businessSource: businessSource || undefined,
+        communityNet: Math.round(split.netHallRevenue),
+        payrollDeducted: Math.round(split.payrollDeducted),
+        netAfterPayroll: Math.round(split.netHallRevenue),
+        businessSource: input.businessSource || undefined,
       },
     });
 
-    // Create dividend distribution
     const distribution = await tx.dividendDistribution.create({
       data: {
         poolId: hall.poolId,
         revenueLogId: revenueLog.id,
-        totalAmount: split.netHallRevenue,
+        totalAmount: Math.round(split.netHallRevenue),
         totalOwners: ownerEntries.length,
+        entries: {
+          create: ownerEntries.map((entry) => ({
+            ownershipId: entry.ownershipId,
+            amount: Math.round(entry.amount),
+          })),
+        },
       },
     });
 
-    // Create dividend entries
-    await Promise.all(
-      ownerEntries.map((e) =>
-        tx.dividendEntry.create({
-          data: {
-            distributionId: distribution.id,
-            ownershipId: e.ownershipId,
-            amount: e.amount,
-          },
-        })
-      )
-    );
-
-    // Update ownership accumulatedDividends
-    for (const e of ownerEntries) {
+    for (const entry of ownerEntries) {
       await tx.ownership.update({
-        where: { id: e.ownershipId },
-        data: {
-          accumulatedDividends: { increment: Math.round(e.amount) },
-        },
+        where: { id: entry.ownershipId },
+        data: { accumulatedDividends: { increment: Math.round(entry.amount) } },
       });
     }
 
-    // Update treasury
-    await tx.hallTreasury.update({
-      where: { hallId },
-      data: {
-        totalRevenue: { increment: amount },
-        balance: { increment: split.netHallRevenue },
-        monthlyRevenue: { increment: amount },
-        payrollReserve: { increment: split.payrollDeducted },
+    await tx.hallTreasury.upsert({
+      where: { hallId: input.hallId },
+      create: {
+        hallId: input.hallId,
+        balance: Math.round(split.netHallRevenue),
+        totalRevenue: Math.round(input.amount),
+        monthlyRevenue: Math.round(input.amount),
+        payrollReserve: Math.round(split.payrollDeducted),
+      },
+      update: {
+        balance: { increment: Math.round(split.netHallRevenue) },
+        totalRevenue: { increment: Math.round(input.amount) },
+        monthlyRevenue: { increment: Math.round(input.amount) },
+        payrollReserve: { increment: Math.round(split.payrollDeducted) },
       },
     });
 
-    // Repay IHCP if applicable
-    if (split.ihcpRepayment > 0 && hall.hallContributions.length > 0) {
-      let remaining = split.ihcpRepayment;
-      for (const contrib of hall.hallContributions) {
-        if (remaining <= 0) break;
-        const owed = Math.round(contrib.amount * 1.05) - contrib.repaidAmount;
-        const pay = Math.min(owed, remaining);
-        if (pay > 0) {
-          await tx.hallContribution.update({
-            where: { id: contrib.id },
-            data: { repaidAmount: { increment: pay } },
-          });
-          remaining -= pay;
-        }
-      }
-    }
-
-    const totalClaimed = ownerEntries.reduce((s, c) => s + c.amount, 0);
-    const remainder = Math.round((split.netHallRevenue - totalClaimed) * ROUNDING_PRECISION) / ROUNDING_PRECISION;
-
+    const totalDistributed = ownerEntries.reduce(
+      (sum, entry) => sum + entry.amount,
+      0,
+    );
     return {
       revenueLogId: revenueLog.id,
-      hallId,
-      grossAmount: amount,
+      hallId: input.hallId,
+      grossAmount: input.amount,
       ledgerTithe: split.ledgerTithe,
       ihcpRepayment: split.ihcpRepayment,
       payrollDeducted: split.payrollDeducted,
       cogs: split.cogs,
       netHallRevenue: split.netHallRevenue,
       ownerEntries,
-      totalDistributed: totalClaimed + (remainder > 0 ? remainder : 0),
-      remainder,
+      totalDistributed,
+      remainder:
+        Math.round(
+          (split.netHallRevenue - totalDistributed) * ROUNDING_PRECISION,
+        ) / ROUNDING_PRECISION,
       distributionId: distribution.id,
     };
   });
@@ -307,23 +280,22 @@ export async function ingestRevenue(input: {
   await prisma.auditEntry.create({
     data: {
       type: "revenue_ingested_v4",
-      description: `Revenue $${amount.toFixed(2)} ingested to Hall ${hallId}. Tithe: $${split.ledgerTithe.toFixed(2)}, IHCP: $${split.ihcpRepayment.toFixed(2)}, Payroll: $${split.payrollDeducted.toFixed(2)}, COGS: $${split.cogs.toFixed(2)}, Net: $${split.netHallRevenue.toFixed(2)}. ${ownerEntries.length} entries.`,
-      amount,
+      description: `Revenue ${input.amount} ingested to Hall ${input.hallId}. Net: ${split.netHallRevenue}.`,
+      amount: Math.round(input.amount),
       txHash: `REVENUE-V4-${result.revenueLogId}-${Date.now()}`,
-      poolId: hall.poolId || undefined,
+      poolId: hall.poolId,
     },
   });
 
   return { success: true, distribution: result };
 }
 
-/* ============================================================
-   DISTRIBUTION TRIGGER (Auto-claim all entries)
-   ============================================================ */
-
-export async function distributeDividend(
-  distributionId: string
-): Promise<{ success: boolean; totalAmount?: number; claimedCount?: number; error?: string }> {
+export async function distributeDividend(distributionId: string): Promise<{
+  success: boolean;
+  totalAmount?: number;
+  claimedCount?: number;
+  error?: string;
+}> {
   const distribution = await prisma.dividendDistribution.findUnique({
     where: { id: distributionId },
     include: {
@@ -331,47 +303,36 @@ export async function distributeDividend(
         where: { claimed: false },
         include: {
           ownership: {
-            select: { userId: true, ledgerId: true, totalReturned: true },
+            select: { id: true, ledgerId: true, totalReturned: true },
           },
         },
       },
-      revenueLog: { select: { poolId: true } },
     },
   });
 
-  if (!distribution) {
-    return { success: false, error: "Distribution not found" };
-  }
-
-  if (distribution.entries.length === 0) {
+  if (!distribution) return { success: false, error: "Distribution not found" };
+  if (distribution.entries.length === 0)
     return { success: true, totalAmount: 0, claimedCount: 0 };
-  }
 
   let totalAmount = 0;
-
   await prisma.$transaction(async (tx) => {
     for (const entry of distribution.entries) {
-      const amount = Number(entry.amount);
-      totalAmount += amount;
-
+      totalAmount += entry.amount;
       await tx.dividendEntry.update({
         where: { id: entry.id },
         data: { claimed: true, claimedAt: new Date() },
       });
-
       await tx.ownership.update({
         where: { id: entry.ownershipId },
-        data: { totalReturned: { increment: amount } },
+        data: { totalReturned: { increment: entry.amount } },
       });
-
       if (entry.ownership.ledgerId) {
         await tx.wallet.update({
           where: { ledgerId: entry.ownership.ledgerId },
-          data: { balance: { increment: amount } },
+          data: { balance: { increment: entry.amount } },
         });
       }
     }
-
     if (distribution.revenueLogId) {
       await tx.revenueLog.update({
         where: { id: distribution.revenueLogId },
@@ -380,131 +341,86 @@ export async function distributeDividend(
     }
   });
 
-  return { success: true, totalAmount, claimedCount: distribution.entries.length };
+  return {
+    success: true,
+    totalAmount,
+    claimedCount: distribution.entries.length,
+  };
 }
 
-/* ============================================================
-   QUERIES
-   ============================================================ */
-
-export async function getUnclaimedByUser(
-  userId: string,
-  hallId?: string
-): Promise<Array<{
-  entryId: string;
-  distributionId: string;
-  hallId: string;
-  hallName: string;
-  amount: number;
-  revenueSource: string;
-  createdAt: Date;
-}>> {
+export async function getUnclaimedByUser(userId: string, hallId?: string) {
   const entries = await prisma.dividendEntry.findMany({
     where: {
       claimed: false,
-      ownership: { userId },
+      ownership: { userId, ...(hallId ? { hallId } : {}) },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: { claimedAt: "desc" },
     include: {
-      distribution: {
-        include: {
-          revenueLog: { select: { source: true, poolId: true } },
-        },
-      },
-      ownership: {
-        include: {
-          hall: { select: { id: true, name: true } },
-        },
-      },
+      distribution: true,
+      ownership: { include: { hall: { select: { id: true, name: true } } } },
     },
   });
 
-  return entries
-    .filter((e) => !hallId || e.ownership.hall?.id === hallId)
-    .map((e) => ({
-      entryId: e.id,
-      distributionId: e.distributionId,
-      hallId: e.ownership.hall?.id || "",
-      hallName: e.ownership.hall?.name || "",
-      amount: Number(e.amount),
-      revenueSource: e.distribution.revenueLog?.source || "",
-      createdAt: e.createdAt,
-    }));
+  return entries.map((entry) => ({
+    entryId: entry.id,
+    distributionId: entry.distributionId,
+    hallId: entry.ownership.hall?.id || "",
+    hallName: entry.ownership.hall?.name || "",
+    amount: entry.amount,
+    revenueSource: entry.distribution.revenueLogId || "",
+    createdAt: entry.distribution.distributedAt,
+  }));
 }
 
-export async function getDistributionQueue(hallId?: string): Promise<Array<{
-  revenueLogId: string;
-  hallId: string;
-  hallName: string;
-  amount: number;
-  ledgerTithe: number;
-  payrollDeducted: number;
-  netAfterPayroll: number;
-  source: string;
-  createdAt: Date;
-  pendingEntries: number;
-}>> {
+export async function getDistributionQueue(hallId?: string) {
   const logs = await prisma.revenueLog.findMany({
     where: { distributed: false },
     orderBy: { createdAt: "asc" },
     include: {
-      pool: {
-        include: {
-          hall: { select: { id: true, name: true } },
-        },
-      },
-      _count: { select: { dividendDistributions: true } },
+      pool: { include: { hall: { select: { id: true, name: true } } } },
     },
   });
 
   return logs
-    .filter((l) => !hallId || l.pool?.hall?.id === hallId)
-    .map((l) => ({
-      revenueLogId: l.id,
-      hallId: l.pool?.hall?.id || "",
-      hallName: l.pool?.hall?.name || "",
-      amount: Number(l.amount),
-      ledgerTithe: Number(l.ledgerFee),
-      payrollDeducted: Number(l.payrollDeducted),
-      netAfterPayroll: Number(l.netAfterPayroll),
-      source: l.source,
-      createdAt: l.createdAt,
-      pendingEntries: l._count.dividendDistributions,
+    .filter((log) => !hallId || log.pool.hall?.id === hallId)
+    .map((log) => ({
+      revenueLogId: log.id,
+      hallId: log.pool.hall?.id || "",
+      hallName: log.pool.hall?.name || "",
+      amount: log.amount,
+      ledgerTithe: log.ledgerFee,
+      payrollDeducted: log.payrollDeducted,
+      netAfterPayroll: log.netAfterPayroll,
+      source: log.source,
+      createdAt: log.createdAt,
+      pendingEntries: 0,
     }));
 }
 
-/* ============================================================
-   ROI CALCULATION
-   ============================================================ */
-
 export async function calculateRoi(
   userId: string,
-  hallId: string
+  hallId: string,
 ): Promise<{ success: boolean; roi?: RoiResult; error?: string }> {
   const ownership = await prisma.ownership.findFirst({
     where: { hallId, userId },
     include: {
       hall: {
-        include: {
-          pool: { select: { assetValue: true, createdAt: true } },
-        },
+        include: { pool: { select: { assetValue: true, createdAt: true } } },
       },
     },
   });
 
-  if (!ownership) {
-    return { success: false, error: "Ownership not found" };
-  }
+  if (!ownership?.hall) return { success: false, error: "Ownership not found" };
 
-  const invested = Number(ownership.hall.pool?.assetValue || 0) * (Number(ownership.ownershipPercent) / 100);
-  const returned = Number(ownership.totalReturned) + Number(ownership.accumulatedDividends);
+  const invested = ownership.amountCommitted;
+  const returned = ownership.totalReturned + ownership.accumulatedDividends;
   const netProfit = returned - invested;
-
-  const poolCreatedAt = ownership.hall.pool?.createdAt;
-  const daysHeld = poolCreatedAt
-    ? Math.max(1, Math.floor((Date.now() - new Date(poolCreatedAt).getTime()) / (1000 * 60 * 60 * 24)))
-    : 1;
-
+  const daysHeld = Math.max(
+    1,
+    Math.floor(
+      (Date.now() - ownership.hall.pool.createdAt.getTime()) / 86_400_000,
+    ),
+  );
   const roiPct = invested > 0 ? (netProfit / invested) * 100 : 0;
   const annualizedPct = daysHeld > 0 ? roiPct * (365 / daysHeld) : null;
 
@@ -515,53 +431,9 @@ export async function calculateRoi(
       totalReturned: Number(returned.toFixed(2)),
       netProfit: Number(netProfit.toFixed(2)),
       roiPct: Number(roiPct.toFixed(2)),
-      annualizedPct: annualizedPct ? Number(annualizedPct.toFixed(2)) : null,
+      annualizedPct:
+        annualizedPct === null ? null : Number(annualizedPct.toFixed(2)),
       daysHeld,
     },
-  };
-}
-
-export async function calculateAggregateRoi(userId: string): Promise<RoiResult> {
-  const ownerships = await prisma.ownership.findMany({
-    where: { userId, status: "active" },
-    include: {
-      hall: {
-        include: {
-          pool: { select: { assetValue: true, createdAt: true } },
-        },
-      },
-    },
-  });
-
-  let totalInvested = 0;
-  let totalReturned = 0;
-  let earliestDate: Date | null = null;
-
-  for (const o of ownerships) {
-    const invested = Number(o.hall.pool?.assetValue || 0) * (Number(o.ownershipPercent) / 100);
-    totalInvested += invested;
-    totalReturned += Number(o.totalReturned) + Number(o.accumulatedDividends);
-
-    if (o.hall.pool?.createdAt) {
-      const d = new Date(o.hall.pool.createdAt);
-      if (!earliestDate || d < earliestDate) earliestDate = d;
-    }
-  }
-
-  const daysHeld = earliestDate
-    ? Math.max(1, Math.floor((Date.now() - earliestDate.getTime()) / (1000 * 60 * 60 * 24)))
-    : 1;
-
-  const netProfit = totalReturned - totalInvested;
-  const roiPct = totalInvested > 0 ? (netProfit / totalInvested) * 100 : 0;
-  const annualizedPct = daysHeld > 0 ? roiPct * (365 / daysHeld) : null;
-
-  return {
-    totalInvested: Number(totalInvested.toFixed(2)),
-    totalReturned: Number(totalReturned.toFixed(2)),
-    netProfit: Number(netProfit.toFixed(2)),
-    roiPct: Number(roiPct.toFixed(2)),
-    annualizedPct: annualizedPct ? Number(annualizedPct.toFixed(2)) : null,
-    daysHeld,
   };
 }

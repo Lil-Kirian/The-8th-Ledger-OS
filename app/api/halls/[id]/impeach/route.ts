@@ -10,12 +10,15 @@ const IMPEACHMENT_DURATION_HOURS = 48;
    ============================================================ */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: hallId } = await params;
@@ -26,21 +29,25 @@ export async function POST(
     if (!targetUserId || !role || !reason) {
       return NextResponse.json(
         { success: false, error: "targetUserId, role, and reason required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (role !== "manager" && role !== "liaison") {
       return NextResponse.json(
         { success: false, error: "Role must be 'manager' or 'liaison'" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    if (typeof reason !== "string" || reason.trim().length < 10 || reason.trim().length > 2000) {
+    if (
+      typeof reason !== "string" ||
+      reason.trim().length < 10 ||
+      reason.trim().length > 2000
+    ) {
       return NextResponse.json(
         { success: false, error: "Reason required: 10–2000 characters" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -48,7 +55,7 @@ export async function POST(
     if (voteChoice !== "yes" && voteChoice !== "no") {
       return NextResponse.json(
         { success: false, error: "Vote must be 'yes' or 'no'" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -56,39 +63,42 @@ export async function POST(
     if (targetUserId === user.id) {
       return NextResponse.json(
         { success: false, error: "Cannot impeach yourself" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // ── Ownership gate ──
-    const ownership = await verifyOwnership(hallId, user.id);
+    const ownership = await prisma.ownership.findFirst({
+      where: { hallId, userId: user.id, status: { not: "forfeited" } },
+      select: { ownershipPercent: true },
+    });
     if (!ownership) {
       return NextResponse.json(
         { success: false, error: "Sovereign access denied" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
-    const weight = ownership.percentage || ownership.ownershipPercent || 0;
+    const weight = ownership.ownershipPercent || 0;
     if (weight <= 0) {
       return NextResponse.json(
         { success: false, error: "Invalid voting weight" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // ── Dormancy check ──
     const isDormant = await prisma.dormancyLog.findFirst({
       where: {
-        OR: [{ accountId: user.id }, { hallId }],
+        OR: [{ userId: user.id }, { hallId }],
         type: "account",
-        status: { in: ["warning", "critical", "forfeited"] },
+        stage: { in: ["warning", "critical", "forfeited"] },
       },
     });
     if (isDormant) {
       return NextResponse.json(
         { success: false, error: "Account dormancy active. Voting suspended." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -96,15 +106,14 @@ export async function POST(
     const isBanned = await prisma.banRecord.findFirst({
       where: {
         hallId,
-        targetLedgerId: user.ledgerId,
-        status: { in: ["active", "executed"] },
+        userId: user.id,
         OR: [{ expiresAt: { gt: new Date() } }, { expiresAt: null }],
       },
     });
     if (isBanned) {
       return NextResponse.json(
         { success: false, error: "Banned from this Hall. Cannot vote." },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -124,17 +133,20 @@ export async function POST(
     if (!targetRole) {
       return NextResponse.json(
         { success: false, error: `Target does not hold active ${role} role` },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     // ── 6-month term guard ──
-    const termStart = targetRole.assignedAt || targetRole.createdAt;
+    const termStart = targetRole.electedAt;
     const sixMonthsAgo = new Date(Date.now() - 6 * 30 * 24 * 60 * 60 * 1000);
-    if (termStart > sixMonthsAgo && !isPrimaryAdmin(user.ledgerId)) {
+    if (termStart > sixMonthsAgo && !(await isPrimaryAdmin(user.ledgerId))) {
       return NextResponse.json(
-        { success: false, error: `Manager/Liaison term is protected for 6 months. Primary Admin override required.` },
-        { status: 403 }
+        {
+          success: false,
+          error: `Manager/Liaison term is protected for 6 months. Primary Admin override required.`,
+        },
+        { status: 403 },
       );
     }
 
@@ -144,11 +156,15 @@ export async function POST(
       include: { pool: { select: { id: true } } },
     });
     if (!hall?.pool) {
-      return NextResponse.json({ success: false, error: "Hall not linked to pool" }, { status: 500 });
+      return NextResponse.json(
+        { success: false, error: "Hall not linked to pool" },
+        { status: 500 },
+      );
     }
 
     // ── Find or create impeachment proposal ──
-    const proposalType = role === "manager" ? "impeach_manager" : "impeach_liaison";
+    const proposalType =
+      role === "manager" ? "impeach_manager" : "impeach_liaison";
 
     let proposal = await prisma.proposal.findFirst({
       where: {
@@ -171,7 +187,9 @@ export async function POST(
           include: { votes: { where: { userId: user.id } } },
         });
       } else {
-        const endsAt = new Date(Date.now() + IMPEACHMENT_DURATION_HOURS * 60 * 60 * 1000);
+        const endsAt = new Date(
+          Date.now() + IMPEACHMENT_DURATION_HOURS * 60 * 60 * 1000,
+        );
         proposal = await prisma.proposal.create({
           data: {
             poolId: hall.pool.id,
@@ -193,14 +211,17 @@ export async function POST(
     if (proposal!.votes.length > 0) {
       return NextResponse.json(
         { success: false, error: "You have already voted on this impeachment" },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     if (proposal!.status !== "active" && proposal!.status !== "pending") {
       return NextResponse.json(
-        { success: false, error: `Impeachment is ${proposal!.status}. Voting closed.` },
-        { status: 400 }
+        {
+          success: false,
+          error: `Impeachment is ${proposal!.status}. Voting closed.`,
+        },
+        { status: 400 },
       );
     }
 
@@ -210,8 +231,11 @@ export async function POST(
         data: { status: "rejected" },
       });
       return NextResponse.json(
-        { success: false, error: "Impeachment voting period ended. Auto-rejected." },
-        { status: 400 }
+        {
+          success: false,
+          error: "Impeachment voting period ended. Auto-rejected.",
+        },
+        { status: 400 },
       );
     }
 
@@ -228,14 +252,23 @@ export async function POST(
 
       const updated = await tx.proposal.update({
         where: { id: proposal!.id },
-        data: voteChoice === "yes"
-          ? { voteWeightYes: { increment: weight }, voteCountYes: { increment: 1 } }
-          : { voteWeightNo: { increment: weight }, voteCountNo: { increment: 1 } },
+        data:
+          voteChoice === "yes"
+            ? {
+                voteWeightYes: { increment: weight },
+                voteCountYes: { increment: 1 },
+              }
+            : {
+                voteWeightNo: { increment: weight },
+                voteCountNo: { increment: 1 },
+              },
       });
 
       const totalWeight = updated.voteWeightYes + updated.voteWeightNo;
-      const yesPercent = totalWeight > 0 ? (updated.voteWeightYes / totalWeight) * 100 : 0;
-      const noPercent = totalWeight > 0 ? (updated.voteWeightNo / totalWeight) * 100 : 0;
+      const yesPercent =
+        totalWeight > 0 ? (updated.voteWeightYes / totalWeight) * 100 : 0;
+      const noPercent =
+        totalWeight > 0 ? (updated.voteWeightNo / totalWeight) * 100 : 0;
       const thresholdMet = yesPercent >= updated.thresholdPercent;
 
       let removed = false;
@@ -268,13 +301,16 @@ export async function POST(
             hallId,
             status: "completed",
             executedBy: user.id,
-            description: `${targetRole.user.displayName} impeached as ${role} — ${reason.trim()}`,
+            notes: `${targetRole.user.displayName} impeached as ${role}: ${reason.trim()}`,
           },
         });
+        removed = true;
 
         // ── Auto-trigger re-election proposal ──
-        const reelectionType = role === "manager" ? "manager_change" : "manager_change";
-        const reelectionTitle = role === "manager" ? "Elect New Manager" : "Elect New Liaison";
+        const reelectionType =
+          role === "manager" ? "manager_change" : "manager_change";
+        const reelectionTitle =
+          role === "manager" ? "Elect New Manager" : "Elect New Liaison";
         const reelectionEndsAt = new Date(Date.now() + 72 * 60 * 60 * 1000);
 
         reelectionProposal = await tx.proposal.create({
@@ -311,13 +347,13 @@ export async function POST(
         // ── Notify all owners ──
         const owners = await tx.ownership.findMany({
           where: { hallId },
-          select: { userId: true },
+          select: { user: { select: { ledgerId: true } } },
         });
 
         if (owners.length > 0) {
           await tx.notification.createMany({
             data: owners.map((o) => ({
-              ledgerId: o.userId,
+              ledgerId: o.user.ledgerId,
               proposalId: proposal!.id,
               type: "impeachment_executed",
               title: `${role === "manager" ? "Manager" : "Liaison"} Impeached`,
@@ -365,7 +401,7 @@ export async function POST(
     console.error("[HALL IMPEACH]", error);
     return NextResponse.json(
       { success: false, error: "Impeachment vote failed" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -375,19 +411,29 @@ export async function POST(
    ============================================================ */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: hallId } = await params;
 
-    const isOwner = await verifyOwnership(hallId, user.id);
-    if (!isOwner && !isPrimaryAdmin(user.ledgerId) && user.role !== "admin") {
-      return NextResponse.json({ success: false, error: "Sovereign access denied" }, { status: 403 });
+    const isOwner = await verifyOwnership(user.id, undefined, hallId);
+    if (
+      !isOwner &&
+      !(await isPrimaryAdmin(user.ledgerId)) &&
+      user.role !== "admin"
+    ) {
+      return NextResponse.json(
+        { success: false, error: "Sovereign access denied" },
+        { status: 403 },
+      );
     }
 
     const impeachments = await prisma.proposal.findMany({
@@ -405,8 +451,10 @@ export async function GET(
 
     const enriched = impeachments.map((p) => {
       const totalWeight = p.voteWeightYes + p.voteWeightNo;
-      const yesPercent = totalWeight > 0 ? (p.voteWeightYes / totalWeight) * 100 : 0;
-      const noPercent = totalWeight > 0 ? (p.voteWeightNo / totalWeight) * 100 : 0;
+      const yesPercent =
+        totalWeight > 0 ? (p.voteWeightYes / totalWeight) * 100 : 0;
+      const noPercent =
+        totalWeight > 0 ? (p.voteWeightNo / totalWeight) * 100 : 0;
 
       return {
         id: p.id,
@@ -438,7 +486,7 @@ export async function GET(
     console.error("[HALL IMPEACH GET]", error);
     return NextResponse.json(
       { success: false, error: "Impeachment registry unreachable" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

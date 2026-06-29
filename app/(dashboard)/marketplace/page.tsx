@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import useSWR from "swr";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -23,15 +23,10 @@ import {
   Building2,
   Plus,
   RefreshCw,
-  Eye,
-  DollarSign,
   Tag,
   Search,
   Lock,
-  Unlock,
-  Star,
   ChevronRight,
-  Filter,
 } from "lucide-react";
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json());

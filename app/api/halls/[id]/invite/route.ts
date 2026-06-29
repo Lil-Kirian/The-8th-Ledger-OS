@@ -88,7 +88,10 @@ export async function POST(
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: hallId } = await params;
@@ -98,31 +101,37 @@ export async function POST(
     if (count < 1 || count > 3) {
       return NextResponse.json(
         { success: false, error: "Generate 1–3 codes at a time" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // ── 1. VERIFY OWNERSHIP ─────────────────────────────────
+    // ── 1. VERIFY OWNERSHIP
     const hall = await prisma.hall.findUnique({
       where: { id: hallId },
       include: { pool: { select: { id: true, status: true } } },
     });
     if (!hall) {
-      return NextResponse.json({ success: false, error: "Hall not found" }, { status: 404 });
+      return NextResponse.json(
+        { success: false, error: "Hall not found" },
+        { status: 404 },
+      );
     }
 
-    // ── V3.2: Ownership is authoritative ────────────────────
+    // ── V3.2: Ownership is authoritative
     const ownership = await prisma.ownership.findFirst({
       where: { hallId, userId: user.id },
     });
     if (!ownership) {
       return NextResponse.json(
-        { success: false, error: "Commit to this pool before generating invites." },
-        { status: 403 }
+        {
+          success: false,
+          error: "Commit to this pool before generating invites.",
+        },
+        { status: 403 },
       );
     }
 
-    // ── 2. CHECK REMAINING QUOTA ─────────────────────────────
+    // ── 2. CHECK REMAINING QUOTA
     const remaining = ownership.inviteCodesRemaining;
     if (remaining <= 0) {
       return NextResponse.json(
@@ -131,7 +140,7 @@ export async function POST(
           error: "Invite quota exhausted",
           detail: `You have used all 3 invites. Used: ${ownership.inviteCodesUsed}/3.`,
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
     if (count > remaining) {
@@ -141,11 +150,11 @@ export async function POST(
           error: "Not enough invite quota",
           detail: `Requested ${count}, but only ${remaining} remaining.`,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    // ── 3. GENERATE CODES ────────────────────────────────────
+    // ── 3. GENERATE CODES ─
     const codes: string[] = [];
     const result = await prisma.$transaction(async (tx) => {
       for (let i = 0; i < count; i++) {

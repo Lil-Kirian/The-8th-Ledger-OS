@@ -12,7 +12,7 @@ import { existsSync } from "fs";
 // Owners and admins only
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id: hallId } = await params;
@@ -153,7 +153,7 @@ export async function GET(
 // Upload a new document to the vault. Admin only.
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id: hallId } = await params;

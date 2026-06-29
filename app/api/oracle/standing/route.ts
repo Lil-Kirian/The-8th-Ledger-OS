@@ -7,9 +7,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAuth } from "@/lib/auth";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS & TYPES
-// ─────────────────────────────────────────────────────────────
+//
 
 type OracleTier = "novice" | "seer" | "oracle" | "prophet";
 
@@ -30,9 +30,9 @@ const TIER_META: Record<
   prophet: { label: "Prophet", icon: "🥇", color: "#ffd700", perk: "Gold icon, name on pool cards, Council invitation" },
 };
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function getNextTier(current: OracleTier): OracleTier | null {
   const order: OracleTier[] = ["novice", "seer", "oracle", "prophet"];
@@ -56,10 +56,10 @@ function safeJsonParse<T>(str: string | null, fallback: T): T {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/oracle/standing
 // Auth required. Cached 30s. Rich analytics.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(req: NextRequest) {
   try {
@@ -106,12 +106,20 @@ export async function GET(req: NextRequest) {
       }),
 
       // Global stats for percentile calculation
-      prisma.$transaction([
-        prisma.oracleStanding.count(),
-        prisma.oracleStanding.count({
-          where: { totalPoints: { gt: { /* filled below */ } as any } },
-        }),
-      ]).catch(() => [0, 0] as [number, number]),
+      prisma
+        .$transaction([
+          prisma.oracleStanding.count(),
+          prisma.oracleStanding.count({
+            where: {
+              totalPoints: {
+                gt: {
+                  /* filled below */
+                } as any,
+              },
+            },
+          }),
+        ])
+        .catch(() => [0, 0] as [number, number]),
     ]);
 
     // 3. Handle first-time user (no standing yet)
@@ -144,7 +152,9 @@ export async function GET(req: NextRequest) {
 
     const nextTier = getNextTier(s.tier as OracleTier);
     const nextTierThreshold = nextTier ? TIER_THRESHOLDS[nextTier] : null;
-    const pointsToNext = nextTierThreshold ? nextTierThreshold - s.correctCount : 0;
+    const pointsToNext = nextTierThreshold
+      ? nextTierThreshold - s.correctCount
+      : 0;
     const progressPercent = nextTierThreshold
       ? Math.min(100, Math.round((s.correctCount / nextTierThreshold) * 100))
       : 100;
@@ -159,8 +169,14 @@ export async function GET(req: NextRequest) {
     // 5. Shape recent predictions
     const predictions = recentPredictions.map((p) => {
       const forecast = p.forecast;
-      const verticalOptions = safeJsonParse<string[]>(forecast.verticalOptions, []);
-      const countryOptions = safeJsonParse<string[]>(forecast.countryOptions, []);
+      const verticalOptions = safeJsonParse<string[]>(
+        forecast.verticalOptions,
+        [],
+      );
+      const countryOptions = safeJsonParse<string[]>(
+        forecast.countryOptions,
+        [],
+      );
       const resolvedParts = forecast.resolvedOutcome
         ? forecast.resolvedOutcome.split("|")
         : [];
@@ -192,13 +208,15 @@ export async function GET(req: NextRequest) {
     });
 
     // 6. Tier history / badges
-    const allTiers = (Object.keys(TIER_THRESHOLDS) as OracleTier[]).map((tier) => ({
-      tier,
-      ...TIER_META[tier],
-      threshold: TIER_THRESHOLDS[tier],
-      isCurrent: tier === s.tier,
-      isUnlocked: s.correctCount >= TIER_THRESHOLDS[tier],
-    }));
+    const allTiers = (Object.keys(TIER_THRESHOLDS) as OracleTier[]).map(
+      (tier) => ({
+        tier,
+        ...TIER_META[tier],
+        threshold: TIER_THRESHOLDS[tier],
+        isCurrent: tier === s.tier,
+        isUnlocked: s.correctCount >= TIER_THRESHOLDS[tier],
+      }),
+    );
 
     // 7. Response
     const response = NextResponse.json({
@@ -237,10 +255,16 @@ export async function GET(req: NextRequest) {
       },
       predictions,
       summary: {
-        pending: predictions.filter((p) => p.predictionStatus === "pending").length,
-        correct: predictions.filter((p) => p.predictionStatus === "correct").length,
-        incorrect: predictions.filter((p) => p.predictionStatus === "incorrect").length,
-        totalPointsEarned: predictions.reduce((sum, p) => sum + p.pointsEarned, 0),
+        pending: predictions.filter((p) => p.predictionStatus === "pending")
+          .length,
+        correct: predictions.filter((p) => p.predictionStatus === "correct")
+          .length,
+        incorrect: predictions.filter((p) => p.predictionStatus === "incorrect")
+          .length,
+        totalPointsEarned: predictions.reduce(
+          (sum, p) => sum + p.pointsEarned,
+          0,
+        ),
       },
       message:
         s.totalPredictions === 0
@@ -249,28 +273,34 @@ export async function GET(req: NextRequest) {
     });
 
     // 8. Cache control — standing is personal but changes slowly
-    response.headers.set("Cache-Control", "private, max-age=30, stale-while-revalidate=60");
+    response.headers.set(
+      "Cache-Control",
+      "private, max-age=30, stale-while-revalidate=60",
+    );
     return response;
   } catch (error: any) {
     console.error("[ORACLE_STANDING_GET]", error);
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
         { error: "Authentication required.", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     return NextResponse.json(
       { error: "Your standing cannot be read.", code: "ORACLE_STANDING_001" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // NOTE: Forecast resolution does NOT belong here.
 // It belongs in: app/api/oracle/forecasts/[id]/resolve/route.ts
 // (Admin-only POST that resolves a forecast and recalculates
 // all affected standings atomically.)
-// ─────────────────────────────────────────────────────────────
+//

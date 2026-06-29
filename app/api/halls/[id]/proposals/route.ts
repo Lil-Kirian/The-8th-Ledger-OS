@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser, verifyOwnership, getUserHallRole, isPrimaryAdmin } from "@/lib/auth";
+import {
+  getSessionUser,
+  verifyOwnership,
+  getUserHallRole,
+  isPrimaryAdmin,
+} from "@/lib/auth";
 
 /* ============================================================
    PROPOSAL DURATION CONFIG (hours)
@@ -36,19 +41,27 @@ const VALID_TYPES = Object.keys(PROPOSAL_DURATIONS);
    ROLE RESTRICTIONS
    ============================================================ */
 const MANAGER_ONLY_TYPES = ["renovate", "budget_approve", "marketplace_list"];
-const MANAGER_OR_LIAISON_TYPES = ["impeach_manager", "impeach_liaison", "liquidation", "humanitarian"];
+const MANAGER_OR_LIAISON_TYPES = [
+  "impeach_manager",
+  "impeach_liaison",
+  "liquidation",
+  "humanitarian",
+];
 
 /* ============================================================
    GET /api/halls/[id]/proposals — List proposals
    ============================================================ */
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: hallId } = await params;
@@ -58,11 +71,24 @@ export async function GET(
 
     const isOwner = await verifyOwnership(hallId, user.id);
     if (!isOwner && user.role !== "admin") {
-      return NextResponse.json({ success: false, error: "Sovereign access denied" }, { status: 403 });
+      return NextResponse.json(
+        { success: false, error: "Sovereign access denied" },
+        { status: 403 },
+      );
     }
 
     const where: { hallId: string; status?: string } = { hallId };
-    if (status && ["pending", "active", "passed", "rejected", "executing", "completed"].includes(status)) {
+    if (
+      status &&
+      [
+        "pending",
+        "active",
+        "passed",
+        "rejected",
+        "executing",
+        "completed",
+      ].includes(status)
+    ) {
       where.status = status;
     }
 
@@ -87,12 +113,15 @@ export async function GET(
 
     const enriched = proposals.map((p) => {
       const totalWeight = p.voteWeightYes + p.voteWeightNo;
-      const yesPercent = totalWeight > 0 ? (p.voteWeightYes / totalWeight) * 100 : 0;
-      const noPercent = totalWeight > 0 ? (p.voteWeightNo / totalWeight) * 100 : 0;
+      const yesPercent =
+        totalWeight > 0 ? (p.voteWeightYes / totalWeight) * 100 : 0;
+      const noPercent =
+        totalWeight > 0 ? (p.voteWeightNo / totalWeight) * 100 : 0;
 
-      const myVote = (p.votes as Array<{ userId?: string; choice: string; weight: number }>).find(
-        (v) => (v.userId ? v.userId === user.id : true)
-      ) ?? null;
+      const myVote =
+        (
+          p.votes as Array<{ userId?: string; choice: string; weight: number }>
+        ).find((v) => (v.userId ? v.userId === user.id : true)) ?? null;
 
       return {
         id: p.id,
@@ -110,7 +139,9 @@ export async function GET(
         yesPercent: Number(yesPercent.toFixed(2)),
         noPercent: Number(noPercent.toFixed(2)),
         totalWeight,
-        myVote: myVote ? { choice: myVote.choice, weight: myVote.weight } : null,
+        myVote: myVote
+          ? { choice: myVote.choice, weight: myVote.weight }
+          : null,
         endsAt: p.endsAt,
         executedAt: p.executedAt,
         executionResult: p.executionResult,
@@ -123,7 +154,10 @@ export async function GET(
     return NextResponse.json({ success: true, proposals: enriched });
   } catch (error) {
     console.error("[HALL PROPOSALS GET]", error);
-    return NextResponse.json({ success: false, error: "Governance chamber unreachable" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Governance chamber unreachable" },
+      { status: 500 },
+    );
   }
 }
 
@@ -132,12 +166,15 @@ export async function GET(
    ============================================================ */
 export async function POST(
   request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
     if (!user) {
-      return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json(
+        { success: false, error: "Unauthorized" },
+        { status: 401 },
+      );
     }
 
     const { id: hallId } = await params;
@@ -154,31 +191,47 @@ export async function POST(
     } = body;
 
     // ── Basic validation ──
-    if (!title || typeof title !== "string" || title.trim().length < 5 || title.trim().length > 120) {
+    if (
+      !title ||
+      typeof title !== "string" ||
+      title.trim().length < 5 ||
+      title.trim().length > 120
+    ) {
       return NextResponse.json(
         { success: false, error: "Title required: 5–120 characters" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    if (!description || typeof description !== "string" || description.trim().length < 20 || description.trim().length > 5000) {
+    if (
+      !description ||
+      typeof description !== "string" ||
+      description.trim().length < 20 ||
+      description.trim().length > 5000
+    ) {
       return NextResponse.json(
         { success: false, error: "Description required: 20–5000 characters" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!type || !VALID_TYPES.includes(type)) {
       return NextResponse.json(
-        { success: false, error: `Invalid type. Valid: ${VALID_TYPES.join(", ")}` },
-        { status: 400 }
+        {
+          success: false,
+          error: `Invalid type. Valid: ${VALID_TYPES.join(", ")}`,
+        },
+        { status: 400 },
       );
     }
 
     // ── Ownership gate ──
     const isOwner = await verifyOwnership(hallId, user.id);
     if (!isOwner && user.role !== "admin") {
-      return NextResponse.json({ success: false, error: "Sovereign access denied" }, { status: 403 });
+      return NextResponse.json(
+        { success: false, error: "Sovereign access denied" },
+        { status: 403 },
+      );
     }
 
     // ── Hall state & link validation ──
@@ -188,39 +241,64 @@ export async function POST(
     });
 
     if (!hall?.pool) {
-      return NextResponse.json({ success: false, error: "Hall not linked to pool" }, { status: 500 });
+      return NextResponse.json(
+        { success: false, error: "Hall not linked to pool" },
+        { status: 500 },
+      );
     }
 
     if (hall.status === "dormant") {
       return NextResponse.json(
-        { success: false, error: "Hall is dormant. Reactivate before proposing." },
-        { status: 403 }
+        {
+          success: false,
+          error: "Hall is dormant. Reactivate before proposing.",
+        },
+        { status: 403 },
       );
     }
 
-    if (hall.status === "ghost" && !["humanitarian", "liquidation"].includes(type)) {
+    if (
+      hall.status === "ghost" &&
+      !["humanitarian", "liquidation"].includes(type)
+    ) {
       return NextResponse.json(
-        { success: false, error: "Hall is Ghost. Only humanitarian or liquidation proposals allowed before Live unlock." },
-        { status: 403 }
+        {
+          success: false,
+          error:
+            "Hall is Ghost. Only humanitarian or liquidation proposals allowed before Live unlock.",
+        },
+        { status: 403 },
       );
     }
 
     // ── Role authorization ──
     const userRole = await getUserHallRole(hallId, user.id);
-    const isManagerOrPrimaryAdmin = userRole === "manager" || isPrimaryAdmin(user.ledgerId);
-    const isManagerLiaisonOrPrimaryAdmin = ["manager", "liaison"].includes(userRole) || isPrimaryAdmin(user.ledgerId);
+    const isManagerOrPrimaryAdmin =
+      userRole === "manager" || isPrimaryAdmin(user.ledgerId);
+    const isManagerLiaisonOrPrimaryAdmin =
+      ["manager", "liaison"].includes(userRole) ||
+      isPrimaryAdmin(user.ledgerId);
 
     if (MANAGER_ONLY_TYPES.includes(type) && !isManagerOrPrimaryAdmin) {
       return NextResponse.json(
-        { success: false, error: "Manager role required for this proposal type" },
-        { status: 403 }
+        {
+          success: false,
+          error: "Manager role required for this proposal type",
+        },
+        { status: 403 },
       );
     }
 
-    if (MANAGER_OR_LIAISON_TYPES.includes(type) && !isManagerLiaisonOrPrimaryAdmin) {
+    if (
+      MANAGER_OR_LIAISON_TYPES.includes(type) &&
+      !isManagerLiaisonOrPrimaryAdmin
+    ) {
       return NextResponse.json(
-        { success: false, error: "Manager or Liaison role required for this proposal type" },
-        { status: 403 }
+        {
+          success: false,
+          error: "Manager or Liaison role required for this proposal type",
+        },
+        { status: 403 },
       );
     }
 
@@ -229,7 +307,7 @@ export async function POST(
       if (hall.forgeEnabled) {
         return NextResponse.json(
           { success: false, error: "Forge is already enabled for this hall" },
-          { status: 409 }
+          { status: 409 },
         );
       }
     }
@@ -237,31 +315,56 @@ export async function POST(
     if (type === "inventory_enable") {
       if (hall.inventoryEnabled) {
         return NextResponse.json(
-          { success: false, error: "Inventory is already enabled for this hall" },
-          { status: 409 }
+          {
+            success: false,
+            error: "Inventory is already enabled for this hall",
+          },
+          { status: 409 },
         );
       }
     }
 
     if (type === "ihcp_create") {
       const numericAmount = amount ? Number(amount) : null;
-      if (!numericAmount || isNaN(numericAmount) || numericAmount <= 0 || numericAmount > 1_000_000_000) {
+      if (
+        !numericAmount ||
+        isNaN(numericAmount) ||
+        numericAmount <= 0 ||
+        numericAmount > 1_000_000_000
+      ) {
         return NextResponse.json(
           { success: false, error: "IHCP requires a valid positive amount" },
-          { status: 400 }
+          { status: 400 },
         );
       }
-      if (!purpose || typeof purpose !== "string" || purpose.trim().length < 3) {
+      if (
+        !purpose ||
+        typeof purpose !== "string" ||
+        purpose.trim().length < 3
+      ) {
         return NextResponse.json(
-          { success: false, error: "IHCP requires a purpose (payroll | inventory | marketing | upgrade | emergency)" },
-          { status: 400 }
+          {
+            success: false,
+            error:
+              "IHCP requires a purpose (payroll | inventory | marketing | upgrade | emergency)",
+          },
+          { status: 400 },
         );
       }
-      const validPurposes = ["payroll", "inventory", "marketing", "upgrade", "emergency"];
+      const validPurposes = [
+        "payroll",
+        "inventory",
+        "marketing",
+        "upgrade",
+        "emergency",
+      ];
       if (!validPurposes.includes(purpose.trim().toLowerCase())) {
         return NextResponse.json(
-          { success: false, error: `IHCP purpose must be one of: ${validPurposes.join(", ")}` },
-          { status: 400 }
+          {
+            success: false,
+            error: `IHCP purpose must be one of: ${validPurposes.join(", ")}`,
+          },
+          { status: 400 },
         );
       }
     }
@@ -270,17 +373,30 @@ export async function POST(
     const numericAmount = amount ? Number(amount) : null;
     const numericExecutionCost = executionCost ? Number(executionCost) : null;
 
-    if (numericAmount !== null && (isNaN(numericAmount) || numericAmount <= 0 || numericAmount > 1_000_000_000)) {
+    if (
+      numericAmount !== null &&
+      (isNaN(numericAmount) ||
+        numericAmount <= 0 ||
+        numericAmount > 1_000_000_000)
+    ) {
       return NextResponse.json(
         { success: false, error: "Amount must be positive and realistic" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    if (numericExecutionCost !== null && (isNaN(numericExecutionCost) || numericExecutionCost < 0 || numericExecutionCost > 1_000_000_000)) {
+    if (
+      numericExecutionCost !== null &&
+      (isNaN(numericExecutionCost) ||
+        numericExecutionCost < 0 ||
+        numericExecutionCost > 1_000_000_000)
+    ) {
       return NextResponse.json(
-        { success: false, error: "Execution cost must be non-negative and realistic" },
-        { status: 400 }
+        {
+          success: false,
+          error: "Execution cost must be non-negative and realistic",
+        },
+        { status: 400 },
       );
     }
 
@@ -295,8 +411,12 @@ export async function POST(
 
     if (activeCount >= 3) {
       return NextResponse.json(
-        { success: false, error: "You have 3 active proposals in this Hall. Wait for one to close." },
-        { status: 429 }
+        {
+          success: false,
+          error:
+            "You have 3 active proposals in this Hall. Wait for one to close.",
+        },
+        { status: 429 },
       );
     }
 
@@ -312,8 +432,11 @@ export async function POST(
 
     if (duplicateType) {
       return NextResponse.json(
-        { success: false, error: `An active ${type} proposal already exists. Vote on it first.` },
-        { status: 409 }
+        {
+          success: false,
+          error: `An active ${type} proposal already exists. Vote on it first.`,
+        },
+        { status: 409 },
       );
     }
 
@@ -322,14 +445,14 @@ export async function POST(
       if (!targetUserId || typeof targetUserId !== "string") {
         return NextResponse.json(
           { success: false, error: "targetUserId required for impeachment" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
       if (targetUserId === user.id) {
         return NextResponse.json(
           { success: false, error: "You cannot impeach yourself" },
-          { status: 400 }
+          { status: 400 },
         );
       }
 
@@ -345,32 +468,46 @@ export async function POST(
 
       if (!targetRole) {
         return NextResponse.json(
-          { success: false, error: `Target does not hold ${type === "impeach_manager" ? "Manager" : "Liaison"} role` },
-          { status: 400 }
+          {
+            success: false,
+            error: `Target does not hold ${type === "impeach_manager" ? "Manager" : "Liaison"} role`,
+          },
+          { status: 400 },
         );
       }
     }
 
     // ── Location validation ──
     if (type === "location_select") {
-      if (!locationOption || typeof locationOption !== "string" || locationOption.length < 2) {
+      if (
+        !locationOption ||
+        typeof locationOption !== "string" ||
+        locationOption.length < 2
+      ) {
         return NextResponse.json(
-          { success: false, error: "locationOption required for location selection" },
-          { status: 400 }
+          {
+            success: false,
+            error: "locationOption required for location selection",
+          },
+          { status: 400 },
         );
       }
     }
 
     // ── Budget cap: cannot exceed 50% of treasury in one shot ──
     if (type === "budget_approve" && numericAmount) {
-      const treasury = await prisma.treasury.findUnique({
+      const treasury = await prisma.hallTreasury.findUnique({
         where: { hallId },
         select: { balance: true },
       });
       if (treasury && numericAmount > treasury.balance * 0.5) {
         return NextResponse.json(
-          { success: false, error: "Budget exceeds 50% of treasury balance. Split into smaller proposals." },
-          { status: 400 }
+          {
+            success: false,
+            error:
+              "Budget exceeds 50% of treasury balance. Split into smaller proposals.",
+          },
+          { status: 400 },
         );
       }
     }
@@ -461,6 +598,9 @@ export async function POST(
     });
   } catch (error) {
     console.error("[HALL PROPOSALS POST]", error);
-    return NextResponse.json({ success: false, error: "Proposal creation failed" }, { status: 500 });
+    return NextResponse.json(
+      { success: false, error: "Proposal creation failed" },
+      { status: 500 },
+    );
   }
 }

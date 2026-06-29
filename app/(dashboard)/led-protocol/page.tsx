@@ -6,9 +6,9 @@ import { BondingCurveChart } from "@/components/led-protocol/bonding-curve-chart
 import { ScarcityRing } from "@/components/led-protocol/scarcity-ring";
 import { useAuth } from "@/hooks/use-auth";
 
-// ───────────────────────────────────────────
+// ─
 // TYPES
-// ───────────────────────────────────────────
+// ─
 interface RoadmapPhase {
   phase: string;
   title: string;
@@ -29,9 +29,9 @@ interface VoteStats {
   status: string;
 }
 
-// ───────────────────────────────────────────
+// ─
 // MOCK DATA
-// ───────────────────────────────────────────
+// ─
 const ROADMAP: RoadmapPhase[] = [
   {
     phase: "PHASE 01",
@@ -84,9 +84,9 @@ const PARTICLES = [
   { x: 80, y: 49, delay: 2.5, duration: 4.2 },
 ];
 
-// ───────────────────────────────────────────
+// ─
 // UTILITIES
-// ───────────────────────────────────────────
+// ─
 const formatNumber = (n: number) =>
   new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(n);
 
@@ -120,9 +120,9 @@ const AnimatedCounter = ({ value, prefix = "", suffix = "", duration = 2000 }: {
   );
 };
 
-// ───────────────────────────────────────────
+// ─
 // UI COMPONENTS
-// ───────────────────────────────────────────
+// ─
 const HologramCard = ({ children, className = "", accent = "cyan" }: { children: React.ReactNode; className?: string; accent?: "cyan" | "amber" | "emerald" | "rose" | "violet" | "slate" }) => {
   const accentMap = {
     cyan: "from-cyan-500/[0.08] via-blue-500/[0.03] to-transparent border-cyan-500/20 shadow-[0_0_60px_-15px_rgba(6,182,212,0.2)]",
@@ -158,9 +158,9 @@ const StatusBadge = ({ status }: { status: string }) => {
   );
 };
 
-// ───────────────────────────────────────────
+// ─
 // COMING SOON BLUR OVERLAY COMPONENT
-// ───────────────────────────────────────────
+// ─
 function ComingSoonOverlay({ children, show = true }: { children: React.ReactNode; show?: boolean }) {
   return (
     <div className="relative">
@@ -182,12 +182,12 @@ function ComingSoonOverlay({ children, show = true }: { children: React.ReactNod
 
             {/* Large blurred SOON text */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <h1 
+              <h1
                 className="text-[6rem] md:text-[10rem] font-black tracking-tighter text-transparent select-none"
-                style={{ 
-                  WebkitTextStroke: '2px rgba(6,182,212,0.12)',
-                  textShadow: '0 0 60px rgba(6,182,212,0.08)',
-                  filter: 'blur(4px)'
+                style={{
+                  WebkitTextStroke: "2px rgba(6,182,212,0.12)",
+                  textShadow: "0 0 60px rgba(6,182,212,0.08)",
+                  filter: "blur(4px)",
                 }}
               >
                 SOON
@@ -208,7 +208,9 @@ function ComingSoonOverlay({ children, show = true }: { children: React.ReactNod
                       <div className="h-2 w-2 rounded-full bg-amber-400 animate-pulse shadow-[0_0_10px_rgba(251,191,36,0.8)]" />
                       <div className="absolute inset-0 h-2 w-2 rounded-full bg-amber-400 animate-ping opacity-40" />
                     </div>
-                    <span className="text-[10px] font-mono text-amber-400 uppercase tracking-[0.3em]">Community Vote Pending</span>
+                    <span className="text-[10px] font-mono text-amber-400 uppercase tracking-[0.3em]">
+                      Community Vote Pending
+                    </span>
                   </div>
 
                   <h3 className="text-xl font-bold text-white tracking-tight mb-2">
@@ -216,33 +218,54 @@ function ComingSoonOverlay({ children, show = true }: { children: React.ReactNod
                   </h3>
 
                   <p className="text-sm text-slate-400 leading-relaxed mb-4">
-                    The LED Global Launch vote will activate when Phase 03 reaches <span className="text-cyan-400 font-mono">10,000</span> active holders.
+                    The LED Global Launch vote will activate when Phase 03
+                    reaches{" "}
+                    <span className="text-cyan-400 font-mono">10,000</span>{" "}
+                    active holders.
                   </p>
 
                   <div className="flex items-center gap-3 mb-4">
                     <div className="flex-1 h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                      <motion.div 
+                      <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: "28%" }}
-                        transition={{ duration: 2, delay: 0.8, ease: "easeOut" }}
+                        transition={{
+                          duration: 2,
+                          delay: 0.8,
+                          ease: "easeOut",
+                        }}
                         className="h-full bg-gradient-to-r from-cyan-500 to-amber-400 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.4)]"
                       />
                     </div>
-                    <span className="text-[10px] font-mono text-cyan-400 whitespace-nowrap">28% QUORUM</span>
+                    <span className="text-[10px] font-mono text-cyan-400 whitespace-nowrap">
+                      28% QUORUM
+                    </span>
                   </div>
 
                   <div className="grid grid-cols-3 gap-2 text-center">
                     <div className="p-2 rounded-lg bg-slate-900/50 border border-slate-800">
-                      <div className="text-lg font-bold text-white font-mono">2,847</div>
-                      <div className="text-[9px] text-slate-500 uppercase tracking-wider">Holders</div>
+                      <div className="text-lg font-bold text-white font-mono">
+                        2,847
+                      </div>
+                      <div className="text-[9px] text-slate-500 uppercase tracking-wider">
+                        Holders
+                      </div>
                     </div>
                     <div className="p-2 rounded-lg bg-slate-900/50 border border-slate-800">
-                      <div className="text-lg font-bold text-amber-400 font-mono">10,000</div>
-                      <div className="text-[9px] text-slate-500 uppercase tracking-wider">Required</div>
+                      <div className="text-lg font-bold text-amber-400 font-mono">
+                        10,000
+                      </div>
+                      <div className="text-[9px] text-slate-500 uppercase tracking-wider">
+                        Required
+                      </div>
                     </div>
                     <div className="p-2 rounded-lg bg-slate-900/50 border border-slate-800">
-                      <div className="text-lg font-bold text-emerald-400 font-mono">7,153</div>
-                      <div className="text-[9px] text-slate-500 uppercase tracking-wider">Remaining</div>
+                      <div className="text-lg font-bold text-emerald-400 font-mono">
+                        7,153
+                      </div>
+                      <div className="text-[9px] text-slate-500 uppercase tracking-wider">
+                        Remaining
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -255,9 +278,9 @@ function ComingSoonOverlay({ children, show = true }: { children: React.ReactNod
   );
 }
 
-// ───────────────────────────────────────────
+// ─
 // VOTE SECTION (BLURRED OUT)
-// ───────────────────────────────────────────
+// ─
 function VoteSection() {
   const { user } = useAuth();
   const [stats, setStats] = useState<VoteStats>({
@@ -488,9 +511,9 @@ function VoteSection() {
   );
 }
 
-// ───────────────────────────────────────────
+// ─
 // MAIN PAGE
-// ───────────────────────────────────────────
+// ─
 export default function LedProtocolPage() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -508,14 +531,17 @@ export default function LedProtocolPage() {
       {/* AMBIENT BACKGROUND */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-5%] w-[50%] h-[50%] bg-cyan-500/[0.03] rounded-full blur-[180px] animate-pulse-slow" />
-        <div className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-amber-500/[0.03] rounded-full blur-[180px] animate-pulse-slow" style={{ animationDelay: "3s" }} />
+        <div
+          className="absolute bottom-[-10%] right-[-5%] w-[50%] h-[50%] bg-amber-500/[0.03] rounded-full blur-[180px] animate-pulse-slow"
+          style={{ animationDelay: "3s" }}
+        />
         <div className="absolute top-[40%] left-[30%] w-[30%] h-[30%] bg-violet-500/[0.02] rounded-full blur-[140px]" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.012)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.012)_1px,transparent_1px)] bg-[size:48px_48px]" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(6,182,212,0.04),_transparent_60%)]" />
       </div>
 
       <div className="relative z-10 max-w-[1400px] mx-auto px-6 py-10">
-        {/* ─── HERO ─── */}
+        {/*  HERO  */}
         <header className="text-center mb-16 pt-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -527,7 +553,9 @@ export default function LedProtocolPage() {
               <div className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_rgba(6,182,212,0.8)]" />
               <div className="absolute inset-0 h-2 w-2 rounded-full bg-cyan-400 animate-ping opacity-30" />
             </div>
-            <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-[0.3em]">Protocol Genesis</span>
+            <span className="text-[10px] font-mono text-cyan-400 uppercase tracking-[0.3em]">
+              Protocol Genesis
+            </span>
           </motion.div>
 
           <motion.h1
@@ -545,8 +573,9 @@ export default function LedProtocolPage() {
             transition={{ duration: 0.8, delay: 0.2 }}
             className="text-slate-400 text-lg max-w-2xl mx-auto leading-relaxed font-light mb-8"
           >
-            The 8th Ledger is building its own sovereign cryptocurrency. 
-            LED is currently an internal scarcity engine. Soon, it becomes a global tradable asset.
+            The 8th Ledger is building its own sovereign cryptocurrency. LED is
+            currently an internal scarcity engine. Soon, it becomes a global
+            tradable asset.
           </motion.p>
 
           <motion.div
@@ -570,12 +599,30 @@ export default function LedProtocolPage() {
             >
               {submitted ? (
                 <span className="flex items-center gap-2">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6L9 17l-5-5"/></svg>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
                   Whitelisted
                 </span>
               ) : (
                 <span className="flex items-center gap-2">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
                   Secure Whitelist Spot
                 </span>
               )}
@@ -590,13 +637,14 @@ export default function LedProtocolPage() {
                 exit={{ opacity: 0 }}
                 className="mt-4 text-sm text-emerald-400 font-mono"
               >
-                You have been added to the LED Genesis whitelist. We will contact you when Phase 04 begins.
+                You have been added to the LED Genesis whitelist. We will
+                contact you when Phase 04 begins.
               </motion.p>
             )}
           </AnimatePresence>
         </header>
 
-        {/* ─── SCARCITY METRICS ─── */}
+        {/*  SCARCITY METRICS  */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-16">
           {SCARCITY_METRICS.map((metric, i) => (
             <motion.div
@@ -609,46 +657,76 @@ export default function LedProtocolPage() {
                 <div className="p-5 text-center">
                   <div className="text-2xl mb-2">{metric.icon}</div>
                   <div className="text-xl font-bold text-white font-mono mb-1">
-                    <AnimatedCounter value={metric.value} prefix={metric.label === "Floor Price" || metric.label === "Market Cap" ? "$" : ""} />
-                    {metric.label === "Floor Price" && <span className="text-sm">{metric.suffix}</span>}
-                    {metric.label !== "Floor Price" && <span className="text-sm">{metric.suffix}</span>}
+                    <AnimatedCounter
+                      value={metric.value}
+                      prefix={
+                        metric.label === "Floor Price" ||
+                        metric.label === "Market Cap"
+                          ? "$"
+                          : ""
+                      }
+                    />
+                    {metric.label === "Floor Price" && (
+                      <span className="text-sm">{metric.suffix}</span>
+                    )}
+                    {metric.label !== "Floor Price" && (
+                      <span className="text-sm">{metric.suffix}</span>
+                    )}
                   </div>
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider font-mono">{metric.label}</div>
+                  <div className="text-[10px] text-slate-500 uppercase tracking-wider font-mono">
+                    {metric.label}
+                  </div>
                 </div>
               </HologramCard>
             </motion.div>
           ))}
         </div>
 
-        {/* ─── BONDING CURVE + SCARCITY RING ─── */}
+        {/*  BONDING CURVE + SCARCITY RING  */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-16">
           <HologramCard className="lg:col-span-2" accent="cyan">
             <div className="p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h3 className="text-lg font-bold text-white tracking-tight">Scarcity Engine Preview</h3>
-                  <p className="text-[10px] text-slate-400 mt-1 font-mono uppercase tracking-wider">Logarithmic bonding curve — price rises as supply approaches 21M</p>
+                  <h3 className="text-lg font-bold text-white tracking-tight">
+                    Scarcity Engine Preview
+                  </h3>
+                  <p className="text-[10px] text-slate-400 mt-1 font-mono uppercase tracking-wider">
+                    Logarithmic bonding curve — price rises as supply approaches
+                    21M
+                  </p>
                 </div>
                 <div className="flex items-center gap-2 rounded-lg bg-cyan-500/10 px-3 py-1.5 border border-cyan-500/20">
                   <div className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_rgba(6,182,212,0.6)]" />
-                  <span className="text-[10px] font-mono text-cyan-300 uppercase tracking-wider">Live Simulation</span>
+                  <span className="text-[10px] font-mono text-cyan-300 uppercase tracking-wider">
+                    Live Simulation
+                  </span>
                 </div>
               </div>
-              <BondingCurveChart currentSupply={1_240_000} currentPrice={20.0} />
+              <BondingCurveChart
+                currentSupply={1_240_000}
+                currentPrice={20.0}
+              />
               <div className="flex justify-between mt-4 text-[10px] font-mono text-slate-500">
                 <span className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-cyan-500 shadow-[0_0_6px_rgba(6,182,212,0.5)]" />
                   Current Position: 1.24M LED @ $20.00
                 </span>
-                <span className="text-cyan-400">Max theoretical: ~$85.00/LED</span>
+                <span className="text-cyan-400">
+                  Max theoretical: ~$85.00/LED
+                </span>
               </div>
             </div>
           </HologramCard>
 
           <HologramCard accent="violet">
             <div className="p-6 flex flex-col items-center">
-              <h3 className="text-sm font-bold text-white tracking-tight mb-1">Supply Distribution</h3>
-              <p className="text-[10px] text-slate-400 mb-4 font-mono uppercase tracking-wider">LED scarcity visualization</p>
+              <h3 className="text-sm font-bold text-white tracking-tight mb-1">
+                Supply Distribution
+              </h3>
+              <p className="text-[10px] text-slate-400 mb-4 font-mono uppercase tracking-wider">
+                LED scarcity visualization
+              </p>
               <ScarcityRing
                 circulating={1_240_000}
                 max={21_000_000}
@@ -658,26 +736,37 @@ export default function LedProtocolPage() {
               <div className="mt-4 w-full space-y-1.5">
                 <div className="flex items-center justify-between text-[10px]">
                   <span className="text-white/30">Max Supply</span>
-                  <span className="font-mono text-white/60">{formatNumber(21_000_000)}</span>
+                  <span className="font-mono text-white/60">
+                    {formatNumber(21_000_000)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-[10px]">
                   <span className="text-white/30">Remaining to Mine</span>
-                  <span className="font-mono text-amber-300">{formatNumber(21_000_000 - 1_240_000 - 89_340 - 450_000)}</span>
+                  <span className="font-mono text-amber-300">
+                    {formatNumber(21_000_000 - 1_240_000 - 89_340 - 450_000)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between text-[10px]">
                   <span className="text-white/30">Burned Forever</span>
-                  <span className="font-mono text-rose-400">{formatNumber(89_340)}</span>
+                  <span className="font-mono text-rose-400">
+                    {formatNumber(89_340)}
+                  </span>
                 </div>
               </div>
             </div>
           </HologramCard>
         </div>
 
-        {/* ─── COMMUNITY VOTE SECTION (WITH COMING SOON OVERLAY) ─── */}
+        {/*  COMMUNITY VOTE SECTION (WITH COMING SOON OVERLAY)  */}
         <div className="mb-16">
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-white tracking-tight mb-2">Sovereign Vote</h2>
-            <p className="text-sm text-slate-400 max-w-xl mx-auto">The community decides when LED becomes a global cryptocurrency. Your vote is recorded on the ledger.</p>
+            <h2 className="text-3xl font-bold text-white tracking-tight mb-2">
+              Sovereign Vote
+            </h2>
+            <p className="text-sm text-slate-400 max-w-xl mx-auto">
+              The community decides when LED becomes a global cryptocurrency.
+              Your vote is recorded on the ledger.
+            </p>
           </div>
 
           {/* Vote card wrapped in Coming Soon overlay */}
@@ -691,32 +780,63 @@ export default function LedProtocolPage() {
               onClick={() => setShowVoteSoon(!showVoteSoon)}
               className="text-[10px] font-mono text-slate-500 hover:text-cyan-400 transition-colors uppercase tracking-wider"
             >
-              {showVoteSoon ? "Preview Vote Interface ↓" : "Hide Vote Interface ↑"}
+              {showVoteSoon
+                ? "Preview Vote Interface ↓"
+                : "Hide Vote Interface ↑"}
             </button>
           </div>
         </div>
 
-        {/* ─── WHY LED + DISTRIBUTION ─── */}
+        {/*  WHY LED + DISTRIBUTION  */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-16">
           <HologramCard accent="amber">
             <div className="p-5">
-              <h3 className="text-sm font-bold text-white tracking-tight mb-1">Why LED?</h3>
-              <p className="text-[10px] text-slate-400 font-mono uppercase tracking-wider mb-4">The 8th Ledger currency thesis</p>
+              <h3 className="text-sm font-bold text-white tracking-tight mb-1">
+                Why LED?
+              </h3>
+              <p className="text-[10px] text-slate-400 font-mono uppercase tracking-wider mb-4">
+                The 8th Ledger currency thesis
+              </p>
               <div className="space-y-3">
                 {[
-                  { label: "Hard Cap", value: "21,000,000", desc: "Bitcoin-level scarcity. No inflation." },
-                  { label: "Utility-First", value: "100%", desc: "Every LED is backed by real asset ownership." },
-                  { label: "Burn Mechanics", value: "Active", desc: "Protocol fees permanently destroy LED." },
-                  { label: "Governance", value: "Future", desc: "LED holders vote on protocol upgrades." },
+                  {
+                    label: "Hard Cap",
+                    value: "21,000,000",
+                    desc: "Bitcoin-level scarcity. No inflation.",
+                  },
+                  {
+                    label: "Utility-First",
+                    value: "100%",
+                    desc: "Every LED is backed by real asset ownership.",
+                  },
+                  {
+                    label: "Burn Mechanics",
+                    value: "Active",
+                    desc: "Protocol fees permanently destroy LED.",
+                  },
+                  {
+                    label: "Governance",
+                    value: "Future",
+                    desc: "LED holders vote on protocol upgrades.",
+                  },
                 ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-3 p-2.5 rounded-lg bg-slate-900/30 border border-slate-800/50">
+                  <div
+                    key={i}
+                    className="flex items-start gap-3 p-2.5 rounded-lg bg-slate-900/30 border border-slate-800/50"
+                  >
                     <div className="w-1 h-full min-h-[24px] rounded-full bg-gradient-to-b from-amber-500 to-yellow-500" />
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-white">{item.label}</span>
-                        <span className="text-[10px] font-mono text-amber-400">{item.value}</span>
+                        <span className="text-xs font-bold text-white">
+                          {item.label}
+                        </span>
+                        <span className="text-[10px] font-mono text-amber-400">
+                          {item.value}
+                        </span>
                       </div>
-                      <div className="text-[10px] text-slate-500">{item.desc}</div>
+                      <div className="text-[10px] text-slate-500">
+                        {item.desc}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -726,22 +846,43 @@ export default function LedProtocolPage() {
 
           <HologramCard accent="emerald">
             <div className="p-5">
-              <h3 className="text-sm font-bold text-white tracking-tight mb-1">Current LED Holders</h3>
-              <p className="text-[10px] text-slate-400 font-mono uppercase tracking-wider mb-4">Internal distribution</p>
+              <h3 className="text-sm font-bold text-white tracking-tight mb-1">
+                Current LED Holders
+              </h3>
+              <p className="text-[10px] text-slate-400 font-mono uppercase tracking-wider mb-4">
+                Internal distribution
+              </p>
               <div className="space-y-2">
                 {[
-                  { label: "Dividend Recipients", pct: 45, color: "bg-emerald-500" },
+                  {
+                    label: "Dividend Recipients",
+                    pct: 45,
+                    color: "bg-emerald-500",
+                  },
                   { label: "Pool Commitments", pct: 30, color: "bg-cyan-500" },
                   { label: "Referral Rewards", pct: 15, color: "bg-amber-500" },
-                  { label: "Protocol Reserve", pct: 10, color: "bg-violet-500" },
+                  {
+                    label: "Protocol Reserve",
+                    pct: 10,
+                    color: "bg-violet-500",
+                  },
                 ].map((item, i) => (
                   <div key={i}>
                     <div className="flex justify-between items-center mb-1">
-                      <span className="text-[10px] text-slate-400">{item.label}</span>
-                      <span className="text-[10px] font-mono text-white">{item.pct}%</span>
+                      <span className="text-[10px] text-slate-400">
+                        {item.label}
+                      </span>
+                      <span className="text-[10px] font-mono text-white">
+                        {item.pct}%
+                      </span>
                     </div>
                     <div className="w-full bg-slate-800/50 rounded-full h-1.5 overflow-hidden">
-                      <motion.div initial={{ width: 0 }} animate={{ width: `${item.pct}%` }} transition={{ duration: 1, delay: i * 0.2 }} className={`h-full rounded-full ${item.color} shadow-[0_0_6px_currentColor]`} />
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${item.pct}%` }}
+                        transition={{ duration: 1, delay: i * 0.2 }}
+                        className={`h-full rounded-full ${item.color} shadow-[0_0_6px_currentColor]`}
+                      />
                     </div>
                   </div>
                 ))}
@@ -750,11 +891,16 @@ export default function LedProtocolPage() {
           </HologramCard>
         </div>
 
-        {/* ─── ROADMAP ─── */}
+        {/*  ROADMAP  */}
         <div className="mb-16">
           <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-white tracking-tight mb-2">Protocol Roadmap</h2>
-            <p className="text-sm text-slate-400 max-w-xl mx-auto">From internal credit to global cryptocurrency. Five phases. One sovereign ledger.</p>
+            <h2 className="text-3xl font-bold text-white tracking-tight mb-2">
+              Protocol Roadmap
+            </h2>
+            <p className="text-sm text-slate-400 max-w-xl mx-auto">
+              From internal credit to global cryptocurrency. Five phases. One
+              sovereign ledger.
+            </p>
           </div>
 
           <div className="relative">
@@ -772,32 +918,54 @@ export default function LedProtocolPage() {
                     className={`relative flex items-start gap-6 md:gap-0 ${isLeft ? "md:flex-row" : "md:flex-row-reverse"}`}
                   >
                     <div className="absolute left-4 md:left-1/2 md:-translate-x-1/2 z-10">
-                      <div className={`w-3 h-3 rounded-full border-2 ${
-                        phase.status === "complete" ? "bg-emerald-400 border-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)]" :
-                        phase.status === "active" ? "bg-cyan-400 border-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.6)] animate-pulse" :
-                        "bg-slate-800 border-slate-600"
-                      }`} />
+                      <div
+                        className={`w-3 h-3 rounded-full border-2 ${
+                          phase.status === "complete"
+                            ? "bg-emerald-400 border-emerald-400 shadow-[0_0_10px_rgba(52,211,153,0.6)]"
+                            : phase.status === "active"
+                              ? "bg-cyan-400 border-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.6)] animate-pulse"
+                              : "bg-slate-800 border-slate-600"
+                        }`}
+                      />
                     </div>
 
                     <div className="hidden md:block md:w-1/2" />
 
-                    <div className={`ml-10 md:ml-0 md:w-1/2 ${isLeft ? "md:pr-12" : "md:pl-12"}`}>
+                    <div
+                      className={`ml-10 md:ml-0 md:w-1/2 ${isLeft ? "md:pr-12" : "md:pl-12"}`}
+                    >
                       <HologramCard
-                        accent={phase.status === "complete" ? "emerald" : phase.status === "active" ? "cyan" : "slate"}
-                        className={phase.status === "upcoming" ? "opacity-70" : ""}
+                        accent={
+                          phase.status === "complete"
+                            ? "emerald"
+                            : phase.status === "active"
+                              ? "cyan"
+                              : "slate"
+                        }
+                        className={
+                          phase.status === "upcoming" ? "opacity-70" : ""
+                        }
                       >
                         <div className="p-5">
                           <div className="flex items-center justify-between mb-3">
                             <div className="flex items-center gap-3">
-                              <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">{phase.phase}</span>
+                              <span className="text-[10px] font-mono text-slate-500 uppercase tracking-wider">
+                                {phase.phase}
+                              </span>
                               <StatusBadge status={phase.status} />
                             </div>
                             {phase.status === "active" && (
-                              <span className="text-[10px] font-mono text-cyan-400 animate-pulse">● CURRENT</span>
+                              <span className="text-[10px] font-mono text-cyan-400 animate-pulse">
+                                ● CURRENT
+                              </span>
                             )}
                           </div>
-                          <h3 className="text-lg font-bold text-white mb-2">{phase.title}</h3>
-                          <p className="text-sm text-slate-400 leading-relaxed">{phase.description}</p>
+                          <h3 className="text-lg font-bold text-white mb-2">
+                            {phase.title}
+                          </h3>
+                          <p className="text-sm text-slate-400 leading-relaxed">
+                            {phase.description}
+                          </p>
                         </div>
                       </HologramCard>
                     </div>
@@ -808,17 +976,31 @@ export default function LedProtocolPage() {
           </div>
         </div>
 
-        {/* ─── COMPARISON ─── */}
+        {/*  COMPARISON  */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
           <HologramCard accent="slate">
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-slate-500/10 border border-slate-500/20 flex items-center justify-center text-slate-400">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <rect x="3" y="11" width="18" height="11" rx="2" />
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                  </svg>
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-white">Current State</h3>
-                  <p className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">Internal Proprietary System</p>
+                  <h3 className="text-lg font-bold text-white">
+                    Current State
+                  </h3>
+                  <p className="text-[10px] text-slate-500 font-mono uppercase tracking-wider">
+                    Internal Proprietary System
+                  </p>
                 </div>
               </div>
               <div className="space-y-3">
@@ -830,7 +1012,10 @@ export default function LedProtocolPage() {
                   "Value pegged to USD internally",
                   "Controlled by 8th Ledger protocol rules",
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm text-slate-400">
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 text-sm text-slate-400"
+                  >
                     <span className="text-slate-600">—</span>
                     {item}
                   </div>
@@ -843,11 +1028,24 @@ export default function LedProtocolPage() {
             <div className="p-6">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center text-cyan-400">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+                    <path d="M2 12h20" />
+                  </svg>
                 </div>
                 <div>
                   <h3 className="text-lg font-bold text-white">Future State</h3>
-                  <p className="text-[10px] text-cyan-400 font-mono uppercase tracking-wider">Global Cryptocurrency</p>
+                  <p className="text-[10px] text-cyan-400 font-mono uppercase tracking-wider">
+                    Global Cryptocurrency
+                  </p>
                 </div>
               </div>
               <div className="space-y-3">
@@ -859,7 +1057,10 @@ export default function LedProtocolPage() {
                   "Market-driven price discovery",
                   "Governance rights for LED holders",
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center gap-2 text-sm text-slate-300">
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 text-sm text-slate-300"
+                  >
                     <span className="text-cyan-400">+</span>
                     {item}
                   </div>
@@ -869,14 +1070,18 @@ export default function LedProtocolPage() {
           </HologramCard>
         </div>
 
-        {/* ─── FOOTER CTA ─── */}
+        {/*  FOOTER CTA  */}
         <div className="text-center pb-10">
           <HologramCard accent="violet" className="max-w-2xl mx-auto">
             <div className="p-8 text-center">
               <div className="text-4xl mb-4">🜛</div>
-              <h3 className="text-2xl font-bold text-white tracking-tight mb-2">Join the Genesis List</h3>
+              <h3 className="text-2xl font-bold text-white tracking-tight mb-2">
+                Join the Genesis List
+              </h3>
               <p className="text-sm text-slate-400 mb-6 max-w-md mx-auto">
-                Early adopters receive priority access, reduced protocol fees for 12 months, and a genesis LED allocation when the chain launches.
+                Early adopters receive priority access, reduced protocol fees
+                for 12 months, and a genesis LED allocation when the chain
+                launches.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
                 <input
@@ -893,13 +1098,15 @@ export default function LedProtocolPage() {
                   {submitted ? "Whitelisted ✓" : "Reserve Genesis Spot"}
                 </button>
               </div>
-              <p className="text-[10px] text-slate-600 mt-4 font-mono">No spam. One email when Phase 04 begins. Unsubscribe anytime.</p>
+              <p className="text-[10px] text-slate-600 mt-4 font-mono">
+                No spam. One email when Phase 04 begins. Unsubscribe anytime.
+              </p>
             </div>
           </HologramCard>
         </div>
       </div>
 
-      {/* ─── SUBTLE GLOBAL SOON WATERMARK ─── */}
+      {/*  SUBTLE GLOBAL SOON WATERMARK  */}
       <div className="fixed inset-0 z-[40] pointer-events-none flex items-center justify-center">
         <div className="absolute inset-0 bg-[#020205]/10 backdrop-blur-[0.5px]" />
         <div className="absolute inset-0 bg-[linear-gradient(rgba(6,182,212,0.008)_1px,transparent_1px),linear-gradient(90deg,rgba(6,182,212,0.008)_1px,transparent_1px)] bg-[size:64px_64px]" />
@@ -910,12 +1117,12 @@ export default function LedProtocolPage() {
           transition={{ duration: 2, delay: 1 }}
           className="relative flex flex-col items-center"
         >
-          <h1 
+          <h1
             className="text-[4rem] md:text-[8rem] lg:text-[12rem] font-black tracking-tighter text-transparent select-none"
-            style={{ 
-              WebkitTextStroke: '1px rgba(6,182,212,0.06)',
-              textShadow: '0 0 40px rgba(6,182,212,0.03)',
-              filter: 'blur(1px)'
+            style={{
+              WebkitTextStroke: "1px rgba(6,182,212,0.06)",
+              textShadow: "0 0 40px rgba(6,182,212,0.03)",
+              filter: "blur(1px)",
             }}
           >
             SOON
@@ -928,11 +1135,11 @@ export default function LedProtocolPage() {
                 className="absolute h-1 w-1 rounded-full bg-cyan-400/10"
                 initial={{ x: p.x, y: p.y, opacity: 0 }}
                 animate={{ y: p.y - 80, opacity: [0, 0.3, 0] }}
-                transition={{ 
-                  duration: p.duration, 
-                  repeat: Infinity, 
+                transition={{
+                  duration: p.duration,
+                  repeat: Infinity,
                   delay: p.delay,
-                  ease: "easeInOut"
+                  ease: "easeInOut",
                 }}
               />
             ))}
@@ -942,8 +1149,13 @@ export default function LedProtocolPage() {
 
       <style jsx global>{`
         @keyframes pulse-slow {
-          0%, 100% { opacity: 0.3; }
-          50% { opacity: 0.7; }
+          0%,
+          100% {
+            opacity: 0.3;
+          }
+          50% {
+            opacity: 0.7;
+          }
         }
         .animate-pulse-slow {
           animation: pulse-slow 5s ease-in-out infinite;

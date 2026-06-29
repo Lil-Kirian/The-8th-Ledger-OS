@@ -91,7 +91,7 @@ export function calculateValuePerPercent(
   accumulatedDividendsPerPercent: number,
   ahgiScore: number,
   sriScore: number,
-  pirDebtPerPercent: number
+  pirDebtPerPercent: number,
 ): number {
   const base = assetBookValue / 100;
   const ahgiPremium = (ahgiScore - 50) * AHGI_PREMIUM_RATE;
@@ -115,9 +115,9 @@ export function calculateValuePerPercent(
  * Calculate and store dynamic valuation for a hall.
  * Updates all ownerships' dynamicValue.
  */
-export async function calculateHallValuation(hallId: string): Promise<
-  Array<ValuationResult & { ownershipId: string; userId: string }>
-> {
+export async function calculateHallValuation(
+  hallId: string,
+): Promise<Array<ValuationResult & { ownershipId: string; userId: string }>> {
   const hall = await prisma.hall.findUnique({
     where: { id: hallId },
     include: {
@@ -146,11 +146,13 @@ export async function calculateHallValuation(hallId: string): Promise<
   // Total ownership percent (should be ~100)
   const totalOwnershipPercent = hall.ownerships.reduce(
     (s, o) => s + Number(o.ownershipPercent),
-    0
+    0,
   );
 
   const results = await prisma.$transaction(async (tx) => {
-    const valuations: Array<ValuationResult & { ownershipId: string; userId: string }> = [];
+    const valuations: Array<
+      ValuationResult & { ownershipId: string; userId: string }
+    > = [];
 
     for (const ownership of hall.ownerships) {
       const percent = Number(ownership.ownershipPercent);
@@ -164,16 +166,17 @@ export async function calculateHallValuation(hallId: string): Promise<
         percent > 0 && ownership.pirDebt > 0
           ? ownership.pirDebt / percent
           : totalOwnershipPercent > 0
-          ? hallPirDebt / totalOwnershipPercent
-          : 0;
+            ? hallPirDebt / totalOwnershipPercent
+            : 0;
 
       const valuePerPercent = calculateValuePerPercent(
         assetBookValue,
         accumulatedDividendsPerPercent,
         ahgiScore,
         sriScore,
-        ownershipPirDebtPerPercent
+        ownershipPirDebtPerPercent,
       );
+      const sriBonus = getSriBonus(sriScore);
 
       const totalValue = Math.round(valuePerPercent * percent * 100) / 100;
 
@@ -191,9 +194,12 @@ export async function calculateHallValuation(hallId: string): Promise<
         ownershipPercent: percent,
         floorPrice: valuePerPercent,
         components: {
-          assetBookValuePerPercent: Math.round((assetBookValue / 100) * 100) / 100,
-          accumulatedDividendsPerPercent: Math.round(accumulatedDividendsPerPercent * 100) / 100,
-          ahgiPremium: Math.round((ahgiScore - 50) * AHGI_PREMIUM_RATE * 100) / 100,
+          assetBookValuePerPercent:
+            Math.round((assetBookValue / 100) * 100) / 100,
+          accumulatedDividendsPerPercent:
+            Math.round(accumulatedDividendsPerPercent * 100) / 100,
+          ahgiPremium:
+            Math.round((ahgiScore - 50) * AHGI_PREMIUM_RATE * 100) / 100,
           sriBonus,
           pirDebtPerPercent: Math.round(ownershipPirDebtPerPercent * 100) / 100,
         },
@@ -209,18 +215,28 @@ export async function calculateHallValuation(hallId: string): Promise<
         accumulatedDividendsPerPercent:
           hall.ownerships.length > 0
             ? Math.round(
-                (hall.ownerships.reduce((s, o) => s + o.accumulatedDividends, 0) /
-                  hall.ownerships.reduce((s, o) => s + Number(o.ownershipPercent), 0)) *
-                  100
+                (hall.ownerships.reduce(
+                  (s, o) => s + o.accumulatedDividends,
+                  0,
+                ) /
+                  hall.ownerships.reduce(
+                    (s, o) => s + Number(o.ownershipPercent),
+                    0,
+                  )) *
+                  100,
               ) / 100
             : 0,
-        ahgiPremium: Math.round((ahgiScore - 50) * AHGI_PREMIUM_RATE * 100) / 100,
+        ahgiPremium:
+          Math.round((ahgiScore - 50) * AHGI_PREMIUM_RATE * 100) / 100,
         sriBonus: getSriBonus(sriScore),
         pirDebtPerPercent:
-          totalOwnershipPercent > 0 ? Math.round((hallPirDebt / totalOwnershipPercent) * 100) / 100 : 0,
+          totalOwnershipPercent > 0
+            ? Math.round((hallPirDebt / totalOwnershipPercent) * 100) / 100
+            : 0,
         valuePerPercent:
           valuations.length > 0
-            ? valuations.reduce((s, v) => s + v.valuePerPercent, 0) / valuations.length
+            ? valuations.reduce((s, v) => s + v.valuePerPercent, 0) /
+              valuations.length
             : 0,
       },
     });
@@ -238,7 +254,9 @@ export async function calculateHallValuation(hallId: string): Promise<
 /**
  * Get current valuation for a single ownership.
  */
-export async function getOwnershipValuation(ownershipId: string): Promise<ValuationResult | null> {
+export async function getOwnershipValuation(
+  ownershipId: string,
+): Promise<ValuationResult | null> {
   const ownership = await prisma.ownership.findUnique({
     where: { id: ownershipId },
     include: {
@@ -270,15 +288,15 @@ export async function getOwnershipValuation(ownershipId: string): Promise<Valuat
     percent > 0 && ownership.pirDebt > 0
       ? ownership.pirDebt / percent
       : totalOwnershipPercent > 0
-      ? hall.pirDebt / totalOwnershipPercent
-      : 0;
+        ? hall.pirDebt / totalOwnershipPercent
+        : 0;
 
   const valuePerPercent = calculateValuePerPercent(
     assetBookValue,
     accumulatedDividendsPerPercent,
     hall.ahgiScore,
     hall.sriScore,
-    pirDebtPerPercent
+    pirDebtPerPercent,
   );
 
   const totalValue = Math.round(valuePerPercent * percent * 100) / 100;
@@ -290,8 +308,10 @@ export async function getOwnershipValuation(ownershipId: string): Promise<Valuat
     floorPrice: valuePerPercent,
     components: {
       assetBookValuePerPercent: Math.round((assetBookValue / 100) * 100) / 100,
-      accumulatedDividendsPerPercent: Math.round(accumulatedDividendsPerPercent * 100) / 100,
-      ahgiPremium: Math.round((hall.ahgiScore - 50) * AHGI_PREMIUM_RATE * 100) / 100,
+      accumulatedDividendsPerPercent:
+        Math.round(accumulatedDividendsPerPercent * 100) / 100,
+      ahgiPremium:
+        Math.round((hall.ahgiScore - 50) * AHGI_PREMIUM_RATE * 100) / 100,
       sriBonus: getSriBonus(hall.sriScore),
       pirDebtPerPercent: Math.round(pirDebtPerPercent * 100) / 100,
     },
@@ -309,7 +329,7 @@ export async function getOwnershipValuation(ownershipId: string): Promise<Valuat
 export async function validateListing(
   ownershipId: string,
   percentListed: number,
-  pricePerPercent: number
+  pricePerPercent: number,
 ): Promise<ListingValidation> {
   const ownership = await prisma.ownership.findUnique({
     where: { id: ownershipId },
@@ -404,12 +424,13 @@ export async function validateListing(
 export function calculateSaleProceeds(
   totalPrice: number,
   isFractional: boolean,
-  sellerPirDebt: number = 0
+  sellerPirDebt: number = 0,
 ): SaleProceeds {
   const feePercent = isFractional ? FRACTIONAL_SALE_FEE_PCT : FULL_SALE_FEE_PCT;
   const ledgerFee = Math.round(totalPrice * feePercent * 100) / 100;
   const pirDebtDeduction = sellerPirDebt;
-  const netToSeller = Math.round((totalPrice - ledgerFee - pirDebtDeduction) * 100) / 100;
+  const netToSeller =
+    Math.round((totalPrice - ledgerFee - pirDebtDeduction) * 100) / 100;
 
   return {
     grossAmount: totalPrice,
@@ -429,7 +450,12 @@ export function calculateSaleProceeds(
  * Called monthly by cron or admin.
  */
 export async function autoAdjustListings(hallId: string): Promise<
-  Array<{ listingId: string; oldPrice: number; newPrice: number; adjusted: boolean }>
+  Array<{
+    listingId: string;
+    oldPrice: number;
+    newPrice: number;
+    adjusted: boolean;
+  }>
 > {
   // Recalculate hall valuations first
   await calculateHallValuation(hallId);
@@ -443,7 +469,12 @@ export async function autoAdjustListings(hallId: string): Promise<
     },
   });
 
-  const adjustments: Array<{ listingId: string; oldPrice: number; newPrice: number; adjusted: boolean }> = [];
+  const adjustments: Array<{
+    listingId: string;
+    oldPrice: number;
+    newPrice: number;
+    adjusted: boolean;
+  }> = [];
 
   for (const listing of listings) {
     const percent = Number(listing.percentListed);
@@ -453,7 +484,9 @@ export async function autoAdjustListings(hallId: string): Promise<
     const ownershipValue = listing.ownership.dynamicValue;
     const ownershipPercent = Number(listing.ownership.ownershipPercent);
     const newFloor =
-      ownershipPercent > 0 ? Math.round((ownershipValue / ownershipPercent) * 100) / 100 : oldPrice;
+      ownershipPercent > 0
+        ? Math.round((ownershipValue / ownershipPercent) * 100) / 100
+        : oldPrice;
 
     // If listing is below new floor, auto-adjust up to floor
     let newPrice = oldPrice;
@@ -538,7 +571,7 @@ export async function getGlobalValuationLeaderboard(limit: number = 50) {
  */
 export async function isValidListingPrice(
   ownershipId: string,
-  pricePerPercent: number
+  pricePerPercent: number,
 ): Promise<boolean> {
   const valuation = await getOwnershipValuation(ownershipId);
   if (!valuation) return false;

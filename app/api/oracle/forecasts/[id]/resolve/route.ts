@@ -9,9 +9,9 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS & TYPES
-// ─────────────────────────────────────────────────────────────
+//
 
 type OracleTier = "novice" | "seer" | "oracle" | "prophet";
 
@@ -27,9 +27,9 @@ const ASSET_LAUNCH_BONUS = 5;
 const STREAK_MULTIPLIER = 2;
 const MAX_STREAK_BONUS = 20;
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function calculateTier(correctCount: number): OracleTier {
   if (correctCount >= 100) return "prophet";
@@ -86,10 +86,10 @@ async function logAudit(props: {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST /api/oracle/forecasts/[id]/resolve
 // The Architect speaks. The Oracle resolves. Standings are rewritten.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function POST(
   req: NextRequest,
@@ -103,7 +103,7 @@ export async function POST(
     if (!forecastId || forecastId.length < 10) {
       return NextResponse.json(
         { error: "Invalid forecast ID.", code: "VALIDATION_ID" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -118,7 +118,7 @@ export async function POST(
           example: "ledgerprop|kenya",
           code: "VALIDATION_OUTCOME",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -129,7 +129,7 @@ export async function POST(
           error: "Outcome must be exactly 2 parts: vertical|country",
           code: "VALIDATION_OUTCOME_FORMAT",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -138,14 +138,17 @@ export async function POST(
     if (!winningVertical || winningVertical.length < 3) {
       return NextResponse.json(
         { error: "Invalid winning vertical.", code: "VALIDATION_VERTICAL" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
     if (!winningCountry || winningCountry.length !== 2) {
       return NextResponse.json(
-        { error: "Winning country must be a 2-letter ISO code.", code: "VALIDATION_COUNTRY" },
-        { status: 400 }
+        {
+          error: "Winning country must be a 2-letter ISO code.",
+          code: "VALIDATION_COUNTRY",
+        },
+        { status: 400 },
       );
     }
 
@@ -169,7 +172,7 @@ export async function POST(
     if (!forecast) {
       return NextResponse.json(
         { error: "Forecast not found.", code: "NOT_FOUND" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -182,14 +185,17 @@ export async function POST(
           resolvedAt: forecast.resolveDate,
           code: "ALREADY_RESOLVED",
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     if (forecast.status === "cancelled") {
       return NextResponse.json(
-        { error: "This forecast was cancelled. It cannot be resolved.", code: "FORECAST_CANCELLED" },
-        { status: 403 }
+        {
+          error: "This forecast was cancelled. It cannot be resolved.",
+          code: "FORECAST_CANCELLED",
+        },
+        { status: 403 },
       );
     }
 
@@ -198,16 +204,20 @@ export async function POST(
     if (forecast.status === "active" && now < new Date(forecast.lockDate)) {
       return NextResponse.json(
         {
-          error: "This forecast is still open. Lock it first or wait for the lock date.",
+          error:
+            "This forecast is still open. Lock it first or wait for the lock date.",
           lockDate: forecast.lockDate,
           code: "FORECAST_NOT_LOCKED",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     // 5. Validate winning combo against forecast options
-    const verticalOptions = safeJsonParse<string[]>(forecast.verticalOptions, []);
+    const verticalOptions = safeJsonParse<string[]>(
+      forecast.verticalOptions,
+      [],
+    );
     const countryOptions = safeJsonParse<string[]>(forecast.countryOptions, []);
 
     if (!verticalOptions.includes(winningVertical)) {
@@ -218,7 +228,7 @@ export async function POST(
           valid: verticalOptions,
           provided: winningVertical,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -230,7 +240,7 @@ export async function POST(
           valid: countryOptions,
           provided: winningCountry,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -281,7 +291,7 @@ export async function POST(
         const pointsEarned = calculatePoints(
           isCorrect,
           forecast.type,
-          isCorrect ? previousStreak : 0
+          isCorrect ? previousStreak : 0,
         );
 
         // Update prediction
@@ -370,7 +380,9 @@ export async function POST(
           incorrectCount,
           accuracy:
             forecast.predictions.length > 0
-              ? Math.round((correctCount / forecast.predictions.length) * 1000) / 10
+              ? Math.round(
+                  (correctCount / forecast.predictions.length) * 1000,
+                ) / 10
               : 0,
         },
       };
@@ -391,8 +403,8 @@ export async function POST(
               read: false,
               createdAt: new Date(),
             },
-          })
-        )
+          }),
+        ),
       ).catch(() => {
         // Notification failures are silent
       });
@@ -422,12 +434,11 @@ export async function POST(
           pointsEarned: w.pointsEarned,
           streak: w.newStreak,
         })),
-        topStreak: winners.length > 0
-          ? Math.max(...winners.map((w) => w.newStreak))
-          : 0,
+        topStreak:
+          winners.length > 0 ? Math.max(...winners.map((w) => w.newStreak)) : 0,
         message: "The Oracle has spoken. Standings are rewritten.",
       },
-      { status: 200 }
+      { status: 200 },
     );
   } catch (error: any) {
     console.error("[ORACLE_RESOLVE_POST]", error);
@@ -435,28 +446,43 @@ export async function POST(
     // Prisma unique constraint (race condition on double-resolve)
     if (error.code === "P2002") {
       return NextResponse.json(
-        { error: "Forecast already resolved. Refresh and try again.", code: "CONFLICT" },
-        { status: 409 }
+        {
+          error: "Forecast already resolved. Refresh and try again.",
+          code: "CONFLICT",
+        },
+        { status: 409 },
       );
     }
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
-        { error: "Only the Architect may resolve the Oracle.", code: "UNAUTHORIZED" },
-        { status: 401 }
+        {
+          error: "Only the Architect may resolve the Oracle.",
+          code: "UNAUTHORIZED",
+        },
+        { status: 401 },
       );
     }
 
     if (error.message?.includes("Admin") || error.message?.includes("admin")) {
       return NextResponse.json(
-        { error: "Only the Architect may resolve the Oracle.", code: "FORBIDDEN" },
-        { status: 403 }
+        {
+          error: "Only the Architect may resolve the Oracle.",
+          code: "FORBIDDEN",
+        },
+        { status: 403 },
       );
     }
 
     return NextResponse.json(
-      { error: "The Oracle could not be resolved.", code: "ORACLE_RESOLVE_001" },
-      { status: 500 }
+      {
+        error: "The Oracle could not be resolved.",
+        code: "ORACLE_RESOLVE_001",
+      },
+      { status: 500 },
     );
   }
 }

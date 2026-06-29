@@ -3,14 +3,12 @@
 import React, { useState, useMemo } from "react";
 import {
   Search,
-  Filter,
   MoreHorizontal,
   Shield,
   ShieldCheck,
   ShieldAlert,
   ShieldX,
   Crown,
-  UserX,
   UserCheck,
   Ban,
   RotateCcw,
@@ -18,23 +16,18 @@ import {
   ChevronDown,
   ChevronLeft,
   ChevronRight,
-  Eye,
-  Mail,
-  Calendar,
-  Globe,
   Activity,
   TrendingUp,
   TrendingDown,
   Minus,
   CheckCircle2,
-  XCircle,
   AlertTriangle,
   Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-// ─── Types ───
+//  Types
 interface UserRow {
   id: string;
   ledgerId: string;
@@ -66,7 +59,7 @@ interface UserTableProps {
 type SortKey = keyof UserRow;
 type SortDir = "asc" | "desc";
 
-// ─── KYC Tier Config ───
+//  KYC Tier Config
 const kycTierConfig = {
   visitor: {
     label: "Visitor",
@@ -98,13 +91,13 @@ const kycTierConfig = {
   },
 };
 
-// ─── Role Config ───
+//  Role Config
 const roleConfig = {
   user: { label: "User", color: "text-slate-400", bg: "bg-slate-800/30" },
   admin: { label: "Admin", color: "text-cyan-400", bg: "bg-cyan-950/20" },
 };
 
-// ─── Stats ───
+//  Stats
 function UserStats({ users }: { users: UserRow[] }) {
   const stats = useMemo(() => {
     const total = users.length;
@@ -156,7 +149,7 @@ function UserStats({ users }: { users: UserRow[] }) {
   );
 }
 
-// ─── Main Component ───
+//  Main Component
 export default function UserTable({ users, onAction, isLoading }: UserTableProps) {
   const [search, setSearch] = useState("");
   const [kycFilter, setKycFilter] = useState<string>("all");
@@ -221,7 +214,11 @@ export default function UserTable({ users, onAction, isLoading }: UserTableProps
     }
   };
 
-  const handleAction = async (action: string, userId: string, payload?: any) => {
+  const handleAction = async (
+    action: string,
+    userId: string,
+    payload?: any,
+  ) => {
     setActionLoading(`${action}-${userId}`);
     try {
       await onAction(action, userId, payload);
@@ -370,7 +367,7 @@ export default function UserTable({ users, onAction, isLoading }: UserTableProps
                         <div className="flex items-center gap-1.5">
                           <span className="text-xs font-mono text-slate-400">{user.ledgerId}</span>
                           {user.isPrimaryAdmin && (
-                            <Crown size={12} className="text-amber-400" title="Primary Admin" />
+                            <Crown size={12} className="text-amber-400" aria-label="Primary Admin" />
                           )}
                         </div>
                       </td>

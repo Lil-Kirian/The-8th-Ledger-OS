@@ -59,12 +59,12 @@ export interface PoolDetail extends Pool {
   spvEntityId: string | null;
   managementFee: number;
   pirAllocation: PirPillar[] | null;
-  executionQueue: unknown[] | null;
+  executionQueue: any[] | null;
   assetImages: string[] | null;
-  assetVideos: unknown[] | null;
+  assetVideos: any[] | null;
   tour360Url: string | null;
   documents: PoolDocument[] | null;
-  externalLinks: unknown[] | null;
+  externalLinks: any[] | null;
   // Ownership data (if committed)
   myOwnership?: {
     id: string;
@@ -369,14 +369,14 @@ function enrichPoolDetail(raw: Record<string, unknown>): PoolDetail {
     assetVideos: raw.assetVideos
       ? typeof raw.assetVideos === "string"
         ? JSON.parse(String(raw.assetVideos))
-        : (raw.assetVideos as unknown[])
+        : (raw.assetVideos as any[])
       : null,
     tour360Url: (raw.tour360Url || raw.tour360_url) as string | null,
     documents,
     externalLinks: raw.externalLinks
       ? typeof raw.externalLinks === "string"
         ? JSON.parse(String(raw.externalLinks))
-        : (raw.externalLinks as unknown[])
+        : (raw.externalLinks as any[])
       : null,
     myOwnership: myOwnershipRaw
       ? {

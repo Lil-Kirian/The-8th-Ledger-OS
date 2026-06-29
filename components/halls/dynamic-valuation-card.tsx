@@ -5,26 +5,16 @@ import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   TrendingUp,
-  TrendingDown,
   DollarSign,
-  Hash,
   BadgeCheck,
   AlertTriangle,
   ChevronDown,
   ChevronUp,
-  ArrowUpRight,
-  ArrowDownRight,
-  Minus,
-  Lock,
-  Unlock,
   Gavel,
   ShoppingCart,
   XCircle,
   CheckCircle2,
-  Info,
   Clock,
-  Calendar,
-  Landmark,
   FileText,
   Calculator,
   Crown,
@@ -34,7 +24,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ─────────────────────────────────────────────────────────
+//  Types
 
 export type SriTier = "platinum" | "gold" | "silver" | "bronze" | "at_risk";
 
@@ -89,7 +79,7 @@ export interface DynamicValuationCardProps {
   className?: string;
 }
 
-// ─── Tier Config ───────────────────────────────────────────────────
+//  Tier Config
 
 const TIER_CONFIG: Record<
   SriTier,
@@ -102,7 +92,7 @@ const TIER_CONFIG: Record<
   at_risk: { label: "At Risk", color: "text-red-400", bg: "bg-red-500/10", bonus: -20, icon: AlertTriangle },
 };
 
-// ─── Helpers ─────────────────────────────────────────────────────────
+//  Helpers
 
 function formatCurrency(n: number): string {
   return `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -124,7 +114,7 @@ function getScoreColor(score: number): string {
   return "text-red-400";
 }
 
-// ─── Formula Row ─────────────────────────────────────────────────────
+//  Formula Row ─
 
 function FormulaRow({
   label,
@@ -162,7 +152,7 @@ function FormulaRow({
   );
 }
 
-// ─── Main Component ────────────────────────────────────────────────
+//  Main Component
 
 export function DynamicValuationCard({
   data,
@@ -660,7 +650,7 @@ export function DynamicValuationCard({
   );
 }
 
-// ─── Skeleton ────────────────────────────────────────────────────────
+//  Skeleton ─
 
 export function DynamicValuationCardSkeleton() {
   return (

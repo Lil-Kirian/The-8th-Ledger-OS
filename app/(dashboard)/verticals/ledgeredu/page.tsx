@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Crown, BookOpen, GraduationCap, Users, Globe, Zap, TrendingUp, Check, ChevronRight, Award, Building2, FileText, Lock, Sparkles, School } from "lucide-react";
+import { Crown, BookOpen, GraduationCap, Users, Zap, TrendingUp, Check, ChevronRight, Building2, FileText, Lock, School } from "lucide-react";
 
 interface CourseAsset {
   id: string;

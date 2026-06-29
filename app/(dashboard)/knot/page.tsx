@@ -4,11 +4,11 @@
 import React, { useState, useCallback, useMemo, useRef, useEffect } from "react";
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion";
 import {
-  Users, Link2, Copy, CheckCircle2, Trophy, Globe, TrendingUp, Zap,
-  Crown, ArrowRight, Share2, Hash, Clock, ChevronRight, Star, Target,
-  Flame, Hexagon, Award, Medal, Sparkles, UserPlus, BarChart3, PieChart,
-  Activity, MapPin, Diamond, Fingerprint, Eye, ShieldCheck, Lock, Unlock,
-  Radio, ArrowUpRight, Wallet, CircleDollarSign, Network
+  Users, Link2, Copy, CheckCircle2, Trophy, TrendingUp,
+  Crown, ArrowRight, Clock, ChevronRight, Target,
+  Flame, Medal, Sparkles, UserPlus,
+  Activity, MapPin, Diamond, Fingerprint, Eye, ShieldCheck, Lock,
+  Radio, Network
 } from "lucide-react";
 
 /* ============================================================

@@ -4,15 +4,12 @@ import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Upload,
-  Image,
   FileText,
   Award,
   X,
   CheckCircle2,
-  AlertTriangle,
   Camera,
   Receipt,
-  Certificate,
   ChevronLeft,
   ChevronRight,
   Trash2,
@@ -20,12 +17,11 @@ import {
   Save,
   DollarSign,
   FileDigit,
-  Clock,
-  Send,
   Loader2,
   Maximize2,
-  Minimize2,
-  GripVertical,
+  TrendingUp,
+  TrendingDown,
+  Minus,
 } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +30,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Progress } from "@/components/ui/progress";
 
-// ─── Types ───
+//  Types
 export type ProofType = "photo" | "invoice" | "certificate";
 
 export interface ProofFile {
@@ -63,7 +59,7 @@ export interface ExecutionProofUploaderProps {
   onComplete?: (data: { actualCost: number; completionNotes: string; proofIds: string[] }) => void;
 }
 
-// ─── Config ───
+//  Config
 const PROOF_CONFIG: Record<ProofType, { label: string; icon: React.ElementType; color: string; bg: string; border: string; accept: string; description: string }> = {
   photo: {
     label: "Photo Evidence",
@@ -94,7 +90,7 @@ const PROOF_CONFIG: Record<ProofType, { label: string; icon: React.ElementType; 
   },
 };
 
-// ─── Helpers ───
+//  Helpers
 function formatFileSize(bytes: number) {
   if (bytes === 0) return "0 B";
   const k = 1024;
@@ -107,7 +103,7 @@ function formatCurrency(n: number, currency = "USD") {
   return new Intl.NumberFormat("en-US", { style: "currency", currency, maximumFractionDigits: 0 }).format(n);
 }
 
-// ─── Component ───
+//  Component
 export function ExecutionProofUploader({
   proposalId,
   proposalTitle,
@@ -236,13 +232,18 @@ export function ExecutionProofUploader({
 
   return (
     <div className="space-y-5">
-      {/* ─── Header ─── */}
+      {/*  Header  */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div>
-          <h2 className="text-xl font-semibold text-slate-100">Execution Proof</h2>
+          <h2 className="text-xl font-semibold text-slate-100">
+            Execution Proof
+          </h2>
           <p className="text-sm text-slate-500 mt-0.5">
             Proposal: <span className="text-slate-300">{proposalTitle}</span> ·{" "}
-            Est. cost: <span className="font-mono text-slate-300">{formatCurrency(estimatedCost, currency)}</span>
+            Est. cost:{" "}
+            <span className="font-mono text-slate-300">
+              {formatCurrency(estimatedCost, currency)}
+            </span>
           </p>
         </div>
         <Badge className="text-xs bg-slate-800 text-slate-400 border-0">
@@ -251,7 +252,7 @@ export function ExecutionProofUploader({
         </Badge>
       </div>
 
-      {/* ─── Type Tabs ─── */}
+      {/*  Type Tabs  */}
       <div className="flex gap-2">
         {(["photo", "invoice", "certificate"] as ProofType[]).map((type) => {
           const t = PROOF_CONFIG[type];
@@ -272,7 +273,9 @@ export function ExecutionProofUploader({
               <TIcon className="w-4 h-4" />
               {t.label}
               {count > 0 && (
-                <span className={`ml-1 text-[10px] px-1.5 py-0.5 rounded-full ${isActive ? "bg-slate-900/50" : "bg-slate-800"}`}>
+                <span
+                  className={`ml-1 text-[10px] px-1.5 py-0.5 rounded-full ${isActive ? "bg-slate-900/50" : "bg-slate-800"}`}
+                >
                   {count}
                 </span>
               )}
@@ -281,7 +284,7 @@ export function ExecutionProofUploader({
         })}
       </div>
 
-      {/* ─── Upload Zone ─── */}
+      {/*  Upload Zone  */}
       <Card
         className={`border-2 border-dashed transition-colors ${
           isDragging
@@ -294,13 +297,17 @@ export function ExecutionProofUploader({
       >
         <CardContent className="p-8">
           <div className="flex flex-col items-center text-center">
-            <div className={`w-14 h-14 rounded-2xl ${cfg.bg} flex items-center justify-center mb-4`}>
+            <div
+              className={`w-14 h-14 rounded-2xl ${cfg.bg} flex items-center justify-center mb-4`}
+            >
               <TypeIcon className={`w-7 h-7 ${cfg.color}`} />
             </div>
             <h3 className="text-sm font-semibold text-slate-200 mb-1">
               Drop {cfg.label} here
             </h3>
-            <p className="text-xs text-slate-500 max-w-sm mb-4">{cfg.description}</p>
+            <p className="text-xs text-slate-500 max-w-sm mb-4">
+              {cfg.description}
+            </p>
             <div className="text-[10px] text-slate-600 mb-4">
               Accepted: {cfg.accept} · Max 20MB per file
             </div>
@@ -325,30 +332,42 @@ export function ExecutionProofUploader({
         </CardContent>
       </Card>
 
-      {/* ─── Upload Queue ─── */}
+      {/*  Upload Queue  */}
       {proofs.some((p) => p.status === "uploading") && (
         <div className="space-y-2">
-          <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Uploading</h4>
+          <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            Uploading
+          </h4>
           {proofs
             .filter((p) => p.status === "uploading")
             .map((proof) => (
-              <div key={proof.id} className="flex items-center gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/50">
+              <div
+                key={proof.id}
+                className="flex items-center gap-3 p-3 rounded-lg border border-slate-800 bg-slate-900/50"
+              >
                 <Loader2 className="w-4 h-4 text-cyan-400 animate-spin" />
                 <div className="flex-1 min-w-0">
-                  <div className="text-xs text-slate-300 truncate">{proof.fileName}</div>
-                  <div className="text-[10px] text-slate-500">{formatFileSize(proof.fileSize)}</div>
+                  <div className="text-xs text-slate-300 truncate">
+                    {proof.fileName}
+                  </div>
+                  <div className="text-[10px] text-slate-500">
+                    {formatFileSize(proof.fileSize)}
+                  </div>
                 </div>
                 <div className="w-24">
                   <Progress value={proof.uploadProgress} className="h-1.5" />
                 </div>
-                <span className="text-[10px] font-mono text-slate-500 w-8 text-right">{proof.uploadProgress}%</span>
+                <span className="text-[10px] font-mono text-slate-500 w-8 text-right">
+                  {proof.uploadProgress}%
+                </span>
               </div>
             ))}
         </div>
       )}
 
-      {/* ─── Gallery ─── */}
-      {proofs.filter((p) => p.type === activeType && p.status === "complete").length > 0 && (
+      {/*  Gallery  */}
+      {proofs.filter((p) => p.type === activeType && p.status === "complete")
+        .length > 0 && (
         <div>
           <h4 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">
             {cfg.label} Gallery
@@ -357,7 +376,9 @@ export function ExecutionProofUploader({
             {proofs
               .filter((p) => p.type === activeType && p.status === "complete")
               .map((proof, index) => {
-                const globalIndex = allProofs.findIndex((p) => p.id === proof.id);
+                const globalIndex = allProofs.findIndex(
+                  (p) => p.id === proof.id,
+                );
                 const isEditing = editingCaption === proof.id;
 
                 return (
@@ -393,7 +414,9 @@ export function ExecutionProofUploader({
                       </div>
                       {/* Type badge */}
                       <div className="absolute top-2 left-2">
-                        <Badge className={`text-[9px] border-0 ${PROOF_CONFIG[proof.type].bg} ${PROOF_CONFIG[proof.type].color}`}>
+                        <Badge
+                          className={`text-[9px] border-0 ${PROOF_CONFIG[proof.type].bg} ${PROOF_CONFIG[proof.type].color}`}
+                        >
                           {PROOF_CONFIG[proof.type].label}
                         </Badge>
                       </div>
@@ -432,7 +455,11 @@ export function ExecutionProofUploader({
                       ) : (
                         <div className="flex items-start justify-between gap-2">
                           <p className="text-[11px] text-slate-400 line-clamp-2 flex-1">
-                            {proof.caption || <span className="text-slate-600 italic">No caption</span>}
+                            {proof.caption || (
+                              <span className="text-slate-600 italic">
+                                No caption
+                              </span>
+                            )}
                           </p>
                           <button
                             onClick={() => startEditCaption(proof)}
@@ -445,7 +472,9 @@ export function ExecutionProofUploader({
 
                       {/* Footer */}
                       <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-800/50">
-                        <span className="text-[9px] text-slate-600">{formatFileSize(proof.fileSize)}</span>
+                        <span className="text-[9px] text-slate-600">
+                          {formatFileSize(proof.fileSize)}
+                        </span>
                         <button
                           onClick={() => handleDelete(proof.id)}
                           className="text-slate-600 hover:text-red-400 transition-colors"
@@ -461,19 +490,23 @@ export function ExecutionProofUploader({
         </div>
       )}
 
-      {/* ─── Completion Form ─── */}
+      {/*  Completion Form  */}
       <Card className="border-slate-800 bg-slate-950/50">
         <CardHeader className="pb-3">
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <h3 className="text-sm font-semibold text-slate-200">Completion Form</h3>
+            <h3 className="text-sm font-semibold text-slate-200">
+              Completion Form
+            </h3>
           </div>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Cost */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs text-slate-500 mb-1.5 block">Actual Cost ({currency})</label>
+              <label className="text-xs text-slate-500 mb-1.5 block">
+                Actual Cost ({currency})
+              </label>
               <div className="relative">
                 <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
                 <Input
@@ -491,8 +524,8 @@ export function ExecutionProofUploader({
                       costVariance > 0
                         ? "bg-red-500/10 text-red-400"
                         : costVariance < 0
-                        ? "bg-emerald-500/10 text-emerald-400"
-                        : "bg-slate-800 text-slate-400"
+                          ? "bg-emerald-500/10 text-emerald-400"
+                          : "bg-slate-800 text-slate-400"
                     }`}
                   >
                     {costVariance > 0 ? (
@@ -503,7 +536,8 @@ export function ExecutionProofUploader({
                       <Minus className="w-2.5 h-2.5 mr-1" />
                     )}
                     {costVariance > 0 ? "+" : ""}
-                    {formatCurrency(Math.abs(costVariance), currency)} ({costVariancePct.toFixed(1)}%)
+                    {formatCurrency(Math.abs(costVariance), currency)} (
+                    {costVariancePct.toFixed(1)}%)
                   </Badge>
                   <span className="text-[10px] text-slate-500">
                     vs est. {formatCurrency(estimatedCost, currency)}
@@ -512,7 +546,9 @@ export function ExecutionProofUploader({
               )}
             </div>
             <div>
-              <label className="text-xs text-slate-500 mb-1.5 block">Completion Notes</label>
+              <label className="text-xs text-slate-500 mb-1.5 block">
+                Completion Notes
+              </label>
               <Textarea
                 value={completionNotes}
                 onChange={(e) => setCompletionNotes(e.target.value)}
@@ -525,19 +561,27 @@ export function ExecutionProofUploader({
 
           {/* Proof Summary */}
           <div className="p-3 rounded-lg bg-slate-900/50 border border-slate-800">
-            <div className="text-xs font-medium text-slate-400 mb-2">Proof Summary</div>
+            <div className="text-xs font-medium text-slate-400 mb-2">
+              Proof Summary
+            </div>
             <div className="flex gap-4">
               <div className="flex items-center gap-1.5 text-xs">
                 <Camera className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="text-slate-500">{photoProofs.length} photos</span>
+                <span className="text-slate-500">
+                  {photoProofs.length} photos
+                </span>
               </div>
               <div className="flex items-center gap-1.5 text-xs">
                 <Receipt className="w-3.5 h-3.5 text-amber-400" />
-                <span className="text-slate-500">{invoiceProofs.length} invoices</span>
+                <span className="text-slate-500">
+                  {invoiceProofs.length} invoices
+                </span>
               </div>
               <div className="flex items-center gap-1.5 text-xs">
                 <Award className="w-3.5 h-3.5 text-violet-400" />
-                <span className="text-slate-500">{certProofs.length} certificates</span>
+                <span className="text-slate-500">
+                  {certProofs.length} certificates
+                </span>
               </div>
             </div>
           </div>
@@ -546,7 +590,10 @@ export function ExecutionProofUploader({
           <div className="flex items-center gap-3 pt-2">
             <Button
               onClick={handleComplete}
-              disabled={isSubmitting || proofs.filter((p) => p.status === "complete").length === 0}
+              disabled={
+                isSubmitting ||
+                proofs.filter((p) => p.status === "complete").length === 0
+              }
               className="text-xs bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20 disabled:opacity-40"
             >
               {isSubmitting ? (
@@ -570,7 +617,7 @@ export function ExecutionProofUploader({
         </CardContent>
       </Card>
 
-      {/* ─── Lightbox ─── */}
+      {/*  Lightbox  */}
       <AnimatePresence>
         {lightboxIndex != null && allProofs[lightboxIndex] && (
           <motion.div
@@ -580,7 +627,10 @@ export function ExecutionProofUploader({
             className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center"
             onClick={closeLightbox}
           >
-            <div className="relative w-full h-full flex items-center justify-center p-4" onClick={(e) => e.stopPropagation()}>
+            <div
+              className="relative w-full h-full flex items-center justify-center p-4"
+              onClick={(e) => e.stopPropagation()}
+            >
               {/* Close */}
               <button
                 onClick={closeLightbox}
@@ -609,7 +659,9 @@ export function ExecutionProofUploader({
 
               {/* Content */}
               <div className="max-w-4xl max-h-[85vh] flex flex-col items-center">
-                {allProofs[lightboxIndex].url.match(/\.(jpg|jpeg|png|gif|webp)$/i) ? (
+                {allProofs[lightboxIndex].url.match(
+                  /\.(jpg|jpeg|png|gif|webp)$/i,
+                ) ? (
                   <img
                     src={allProofs[lightboxIndex].url}
                     alt={allProofs[lightboxIndex].fileName}
@@ -618,17 +670,26 @@ export function ExecutionProofUploader({
                 ) : (
                   <div className="w-96 h-64 rounded-lg bg-slate-800 flex flex-col items-center justify-center gap-3">
                     <FileText className="w-12 h-12 text-slate-600" />
-                    <span className="text-sm text-slate-400">{allProofs[lightboxIndex].fileName}</span>
-                    <span className="text-xs text-slate-600">{formatFileSize(allProofs[lightboxIndex].fileSize)}</span>
+                    <span className="text-sm text-slate-400">
+                      {allProofs[lightboxIndex].fileName}
+                    </span>
+                    <span className="text-xs text-slate-600">
+                      {formatFileSize(allProofs[lightboxIndex].fileSize)}
+                    </span>
                   </div>
                 )}
                 <div className="mt-4 text-center">
-                  <div className="text-sm text-slate-200">{allProofs[lightboxIndex].fileName}</div>
+                  <div className="text-sm text-slate-200">
+                    {allProofs[lightboxIndex].fileName}
+                  </div>
                   {allProofs[lightboxIndex].caption && (
-                    <div className="text-xs text-slate-400 mt-1">{allProofs[lightboxIndex].caption}</div>
+                    <div className="text-xs text-slate-400 mt-1">
+                      {allProofs[lightboxIndex].caption}
+                    </div>
                   )}
                   <div className="text-[10px] text-slate-600 mt-2">
-                    {lightboxIndex + 1} / {allProofs.length} · {PROOF_CONFIG[allProofs[lightboxIndex].type].label}
+                    {lightboxIndex + 1} / {allProofs.length} ·{" "}
+                    {PROOF_CONFIG[allProofs[lightboxIndex].type].label}
                   </div>
                 </div>
               </div>

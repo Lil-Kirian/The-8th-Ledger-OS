@@ -7,9 +7,9 @@ import { prisma } from "@/lib/prisma";
 import { requireAuth, requireKycTier } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS & CONFIG
-// ─────────────────────────────────────────────────────────────
+//
 
 const VALID_CONTINENTS = [
   "africa",
@@ -41,9 +41,9 @@ type StatusFilter = "pending" | "under_review" | "approved" | "rejected";
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const RATE_LIMIT_MAX = 5; // 5 suggestions per hour per IP
 
-// ─────────────────────────────────────────────────────────────
+//
 // IN-MEMORY RATE LIMITER (swap for Redis when multi-instance)
-// ─────────────────────────────────────────────────────────────
+//
 
 interface RateLimitEntry {
   count: number;
@@ -52,13 +52,21 @@ interface RateLimitEntry {
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
-function checkRateLimit(ip: string): { allowed: boolean; resetAt: number; remaining: number } {
+function checkRateLimit(ip: string): {
+  allowed: boolean;
+  resetAt: number;
+  remaining: number;
+} {
   const now = Date.now();
   const entry = rateLimitStore.get(ip);
 
   if (!entry || now > entry.resetAt) {
     rateLimitStore.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true, resetAt: now + RATE_LIMIT_WINDOW_MS, remaining: RATE_LIMIT_MAX - 1 };
+    return {
+      allowed: true,
+      resetAt: now + RATE_LIMIT_WINDOW_MS,
+      remaining: RATE_LIMIT_MAX - 1,
+    };
   }
 
   if (entry.count >= RATE_LIMIT_MAX) {
@@ -66,12 +74,16 @@ function checkRateLimit(ip: string): { allowed: boolean; resetAt: number; remain
   }
 
   entry.count += 1;
-  return { allowed: true, resetAt: entry.resetAt, remaining: RATE_LIMIT_MAX - entry.count };
+  return {
+    allowed: true,
+    resetAt: entry.resetAt,
+    remaining: RATE_LIMIT_MAX - entry.count,
+  };
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // INPUT SANITIZATION
-// ─────────────────────────────────────────────────────────────
+//
 
 function sanitizeText(input: string, maxLength: number): string {
   return input
@@ -84,9 +96,9 @@ function isValidStatus(status: string): status is StatusFilter {
   return ["pending", "under_review", "approved", "rejected"].includes(status);
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // AUDIT LOGGING
-// ─────────────────────────────────────────────────────────────
+//
 
 async function logAudit(props: {
   eventType: string;
@@ -112,10 +124,10 @@ async function logAudit(props: {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/agora/suggestions
 // Public. Cached 60s. Leverages schema indexes: status, continent, userId
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(req: NextRequest) {
   try {
@@ -131,7 +143,10 @@ export async function GET(req: NextRequest) {
     const q = searchParams.get("q") || undefined;
     const sort = (searchParams.get("sort") as SortMode) || "trending";
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const limit = Math.min(
+      50,
+      Math.max(1, parseInt(searchParams.get("limit") || "20", 10)),
+    );
     const skip = (page - 1) * limit;
 
     // Build Prisma where clause (schema-indexed fields)
@@ -139,7 +154,10 @@ export async function GET(req: NextRequest) {
       status?: StatusFilter;
       continent?: string;
       vertical?: string;
-      OR?: Array<{ title?: { contains: string; mode: "insensitive" }; description?: { contains: string; mode: "insensitive" } }>;
+      OR?: Array<{
+        title?: { contains: string; mode: "insensitive" };
+        description?: { contains: string; mode: "insensitive" };
+      }>;
     } = {};
 
     if (status) where.status = status;
@@ -157,8 +175,8 @@ export async function GET(req: NextRequest) {
       sort === "newest"
         ? { createdAt: "desc" as const }
         : sort === "top"
-        ? { upvotes: "desc" as const }
-        : [{ upvotes: "desc" as const }, { createdAt: "desc" as const }];
+          ? { upvotes: "desc" as const }
+          : [{ upvotes: "desc" as const }, { createdAt: "desc" as const }];
 
     // Parallel fetch: data + count
     const [suggestions, total] = await Promise.all([
@@ -212,21 +230,24 @@ export async function GET(req: NextRequest) {
     });
 
     // Public cache: 60 seconds for read-heavy endpoint
-    response.headers.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=60, stale-while-revalidate=300",
+    );
     return response;
   } catch (error) {
     console.error("[AGORA_SUGGESTIONS_GET]", error);
     return NextResponse.json(
       { error: "Failed to fetch suggestions", code: "AGORA_001" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST /api/agora/suggestions
 // Auth required. KYC tier >= sovereign. Rate-limited. Audited.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function POST(req: NextRequest) {
   try {
@@ -235,7 +256,10 @@ export async function POST(req: NextRequest) {
     requireKycTier(user, "sovereign");
 
     // 2. Rate limit by IP
-    const ip = req.headers.get("x-forwarded-for") || req.ip || "unknown";
+    const ip =
+      req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+      req.headers.get("x-real-ip") ||
+      "unknown";
     const rateLimit = checkRateLimit(ip);
     if (!rateLimit.allowed) {
       return NextResponse.json(
@@ -246,8 +270,12 @@ export async function POST(req: NextRequest) {
         },
         {
           status: 429,
-          headers: { "Retry-After": String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)) },
-        }
+          headers: {
+            "Retry-After": String(
+              Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
+            ),
+          },
+        },
       );
     }
 
@@ -265,15 +293,21 @@ export async function POST(req: NextRequest) {
 
     if (title.length < 5) {
       return NextResponse.json(
-        { error: "Title must be at least 5 characters", code: "VALIDATION_TITLE" },
-        { status: 400 }
+        {
+          error: "Title must be at least 5 characters",
+          code: "VALIDATION_TITLE",
+        },
+        { status: 400 },
       );
     }
 
     if (description.length < 20) {
       return NextResponse.json(
-        { error: "Description must be at least 20 characters", code: "VALIDATION_DESCRIPTION" },
-        { status: 400 }
+        {
+          error: "Description must be at least 20 characters",
+          code: "VALIDATION_DESCRIPTION",
+        },
+        { status: 400 },
       );
     }
 
@@ -283,7 +317,7 @@ export async function POST(req: NextRequest) {
           error: `Continent must be one of: ${VALID_CONTINENTS.join(", ")}`,
           code: "VALIDATION_CONTINENT",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -293,7 +327,7 @@ export async function POST(req: NextRequest) {
           error: `Vertical must be one of: ${VALID_VERTICALS.join(", ")}`,
           code: "VALIDATION_VERTICAL",
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -309,8 +343,11 @@ export async function POST(req: NextRequest) {
 
     if (recentDuplicate) {
       return NextResponse.json(
-        { error: "You already suggested this asset in the last 24 hours", code: "DUPLICATE" },
-        { status: 409 }
+        {
+          error: "You already suggested this asset in the last 24 hours",
+          code: "DUPLICATE",
+        },
+        { status: 409 },
       );
     }
 
@@ -344,7 +381,11 @@ export async function POST(req: NextRequest) {
           eventType: "agora_suggestion_created",
           description: `Suggestion created: "${title}" (${continent} / ${vertical})`,
           ledgerId: user.ledgerId,
-          metadata: JSON.stringify({ continent, vertical, titleLength: title.length }),
+          metadata: JSON.stringify({
+            continent,
+            vertical,
+            titleLength: title.length,
+          }),
           txHash: `AUD-${randomUUID()}`,
           visibleToPublic: true,
           timestamp: new Date(),
@@ -377,7 +418,7 @@ export async function POST(req: NextRequest) {
           rateLimitRemaining: rateLimit.remaining,
         },
       },
-      { status: 201 }
+      { status: 201 },
     );
 
     return response;
@@ -386,21 +427,27 @@ export async function POST(req: NextRequest) {
 
     if (error.message?.includes("KYC tier")) {
       return NextResponse.json(
-        { error: "KYC tier 'sovereign' or higher required to suggest", code: "KYC_INSUFFICIENT" },
-        { status: 403 }
+        {
+          error: "KYC tier 'sovereign' or higher required to suggest",
+          code: "KYC_INSUFFICIENT",
+        },
+        { status: 403 },
       );
     }
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
         { error: "Authentication required", code: "UNAUTHORIZED" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     return NextResponse.json(
       { error: "Failed to create suggestion", code: "AGORA_002" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

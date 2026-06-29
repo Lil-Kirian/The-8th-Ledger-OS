@@ -8,8 +8,6 @@ import React, { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ThumbsUp,
-  ThumbsDown,
-  MapPin,
   Tag,
   Clock,
   Shield,
@@ -21,18 +19,16 @@ import {
   TrendingUp,
   TrendingDown,
   Minus,
-  Crown,
   Globe,
   ArrowUp,
   ArrowDown,
   Sparkles,
-  FileText,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
-// ─────────────────────────────────────────────────────────────
+//
 // TYPES — Schema-Aligned
-// ─────────────────────────────────────────────────────────────
+//
 
 export interface StoaSuggestion {
   id: string;
@@ -60,9 +56,9 @@ interface StoaCardProps {
   index?: number;
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // DESIGN SYSTEM — The Petition Palette
-// ─────────────────────────────────────────────────────────────
+//
 
 const STATUS_CONFIG = {
   pending: {
@@ -129,9 +125,9 @@ const CONTINENT_CONFIG: Record<string, { emoji: string; label: string }> = {
   oceania: { emoji: "🌏", label: "Oceania" },
 };
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function timeAgo(date: string): string {
   const diff = Date.now() - new Date(date).getTime();
@@ -151,9 +147,9 @@ function formatScore(score: number): string {
   return "0";
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // SUB-COMPONENTS
-// ─────────────────────────────────────────────────────────────
+//
 
 function VoteButton({
   direction,
@@ -250,9 +246,9 @@ function MetaTag({
   );
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────
+//
 
 export function StoaCard({ suggestion, onVote, index = 0 }: StoaCardProps) {
   const { user } = useAuth();
@@ -281,7 +277,7 @@ export function StoaCard({ suggestion, onVote, index = 0 }: StoaCardProps) {
       if (isVoting || !user) return;
 
       const prev = { ...optimisticState };
-      let next = { ...optimisticState };
+      const next = { ...optimisticState };
 
       if (prev.userVote === direction) {
         // Unvote

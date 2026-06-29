@@ -14,18 +14,17 @@ import {
   Globe,
   Eye,
   MessageSquare,
-  BookOpen,
   Clock,
   AlertCircle,
 } from "lucide-react";
 import Link from "next/link";
 import useSWR from "swr";
 
-// ── Fetcher ─────────────────────────────────────────────────
+// ── Fetcher
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-// ── Metric Card ─────────────────────────────────────────────
+// ── Metric Card ─
 
 function MetricCard({
   title,
@@ -69,7 +68,7 @@ function MetricCard({
   );
 }
 
-// ── Section Header ──────────────────────────────────────────
+// ── Section Header
 
 function SectionHeader({ title, icon: Icon }: { title: string; icon: React.ElementType }) {
   return (
@@ -80,7 +79,7 @@ function SectionHeader({ title, icon: Icon }: { title: string; icon: React.Eleme
   );
 }
 
-// ── Main Page ───────────────────────────────────────────────
+// ── Main Page ─
 
 export default function PulsePage() {
   const { data, error, isLoading } = useSWR("/api/agora/pulse", fetcher, {

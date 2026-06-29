@@ -4,35 +4,23 @@
 
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import useSWR from "swr";
 import {
-  Telescope,
+
   Search,
-  Filter,
   Clock,
   CheckCircle2,
   XCircle,
   Lock,
   Unlock,
   Calendar,
-  Globe,
   BarChart3,
   ArrowLeft,
-  Eye,
-  Sparkles,
-  TrendingUp,
   AlertTriangle,
   ChevronRight,
-  Hash,
-  Target,
   Zap,
-  Loader2,
-  RefreshCw,
-  Crown,
-  Star,
-  Medal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
@@ -161,7 +149,8 @@ function formatDate(d: string): string {
 function ForecastCard({ forecast }: { forecast: ForecastWithPrediction }) {
   const status = STATUS_CONFIG[forecast.status];
   const StatusIcon = status.icon;
-  const countdown = forecast.status === "active" ? useCountdown(forecast.lockDate) : null;
+  const activeCountdown = useCountdown(forecast.lockDate);
+  const countdown = forecast.status === "active" ? activeCountdown : null;
 
   const resolvedVertical = forecast.resolvedOutcome
     ? VERTICALS.find((v) => forecast.resolvedOutcome?.includes(v.slug))

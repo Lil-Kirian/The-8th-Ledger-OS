@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Users, Clock, Flame, Hexagon, Trophy, XCircle, Globe, Wallet, CheckCircle2 } from "lucide-react";
+import { Users, Clock, Flame, Hexagon, Trophy, XCircle, Wallet, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 

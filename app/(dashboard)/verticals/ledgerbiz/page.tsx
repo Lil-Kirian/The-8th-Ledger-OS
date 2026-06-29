@@ -25,7 +25,7 @@ type Pool = {
   closesAt: string;
 };
 
-// ─── UTILS ───
+//  UTILS
 const formatMoney = (n: number) =>
   new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
 
@@ -115,11 +115,13 @@ export default function LedgerBizPage() {
         const res = await fetch("/api/pools?vertical=ledgerbiz");
         const data = await res.json();
         if (data.success && data.pools) {
-          setPools(data.pools.map((p: any) => ({
-            ...p,
-            accessThreshold: p.accessThreshold || p.target,
-            id: p.poolId || p.id,
-          })));
+          setPools(
+            data.pools.map((p: any) => ({
+              ...p,
+              accessThreshold: p.accessThreshold || p.target,
+              id: p.poolId || p.id,
+            })),
+          );
         }
       } catch (err) {
         console.error("[LEDGERBIZ]", err);
@@ -172,15 +174,18 @@ export default function LedgerBizPage() {
           <div>
             <div className="flex items-center gap-3 mb-2">
               <div className="h-2 w-2 rounded-full bg-orange-400 animate-pulse shadow-[0_0_10px_rgba(251,146,60,0.6)]" />
-              <span className="text-xs font-mono text-orange-400 uppercase tracking-[0.2em]">Vertical Command</span>
+              <span className="text-xs font-mono text-orange-400 uppercase tracking-[0.2em]">
+                Vertical Command
+              </span>
             </div>
             <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-gradient-to-r from-white via-orange-100 to-orange-200 bg-clip-text text-transparent flex items-center gap-4">
               <span className="text-5xl">🏪</span> LedgerBiz
             </h1>
             <p className="text-slate-400 mt-2 text-sm max-w-xl">
-              Fractional ownership of operating businesses — supermarkets, restaurants, coworking spaces, 
-              laundromats, logistics hubs. Class III Active. Hall governs daily operations. 
-              Protected by the Protocol Infrastructure Reserve. Global.
+              Fractional ownership of operating businesses — supermarkets,
+              restaurants, coworking spaces, laundromats, logistics hubs. Class
+              III Active. Hall governs daily operations. Protected by the
+              Protocol Infrastructure Reserve. Global.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -197,18 +202,24 @@ export default function LedgerBizPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
           <GlowCard accent="orange">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono text-orange-400 uppercase tracking-wider">Business Value</span>
+              <span className="text-xs font-mono text-orange-400 uppercase tracking-wider">
+                Business Value
+              </span>
               <Briefcase className="h-4 w-4 text-orange-400/50" />
             </div>
             <div className="text-3xl font-bold text-white mb-1">
               <AnimatedCounter value={stats.totalValue} prefix="$" />
             </div>
-            <div className="text-xs text-slate-500">{pools.length} listings globally</div>
+            <div className="text-xs text-slate-500">
+              {pools.length} listings globally
+            </div>
           </GlowCard>
 
           <GlowCard accent="gold">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono text-yellow-400 uppercase tracking-wider">Threshold</span>
+              <span className="text-xs font-mono text-yellow-400 uppercase tracking-wider">
+                Threshold
+              </span>
               <Flame className="h-4 w-4 text-yellow-400/50" />
             </div>
             <div className="text-3xl font-bold text-white mb-1">
@@ -219,7 +230,9 @@ export default function LedgerBizPage() {
 
           <GlowCard accent="emerald">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider">Active</span>
+              <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider">
+                Active
+              </span>
               <Zap className="h-4 w-4 text-emerald-400/50" />
             </div>
             <div className="text-3xl font-bold text-white mb-1">
@@ -230,11 +243,15 @@ export default function LedgerBizPage() {
 
           <GlowCard accent="purple">
             <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-mono text-violet-400 uppercase tracking-wider">Participants</span>
+              <span className="text-xs font-mono text-violet-400 uppercase tracking-wider">
+                Participants
+              </span>
               <Users className="h-4 w-4 text-violet-400/50" />
             </div>
             <div className="text-3xl font-bold text-white mb-1">
-              <AnimatedCounter value={pools.reduce((s, p) => s + p.participants, 0)} />
+              <AnimatedCounter
+                value={pools.reduce((s, p) => s + p.participants, 0)}
+              />
             </div>
             <div className="text-xs text-slate-500">Globally committed</div>
           </GlowCard>
@@ -258,7 +275,9 @@ export default function LedgerBizPage() {
           >
             <SlidersHorizontal className="h-3.5 w-3.5" />
             Sort
-            <ChevronDown className={`h-3 w-3 transition-transform ${showFilters ? "rotate-180" : ""}`} />
+            <ChevronDown
+              className={`h-3 w-3 transition-transform ${showFilters ? "rotate-180" : ""}`}
+            />
           </button>
         </div>
 
@@ -301,18 +320,26 @@ export default function LedgerBizPage() {
         ) : filteredPools.length === 0 ? (
           <GlowCard accent="slate" className="text-center py-16">
             <Store className="mx-auto h-12 w-12 text-slate-700 mb-4" />
-            <p className="text-lg text-slate-400 font-semibold">No business listings found</p>
+            <p className="text-lg text-slate-400 font-semibold">
+              No business listings found
+            </p>
             <p className="text-xs text-slate-600 mt-2">
-              {searchQuery ? "Try a different search term" : "Check back soon for new listings"}
+              {searchQuery
+                ? "Try a different search term"
+                : "Check back soon for new listings"}
             </p>
           </GlowCard>
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             <AnimatePresence mode="popLayout">
               {filteredPools.map((pool) => {
-                const fillPct = pool.accessThreshold > 0
-                  ? Math.min((pool.committed / pool.accessThreshold) * 100, 100)
-                  : 0;
+                const fillPct =
+                  pool.accessThreshold > 0
+                    ? Math.min(
+                        (pool.committed / pool.accessThreshold) * 100,
+                        100,
+                      )
+                    : 0;
                 const timeLeft = new Date(pool.closesAt).getTime() - Date.now();
                 const isExpired = timeLeft <= 0;
 
@@ -327,7 +354,11 @@ export default function LedgerBizPage() {
                     <GlowCard accent="orange" className="h-full flex flex-col">
                       <div className="relative h-44 w-full overflow-hidden rounded-xl border border-slate-800 mb-4">
                         {pool.imageUrl ? (
-                          <img src={pool.imageUrl} alt={pool.name} className="h-full w-full object-cover" />
+                          <img
+                            src={pool.imageUrl}
+                            alt={pool.name}
+                            className="h-full w-full object-cover"
+                          />
                         ) : (
                           <ImageSkeleton />
                         )}
@@ -344,7 +375,9 @@ export default function LedgerBizPage() {
                       <h3 className="text-sm font-bold text-white group-hover:text-orange-300 transition-colors line-clamp-1 mb-1">
                         {pool.name}
                       </h3>
-                      <p className="text-xs text-slate-500 line-clamp-2 mb-3">{pool.description || "Operating business asset."}</p>
+                      <p className="text-xs text-slate-500 line-clamp-2 mb-3">
+                        {pool.description || "Operating business asset."}
+                      </p>
 
                       <div className="flex flex-wrap gap-2 mb-4">
                         <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-400 text-[10px] border border-slate-700 flex items-center gap-1">
@@ -361,28 +394,49 @@ export default function LedgerBizPage() {
                       <div className="mt-auto p-4 rounded-xl bg-slate-900/40 border border-slate-800">
                         <div className="flex items-baseline justify-between mb-2">
                           <div>
-                            <p className="text-[10px] uppercase tracking-wider text-orange-400/60 font-mono">Threshold</p>
+                            <p className="text-[10px] uppercase tracking-wider text-orange-400/60 font-mono">
+                              Threshold
+                            </p>
                             <p className="text-lg font-bold font-mono text-orange-400">
                               ${pool.accessThreshold.toLocaleString()}
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-[10px] text-slate-500">Asset Value</p>
-                            <p className="text-sm font-mono text-slate-400">${pool.assetValue.toLocaleString()}</p>
+                            <p className="text-[10px] text-slate-500">
+                              Asset Value
+                            </p>
+                            <p className="text-sm font-mono text-slate-400">
+                              ${pool.assetValue.toLocaleString()}
+                            </p>
                           </div>
                         </div>
                         <div className="mb-2">
                           <div className="flex items-center justify-between text-[10px] mb-1">
-                            <span className="text-orange-400/80 font-mono">{fillPct.toFixed(1)}% to threshold</span>
-                            <span className="text-slate-600 font-mono">${pool.committed.toLocaleString()}</span>
+                            <span className="text-orange-400/80 font-mono">
+                              {fillPct.toFixed(1)}% to threshold
+                            </span>
+                            <span className="text-slate-600 font-mono">
+                              ${pool.committed.toLocaleString()}
+                            </span>
                           </div>
                           <div className="h-2 w-full rounded-full bg-slate-800 overflow-hidden">
-                            <div className="h-full bg-gradient-to-r from-orange-500 to-red-400 rounded-full transition-all" style={{ width: `${fillPct}%` }} />
+                            <div
+                              className="h-full bg-gradient-to-r from-orange-500 to-red-400 rounded-full transition-all"
+                              style={{ width: `${fillPct}%` }}
+                            />
                           </div>
                         </div>
                         <div className="flex items-center justify-between text-[10px] text-slate-600 font-mono">
-                          <span className="flex items-center gap-1"><Users className="h-3 w-3" /> {pool.participants}/{pool.maxParticipants}</span>
-                          <span className="flex items-center gap-1"><Timer className="h-3 w-3" /> {isExpired ? "Closed" : `${Math.ceil(timeLeft / 86400000)}d`}</span>
+                          <span className="flex items-center gap-1">
+                            <Users className="h-3 w-3" /> {pool.participants}/
+                            {pool.maxParticipants}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Timer className="h-3 w-3" />{" "}
+                            {isExpired
+                              ? "Closed"
+                              : `${Math.ceil(timeLeft / 86400000)}d`}
+                          </span>
                         </div>
                       </div>
 
@@ -409,20 +463,29 @@ export default function LedgerBizPage() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2 flex-1">
               <div>
-                <h4 className="text-sm font-semibold text-white mb-2">How LedgerBiz Works</h4>
+                <h4 className="text-sm font-semibold text-white mb-2">
+                  How LedgerBiz Works
+                </h4>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Each pool shows the True Acquisition Cost and the Protocol Infrastructure Reserve (PIR). 
-                  When the pool fills, the 8th Ledger acquires the business, forms the legal SPV, and activates 
-                  insurance. You receive a Perpetual Asset Contract (PAC) representing your ownership percentage. 
-                  Revenue is distributed monthly after the 8th Ledger Tithe (20%) and payroll costs.
+                  Each pool shows the True Acquisition Cost and the Protocol
+                  Infrastructure Reserve (PIR). When the pool fills, the 8th
+                  Ledger acquires the business, forms the legal SPV, and
+                  activates insurance. You receive a Perpetual Asset Contract
+                  (PAC) representing your ownership percentage. Revenue is
+                  distributed monthly after the 8th Ledger Tithe (20%) and
+                  payroll costs.
                 </p>
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-white mb-2">Class III Active Operations</h4>
+                <h4 className="text-sm font-semibold text-white mb-2">
+                  Class III Active Operations
+                </h4>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  LedgerBiz is Class III Active — the hall governs daily operations including inventory orders, 
-                  staffing levels, pricing, and marketing. The 8th Ledger handles payroll execution, vendor contracts, 
-                  and worker management through the Forge Ledger. Any hall can vote to enable inventory or forge 
+                  LedgerBiz is Class III Active — the hall governs daily
+                  operations including inventory orders, staffing levels,
+                  pricing, and marketing. The 8th Ledger handles payroll
+                  execution, vendor contracts, and worker management through the
+                  Forge Ledger. Any hall can vote to enable inventory or forge
                   operations at 51% threshold.
                 </p>
               </div>

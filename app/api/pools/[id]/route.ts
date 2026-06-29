@@ -6,7 +6,7 @@ import { Prisma } from "@prisma/client";
 /* ============================================================
    HELPERS
    ============================================================ */
-function parseMediaField(raw: string | null): unknown[] | null {
+function parseMediaField(raw: string | null): any[] | null {
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw);
@@ -16,7 +16,7 @@ function parseMediaField(raw: string | null): unknown[] | null {
   }
 }
 
-function handlePrismaError(error: unknown): NextResponse {
+function handlePrismaError(error: any): NextResponse {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2025") {
       return NextResponse.json(

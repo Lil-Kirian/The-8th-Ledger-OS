@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   HeartPulse, ArrowRight, Stethoscope, Search, SlidersHorizontal,
   ChevronDown, MapPin, Zap, TrendingUp, Users, Timer, Lock,
-  Crown, Check, Globe, Radio, Activity
+  Crown, Globe, Radio, Activity
 } from "lucide-react";
 import Link from "next/link";
 

@@ -23,7 +23,7 @@ interface ForgeLedgerProps {
   hallId: string;
 }
 
-export default function ForgeLedgerDashboard({ hallId }: ForgeLedgerProps) {
+export function ForgeLedger({ hallId }: ForgeLedgerProps) {
   const { forge, isLoading, error, mutate } = useForge(hallId);
   const [showHireForm, setShowHireForm] = useState(false);
 
@@ -235,6 +235,8 @@ export default function ForgeLedgerDashboard({ hallId }: ForgeLedgerProps) {
     </div>
   );
 }
+
+export default ForgeLedger;
 
 /* ============================================================
    SUB-COMPONENTS

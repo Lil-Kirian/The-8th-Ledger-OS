@@ -8,9 +8,9 @@ import { prisma } from "@/lib/prisma";
 import { requireAdmin, getSessionUser } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
-// ─────────────────────────────────────────────────────────────
+//
 // CONSTANTS & TYPES
-// ─────────────────────────────────────────────────────────────
+//
 
 const VALID_VERTICALS = [
   "ledgerprop",
@@ -33,9 +33,9 @@ type ForecastStatus = "active" | "locked" | "resolved" | "cancelled";
 const RATE_LIMIT_WINDOW_MS = 60 * 60 * 1000; // 1 hour
 const RATE_LIMIT_MAX_FORECASTS = 10;
 
-// ─────────────────────────────────────────────────────────────
+//
 // IN-MEMORY RATE LIMITER (swap for Redis at scale)
-// ─────────────────────────────────────────────────────────────
+//
 
 interface RateLimitEntry {
   count: number;
@@ -44,13 +44,24 @@ interface RateLimitEntry {
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
-function checkRateLimit(adminId: string): { allowed: boolean; resetAt: number; remaining: number } {
+function checkRateLimit(adminId: string): {
+  allowed: boolean;
+  resetAt: number;
+  remaining: number;
+} {
   const now = Date.now();
   const entry = rateLimitStore.get(adminId);
 
   if (!entry || now > entry.resetAt) {
-    rateLimitStore.set(adminId, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-    return { allowed: true, resetAt: now + RATE_LIMIT_WINDOW_MS, remaining: RATE_LIMIT_MAX_FORECASTS - 1 };
+    rateLimitStore.set(adminId, {
+      count: 1,
+      resetAt: now + RATE_LIMIT_WINDOW_MS,
+    });
+    return {
+      allowed: true,
+      resetAt: now + RATE_LIMIT_WINDOW_MS,
+      remaining: RATE_LIMIT_MAX_FORECASTS - 1,
+    };
   }
 
   if (entry.count >= RATE_LIMIT_MAX_FORECASTS) {
@@ -58,12 +69,16 @@ function checkRateLimit(adminId: string): { allowed: boolean; resetAt: number; r
   }
 
   entry.count += 1;
-  return { allowed: true, resetAt: entry.resetAt, remaining: RATE_LIMIT_MAX_FORECASTS - entry.count };
+  return {
+    allowed: true,
+    resetAt: entry.resetAt,
+    remaining: RATE_LIMIT_MAX_FORECASTS - entry.count,
+  };
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // HELPERS
-// ─────────────────────────────────────────────────────────────
+//
 
 function sanitizeText(input: string, maxLength: number): string {
   return input.replace(/[<>]/g, "").trim().slice(0, maxLength);
@@ -90,12 +105,12 @@ function isValidVertical(v: string): v is VerticalSlug {
   return VALID_VERTICALS.includes(v as VerticalSlug);
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // AUTO-LOCK EXPIRED FORECASTS (data integrity guard)
-// ─────────────────────────────────────────────────────────────
+//
 // Called on every GET to ensure active forecasts past lockDate
 // are atomically transitioned to 'locked' before serving.
-// ─────────────────────────────────────────────────────────────
+//
 
 async function autoLockExpiredForecasts(): Promise<number> {
   try {
@@ -116,9 +131,9 @@ async function autoLockExpiredForecasts(): Promise<number> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // AUDIT LOGGING
-// ─────────────────────────────────────────────────────────────
+//
 
 async function logAudit(props: {
   eventType: string;
@@ -143,11 +158,11 @@ async function logAudit(props: {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // GET /api/oracle/forecasts
 // Public. Cached 60s. Auto-locks expired. Optional auth enriches
 // with the caller's prediction per forecast.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function GET(req: NextRequest) {
   try {
@@ -157,12 +172,20 @@ export async function GET(req: NextRequest) {
     // 2. Parse query params
     const { searchParams } = new URL(req.url);
     const statusRaw = searchParams.get("status") || "active";
-    const status: ForecastStatus | "all" = isValidStatus(statusRaw) ? statusRaw : "active";
+    const status: ForecastStatus | "all" =
+      statusRaw === "all"
+        ? "all"
+        : isValidStatus(statusRaw)
+          ? statusRaw
+          : "active";
     const type = searchParams.get("type");
     const isLocked = searchParams.get("isLocked");
     const q = searchParams.get("q") || undefined;
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
-    const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
+    const limit = Math.min(
+      50,
+      Math.max(1, parseInt(searchParams.get("limit") || "20", 10)),
+    );
     const skip = (page - 1) * limit;
 
     // 3. Build where clause
@@ -232,19 +255,23 @@ export async function GET(req: NextRequest) {
 
     // 6. Shape response
     const enriched = forecasts.map((f) => {
-      const verticalOptions = safeJsonParse<VerticalSlug[]>(f.verticalOptions, []);
+      const verticalOptions = safeJsonParse<VerticalSlug[]>(
+        f.verticalOptions,
+        [],
+      );
       const countryOptions = safeJsonParse<string[]>(f.countryOptions, []);
       const isLockedNow = now >= new Date(f.lockDate);
-      const userPrediction = currentUserId && f.predictions?.length > 0
-        ? {
-            id: f.predictions[0].id,
-            vertical: f.predictions[0].vertical,
-            country: f.predictions[0].country,
-            status: f.predictions[0].status,
-            pointsEarned: f.predictions[0].pointsEarned,
-            predictedAt: f.predictions[0].createdAt,
-          }
-        : null;
+      const userPrediction =
+        currentUserId && f.predictions?.length > 0
+          ? {
+              id: f.predictions[0].id,
+              vertical: f.predictions[0].vertical,
+              country: f.predictions[0].country,
+              status: f.predictions[0].status,
+              pointsEarned: f.predictions[0].pointsEarned,
+              predictedAt: f.predictions[0].createdAt,
+            }
+          : null;
 
       return {
         id: f.id,
@@ -282,21 +309,24 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    response.headers.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+    response.headers.set(
+      "Cache-Control",
+      "public, max-age=60, stale-while-revalidate=300",
+    );
     return response;
   } catch (error) {
     console.error("[ORACLE_FORECASTS_GET]", error);
     return NextResponse.json(
       { error: "The Oracle cannot be read.", code: "ORACLE_001" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────
+//
 // POST /api/oracle/forecasts
 // Create a new forecast. Admin-only. Rate-limited. Audited.
-// ─────────────────────────────────────────────────────────────
+//
 
 export async function POST(req: NextRequest) {
   try {
@@ -304,7 +334,7 @@ export async function POST(req: NextRequest) {
     const admin = await requireAdmin(req);
 
     // 2. Rate limit
-    const rateLimit = checkRateLimit(admin.id);
+    const rateLimit = checkRateLimit(admin.userId ?? admin.ledgerId ?? "admin");
     if (!rateLimit.allowed) {
       return NextResponse.json(
         {
@@ -314,8 +344,12 @@ export async function POST(req: NextRequest) {
         },
         {
           status: 429,
-          headers: { "Retry-After": String(Math.ceil((rateLimit.resetAt - Date.now()) / 1000)) },
-        }
+          headers: {
+            "Retry-After": String(
+              Math.ceil((rateLimit.resetAt - Date.now()) / 1000),
+            ),
+          },
+        },
       );
     }
 
@@ -337,15 +371,21 @@ export async function POST(req: NextRequest) {
 
     if (title.length < 5) {
       return NextResponse.json(
-        { error: "Title must be at least 5 characters.", code: "VALIDATION_TITLE" },
-        { status: 400 }
+        {
+          error: "Title must be at least 5 characters.",
+          code: "VALIDATION_TITLE",
+        },
+        { status: 400 },
       );
     }
 
     if (!type || !isValidType(type)) {
       return NextResponse.json(
-        { error: "Type must be 'asset_launch' or 'hall_revenue'.", code: "VALIDATION_TYPE" },
-        { status: 400 }
+        {
+          error: "Type must be 'asset_launch' or 'hall_revenue'.",
+          code: "VALIDATION_TYPE",
+        },
+        { status: 400 },
       );
     }
 
@@ -356,12 +396,17 @@ export async function POST(req: NextRequest) {
       verticalOptions.length > 10
     ) {
       return NextResponse.json(
-        { error: "Provide 1-10 vertical options.", code: "VALIDATION_VERTICALS" },
-        { status: 400 }
+        {
+          error: "Provide 1-10 vertical options.",
+          code: "VALIDATION_VERTICALS",
+        },
+        { status: 400 },
       );
     }
 
-    const invalidVerticals = verticalOptions.filter((v: string) => !isValidVertical(v));
+    const invalidVerticals = verticalOptions.filter(
+      (v: string) => !isValidVertical(v),
+    );
     if (invalidVerticals.length > 0) {
       return NextResponse.json(
         {
@@ -369,7 +414,7 @@ export async function POST(req: NextRequest) {
           code: "VALIDATION_VERTICAL_INVALID",
           validVerticals: VALID_VERTICALS,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -380,13 +425,16 @@ export async function POST(req: NextRequest) {
       countryOptions.length > 50
     ) {
       return NextResponse.json(
-        { error: "Provide 1-50 country options.", code: "VALIDATION_COUNTRIES" },
-        { status: 400 }
+        {
+          error: "Provide 1-50 country options.",
+          code: "VALIDATION_COUNTRIES",
+        },
+        { status: 400 },
       );
     }
 
     const invalidCountries = countryOptions.filter(
-      (c: string) => typeof c !== "string" || c.length !== 2
+      (c: string) => typeof c !== "string" || c.length !== 2,
     );
     if (invalidCountries.length > 0) {
       return NextResponse.json(
@@ -395,7 +443,7 @@ export async function POST(req: NextRequest) {
           code: "VALIDATION_COUNTRY_FORMAT",
           invalid: invalidCountries,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -403,8 +451,11 @@ export async function POST(req: NextRequest) {
     const lockTime = new Date(lockDate);
     if (isNaN(lockTime.getTime()) || lockTime <= new Date()) {
       return NextResponse.json(
-        { error: "Lock date must be in the future.", code: "VALIDATION_LOCK_DATE" },
-        { status: 400 }
+        {
+          error: "Lock date must be in the future.",
+          code: "VALIDATION_LOCK_DATE",
+        },
+        { status: 400 },
       );
     }
 
@@ -413,20 +464,26 @@ export async function POST(req: NextRequest) {
     const periodEndDate = periodEnd ? new Date(periodEnd) : null;
     if (periodStartDate && isNaN(periodStartDate.getTime())) {
       return NextResponse.json(
-        { error: "Invalid period start date.", code: "VALIDATION_PERIOD_START" },
-        { status: 400 }
+        {
+          error: "Invalid period start date.",
+          code: "VALIDATION_PERIOD_START",
+        },
+        { status: 400 },
       );
     }
     if (periodEndDate && isNaN(periodEndDate.getTime())) {
       return NextResponse.json(
         { error: "Invalid period end date.", code: "VALIDATION_PERIOD_END" },
-        { status: 400 }
+        { status: 400 },
       );
     }
     if (periodStartDate && periodEndDate && periodEndDate <= periodStartDate) {
       return NextResponse.json(
-        { error: "Period end must be after period start.", code: "VALIDATION_PERIOD_ORDER" },
-        { status: 400 }
+        {
+          error: "Period end must be after period start.",
+          code: "VALIDATION_PERIOD_ORDER",
+        },
+        { status: 400 },
       );
     }
 
@@ -441,8 +498,12 @@ export async function POST(req: NextRequest) {
 
     if (recentDuplicate) {
       return NextResponse.json(
-        { error: "A forecast with this title already exists in the last 24 hours.", code: "DUPLICATE" },
-        { status: 409 }
+        {
+          error:
+            "A forecast with this title already exists in the last 24 hours.",
+          code: "DUPLICATE",
+        },
+        { status: 409 },
       );
     }
 
@@ -504,28 +565,34 @@ export async function POST(req: NextRequest) {
         },
         message: "The Oracle has cast a new forecast.",
       },
-      { status: 201 }
+      { status: 201 },
     );
   } catch (error: any) {
     console.error("[ORACLE_FORECASTS_POST]", error);
 
-    if (error.message?.includes("Unauthorized") || error.message?.includes("unauthorized")) {
+    if (
+      error.message?.includes("Unauthorized") ||
+      error.message?.includes("unauthorized")
+    ) {
       return NextResponse.json(
-        { error: "Only the Architect may cast a forecast.", code: "UNAUTHORIZED" },
-        { status: 401 }
+        {
+          error: "Only the Architect may cast a forecast.",
+          code: "UNAUTHORIZED",
+        },
+        { status: 401 },
       );
     }
 
     if (error.message?.includes("Admin") || error.message?.includes("admin")) {
       return NextResponse.json(
         { error: "Only the Architect may cast a forecast.", code: "FORBIDDEN" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
     return NextResponse.json(
       { error: "The forecast could not be cast.", code: "ORACLE_002" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

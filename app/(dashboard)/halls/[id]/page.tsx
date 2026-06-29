@@ -8,10 +8,10 @@ import { useAuth } from "@/hooks/use-auth";
 import {
   Home, Car, GraduationCap, Lock, Stethoscope, Briefcase, Wifi,
   Plane, Sprout, Sun, Activity, ChevronRight, Wallet, ArrowUpRight,
-  CheckCircle2, Loader2, Crown, Wrench, Scroll, Building2,
+  CheckCircle2, Loader2, Crown, Wrench, Scroll,
   AlertTriangle, TrendingUp, HeartPulse, Shield, MessageSquare,
   BookOpen, Vault, Store, Hammer, Landmark, ChevronLeft, Sparkles,
-  Radio, Ban, FileText, Users, Gavel, BarChart3, Clock,
+  Radio, Ban, FileText, Users, Clock,
   Cog, Package, Swords,
 } from "lucide-react";
 

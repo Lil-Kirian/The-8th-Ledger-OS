@@ -6,21 +6,15 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   Landmark, Zap, Crown, Lock, HeartPulse, TrendingUp, Hexagon, Plane,
-  Sprout, Sun, Radio, Users, Send, X, Hash, Sparkles,
-  Shield, Clock, Pin, Globe, Star, Activity, ChevronRight,
-  MessageCircle, TrendingUp as TrendIcon, Crown as CrownIcon,
-  Flame as FlameIcon, Diamond, Award, Zap as ZapIcon,
-  Fingerprint, Eye, Trophy, Wallet, ArrowUpRight, ArrowDownRight,
-  AlertTriangle, CheckCircle2, Hourglass, Gavel, Store, BarChart3,
-  PieChart, Layers, Bell, Search, Filter, ChevronLeft, ChevronUp,
-  FileText, Ban, Scale, Settings, LogOut, Plus, Minus,
-  Maximize2, Lock as LockIcon, Unlock, Vote, Receipt, Percent,
-  MapPin, Calendar, ChevronDown, MoreVertical, Reply, Forward,
-  Flag, Bookmark, Download, PlayCircle, PauseCircle, StopCircle,
-  Headphones, Wifi, WifiOff, Timer, ShieldCheck, TrendingDown,
-  AlertOctagon, Trash2, RefreshCw, Check, XCircle, Info,
+  Sprout, Sun, Users, X,
+  Shield, Clock, Star, TrendingUp as TrendIcon, Crown as CrownIcon,
+  Flame as FlameIcon, Diamond, Zap as ZapIcon,
+  AlertTriangle, CheckCircle2, Gavel,
+  PieChart, Search, ChevronLeft, ChevronUp,
+  FileText, Plus,
+  MapPin, ChevronDown, Timer, RefreshCw, Check, XCircle,
   Wrench, DollarSign, UserX, UserCheck, MapPinned, ShoppingCart,
-  HeartHandshake, Skull, Megaphone, Gauge, Target, Swords
+  HeartHandshake, Skull, Target, Swords
 } from "lucide-react";
 
 /* ============================================================

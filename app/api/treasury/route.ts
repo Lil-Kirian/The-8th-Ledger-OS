@@ -227,7 +227,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
       const gross = Number(amount);
       let communityNet = Math.floor(gross * COMMUNITY_PCT * 100) / 100;
-      let ledgerFee = Math.floor(gross * LEDGER_TITHE_PCT * 100) / 100;
+      const ledgerFee = Math.floor(gross * LEDGER_TITHE_PCT * 100) / 100;
 
       // Fix rounding drift
       const drift = gross - (communityNet + ledgerFee);

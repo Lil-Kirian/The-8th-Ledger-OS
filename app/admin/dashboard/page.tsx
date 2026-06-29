@@ -1,6 +1,6 @@
 // app/admin/dashboard/page.tsx
 import { prisma } from "@/lib/prisma";
-import { requireAdmin, requirePrimaryAdmin, isPrimaryAdmin } from "@/lib/auth";
+import { requireAdmin, isPrimaryAdmin } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
@@ -13,7 +13,6 @@ import {
   AlertTriangle,
   Globe,
   Eye,
-  Vote,
   Wallet,
   FileCheck,
   Activity,
@@ -26,7 +25,6 @@ import {
   ChevronRight,
   Ban,
   CheckCircle2,
-  Hourglass,
   Landmark,
   Hammer,
   Sparkles,
@@ -42,7 +40,7 @@ import {
   HandCoins,
 } from "lucide-react";
 
-// ─── Types ───────────────────────────────────────────────────
+//  Types
 
 interface DashboardStats {
   totalUsers: number;
@@ -71,8 +69,7 @@ interface DashboardStats {
   } | null;
   pirByPillar: Array<{
     pillar: string;
-    _sum: { amount: number | null };
-    _sumSpent: { spent: number | null };
+    _sum: { amount: number | null; spent: number | null };
   }>;
   recentAuditLogs: Array<{
     id: string;
@@ -122,7 +119,7 @@ interface DashboardStats {
   };
 }
 
-// ─── Helpers ─────────────────────────────────────────────────
+//  Helpers
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("en-US", {
@@ -137,7 +134,9 @@ function formatNumber(n: number) {
 }
 
 function timeAgo(date: Date) {
-  const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
+  const seconds = Math.floor(
+    (new Date().getTime() - new Date(date).getTime()) / 1000,
+  );
   if (seconds < 60) return "just now";
   const minutes = Math.floor(seconds / 60);
   if (minutes < 60) return `${minutes}m ago`;
@@ -149,51 +148,77 @@ function timeAgo(date: Date) {
 
 function getPhaseColor(phase: string) {
   switch (phase) {
-    case "hush": return "text-slate-400";
-    case "unveil": return "text-amber-400";
-    case "reveal": return "text-cyan-400";
-    case "forge": return "text-emerald-400";
-    case "complete": return "text-violet-400";
-    default: return "text-slate-400";
+    case "hush":
+      return "text-slate-400";
+    case "unveil":
+      return "text-amber-400";
+    case "reveal":
+      return "text-cyan-400";
+    case "forge":
+      return "text-emerald-400";
+    case "complete":
+      return "text-violet-400";
+    default:
+      return "text-slate-400";
   }
 }
 
 function getPhaseIcon(phase: string) {
   switch (phase) {
-    case "hush": return <Clock className="w-4 h-4" />;
-    case "unveil": return <Eye className="w-4 h-4" />;
-    case "reveal": return <Sparkles className="w-4 h-4" />;
-    case "forge": return <Hammer className="w-4 h-4" />;
-    case "complete": return <CheckCircle2 className="w-4 h-4" />;
-    default: return <Clock className="w-4 h-4" />;
+    case "hush":
+      return <Clock className="w-4 h-4" />;
+    case "unveil":
+      return <Eye className="w-4 h-4" />;
+    case "reveal":
+      return <Sparkles className="w-4 h-4" />;
+    case "forge":
+      return <Hammer className="w-4 h-4" />;
+    case "complete":
+      return <CheckCircle2 className="w-4 h-4" />;
+    default:
+      return <Clock className="w-4 h-4" />;
   }
 }
 
 function getPillarIcon(pillar: string) {
   switch (pillar) {
-    case "shield": return <Shield className="w-4 h-4" />;
-    case "seal": return <Lock className="w-4 h-4" />;
-    case "forge": return <Hammer className="w-4 h-4" />;
-    case "spire": return <Landmark className="w-4 h-4" />;
-    case "vanguard": return <Zap className="w-4 h-4" />;
-    case "sanctuary": return <Siren className="w-4 h-4" />;
-    default: return <Shield className="w-4 h-4" />;
+    case "shield":
+      return <Shield className="w-4 h-4" />;
+    case "seal":
+      return <Lock className="w-4 h-4" />;
+    case "forge":
+      return <Hammer className="w-4 h-4" />;
+    case "spire":
+      return <Landmark className="w-4 h-4" />;
+    case "vanguard":
+      return <Zap className="w-4 h-4" />;
+    case "sanctuary":
+      return <Siren className="w-4 h-4" />;
+    default:
+      return <Shield className="w-4 h-4" />;
   }
 }
 
 function getPillarColor(pillar: string) {
   switch (pillar) {
-    case "shield": return "bg-red-500/10 text-red-400 border-red-500/20";
-    case "seal": return "bg-blue-500/10 text-blue-400 border-blue-500/20";
-    case "forge": return "bg-orange-500/10 text-orange-400 border-orange-500/20";
-    case "spire": return "bg-violet-500/10 text-violet-400 border-violet-500/20";
-    case "vanguard": return "bg-amber-500/10 text-amber-400 border-amber-500/20";
-    case "sanctuary": return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
-    default: return "bg-slate-500/10 text-slate-400 border-slate-500/20";
+    case "shield":
+      return "bg-red-500/10 text-red-400 border-red-500/20";
+    case "seal":
+      return "bg-blue-500/10 text-blue-400 border-blue-500/20";
+    case "forge":
+      return "bg-orange-500/10 text-orange-400 border-orange-500/20";
+    case "spire":
+      return "bg-violet-500/10 text-violet-400 border-violet-500/20";
+    case "vanguard":
+      return "bg-amber-500/10 text-amber-400 border-amber-500/20";
+    case "sanctuary":
+      return "bg-emerald-500/10 text-emerald-400 border-emerald-500/20";
+    default:
+      return "bg-slate-500/10 text-slate-400 border-slate-500/20";
   }
 }
 
-// ─── Data Fetcher ────────────────────────────────────────────
+//  Data Fetcher
 
 async function getDashboardData(): Promise<DashboardStats> {
   const now = new Date();
@@ -269,12 +294,25 @@ async function getDashboardData(): Promise<DashboardStats> {
       where: { visibleToPublic: true },
       orderBy: { timestamp: "desc" },
       take: 6,
-      select: { id: true, eventType: true, description: true, timestamp: true, txHash: true },
+      select: {
+        id: true,
+        eventType: true,
+        description: true,
+        timestamp: true,
+        txHash: true,
+      },
     }),
     prisma.securityAuditLog.findMany({
       orderBy: { createdAt: "desc" },
       take: 6,
-      select: { id: true, action: true, ledgerId: true, success: true, createdAt: true, ipAddress: true },
+      select: {
+        id: true,
+        action: true,
+        ledgerId: true,
+        success: true,
+        createdAt: true,
+        ipAddress: true,
+      },
     }),
     prisma.hall.findMany({
       where: { status: { in: ["live", "mature"] } },
@@ -382,7 +420,7 @@ async function getDashboardData(): Promise<DashboardStats> {
   };
 }
 
-// ─── Page ────────────────────────────────────────────────────
+//  Page
 
 export default async function AdminDashboardPage() {
   // Auth fortress — verify admin session
@@ -391,14 +429,17 @@ export default async function AdminDashboardPage() {
   if (!token) redirect("/enter?redirect=/admin/dashboard");
 
   const session = await verifyToken(token);
-  if (!session || session.role !== "admin") redirect("/enter?redirect=/admin/dashboard");
+  if (!session || session.role !== "admin")
+    redirect("/enter?redirect=/admin/dashboard");
 
   const primary = isPrimaryAdmin(session);
   const data = await getDashboardData();
 
   const ihcpRepaymentRate =
     data.ihcpStats.totalContributed > 0
-      ? Math.round((data.ihcpStats.totalRepaid / data.ihcpStats.totalContributed) * 100)
+      ? Math.round(
+          (data.ihcpStats.totalRepaid / data.ihcpStats.totalContributed) * 100,
+        )
       : 0;
 
   return (
@@ -411,9 +452,13 @@ export default async function AdminDashboardPage() {
               <Crown className="w-5 h-5 text-cyan-400" />
             </div>
             <div>
-              <h1 className="text-lg font-bold text-white tracking-tight">8th Ledger Command Center</h1>
+              <h1 className="text-lg font-bold text-white tracking-tight">
+                8th Ledger Command Center
+              </h1>
               <p className="text-xs text-slate-500">
-                {primary ? "Primary Admin Access — 6-Factor Fortress Active" : "Admin Access — 3-Factor Verified"}
+                {primary
+                  ? "Primary Admin Access — 6-Factor Fortress Active"
+                  : "Admin Access — 3-Factor Verified"}
               </p>
             </div>
           </div>
@@ -423,14 +468,14 @@ export default async function AdminDashboardPage() {
               System Online
             </span>
             <span className="px-3 py-1.5 rounded-lg bg-slate-800/60 text-slate-400 text-xs font-mono">
-              {session.ledgerId}
+              {String(session.ledgerId ?? "")}
             </span>
           </div>
         </div>
       </div>
 
       <div className="max-w-[1600px] mx-auto px-6 py-8 space-y-8">
-        {/* ─── Top Stats Row ─────────────────────────────── */}
+        {/*  Top Stats Row  */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             icon={<Users className="w-5 h-5" />}
@@ -466,8 +511,11 @@ export default async function AdminDashboardPage() {
           />
         </div>
 
-        {/* ─── Alert Bar ─────────────────────────────────── */}
-        {(data.pendingKyc > 0 || data.pendingWithdrawals > 0 || data.hallsInWarning > 0 || data.hallsInLiquidation > 0) && (
+        {/*  Alert Bar  */}
+        {(data.pendingKyc > 0 ||
+          data.pendingWithdrawals > 0 ||
+          data.hallsInWarning > 0 ||
+          data.hallsInLiquidation > 0) && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {data.pendingKyc > 0 && (
               <AlertCard
@@ -508,7 +556,7 @@ export default async function AdminDashboardPage() {
           </div>
         )}
 
-        {/* ─── PHASE 4: IHCP + Marketplace Stats Row ─────── */}
+        {/*  PHASE 4: IHCP + Marketplace Stats Row  */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
             icon={<PiggyBank className="w-5 h-5" />}
@@ -544,7 +592,7 @@ export default async function AdminDashboardPage() {
           />
         </div>
 
-        {/* ─── Main Grid ─────────────────────────────────── */}
+        {/*  Main Grid  */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column (2/3) */}
           <div className="lg:col-span-2 space-y-6">
@@ -553,7 +601,9 @@ export default async function AdminDashboardPage() {
               <div className="px-6 py-4 border-b border-slate-800/60 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Globe className="w-4 h-4 text-cyan-400" />
-                  <h2 className="text-sm font-semibold text-white">Meridian Cycle</h2>
+                  <h2 className="text-sm font-semibold text-white">
+                    Meridian Cycle
+                  </h2>
                 </div>
                 <Link
                   href="/admin/meridian"
@@ -567,14 +617,20 @@ export default async function AdminDashboardPage() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-2xl font-bold text-white capitalize">{data.currentCycle.continent}</p>
+                        <p className="text-2xl font-bold text-white capitalize">
+                          {data.currentCycle.continent}
+                        </p>
                         <p className="text-sm text-slate-500 mt-0.5">
                           Cycle {data.currentCycle.id.slice(-6).toUpperCase()}
                         </p>
                       </div>
-                      <div className={`flex items-center gap-2 px-4 py-2 rounded-xl border bg-slate-900/50 ${getPhaseColor(data.currentCycle.phase)} border-current`}>
+                      <div
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl border bg-slate-900/50 ${getPhaseColor(data.currentCycle.phase)} border-current`}
+                      >
                         {getPhaseIcon(data.currentCycle.phase)}
-                        <span className="text-sm font-semibold capitalize">{data.currentCycle.phase}</span>
+                        <span className="text-sm font-semibold capitalize">
+                          {data.currentCycle.phase}
+                        </span>
                       </div>
                     </div>
                     <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
@@ -585,10 +641,14 @@ export default async function AdminDashboardPage() {
                             5,
                             Math.min(
                               100,
-                              ((new Date().getTime() - new Date(data.currentCycle.startAt).getTime()) /
-                                (new Date(data.currentCycle.endAt).getTime() - new Date(data.currentCycle.startAt).getTime())) *
-                                100
-                            )
+                              ((new Date().getTime() -
+                                new Date(data.currentCycle.startAt).getTime()) /
+                                (new Date(data.currentCycle.endAt).getTime() -
+                                  new Date(
+                                    data.currentCycle.startAt,
+                                  ).getTime())) *
+                                100,
+                            ),
                           )}%`,
                         }}
                       />
@@ -601,7 +661,10 @@ export default async function AdminDashboardPage() {
                       <div className="mt-3 p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 flex items-center gap-3">
                         <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                         <span className="text-sm text-emerald-400">
-                          Winner forged: <span className="font-mono">{data.currentCycle.winnerPoolId}</span>
+                          Winner forged:{" "}
+                          <span className="font-mono">
+                            {data.currentCycle.winnerPoolId}
+                          </span>
                         </span>
                       </div>
                     )}
@@ -628,10 +691,18 @@ export default async function AdminDashboardPage() {
               <div className="px-6 py-4 border-b border-slate-800/60 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Shield className="w-4 h-4 text-emerald-400" />
-                  <h2 className="text-sm font-semibold text-white">Protocol Infrastructure Reserve</h2>
+                  <h2 className="text-sm font-semibold text-white">
+                    Protocol Infrastructure Reserve
+                  </h2>
                 </div>
                 <span className="text-xs text-slate-500">
-                  {formatCurrency(data.pirByPillar.reduce((a, b) => a + (b._sum.amount ?? 0), 0))} total allocated
+                  {formatCurrency(
+                    data.pirByPillar.reduce(
+                      (a, b) => a + (b._sum.amount ?? 0),
+                      0,
+                    ),
+                  )}{" "}
+                  total allocated
                 </span>
               </div>
               <div className="p-6">
@@ -643,11 +714,15 @@ export default async function AdminDashboardPage() {
                     >
                       <div className="flex items-center gap-2 mb-2">
                         {getPillarIcon(p.pillar)}
-                        <span className="text-xs font-semibold capitalize">{p.pillar}</span>
+                        <span className="text-xs font-semibold capitalize">
+                          {p.pillar}
+                        </span>
                       </div>
-                      <p className="text-lg font-bold">{formatCurrency(p._sum.amount ?? 0)}</p>
+                      <p className="text-lg font-bold">
+                        {formatCurrency(p._sum.amount ?? 0)}
+                      </p>
                       <p className="text-xs opacity-70 mt-0.5">
-                        {formatCurrency(p._sumSpent?.spent ?? 0)} spent
+                        {formatCurrency(p._sum.spent ?? 0)} spent
                       </p>
                     </div>
                   ))}
@@ -665,28 +740,44 @@ export default async function AdminDashboardPage() {
               <div className="px-6 py-4 border-b border-slate-800/60 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <BarChart3 className="w-4 h-4 text-violet-400" />
-                  <h2 className="text-sm font-semibold text-white">Top Halls by SRI</h2>
+                  <h2 className="text-sm font-semibold text-white">
+                    Top Halls by SRI
+                  </h2>
                 </div>
-                <Link href="/admin/halls" className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
+                <Link
+                  href="/admin/halls"
+                  className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
+                >
                   View All <ChevronRight className="w-3 h-3" />
                 </Link>
               </div>
               <div className="divide-y divide-slate-800/40">
                 {data.topHallsBySri.map((hall) => (
-                  <div key={hall.id} className="px-6 py-4 flex items-center justify-between hover:bg-slate-800/20 transition-colors">
+                  <div
+                    key={hall.id}
+                    className="px-6 py-4 flex items-center justify-between hover:bg-slate-800/20 transition-colors"
+                  >
                     <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
-                        hall.sriScore >= 90 ? "bg-amber-500/10 text-amber-400" :
-                        hall.sriScore >= 75 ? "bg-slate-700 text-slate-300" :
-                        hall.sriScore >= 60 ? "bg-slate-800 text-slate-400" :
-                        "bg-red-500/10 text-red-400"
-                      }`}>
+                      <div
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold ${
+                          hall.sriScore >= 90
+                            ? "bg-amber-500/10 text-amber-400"
+                            : hall.sriScore >= 75
+                              ? "bg-slate-700 text-slate-300"
+                              : hall.sriScore >= 60
+                                ? "bg-slate-800 text-slate-400"
+                                : "bg-red-500/10 text-red-400"
+                        }`}
+                      >
                         {hall.sriScore}
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-white">{hall.name}</p>
+                        <p className="text-sm font-medium text-white">
+                          {hall.name}
+                        </p>
                         <p className="text-xs text-slate-500">
-                          {hall.pool?.poolId} · Class {hall.hallClass ?? "I"} · {hall.status}
+                          {hall.pool?.poolId} · Class {hall.hallClass ?? "I"} ·{" "}
+                          {hall.status}
                         </p>
                       </div>
                     </div>
@@ -699,7 +790,9 @@ export default async function AdminDashboardPage() {
                   </div>
                 ))}
                 {data.topHallsBySri.length === 0 && (
-                  <div className="px-6 py-8 text-center text-slate-500 text-sm">No live halls yet</div>
+                  <div className="px-6 py-8 text-center text-slate-500 text-sm">
+                    No live halls yet
+                  </div>
                 )}
               </div>
             </section>
@@ -716,15 +809,54 @@ export default async function AdminDashboardPage() {
                 </h2>
               </div>
               <div className="p-4 grid grid-cols-1 gap-2">
-                <QuickAction href="/admin/pool/create" icon={<Package className="w-4 h-4" />} label="Forge New Pool" />
-                <QuickAction href="/admin/meridian" icon={<Globe className="w-4 h-4" />} label="Manage Meridian" />
-                <QuickAction href="/admin/operations" icon={<ScrollText className="w-4 h-4" />} label="Operations Center" />
-                <QuickAction href="/admin/marketplace" icon={<ShoppingCart className="w-4 h-4" />} label="Marketplace" />
-                <QuickAction href="/admin/users" icon={<Users className="w-4 h-4" />} label="Sovereign Registry" />
-                <QuickAction href="/admin/kyc" icon={<FileCheck className="w-4 h-4" />} label="Review KYC" badge={data.pendingKyc > 0 ? data.pendingKyc : undefined} />
-                <QuickAction href="/admin/withdrawals" icon={<CreditCard className="w-4 h-4" />} label="Withdrawals" badge={data.pendingWithdrawals > 0 ? data.pendingWithdrawals : undefined} />
+                <QuickAction
+                  href="/admin/pool/create"
+                  icon={<Package className="w-4 h-4" />}
+                  label="Forge New Pool"
+                />
+                <QuickAction
+                  href="/admin/meridian"
+                  icon={<Globe className="w-4 h-4" />}
+                  label="Manage Meridian"
+                />
+                <QuickAction
+                  href="/admin/operations"
+                  icon={<ScrollText className="w-4 h-4" />}
+                  label="Operations Center"
+                />
+                <QuickAction
+                  href="/admin/marketplace"
+                  icon={<ShoppingCart className="w-4 h-4" />}
+                  label="Marketplace"
+                />
+                <QuickAction
+                  href="/admin/users"
+                  icon={<Users className="w-4 h-4" />}
+                  label="Sovereign Registry"
+                />
+                <QuickAction
+                  href="/admin/kyc"
+                  icon={<FileCheck className="w-4 h-4" />}
+                  label="Review KYC"
+                  badge={data.pendingKyc > 0 ? data.pendingKyc : undefined}
+                />
+                <QuickAction
+                  href="/admin/withdrawals"
+                  icon={<CreditCard className="w-4 h-4" />}
+                  label="Withdrawals"
+                  badge={
+                    data.pendingWithdrawals > 0
+                      ? data.pendingWithdrawals
+                      : undefined
+                  }
+                />
                 {primary && (
-                  <QuickAction href="/admin/economy" icon={<Landmark className="w-4 h-4" />} label="PIR Economy" color="cyan" />
+                  <QuickAction
+                    href="/admin/economy"
+                    icon={<Landmark className="w-4 h-4" />}
+                    label="PIR Economy"
+                    color="cyan"
+                  />
                 )}
               </div>
             </section>
@@ -734,14 +866,22 @@ export default async function AdminDashboardPage() {
               <div className="px-6 py-4 border-b border-slate-800/60 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <ScanEye className="w-4 h-4 text-violet-400" />
-                  <h2 className="text-sm font-semibold text-white">Oracle Standing</h2>
+                  <h2 className="text-sm font-semibold text-white">
+                    Oracle Standing
+                  </h2>
                 </div>
-                <span className="text-xs text-slate-500">{data.activeForecasts} active</span>
+                <span className="text-xs text-slate-500">
+                  {data.activeForecasts} active
+                </span>
               </div>
               <div className="p-6">
-                <p className="text-3xl font-bold text-white text-center">{formatNumber(data.totalOraclePoints)}</p>
-                <p className="text-xs text-slate-500 mt-1 text-center">Total standing points across all sovereigns</p>
-                
+                <p className="text-3xl font-bold text-white text-center">
+                  {formatNumber(data.totalOraclePoints)}
+                </p>
+                <p className="text-xs text-slate-500 mt-1 text-center">
+                  Total standing points across all sovereigns
+                </p>
+
                 <div className="mt-5 space-y-3">
                   <OracleTierRow
                     label="Prophets"
@@ -776,20 +916,31 @@ export default async function AdminDashboardPage() {
               <div className="px-6 py-4 border-b border-slate-800/60 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <PiggyBank className="w-4 h-4 text-emerald-400" />
-                  <h2 className="text-sm font-semibold text-white">IHCP Overview</h2>
+                  <h2 className="text-sm font-semibold text-white">
+                    IHCP Overview
+                  </h2>
                 </div>
-                <Link href="/admin/operations" className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1">
+                <Link
+                  href="/admin/operations"
+                  className="text-xs text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
+                >
                   Details <ChevronRight className="w-3 h-3" />
                 </Link>
               </div>
               <div className="p-6 space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">Total Contributed</span>
-                  <span className="text-sm font-semibold text-white">{formatCurrency(data.ihcpStats.totalContributed)}</span>
+                  <span className="text-xs text-slate-500">
+                    Total Contributed
+                  </span>
+                  <span className="text-sm font-semibold text-white">
+                    {formatCurrency(data.ihcpStats.totalContributed)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-500">Total Repaid</span>
-                  <span className="text-sm font-semibold text-emerald-400">{formatCurrency(data.ihcpStats.totalRepaid)}</span>
+                  <span className="text-sm font-semibold text-emerald-400">
+                    {formatCurrency(data.ihcpStats.totalRepaid)}
+                  </span>
                 </div>
                 <div className="h-2 rounded-full bg-slate-800 overflow-hidden">
                   <div
@@ -799,15 +950,23 @@ export default async function AdminDashboardPage() {
                 </div>
                 <div className="flex items-center justify-between text-xs">
                   <span className="text-slate-500">Repayment Rate</span>
-                  <span className="text-emerald-400 font-medium">{ihcpRepaymentRate}%</span>
+                  <span className="text-emerald-400 font-medium">
+                    {ihcpRepaymentRate}%
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">Active Contributions</span>
-                  <span className="text-sm font-semibold text-cyan-400">{formatNumber(data.ihcpStats.activeContributions)}</span>
+                  <span className="text-xs text-slate-500">
+                    Active Contributions
+                  </span>
+                  <span className="text-sm font-semibold text-cyan-400">
+                    {formatNumber(data.ihcpStats.activeContributions)}
+                  </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-500">Hall Balances</span>
-                  <span className="text-sm font-semibold text-white">{formatCurrency(data.ihcpStats.totalIhcpBalance)}</span>
+                  <span className="text-sm font-semibold text-white">
+                    {formatCurrency(data.ihcpStats.totalIhcpBalance)}
+                  </span>
                 </div>
               </div>
             </section>
@@ -822,10 +981,17 @@ export default async function AdminDashboardPage() {
               </div>
               <div className="divide-y divide-slate-800/40">
                 {data.recentAuditLogs.map((log) => (
-                  <div key={log.id} className="px-6 py-3 hover:bg-slate-800/20 transition-colors">
+                  <div
+                    key={log.id}
+                    className="px-6 py-3 hover:bg-slate-800/20 transition-colors"
+                  >
                     <div className="flex items-start justify-between gap-2">
-                      <p className="text-xs text-slate-300 line-clamp-1">{log.description}</p>
-                      <span className="text-[10px] text-slate-600 whitespace-nowrap">{timeAgo(log.timestamp)}</span>
+                      <p className="text-xs text-slate-300 line-clamp-1">
+                        {log.description}
+                      </p>
+                      <span className="text-[10px] text-slate-600 whitespace-nowrap">
+                        {timeAgo(log.timestamp)}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-500 font-mono">
@@ -838,7 +1004,9 @@ export default async function AdminDashboardPage() {
                   </div>
                 ))}
                 {data.recentAuditLogs.length === 0 && (
-                  <div className="px-6 py-6 text-center text-slate-500 text-xs">No audit entries yet</div>
+                  <div className="px-6 py-6 text-center text-slate-500 text-xs">
+                    No audit entries yet
+                  </div>
                 )}
               </div>
             </section>
@@ -853,7 +1021,10 @@ export default async function AdminDashboardPage() {
               </div>
               <div className="divide-y divide-slate-800/40">
                 {data.recentSecurityLogs.map((log) => (
-                  <div key={log.id} className="px-6 py-3 hover:bg-slate-800/20 transition-colors">
+                  <div
+                    key={log.id}
+                    className="px-6 py-3 hover:bg-slate-800/20 transition-colors"
+                  >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         {log.success ? (
@@ -861,9 +1032,13 @@ export default async function AdminDashboardPage() {
                         ) : (
                           <Ban className="w-3 h-3 text-red-400" />
                         )}
-                        <span className="text-xs text-slate-300">{log.action}</span>
+                        <span className="text-xs text-slate-300">
+                          {log.action}
+                        </span>
                       </div>
-                      <span className="text-[10px] text-slate-600">{timeAgo(log.createdAt)}</span>
+                      <span className="text-[10px] text-slate-600">
+                        {timeAgo(log.createdAt)}
+                      </span>
                     </div>
                     <p className="text-[10px] text-slate-600 mt-0.5 font-mono">
                       {log.ledgerId} · {log.ipAddress}
@@ -871,14 +1046,16 @@ export default async function AdminDashboardPage() {
                   </div>
                 ))}
                 {data.recentSecurityLogs.length === 0 && (
-                  <div className="px-6 py-6 text-center text-slate-500 text-xs">No security events</div>
+                  <div className="px-6 py-6 text-center text-slate-500 text-xs">
+                    No security events
+                  </div>
                 )}
               </div>
             </section>
           </div>
         </div>
 
-        {/* ─── Bottom: System Overview ───────────────────── */}
+        {/*  Bottom: System Overview ─ */}
         <section className="rounded-2xl border border-slate-800/60 bg-[#0f0f16] overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-800/60">
             <h2 className="text-sm font-semibold text-white flex items-center gap-2">
@@ -887,14 +1064,38 @@ export default async function AdminDashboardPage() {
             </h2>
           </div>
           <div className="p-6 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
-            <OverviewItem label="Active Halls" value={formatNumber(data.activeHalls)} />
-            <OverviewItem label="Total Workers" value={formatNumber(data.totalWorkers)} />
-            <OverviewItem label="Admins" value={formatNumber(data.totalAdmins)} />
-            <OverviewItem label="KYC Verified" value={formatNumber(data.totalUsers - data.pendingKyc)} />
-            <OverviewItem label="Dividends Lifetime" value={formatCurrency(data.totalDividendsDistributed)} />
+            <OverviewItem
+              label="Active Halls"
+              value={formatNumber(data.activeHalls)}
+            />
+            <OverviewItem
+              label="Total Workers"
+              value={formatNumber(data.totalWorkers)}
+            />
+            <OverviewItem
+              label="Admins"
+              value={formatNumber(data.totalAdmins)}
+            />
+            <OverviewItem
+              label="KYC Verified"
+              value={formatNumber(data.totalUsers - data.pendingKyc)}
+            />
+            <OverviewItem
+              label="Dividends Lifetime"
+              value={formatCurrency(data.totalDividendsDistributed)}
+            />
             <OverviewItem label="8th Ledger Tithe" value="20%" />
-            <OverviewItem label="Marketplace Vol" value={formatCurrency(data.marketplaceStats.ownershipVolume + data.marketplaceStats.inventoryVolume)} />
-            <OverviewItem label="IHCP Balance" value={formatCurrency(data.ihcpStats.totalIhcpBalance)} />
+            <OverviewItem
+              label="Marketplace Vol"
+              value={formatCurrency(
+                data.marketplaceStats.ownershipVolume +
+                  data.marketplaceStats.inventoryVolume,
+              )}
+            />
+            <OverviewItem
+              label="IHCP Balance"
+              value={formatCurrency(data.ihcpStats.totalIhcpBalance)}
+            />
             <OverviewItem label="Verticals" value="11" />
           </div>
         </section>
@@ -903,7 +1104,7 @@ export default async function AdminDashboardPage() {
   );
 }
 
-// ─── Sub-Components ──────────────────────────────────────────
+//  Sub-Components
 
 function StatCard({
   icon,
@@ -928,7 +1129,12 @@ function StatCard({
     red: "bg-red-500/10 text-red-400 border-red-500/20",
   };
 
-  const TrendIcon = trend === "up" ? ArrowUpRight : trend === "down" ? ArrowDownRight : Activity;
+  const TrendIcon =
+    trend === "up"
+      ? ArrowUpRight
+      : trend === "down"
+        ? ArrowDownRight
+        : Activity;
 
   return (
     <div className={`p-5 rounded-2xl border ${colorMap[color]} bg-[#0f0f16]`}>
@@ -957,9 +1163,11 @@ function AlertCard({
   color: "amber" | "cyan" | "orange" | "red";
 }) {
   const colorMap = {
-    amber: "bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20",
+    amber:
+      "bg-amber-500/10 text-amber-400 border-amber-500/20 hover:bg-amber-500/20",
     cyan: "bg-cyan-500/10 text-cyan-400 border-cyan-500/20 hover:bg-cyan-500/20",
-    orange: "bg-orange-500/10 text-orange-400 border-orange-500/20 hover:bg-orange-500/20",
+    orange:
+      "bg-orange-500/10 text-orange-400 border-orange-500/20 hover:bg-orange-500/20",
     red: "bg-red-500/10 text-red-400 border-red-500/20 hover:bg-red-500/20",
   };
 
@@ -998,10 +1206,14 @@ function QuickAction({
         color === "cyan" ? "hover:border-cyan-500/30" : ""
       }`}
     >
-      <span className={`${color === "cyan" ? "text-cyan-400" : "text-slate-400"} group-hover:text-white transition-colors`}>
+      <span
+        className={`${color === "cyan" ? "text-cyan-400" : "text-slate-400"} group-hover:text-white transition-colors`}
+      >
         {icon}
       </span>
-      <span className="text-sm text-slate-300 group-hover:text-white transition-colors">{label}</span>
+      <span className="text-sm text-slate-300 group-hover:text-white transition-colors">
+        {label}
+      </span>
       {badge !== undefined && badge > 0 && (
         <span className="ml-auto px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 text-[10px] font-bold">
           {badge}
@@ -1041,9 +1253,14 @@ function OracleTierRow({
       </div>
       <div className="flex items-center gap-2">
         <div className="w-20 h-1.5 rounded-full bg-slate-800 overflow-hidden">
-          <div className={`h-full rounded-full ${color}`} style={{ width: `${Math.min(100, count > 0 ? 100 : 0)}%` }} />
+          <div
+            className={`h-full rounded-full ${color}`}
+            style={{ width: `${Math.min(100, count > 0 ? 100 : 0)}%` }}
+          />
         </div>
-        <span className="text-xs font-semibold text-white w-8 text-right">{count}</span>
+        <span className="text-xs font-semibold text-white w-8 text-right">
+          {count}
+        </span>
       </div>
     </div>
   );

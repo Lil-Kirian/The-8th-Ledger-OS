@@ -55,7 +55,6 @@ import {
   Percent,
   Truck,
   Timer,
-  Lock,
   Unlock,
 } from "lucide-react";
 

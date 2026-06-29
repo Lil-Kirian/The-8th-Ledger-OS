@@ -4,8 +4,6 @@ import { motion } from "framer-motion";
 import {
   Crown,
   Users,
-  TrendingUp,
-  TrendingDown,
   Shield,
   AlertTriangle,
   Lock,
@@ -30,10 +28,9 @@ import {
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import Link from "next/link";
 
-// ─── Types ───
+//  Types
 export type HallClass = "I" | "II" | "III";
 export type HallStatus = "ghost" | "live" | "closing" | "dissolved";
 export type SriTier = "platinum" | "gold" | "silver" | "bronze" | "at_risk";
@@ -70,7 +67,7 @@ export interface HallCardData {
   isPrimaryAdmin?: boolean;
 }
 
-// ─── Vertical Config ───
+//  Vertical Config
 const VERTICALS: Record<
   VerticalKey,
   { label: string; icon: React.ElementType; color: string; bg: string }
@@ -109,7 +106,7 @@ const STATUS_CONFIG: Record<HallStatus, { label: string; color: string; bg: stri
   dissolved:{ label: "Dissolved",color: "text-zinc-500",   bg: "bg-zinc-500/10",   icon: Gavel },
 };
 
-// ─── Helpers ───
+//  Helpers
 function formatCurrency(n?: number) {
   if (n == null) return "—";
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
@@ -123,7 +120,7 @@ function ahgiStatus(score: number) {
   return { label: "Critical", color: "text-red-400" };
 }
 
-// ─── Component ───
+//  Component
 export function HallCard({ hall }: { hall: HallCardData }) {
   const v = VERTICALS[hall.vertical];
   const VIcon = v.icon;
@@ -323,7 +320,7 @@ export function HallCard({ hall }: { hall: HallCardData }) {
   );
 }
 
-// ─── Skeleton Loader ───
+//  Skeleton Loader
 export function HallCardSkeleton() {
   return (
     <Card className="border border-slate-800 bg-slate-950/50 overflow-hidden">

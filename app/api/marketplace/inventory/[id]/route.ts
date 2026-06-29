@@ -9,7 +9,7 @@ import { Prisma } from "@prisma/client";
    ============================================================ */
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { id } = await params;
@@ -46,22 +46,25 @@ export async function GET(
     if (!item) {
       return NextResponse.json(
         { success: false, error: "Item not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     // Gate: hall must be live and inventory enabled
     if (!item.hall.inventoryEnabled || item.hall.status !== "live") {
       return NextResponse.json(
-        { success: false, error: "This item is not available on the marketplace" },
-        { status: 403 }
+        {
+          success: false,
+          error: "This item is not available on the marketplace",
+        },
+        { status: 403 },
       );
     }
 
     if (item.status !== "active" || item.quantity <= 0) {
       return NextResponse.json(
         { success: false, error: "This item is sold out or inactive" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -72,13 +75,19 @@ export async function GET(
 
     try {
       if (item.images) parsedImages = JSON.parse(item.images);
-    } catch { /* ignore bad JSON */ }
+    } catch {
+      /* ignore bad JSON */
+    }
     try {
       if (item.tags) parsedTags = JSON.parse(item.tags);
-    } catch { /* ignore bad JSON */ }
+    } catch {
+      /* ignore bad JSON */
+    }
     try {
       if (item.specs) parsedSpecs = JSON.parse(item.specs);
-    } catch { /* ignore bad JSON */ }
+    } catch {
+      /* ignore bad JSON */
+    }
 
     const primaryImage = item.imageUrl || (parsedImages?.[0] ?? null);
 
@@ -112,7 +121,7 @@ export async function GET(
     console.error("[INVENTORY_ITEM_GET]", err);
     return NextResponse.json(
       { success: false, error: "Failed to load item" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -122,11 +131,11 @@ export async function GET(
    ============================================================ */
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireAuth(req);
-    const claims = getSessionClaims(req);
+    const claims = await getSessionClaims(req);
     const isFounder = isFounderSync(claims);
 
     const { id } = await params;
@@ -148,14 +157,16 @@ export async function PATCH(
     const existing = await prisma.inventoryItem.findUnique({
       where: { id },
       include: {
-        hall: { select: { id: true, name: true, pool: { select: { poolId: true } } } },
+        hall: {
+          select: { id: true, name: true, pool: { select: { poolId: true } } },
+        },
       },
     });
 
     if (!existing) {
       return NextResponse.json(
         { success: false, error: "Item not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -166,8 +177,11 @@ export async function PATCH(
       });
       if (!ownership) {
         return NextResponse.json(
-          { success: false, error: "You must be an owner of this hall to update inventory" },
-          { status: 403 }
+          {
+            success: false,
+            error: "You must be an owner of this hall to update inventory",
+          },
+          { status: 403 },
         );
       }
     }
@@ -181,7 +195,7 @@ export async function PATCH(
       if (trimmed.length < 3 || trimmed.length > 200) {
         return NextResponse.json(
           { success: false, error: "Title must be 3-200 characters" },
-          { status: 400 }
+          { status: 400 },
         );
       }
       updateData.title = trimmed;
@@ -196,7 +210,7 @@ export async function PATCH(
       if (!Number.isFinite(numPrice) || numPrice <= 0) {
         return NextResponse.json(
           { success: false, error: "Price must be a positive number" },
-          { status: 400 }
+          { status: 400 },
         );
       }
       updateData.price = numPrice;
@@ -207,7 +221,7 @@ export async function PATCH(
       if (!Number.isFinite(numQty) || numQty < 0) {
         return NextResponse.json(
           { success: false, error: "Quantity cannot be negative" },
-          { status: 400 }
+          { status: 400 },
         );
       }
       updateData.quantity = numQty;
@@ -218,7 +232,7 @@ export async function PATCH(
       if (!Number.isFinite(num) || num < 0) {
         return NextResponse.json(
           { success: false, error: "costOfGoods must be non-negative" },
-          { status: 400 }
+          { status: 400 },
         );
       }
       updateData.costOfGoods = num;
@@ -229,7 +243,7 @@ export async function PATCH(
       if (!Number.isFinite(num) || num < 0) {
         return NextResponse.json(
           { success: false, error: "reorderThreshold must be non-negative" },
-          { status: 400 }
+          { status: 400 },
         );
       }
       updateData.reorderThreshold = num;
@@ -247,15 +261,19 @@ export async function PATCH(
     }
 
     if (specs !== undefined) {
-      updateData.specs = specs && typeof specs === "object" ? JSON.stringify(specs) : null;
+      updateData.specs =
+        specs && typeof specs === "object" ? JSON.stringify(specs) : null;
     }
 
     if (status !== undefined) {
       const allowed = ["active", "inactive", "deleted", "sold_out"];
       if (!allowed.includes(status)) {
         return NextResponse.json(
-          { success: false, error: `Status must be one of: ${allowed.join(", ")}` },
-          { status: 400 }
+          {
+            success: false,
+            error: `Status must be one of: ${allowed.join(", ")}`,
+          },
+          { status: 400 },
         );
       }
       updateData.status = status;
@@ -281,13 +299,19 @@ export async function PATCH(
     let respSpecs: Record<string, unknown> | null = null;
     try {
       if (item.images) respImages = JSON.parse(item.images);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     try {
       if (item.tags) respTags = JSON.parse(item.tags);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
     try {
       if (item.specs) respSpecs = JSON.parse(item.specs);
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
 
     // Audit log
     await prisma.auditLog.create({
@@ -296,7 +320,10 @@ export async function PATCH(
         description: `Inventory item "${item.title}" updated in hall ${existing.hall.name}`,
         poolId: existing.hall.pool?.poolId,
         ledgerId: user.ledgerId,
-        metadata: JSON.stringify({ itemId: item.id, changes: Object.keys(body) }),
+        metadata: JSON.stringify({
+          itemId: item.id,
+          changes: Object.keys(body),
+        }),
         txHash: `LED-INV-UP-${Date.now()}`,
         visibleToPublic: true,
       },
@@ -319,18 +346,18 @@ export async function PATCH(
         updatedAt: item.updatedAt,
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[INVENTORY_ITEM_PATCH]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     if (message === "Forbidden" || message === "Unauthorized") {
       return NextResponse.json(
         { success: false, error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
     return NextResponse.json(
       { success: false, error: message || "Failed to update item" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -340,11 +367,11 @@ export async function PATCH(
    ============================================================ */
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const user = await requireAuth(req);
-    const claims = getSessionClaims(req);
+    const claims = await getSessionClaims(req);
     const isFounder = isFounderSync(claims);
 
     const { id } = await params;
@@ -352,14 +379,16 @@ export async function DELETE(
     const existing = await prisma.inventoryItem.findUnique({
       where: { id },
       include: {
-        hall: { select: { id: true, name: true, pool: { select: { poolId: true } } } },
+        hall: {
+          select: { id: true, name: true, pool: { select: { poolId: true } } },
+        },
       },
     });
 
     if (!existing) {
       return NextResponse.json(
         { success: false, error: "Item not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -370,8 +399,11 @@ export async function DELETE(
       });
       if (!ownership) {
         return NextResponse.json(
-          { success: false, error: "You must be an owner of this hall to delete inventory" },
-          { status: 403 }
+          {
+            success: false,
+            error: "You must be an owner of this hall to delete inventory",
+          },
+          { status: 403 },
         );
       }
     }
@@ -413,18 +445,18 @@ export async function DELETE(
         updatedAt: item.updatedAt,
       },
     });
-  } catch (err: unknown) {
+  } catch (err: any) {
     console.error("[INVENTORY_ITEM_DELETE]", err);
     const message = err instanceof Error ? err.message : "Unknown error";
     if (message === "Forbidden" || message === "Unauthorized") {
       return NextResponse.json(
         { success: false, error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
     return NextResponse.json(
       { success: false, error: message || "Failed to delete item" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

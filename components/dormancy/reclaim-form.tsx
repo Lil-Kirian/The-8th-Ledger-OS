@@ -5,16 +5,11 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Unlock,
   Shield,
-  User,
   Hash,
   Fingerprint,
   CheckCircle2,
-  AlertTriangle,
   X,
-  ArrowRight,
   Key,
-  Eye,
-  EyeOff,
 } from "lucide-react";
 
 interface ReclaimFormProps {

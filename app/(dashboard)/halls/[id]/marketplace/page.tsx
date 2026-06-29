@@ -9,11 +9,10 @@ import useSWR from "swr";
 import {
   Landmark, Zap, Crown, Lock, HeartPulse, TrendingUp, Hexagon, Plane,
   Sprout, Sun, ChevronLeft, Search, LayoutGrid, List as ListIcon,
-  ShoppingCart, Share2, Trophy, Star, Clock, Shield, CheckCircle2,
-  XCircle, ArrowRight, Wallet, Receipt, Percent, Package,
+  ShoppingCart, Share2, Trophy, Clock, Shield, CheckCircle2, Wallet, Receipt, Package,
   Truck, Sparkles, Copy, Image as ImageIcon, X, Hash,
   Send, Heart, Bookmark, MessageCircle, ExternalLink, Play,
-  AlertTriangle, Megaphone, Users, BarChart3, Eye,
+  AlertTriangle,
   Settings, Plus, Lock as LockIcon, TrendingUp as TrendIcon,
 } from "lucide-react";
 

@@ -8,11 +8,8 @@ import {
   Search,
   Package,
   ShoppingCart,
-  Filter,
   ChevronDown,
-  Star,
   TrendingUp,
-  Clock,
   AlertCircle,
   Loader2,
   SlidersHorizontal,
@@ -33,11 +30,8 @@ import {
   Activity,
   Zap,
   BarChart3,
-  Eye,
   Flame,
   Snowflake,
-  ArrowUpRight,
-  ArrowDownRight,
   Layers,
   Globe,
   Shield,
@@ -46,7 +40,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Maximize2,
-  ShoppingBag,
   Receipt,
   User,
 } from "lucide-react";
@@ -707,7 +700,7 @@ export default function InventoryMarketplacePage() {
   }, [items, searchQuery, selectedVertical, sortBy, priceRange, onlyInStock, showWatchlistOnly, showMyHallsOnly, watchlist, userHallIds]);
 
   const hasActiveFilters =
-    searchQuery || selectedVertical !== "all" || onlyInStock || sortBy !== "newest" || priceRange[1] < 100000 || showWatchlistOnly || showMyHallsOnly;
+    Boolean(searchQuery.trim()) || selectedVertical !== "all" || onlyInStock || sortBy !== "newest" || priceRange[1] < 100000 || showWatchlistOnly || showMyHallsOnly;
 
   const totalValue = useMemo(() => items.reduce((a, b) => a + b.price * (b.quantity - b.quantitySold), 0), [items]);
   const totalSold = useMemo(() => items.reduce((a, b) => a + b.quantitySold, 0), [items]);
@@ -751,10 +744,30 @@ export default function InventoryMarketplacePage() {
 
             <div className="flex gap-3 flex-wrap">
               {[
-                { label: "Total Listings", value: totalItems.toLocaleString(), icon: Package, color: "cyan" },
-                { label: "Inventory Value", value: formatCurrency(totalValue), icon: BarChart3, color: "emerald" },
-                { label: "Units Sold", value: totalSold.toLocaleString(), icon: TrendingUp, color: "amber" },
-                { label: "Hot Assets", value: hotItems, icon: Flame, color: "rose" },
+                {
+                  label: "Total Listings",
+                  value: totalItems.toLocaleString(),
+                  icon: Package,
+                  color: "cyan",
+                },
+                {
+                  label: "Inventory Value",
+                  value: formatCurrency(totalValue),
+                  icon: BarChart3,
+                  color: "emerald",
+                },
+                {
+                  label: "Units Sold",
+                  value: totalSold.toLocaleString(),
+                  icon: TrendingUp,
+                  color: "amber",
+                },
+                {
+                  label: "Hot Assets",
+                  value: hotItems,
+                  icon: Flame,
+                  color: "rose",
+                },
               ].map((stat, i) => (
                 <motion.div
                   key={stat.label}
@@ -764,10 +777,21 @@ export default function InventoryMarketplacePage() {
                   className="bg-slate-900/60 border border-slate-800 rounded-xl px-4 py-3 min-w-[120px] hover:border-slate-700 transition-colors"
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    <stat.icon className={cn("h-3.5 w-3.5", `text-${stat.color}-400`)} />
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{stat.label}</span>
+                    <stat.icon
+                      className={cn("h-3.5 w-3.5", `text-${stat.color}-400`)}
+                    />
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      {stat.label}
+                    </span>
                   </div>
-                  <p className={cn("text-lg font-black font-mono", `text-${stat.color}-400`)}>{stat.value}</p>
+                  <p
+                    className={cn(
+                      "text-lg font-black font-mono",
+                      `text-${stat.color}-400`,
+                    )}
+                  >
+                    {stat.value}
+                  </p>
                 </motion.div>
               ))}
             </div>
@@ -785,9 +809,12 @@ export default function InventoryMarketplacePage() {
             >
               <Lock className="h-5 w-5 text-amber-400 shrink-0" />
               <div className="flex-1">
-                <p className="text-sm text-amber-300 font-medium">KYC Verification Required for High-Value Orders</p>
+                <p className="text-sm text-amber-300 font-medium">
+                  KYC Verification Required for High-Value Orders
+                </p>
                 <p className="text-xs text-amber-400/70">
-                  You can browse and buy items under $5,000. For larger purchases, complete SIV/KYC verification.
+                  You can browse and buy items under $5,000. For larger
+                  purchases, complete SIV/KYC verification.
                 </p>
               </div>
               <button
@@ -808,7 +835,11 @@ export default function InventoryMarketplacePage() {
             className="xl:w-64 shrink-0 space-y-4"
           >
             <MarketSentiment items={items} />
-            <VerticalDepthPanel items={items} selected={selectedVertical} onSelect={setSelectedVertical} />
+            <VerticalDepthPanel
+              items={items}
+              selected={selectedVertical}
+              onSelect={setSelectedVertical}
+            />
           </motion.div>
 
           <div className="flex-1 min-w-0">
@@ -855,12 +886,14 @@ export default function InventoryMarketplacePage() {
                     "flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium border transition-all",
                     showFilters || hasActiveFilters
                       ? "bg-cyan-950/20 border-cyan-900/30 text-cyan-400"
-                      : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200"
+                      : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200",
                   )}
                 >
                   <SlidersHorizontal className="h-4 w-4" />
                   Filters
-                  {hasActiveFilters && <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />}
+                  {hasActiveFilters && (
+                    <span className="h-2 w-2 rounded-full bg-cyan-400 animate-pulse" />
+                  )}
                 </button>
 
                 <button
@@ -869,12 +902,16 @@ export default function InventoryMarketplacePage() {
                     "flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium border transition-all",
                     showWatchlistOnly
                       ? "bg-amber-950/20 border-amber-900/30 text-amber-400"
-                      : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200"
+                      : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200",
                   )}
                 >
                   <Bookmark className="h-4 w-4" />
                   <span className="hidden sm:inline">Watchlist</span>
-                  {watchlist.size > 0 && <span className="text-[10px] font-mono bg-slate-800 px-1.5 py-0.5 rounded">{watchlist.size}</span>}
+                  {watchlist.size > 0 && (
+                    <span className="text-[10px] font-mono bg-slate-800 px-1.5 py-0.5 rounded">
+                      {watchlist.size}
+                    </span>
+                  )}
                 </button>
 
                 {userHallIds.size > 0 && (
@@ -884,7 +921,7 @@ export default function InventoryMarketplacePage() {
                       "flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium border transition-all",
                       showMyHallsOnly
                         ? "bg-emerald-950/20 border-emerald-900/30 text-emerald-400"
-                        : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200"
+                        : "bg-slate-900/80 border-slate-800 text-slate-400 hover:text-slate-200",
                     )}
                   >
                     <User className="h-4 w-4" />
@@ -903,13 +940,23 @@ export default function InventoryMarketplacePage() {
                 <div className="flex bg-slate-900/80 border border-slate-800 rounded-xl overflow-hidden">
                   <button
                     onClick={() => setViewMode("grid")}
-                    className={cn("px-3 py-3 transition-all", viewMode === "grid" ? "bg-slate-800 text-cyan-400" : "text-slate-500 hover:text-slate-300")}
+                    className={cn(
+                      "px-3 py-3 transition-all",
+                      viewMode === "grid"
+                        ? "bg-slate-800 text-cyan-400"
+                        : "text-slate-500 hover:text-slate-300",
+                    )}
                   >
                     <Layers className="h-4 w-4" />
                   </button>
                   <button
                     onClick={() => setViewMode("dense")}
-                    className={cn("px-3 py-3 transition-all", viewMode === "dense" ? "bg-slate-800 text-cyan-400" : "text-slate-500 hover:text-slate-300")}
+                    className={cn(
+                      "px-3 py-3 transition-all",
+                      viewMode === "dense"
+                        ? "bg-slate-800 text-cyan-400"
+                        : "text-slate-500 hover:text-slate-300",
+                    )}
                   >
                     <Maximize2 className="h-4 w-4" />
                   </button>
@@ -927,7 +974,7 @@ export default function InventoryMarketplacePage() {
                 >
                   <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-5 space-y-5">
                     <div>
-                      <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 block flex items-center gap-2">
+                      <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 block items-center gap-2">
                         <Globe className="h-3 w-3" />
                         Sovereign Verticals
                       </label>
@@ -943,7 +990,7 @@ export default function InventoryMarketplacePage() {
                                 "flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium border transition-all duration-300",
                                 isActive
                                   ? "bg-cyan-950/30 border-cyan-900/50 text-cyan-400 shadow-lg shadow-cyan-500/5"
-                                  : "bg-slate-950/50 border-slate-800 text-slate-500 hover:text-slate-300 hover:border-slate-700"
+                                  : "bg-slate-950/50 border-slate-800 text-slate-500 hover:text-slate-300 hover:border-slate-700",
                               )}
                             >
                               <Icon className="h-3 w-3" />
@@ -957,7 +1004,10 @@ export default function InventoryMarketplacePage() {
                     <div className="flex flex-col sm:flex-row gap-6">
                       <div className="flex-1">
                         <label className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 block">
-                          Max Acquisition Price: <span className="text-cyan-400 font-mono">{formatCurrency(priceRange[1])}</span>
+                          Max Acquisition Price:{" "}
+                          <span className="text-cyan-400 font-mono">
+                            {formatCurrency(priceRange[1])}
+                          </span>
                         </label>
                         <input
                           type="range"
@@ -965,7 +1015,9 @@ export default function InventoryMarketplacePage() {
                           max={100000}
                           step={100}
                           value={priceRange[1]}
-                          onChange={(e) => setPriceRange([0, Number(e.target.value)])}
+                          onChange={(e) =>
+                            setPriceRange([0, Number(e.target.value)])
+                          }
                           className="w-full accent-cyan-500 h-1.5 bg-slate-800 rounded-full appearance-none cursor-pointer"
                         />
                         <div className="flex justify-between text-[10px] text-slate-600 mt-2 font-mono">
@@ -984,10 +1036,14 @@ export default function InventoryMarketplacePage() {
                               className="peer sr-only"
                             />
                             <div className="h-5 w-5 rounded border border-slate-700 bg-slate-800 peer-checked:bg-emerald-500/20 peer-checked:border-emerald-500/50 transition-all flex items-center justify-center">
-                              {onlyInStock && <Zap className="h-3 w-3 text-emerald-400" />}
+                              {onlyInStock && (
+                                <Zap className="h-3 w-3 text-emerald-400" />
+                              )}
                             </div>
                           </div>
-                          <span className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors">Available only</span>
+                          <span className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors">
+                            Available only
+                          </span>
                         </label>
                       </div>
                     </div>
@@ -1023,10 +1079,18 @@ export default function InventoryMarketplacePage() {
                     </span>
                   ) : (
                     <>
-                      <span className="text-slate-300 font-bold font-mono">{filtered.length}</span>
-                      <span className="text-slate-500"> asset{filtered.length !== 1 ? "s" : ""} discovered</span>
+                      <span className="text-slate-300 font-bold font-mono">
+                        {filtered.length}
+                      </span>
+                      <span className="text-slate-500">
+                        {" "}
+                        asset{filtered.length !== 1 ? "s" : ""} discovered
+                      </span>
                       {items.length !== filtered.length && (
-                        <span className="text-slate-600 font-mono"> / {items.length} on page</span>
+                        <span className="text-slate-600 font-mono">
+                          {" "}
+                          / {items.length} on page
+                        </span>
                       )}
                     </>
                   )}
@@ -1043,10 +1107,14 @@ export default function InventoryMarketplacePage() {
             </div>
 
             {isLoading ? (
-              <div className={cn(
-                "grid gap-4",
-                viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-              )}>
+              <div
+                className={cn(
+                  "grid gap-4",
+                  viewMode === "grid"
+                    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+                )}
+              >
                 {Array.from({ length: 8 }).map((_, i) => (
                   <SkeletonCard key={i} />
                 ))}
@@ -1055,21 +1123,31 @@ export default function InventoryMarketplacePage() {
               <div className="flex flex-col items-center justify-center py-20 text-rose-400">
                 <AlertCircle className="h-8 w-8 mb-2" />
                 <p className="text-sm">Ledger synchronization failed</p>
-                <p className="text-xs text-slate-500 mt-1">Retrying in 30 seconds...</p>
+                <p className="text-xs text-slate-500 mt-1">
+                  Retrying in 30 seconds...
+                </p>
               </div>
             ) : filtered.length === 0 ? (
-              <div className={cn(
-                "grid gap-4",
-                viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-              )}>
+              <div
+                className={cn(
+                  "grid gap-4",
+                  viewMode === "grid"
+                    ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                    : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+                )}
+              >
                 <EmptyState hasFilters={hasActiveFilters} />
               </div>
             ) : (
               <>
-                <div className={cn(
-                  "grid gap-4",
-                  viewMode === "grid" ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-                )}>
+                <div
+                  className={cn(
+                    "grid gap-4",
+                    viewMode === "grid"
+                      ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                      : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4",
+                  )}
+                >
                   {filtered.map((item, i) => (
                     <ProductCard
                       key={item.id}
@@ -1082,7 +1160,12 @@ export default function InventoryMarketplacePage() {
                     />
                   ))}
                 </div>
-                <Pagination page={page} perPage={perPage} total={totalItems} onPageChange={setPage} />
+                <Pagination
+                  page={page}
+                  perPage={perPage}
+                  total={totalItems}
+                  onPageChange={setPage}
+                />
               </>
             )}
           </div>
@@ -1097,7 +1180,16 @@ export default function InventoryMarketplacePage() {
         onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
         className="fixed bottom-6 right-6 h-12 w-12 rounded-full bg-cyan-600 border border-cyan-500/30 text-slate-950 flex items-center justify-center shadow-lg shadow-cyan-500/20 z-40"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M18 15l-6-6-6 6" />
         </svg>
       </motion.button>

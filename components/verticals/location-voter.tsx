@@ -2,10 +2,9 @@
 
 import React, { useState } from "react";
 import {
-  MapPin,
+
   CheckCircle2,
   BarChart3,
-  ChevronRight,
   Globe,
   Sprout,
   Sun,
@@ -17,12 +16,11 @@ import {
   TrendingUp,
   AlertTriangle,
   Crown,
-  Lock,
-  Hash,
   Zap,
   Navigation,
   X,
-  Eye,
+  ChevronUp,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 

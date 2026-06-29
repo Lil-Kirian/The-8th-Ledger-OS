@@ -12,10 +12,6 @@ import {
   BarChart3,
   ShoppingCart,
   Hammer,
-  Activity,
-  MessageSquare,
-  Crown,
-  FileText,
   Lock,
   AlertTriangle,
   ChevronRight,
@@ -23,7 +19,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-// ─── Types ───
+//  Types
 export type HallNavTab =
   | "dashboard"
   | "sovereign-stream"
@@ -43,13 +39,15 @@ export interface HallNavProps {
   className?: string;
 }
 
-// ─── Tab Config ───
+type HallStatus = NonNullable<HallNavProps["hallStatus"]>;
+
+//  Tab Config
 const TABS: {
   key: HallNavTab;
   label: string;
   icon: React.ElementType;
   description: string;
-  disabledStatuses?: ("ghost" | "closing" | "dissolved")[];
+  disabledStatuses?: HallStatus[];
   adminOnly?: boolean;
 }[] = [
   {
@@ -103,7 +101,7 @@ const TABS: {
   },
 ];
 
-// ─── Component ───
+//  Component
 export function HallNav({
   hallId,
   activeTab,
@@ -114,7 +112,7 @@ export function HallNav({
 }: HallNavProps) {
   const [hoveredTab, setHoveredTab] = useState<HallNavTab | null>(null);
 
-  const isDisabled = (tab: typeof TABS[0]) => {
+  const isDisabled = (tab: (typeof TABS)[0]) => {
     if (tab.disabledStatuses?.includes(hallStatus)) return true;
     if (hallStatus === "dissolved") return true;
     return false;
@@ -144,11 +142,13 @@ export function HallNav({
                   isActive
                     ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 shadow-[0_0_12px_rgba(34,211,238,0.08)]"
                     : isTabDisabled
-                    ? "text-slate-700 cursor-not-allowed"
-                    : "text-slate-500 hover:text-slate-200 hover:bg-slate-800/50"
+                      ? "text-slate-700 cursor-not-allowed"
+                      : "text-slate-500 hover:text-slate-200 hover:bg-slate-800/50"
                 }`}
               >
-                <TabIcon className={`w-4 h-4 ${isActive ? "text-cyan-400" : ""}`} />
+                <TabIcon
+                  className={`w-4 h-4 ${isActive ? "text-cyan-400" : ""}`}
+                />
                 <span>{tab.label}</span>
                 {badgeCount != null && badgeCount > 0 && (
                   <Badge
@@ -201,8 +201,8 @@ export function HallNav({
                   isActive
                     ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
                     : isTabDisabled
-                    ? "text-slate-700 cursor-not-allowed"
-                    : "text-slate-500 hover:text-slate-200 hover:bg-slate-800/50"
+                      ? "text-slate-700 cursor-not-allowed"
+                      : "text-slate-500 hover:text-slate-200 hover:bg-slate-800/50"
                 }`}
               >
                 <TabIcon className="w-4 h-4" />
@@ -247,7 +247,7 @@ export function HallNav({
   );
 }
 
-// ─── Vertical Sidebar Nav (for hall pages with side layout) ───
+//  Vertical Sidebar Nav (for hall pages with side layout)
 export function HallNavSidebar({
   hallId,
   activeTab,
@@ -255,7 +255,7 @@ export function HallNavSidebar({
   hallStatus = "live",
   className = "",
 }: HallNavProps) {
-  const isDisabled = (tab: typeof TABS[0]) => {
+  const isDisabled = (tab: (typeof TABS)[0]) => {
     if (tab.disabledStatuses?.includes(hallStatus)) return true;
     if (hallStatus === "dissolved") return true;
     return false;
@@ -280,11 +280,13 @@ export function HallNavSidebar({
               isActive
                 ? "bg-cyan-500/10 text-cyan-400 border-l-2 border-cyan-400"
                 : isTabDisabled
-                ? "text-slate-700 cursor-not-allowed"
-                : "text-slate-500 hover:text-slate-200 hover:bg-slate-800/30"
+                  ? "text-slate-700 cursor-not-allowed"
+                  : "text-slate-500 hover:text-slate-200 hover:bg-slate-800/30"
             }`}
           >
-            <TabIcon className={`w-4 h-4 ${isActive ? "text-cyan-400" : "text-slate-600 group-hover:text-slate-400"}`} />
+            <TabIcon
+              className={`w-4 h-4 ${isActive ? "text-cyan-400" : "text-slate-600 group-hover:text-slate-400"}`}
+            />
             <span className="flex-1">{tab.label}</span>
             {badgeCount != null && badgeCount > 0 && (
               <Badge className="text-[10px] px-1.5 py-0 h-4 min-w-4 flex items-center justify-center border-0 bg-slate-700 text-slate-300">

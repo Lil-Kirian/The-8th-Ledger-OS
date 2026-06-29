@@ -17,15 +17,12 @@ import {
   Vote,
   CheckCircle2,
   XCircle,
-  AlertTriangle,
   Lock,
   Reply,
   MoreHorizontal,
   Filter,
   Pin,
-  Eye,
   Calendar,
-  Gavel,
   TrendingUp,
   Wrench,
   BadgeCheck,
@@ -33,7 +30,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-// ─── Types ─────────────────────────────────────────────────────────
+//  Types
 
 export type StreamPostType = "proposal" | "report" | "appeal" | "ledger_update";
 
@@ -79,14 +76,16 @@ export interface SovereignStreamProps {
   isWarden?: boolean;
   isScribe?: boolean;
   isAdmin?: boolean;
-  onCreatePost?: (post: Omit<StreamPost, "id" | "createdAt" | "replies">) => Promise<void>;
+  onCreatePost?: (
+    post: Omit<StreamPost, "id" | "createdAt" | "replies">,
+  ) => Promise<void>;
   onReply?: (postId: string, content: string) => Promise<void>;
   onVote?: (postId: string, vote: "yes" | "no" | "abstain") => Promise<void>;
   onPin?: (postId: string) => Promise<void>;
   className?: string;
 }
 
-// ─── Role Config ───────────────────────────────────────────────────────
+//  Role Config
 
 const TYPE_CONFIG: Record<
   StreamPostType,
@@ -143,7 +142,7 @@ const TYPE_CONFIG: Record<
   },
 };
 
-// ─── Helpers ─────────────────────────────────────────────────────────
+//  Helpers
 
 function formatTimeAgo(date: Date): string {
   const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
@@ -157,7 +156,11 @@ function formatTimeAgo(date: Date): string {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
 }
 
-function getVotePercent(yes: number, no: number, abstain: number): { yes: number; no: number } {
+function getVotePercent(
+  yes: number,
+  no: number,
+  abstain: number,
+): { yes: number; no: number } {
   const total = yes + no + abstain;
   if (total === 0) return { yes: 0, no: 0 };
   return {
@@ -166,9 +169,17 @@ function getVotePercent(yes: number, no: number, abstain: number): { yes: number
   };
 }
 
-// ─── Sub-Components ──────────────────────────────────────────────────
+//  Sub-Components ─
 
-function VoteBar({ yes, no, abstain }: { yes: number; no: number; abstain: number }) {
+function VoteBar({
+  yes,
+  no,
+  abstain,
+}: {
+  yes: number;
+  no: number;
+  abstain: number;
+}) {
   const { yes: yesPct, no: noPct } = getVotePercent(yes, no, abstain);
   const abstainPct = 100 - yesPct - noPct;
 
@@ -202,7 +213,8 @@ function VoteBar({ yes, no, abstain }: { yes: number; no: number; abstain: numbe
           <XCircle className="h-3 w-3" /> {noPct}% No ({no})
         </span>
         <span className="flex items-center gap-1 text-slate-400">
-          <MoreHorizontal className="h-3 w-3" /> {abstainPct}% Abstain ({abstain})
+          <MoreHorizontal className="h-3 w-3" /> {abstainPct}% Abstain (
+          {abstain})
         </span>
       </div>
     </div>
@@ -211,25 +223,53 @@ function VoteBar({ yes, no, abstain }: { yes: number; no: number; abstain: numbe
 
 function StatusBadge({ status }: { status: StreamPost["status"] }) {
   if (!status) return null;
-  const map: Record<string, { label: string; class: string; icon: React.ElementType }> = {
-    active: { label: "Voting", class: "bg-amber-500/15 text-amber-400 border-amber-500/20", icon: Clock },
-    passed: { label: "Passed", class: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20", icon: CheckCircle2 },
-    rejected: { label: "Rejected", class: "bg-red-500/15 text-red-400 border-red-500/20", icon: XCircle },
-    executing: { label: "Executing", class: "bg-cyan-500/15 text-cyan-400 border-cyan-500/20", icon: Wrench },
-    completed: { label: "Completed", class: "bg-violet-500/15 text-violet-400 border-violet-500/20", icon: BadgeCheck },
+  const map: Record<
+    string,
+    { label: string; class: string; icon: React.ElementType }
+  > = {
+    active: {
+      label: "Voting",
+      class: "bg-amber-500/15 text-amber-400 border-amber-500/20",
+      icon: Clock,
+    },
+    passed: {
+      label: "Passed",
+      class: "bg-emerald-500/15 text-emerald-400 border-emerald-500/20",
+      icon: CheckCircle2,
+    },
+    rejected: {
+      label: "Rejected",
+      class: "bg-red-500/15 text-red-400 border-red-500/20",
+      icon: XCircle,
+    },
+    executing: {
+      label: "Executing",
+      class: "bg-cyan-500/15 text-cyan-400 border-cyan-500/20",
+      icon: Wrench,
+    },
+    completed: {
+      label: "Completed",
+      class: "bg-violet-500/15 text-violet-400 border-violet-500/20",
+      icon: BadgeCheck,
+    },
   };
   const cfg = map[status];
   if (!cfg) return null;
   const Icon = cfg.icon;
   return (
-    <span className={cn("inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider", cfg.class)}>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider",
+        cfg.class,
+      )}
+    >
       <Icon className="h-3 w-3" />
       {cfg.label}
     </span>
   );
 }
 
-// ─── Main Component ──────────────────────────────────────────────────
+//  Main Component ─
 
 export function SovereignStream({
   hallId,
@@ -272,7 +312,7 @@ export function SovereignStream({
         (p) =>
           p.title.toLowerCase().includes(q) ||
           p.content.toLowerCase().includes(q) ||
-          p.ledgerId.toLowerCase().includes(q)
+          p.ledgerId.toLowerCase().includes(q),
       );
     }
     // Pinned first, then by date desc
@@ -284,7 +324,8 @@ export function SovereignStream({
   }, [posts, filterType, searchQuery]);
 
   const handleCreatePost = async () => {
-    if (!onCreatePost || !composerTitle.trim() || !composerContent.trim()) return;
+    if (!onCreatePost || !composerTitle.trim() || !composerContent.trim())
+      return;
     setIsSubmitting(true);
     try {
       await onCreatePost({
@@ -293,8 +334,10 @@ export function SovereignStream({
         content: composerContent.trim(),
         ledgerId: currentUserLedgerId,
         amount: composerAmount ? parseFloat(composerAmount) : undefined,
-        status: composerType === "proposal" || composerType === "appeal" ? "active" : undefined,
-        replies: [],
+        status:
+          composerType === "proposal" || composerType === "appeal"
+            ? "active"
+            : undefined,
       });
       setComposerTitle("");
       setComposerContent("");
@@ -322,7 +365,12 @@ export function SovereignStream({
   };
 
   return (
-    <div className={cn("flex flex-col h-full bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden", className)}>
+    <div
+      className={cn(
+        "flex flex-col h-full bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden",
+        className,
+      )}
+    >
       {/* Header */}
       <div className="flex items-center justify-between border-b border-slate-800 bg-slate-900/50 px-5 py-4">
         <div>
@@ -337,7 +385,9 @@ export function SovereignStream({
         <div className="flex items-center gap-2">
           <div className="flex items-center gap-1.5 rounded-lg bg-slate-800/60 px-2.5 py-1.5 border border-slate-700/50">
             <Lock className="h-3 w-3 text-slate-400" />
-            <span className="text-[10px] font-medium text-slate-400">Owners Only</span>
+            <span className="text-[10px] font-medium text-slate-400">
+              Owners Only
+            </span>
           </div>
         </div>
       </div>
@@ -370,7 +420,7 @@ export function SovereignStream({
                 "shrink-0 rounded-xl px-4 py-2 text-xs font-semibold transition-all",
                 showComposer
                   ? "bg-slate-700 text-slate-200"
-                  : "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/25"
+                  : "bg-cyan-500/15 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-500/25",
               )}
             >
               {showComposer ? "Cancel" : "New Post"}
@@ -381,7 +431,9 @@ export function SovereignStream({
         {/* Filter pills */}
         <div className="flex items-center gap-2 overflow-x-auto pb-0.5">
           <Filter className="h-3 w-3 text-slate-500 shrink-0" />
-          {(["all", "proposal", "report", "appeal", "ledger_update"] as const).map((t) => (
+          {(
+            ["all", "proposal", "report", "appeal", "ledger_update"] as const
+          ).map((t) => (
             <button
               key={t}
               onClick={() => setFilterType(t)}
@@ -389,7 +441,7 @@ export function SovereignStream({
                 "shrink-0 rounded-lg px-2.5 py-1 text-[11px] font-medium transition-all border",
                 filterType === t
                   ? "bg-slate-700 text-slate-100 border-slate-600"
-                  : "bg-transparent text-slate-500 border-transparent hover:bg-slate-800 hover:text-slate-300"
+                  : "bg-transparent text-slate-500 border-transparent hover:bg-slate-800 hover:text-slate-300",
               )}
             >
               {t === "all" ? "All Types" : TYPE_CONFIG[t].label}
@@ -411,7 +463,9 @@ export function SovereignStream({
             <div className="p-5 space-y-4">
               {/* Type selector */}
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Type</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                  Type
+                </span>
                 <div className="flex gap-2">
                   {(isSpeaker || isAdmin) && (
                     <button
@@ -420,7 +474,7 @@ export function SovereignStream({
                         "rounded-lg px-3 py-1.5 text-[11px] font-medium border transition-all",
                         composerType === "proposal"
                           ? "bg-amber-500/15 text-amber-400 border-amber-500/30"
-                          : "bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-300"
+                          : "bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-300",
                       )}
                     >
                       Proposal
@@ -433,7 +487,7 @@ export function SovereignStream({
                         "rounded-lg px-3 py-1.5 text-[11px] font-medium border transition-all",
                         composerType === "report"
                           ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
-                          : "bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-300"
+                          : "bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-300",
                       )}
                     >
                       Report
@@ -446,7 +500,7 @@ export function SovereignStream({
                         "rounded-lg px-3 py-1.5 text-[11px] font-medium border transition-all",
                         composerType === "appeal"
                           ? "bg-cyan-500/15 text-cyan-400 border-cyan-500/30"
-                          : "bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-300"
+                          : "bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-300",
                       )}
                     >
                       Appeal
@@ -459,7 +513,7 @@ export function SovereignStream({
                         "rounded-lg px-3 py-1.5 text-[11px] font-medium border transition-all",
                         composerType === "ledger_update"
                           ? "bg-violet-500/15 text-violet-400 border-violet-500/30"
-                          : "bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-300"
+                          : "bg-slate-800 text-slate-400 border-slate-700 hover:text-slate-300",
                       )}
                     >
                       8th Ledger
@@ -486,7 +540,9 @@ export function SovereignStream({
 
               {(composerType === "proposal" || composerType === "appeal") && (
                 <div className="flex items-center gap-3">
-                  <span className="text-[11px] text-slate-400">Estimated Amount ($)</span>
+                  <span className="text-[11px] text-slate-400">
+                    Estimated Amount ($)
+                  </span>
                   <input
                     type="number"
                     placeholder="0.00"
@@ -503,7 +559,11 @@ export function SovereignStream({
                 </p>
                 <button
                   onClick={handleCreatePost}
-                  disabled={isSubmitting || !composerTitle.trim() || !composerContent.trim()}
+                  disabled={
+                    isSubmitting ||
+                    !composerTitle.trim() ||
+                    !composerContent.trim()
+                  }
                   className="rounded-xl bg-cyan-500 px-5 py-2 text-xs font-semibold text-slate-950 hover:bg-cyan-400 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                 >
                   <Send className="h-3.5 w-3.5" />
@@ -520,9 +580,12 @@ export function SovereignStream({
         {filteredPosts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <MessageSquare className="h-10 w-10 text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-400">No posts in the Sovereign Stream</p>
+            <p className="text-sm font-medium text-slate-400">
+              No posts in the Sovereign Stream
+            </p>
             <p className="text-[11px] text-slate-600 mt-1 max-w-xs">
-              The hall is silent. Executives may initiate proposals, reports, or appeals.
+              The hall is silent. Executives may initiate proposals, reports, or
+              appeals.
             </p>
           </div>
         ) : (
@@ -530,7 +593,10 @@ export function SovereignStream({
             const config = TYPE_CONFIG[post.type];
             const TypeIcon = config.icon;
             const isExpanded = expandedPostId === post.id;
-            const canVote = onVote && (post.type === "proposal" || post.type === "appeal") && post.status === "active";
+            const canVote =
+              onVote &&
+              (post.type === "proposal" || post.type === "appeal") &&
+              post.status === "active";
             const hasVoted = false; // Would come from user data
 
             return (
@@ -542,19 +608,29 @@ export function SovereignStream({
                 className={cn(
                   "rounded-xl border bg-slate-900/50 overflow-hidden transition-all",
                   config.border,
-                  post.isPinned && "ring-1 ring-amber-500/20"
+                  post.isPinned && "ring-1 ring-amber-500/20",
                 )}
               >
                 {/* Post Header */}
                 <div className="px-4 pt-4 pb-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-2.5">
-                      <div className={cn("flex h-8 w-8 items-center justify-center rounded-lg", config.bg)}>
+                      <div
+                        className={cn(
+                          "flex h-8 w-8 items-center justify-center rounded-lg",
+                          config.bg,
+                        )}
+                      >
                         <TypeIcon className={cn("h-4 w-4", config.color)} />
                       </div>
                       <div>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className={cn("text-[10px] font-bold uppercase tracking-wider", config.color)}>
+                          <span
+                            className={cn(
+                              "text-[10px] font-bold uppercase tracking-wider",
+                              config.color,
+                            )}
+                          >
                             {config.prefix}
                           </span>
                           {post.isPinned && (
@@ -577,14 +653,23 @@ export function SovereignStream({
                           className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-800 hover:text-amber-400 transition-colors"
                           title={post.isPinned ? "Unpin" : "Pin"}
                         >
-                          <Pin className={cn("h-3.5 w-3.5", post.isPinned && "fill-amber-400 text-amber-400")} />
+                          <Pin
+                            className={cn(
+                              "h-3.5 w-3.5",
+                              post.isPinned && "fill-amber-400 text-amber-400",
+                            )}
+                          />
                         </button>
                       )}
                       <button
                         onClick={() => toggleExpand(post.id)}
                         className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-800 hover:text-slate-200 transition-colors"
                       >
-                        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        {isExpanded ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
                       </button>
                     </div>
                   </div>
@@ -604,8 +689,8 @@ export function SovereignStream({
                       <>
                         <span>•</span>
                         <span className="flex items-center gap-1 text-slate-300">
-                          <TrendingUp className="h-3 w-3" />
-                          ${post.amount.toLocaleString()}
+                          <TrendingUp className="h-3 w-3" />$
+                          {post.amount.toLocaleString()}
                         </span>
                       </>
                     )}
@@ -629,36 +714,43 @@ export function SovereignStream({
                 </div>
 
                 {/* Vote Section */}
-                {canVote && post.voteYes !== undefined && post.voteNo !== undefined && post.voteAbstain !== undefined && (
-                  <div className="px-4 pb-3">
-                    <VoteBar yes={post.voteYes} no={post.voteNo} abstain={post.voteAbstain} />
-                    {!hasVoted && (
-                      <div className="mt-3 flex items-center gap-2">
-                        <button
-                          onClick={() => onVote?.(post.id, "yes")}
-                          className="flex-1 rounded-lg bg-emerald-500/10 py-2 text-xs font-semibold text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors flex items-center justify-center gap-1.5"
-                        >
-                          <CheckCircle2 className="h-3.5 w-3.5" />
-                          Yes
-                        </button>
-                        <button
-                          onClick={() => onVote?.(post.id, "no")}
-                          className="flex-1 rounded-lg bg-red-500/10 py-2 text-xs font-semibold text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors flex items-center justify-center gap-1.5"
-                        >
-                          <XCircle className="h-3.5 w-3.5" />
-                          No
-                        </button>
-                        <button
-                          onClick={() => onVote?.(post.id, "abstain")}
-                          className="flex-1 rounded-lg bg-slate-700/50 py-2 text-xs font-semibold text-slate-400 border border-slate-600/30 hover:bg-slate-700 transition-colors flex items-center justify-center gap-1.5"
-                        >
-                          <MoreHorizontal className="h-3.5 w-3.5" />
-                          Abstain
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
+                {canVote &&
+                  post.voteYes !== undefined &&
+                  post.voteNo !== undefined &&
+                  post.voteAbstain !== undefined && (
+                    <div className="px-4 pb-3">
+                      <VoteBar
+                        yes={post.voteYes}
+                        no={post.voteNo}
+                        abstain={post.voteAbstain}
+                      />
+                      {!hasVoted && (
+                        <div className="mt-3 flex items-center gap-2">
+                          <button
+                            onClick={() => onVote?.(post.id, "yes")}
+                            className="flex-1 rounded-lg bg-emerald-500/10 py-2 text-xs font-semibold text-emerald-400 border border-emerald-500/20 hover:bg-emerald-500/20 transition-colors flex items-center justify-center gap-1.5"
+                          >
+                            <CheckCircle2 className="h-3.5 w-3.5" />
+                            Yes
+                          </button>
+                          <button
+                            onClick={() => onVote?.(post.id, "no")}
+                            className="flex-1 rounded-lg bg-red-500/10 py-2 text-xs font-semibold text-red-400 border border-red-500/20 hover:bg-red-500/20 transition-colors flex items-center justify-center gap-1.5"
+                          >
+                            <XCircle className="h-3.5 w-3.5" />
+                            No
+                          </button>
+                          <button
+                            onClick={() => onVote?.(post.id, "abstain")}
+                            className="flex-1 rounded-lg bg-slate-700/50 py-2 text-xs font-semibold text-slate-400 border border-slate-600/30 hover:bg-slate-700 transition-colors flex items-center justify-center gap-1.5"
+                          >
+                            <MoreHorizontal className="h-3.5 w-3.5" />
+                            Abstain
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                 {/* Replies Preview */}
                 {post.replies.length > 0 && !isExpanded && (
@@ -668,7 +760,9 @@ export function SovereignStream({
                       className="flex items-center gap-2 text-[11px] text-slate-500 hover:text-cyan-400 transition-colors"
                     >
                       <Reply className="h-3.5 w-3.5" />
-                      {post.replies.length} {post.replies.length === 1 ? "reply" : "replies"} — click to view
+                      {post.replies.length}{" "}
+                      {post.replies.length === 1 ? "reply" : "replies"} — click
+                      to view
                     </button>
                   </div>
                 )}
@@ -685,7 +779,9 @@ export function SovereignStream({
                     >
                       <div className="px-4 py-3 space-y-3">
                         {post.replies.length === 0 ? (
-                          <p className="text-[11px] text-slate-600 italic">No replies yet.</p>
+                          <p className="text-[11px] text-slate-600 italic">
+                            No replies yet.
+                          </p>
                         ) : (
                           post.replies.map((reply) => (
                             <div
@@ -694,10 +790,16 @@ export function SovereignStream({
                             >
                               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-700 text-slate-300">
                                 {reply.avatar ? (
-                                  <img src={reply.avatar} alt="" className="h-full w-full rounded-full object-cover" />
+                                  <img
+                                    src={reply.avatar}
+                                    alt=""
+                                    className="h-full w-full rounded-full object-cover"
+                                  />
                                 ) : (
                                   <span className="text-[10px] font-bold">
-                                    {(reply.displayName || reply.ledgerId).charAt(0).toUpperCase()}
+                                    {(reply.displayName || reply.ledgerId)
+                                      .charAt(0)
+                                      .toUpperCase()}
                                   </span>
                                 )}
                               </div>
@@ -711,9 +813,13 @@ export function SovereignStream({
                                       {reply.executiveRole}
                                     </span>
                                   )}
-                                  <span className="text-[10px] text-slate-500">{formatTimeAgo(reply.createdAt)}</span>
+                                  <span className="text-[10px] text-slate-500">
+                                    {formatTimeAgo(reply.createdAt)}
+                                  </span>
                                 </div>
-                                <p className="text-xs text-slate-300 mt-1 leading-relaxed">{reply.content}</p>
+                                <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                                  {reply.content}
+                                </p>
                               </div>
                             </div>
                           ))
@@ -727,7 +833,11 @@ export function SovereignStream({
                               placeholder="Write a threaded reply..."
                               value={replyText}
                               onChange={(e) => setReplyText(e.target.value)}
-                              onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleReply(post.id)}
+                              onKeyDown={(e) =>
+                                e.key === "Enter" &&
+                                !e.shiftKey &&
+                                handleReply(post.id)
+                              }
                               className="flex-1 rounded-lg bg-slate-800/60 border border-slate-700/50 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-cyan-500/40"
                               autoFocus
                             />
@@ -770,7 +880,7 @@ export function SovereignStream({
   );
 }
 
-// ─── Skeleton ────────────────────────────────────────────────────────
+//  Skeleton ─
 
 export function SovereignStreamSkeleton() {
   return (
@@ -783,13 +893,19 @@ export function SovereignStreamSkeleton() {
         <div className="h-9 rounded-xl bg-slate-800 animate-pulse" />
         <div className="flex gap-2">
           {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-6 w-20 rounded-lg bg-slate-800 animate-pulse" />
+            <div
+              key={i}
+              className="h-6 w-20 rounded-lg bg-slate-800 animate-pulse"
+            />
           ))}
         </div>
       </div>
       <div className="flex-1 px-5 py-4 space-y-4">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="rounded-xl border border-slate-800 bg-slate-900/50 p-4 space-y-3">
+          <div
+            key={i}
+            className="rounded-xl border border-slate-800 bg-slate-900/50 p-4 space-y-3"
+          >
             <div className="flex items-start gap-3">
               <div className="h-8 w-8 rounded-lg bg-slate-800 animate-pulse" />
               <div className="flex-1 space-y-2">

@@ -6,11 +6,11 @@ import Link from "next/link";
 import {
   Radio, Users, Activity, Clock, MapPin, Gavel, Wallet,
   PieChart, Receipt, Hourglass, Search, Grid, List, X,
-  ArrowRight, Sparkles, Eye, Store, FileText, Shield,
+  ArrowRight, Sparkles,
   Banknote, CheckCircle2, Lock, Unlock, Vote, BarChart3,
-  TrendingUp, Flame, Loader2, Bell, ChevronDown, Zap,
-  Crown, AlertCircle, ArrowUpRight, ArrowDownRight, Minus,
-  ChevronLeft, ChevronRight, Plus, Wand2,
+  TrendingUp, Flame, Loader2, Bell, ChevronDown,
+  Crown,
+  ChevronLeft, ChevronRight, Wand2, Hammer, Package, Cog,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 

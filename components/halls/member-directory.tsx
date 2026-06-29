@@ -7,12 +7,10 @@ import {
   Crown,
   Search,
   Shield,
-  Eye,
   EyeOff,
   Gavel,
   FileText,
   AlertTriangle,
-  CheckCircle2,
   X,
   ChevronDown,
   ChevronUp,
@@ -25,26 +23,19 @@ import {
   Percent,
   Vote,
   MessageSquare,
-  Lock,
   Globe,
   Award,
-  TrendingUp,
-  TrendingDown,
-  Minus,
 } from "lucide-react";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Progress } from "@/components/ui/progress";
 import {
   Tooltip,
-  TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-// ─── Types ───
+//  Types
 export type KycTier = "visitor" | "sovereign" | "verified" | "whale";
 export type CabinetRole = "speaker" | "treasurer" | "warden" | "scribe";
 
@@ -81,7 +72,7 @@ export interface MemberDirectoryProps {
   onBan?: (memberId: string) => void;
 }
 
-// ─── Config ───
+//  Config
 const KYC_CONFIG: Record<KycTier, { label: string; color: string; bg: string; icon: React.ElementType }> = {
   visitor:  { label: "Visitor",  color: "text-slate-400",    bg: "bg-slate-500/10",    icon: EyeOff },
   sovereign:{ label: "Sovereign",color: "text-cyan-400",     bg: "bg-cyan-500/10",     icon: Shield },
@@ -141,7 +132,7 @@ const SORT_OPTIONS = [
 
 type SortKey = (typeof SORT_OPTIONS)[number]["key"];
 
-// ─── Helpers ───
+//  Helpers
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
@@ -156,7 +147,7 @@ function quorumPercent(votes: number, eligible: number) {
   return Math.round((votes / eligible) * 100);
 }
 
-// ─── Component ───
+//  Component
 export function MemberDirectory({
   members,
   hallId,
@@ -249,7 +240,7 @@ export function MemberDirectory({
   return (
     <TooltipProvider delayDuration={200}>
       <div className="space-y-6">
-        {/* ─── Header Stats ─── */}
+        {/*  Header Stats  */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <StatCard
             icon={Users}
@@ -262,7 +253,11 @@ export function MemberDirectory({
             icon={Percent}
             label="Ownership Distributed"
             value={`${totalOwnership.toFixed(1)}%`}
-            sub={totalOwnership < 100 ? `${(100 - totalOwnership).toFixed(1)}% unallocated` : "Fully allocated"}
+            sub={
+              totalOwnership < 100
+                ? `${(100 - totalOwnership).toFixed(1)}% unallocated`
+                : "Fully allocated"
+            }
             color="emerald"
           />
           <StatCard
@@ -281,7 +276,7 @@ export function MemberDirectory({
           />
         </div>
 
-        {/* ─── Executive Cabinet Banner ─── */}
+        {/*  Executive Cabinet Banner  */}
         {cabinetMembers.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 8 }}
@@ -291,8 +286,13 @@ export function MemberDirectory({
             <div className="px-4 py-3 border-b border-slate-800 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Crown className="w-4 h-4 text-amber-400" />
-                <h3 className="text-sm font-semibold text-slate-200">Executive Cabinet</h3>
-                <Badge variant="outline" className="text-[10px] border-slate-700 text-slate-500">
+                <h3 className="text-sm font-semibold text-slate-200">
+                  Executive Cabinet
+                </h3>
+                <Badge
+                  variant="outline"
+                  className="text-[10px] border-slate-700 text-slate-500"
+                >
                   {cabinetMembers.length}/4 elected
                 </Badge>
               </div>
@@ -306,8 +306,12 @@ export function MemberDirectory({
               </Button>
             </div>
             <div className="p-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {(["speaker", "treasurer", "warden", "scribe"] as CabinetRole[]).map((role) => {
-                const member = cabinetMembers.find((m) => m.cabinetRole === role);
+              {(
+                ["speaker", "treasurer", "warden", "scribe"] as CabinetRole[]
+              ).map((role) => {
+                const member = cabinetMembers.find(
+                  (m) => m.cabinetRole === role,
+                );
                 const cfg = CABINET_CONFIG[role];
                 const CIcon = cfg.icon;
 
@@ -320,13 +324,16 @@ export function MemberDirectory({
                   >
                     <div className="flex items-center gap-2 mb-2">
                       <CIcon className={`w-4 h-4 ${cfg.color}`} />
-                      <span className={`text-xs font-semibold ${cfg.color}`}>{cfg.label}</span>
+                      <span className={`text-xs font-semibold ${cfg.color}`}>
+                        {cfg.label}
+                      </span>
                     </div>
                     {member ? (
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <div className="w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center text-[10px] font-mono text-slate-400">
-                            {member.displayName?.[0] || member.ledgerId.slice(-2)}
+                            {member.displayName?.[0] ||
+                              member.ledgerId.slice(-2)}
                           </div>
                           <span className="text-xs font-medium text-slate-200 truncate">
                             {member.displayName || member.ledgerId}
@@ -342,11 +349,14 @@ export function MemberDirectory({
                             : "Expired"}
                         </div>
                         <div className="text-[10px] text-slate-500">
-                          {member.ownershipPercent.toFixed(2)}% ownership · SRI {member.sriContribution}
+                          {member.ownershipPercent.toFixed(2)}% ownership · SRI{" "}
+                          {member.sriContribution}
                         </div>
                       </div>
                     ) : (
-                      <div className="text-[10px] text-slate-500 italic">Position vacant</div>
+                      <div className="text-[10px] text-slate-500 italic">
+                        Position vacant
+                      </div>
                     )}
                   </div>
                 );
@@ -355,7 +365,7 @@ export function MemberDirectory({
           </motion.div>
         )}
 
-        {/* ─── Controls ─── */}
+        {/*  Controls  */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
@@ -396,7 +406,9 @@ export function MemberDirectory({
             <div className="relative">
               <select
                 value={filterTier}
-                onChange={(e) => setFilterTier(e.target.value as KycTier | "all")}
+                onChange={(e) =>
+                  setFilterTier(e.target.value as KycTier | "all")
+                }
                 className="appearance-none bg-slate-900/50 border border-slate-800 rounded-md px-3 py-2 pr-8 text-xs text-slate-300 focus:outline-none focus:ring-1 focus:ring-cyan-500/30"
               >
                 <option value="all">All Tiers</option>
@@ -414,13 +426,17 @@ export function MemberDirectory({
               size="sm"
               onClick={() => setFilterDormant(!filterDormant)}
               className={`text-xs border-slate-700 ${
-                filterDormant ? "text-red-400 border-red-500/30 bg-red-500/5" : "text-slate-500"
+                filterDormant
+                  ? "text-red-400 border-red-500/30 bg-red-500/5"
+                  : "text-slate-500"
               }`}
             >
               <Clock className="w-3.5 h-3.5 mr-1.5" />
               Dormant
               {dormantCount > 0 && (
-                <span className="ml-1.5 text-[10px] bg-slate-800 px-1 rounded">{dormantCount}</span>
+                <span className="ml-1.5 text-[10px] bg-slate-800 px-1 rounded">
+                  {dormantCount}
+                </span>
               )}
             </Button>
 
@@ -444,13 +460,16 @@ export function MemberDirectory({
           </div>
         </div>
 
-        {/* ─── Results Count ─── */}
+        {/*  Results Count  */}
         <div className="text-sm text-slate-500">
-          Showing <span className="text-slate-300 font-medium">{filtered.length}</span> of{" "}
-          <span className="text-slate-300 font-medium">{members.length}</span> sovereigns
+          Showing{" "}
+          <span className="text-slate-300 font-medium">{filtered.length}</span>{" "}
+          of{" "}
+          <span className="text-slate-300 font-medium">{members.length}</span>{" "}
+          sovereigns
         </div>
 
-        {/* ─── Member List ─── */}
+        {/*  Member List  */}
         <div className="space-y-3">
           <AnimatePresence mode="popLayout">
             {isLoading
@@ -478,7 +497,9 @@ export function MemberDirectory({
                       isCurrentUser={member.ledgerId === currentUserLedgerId}
                       isExpanded={expandedMember === member.id}
                       onToggle={() =>
-                        setExpandedMember(expandedMember === member.id ? null : member.id)
+                        setExpandedMember(
+                          expandedMember === member.id ? null : member.id,
+                        )
                       }
                       onImpeach={onImpeach}
                       onBan={onBan}
@@ -498,8 +519,12 @@ export function MemberDirectory({
             <div className="w-14 h-14 rounded-2xl bg-slate-800/50 flex items-center justify-center mb-4">
               <Users className="w-7 h-7 text-slate-600" />
             </div>
-            <h3 className="text-lg font-semibold text-slate-300 mb-1">No sovereigns found</h3>
-            <p className="text-sm text-slate-500">Adjust your filters or search terms.</p>
+            <h3 className="text-lg font-semibold text-slate-300 mb-1">
+              No sovereigns found
+            </h3>
+            <p className="text-sm text-slate-500">
+              Adjust your filters or search terms.
+            </p>
           </motion.div>
         )}
       </div>
@@ -507,7 +532,7 @@ export function MemberDirectory({
   );
 }
 
-// ─── Stat Card ───
+//  Stat Card
 function StatCard({
   icon: Icon,
   label,
@@ -540,7 +565,7 @@ function StatCard({
   );
 }
 
-// ─── Member Row ───
+//  Member Row
 function MemberRow({
   member,
   isCurrentUser,
@@ -804,7 +829,7 @@ function MemberRow({
   );
 }
 
-// ─── Skeletons ───
+//  Skeletons
 function MemberRowSkeleton() {
   return (
     <Card className="border border-slate-800 bg-slate-950/50 p-4">

@@ -4,14 +4,12 @@ import React, { useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import {
-  Shield, ShieldCheck, Fingerprint, Upload, Camera, Video,
-  CheckCircle2, XCircle, AlertTriangle, ChevronRight, ChevronLeft,
-  Eye, EyeOff, Hash, Star, Zap, Crown, Diamond, Flame,
-  Lock, Unlock, FileText, Image as ImageIcon, ScanFace,
-  Smile, RotateCcw, Sparkles, Award, BadgeCheck, X,
-  ScanLine, QrCode, Copy, Check, Download, RefreshCw,
-  ArrowRight, ArrowLeft, User, MapPin, Mail, Phone,
-  Calendar, Clock, Info, HelpCircle, Bell
+  Shield, ShieldCheck, Fingerprint, Camera, Video,
+  CheckCircle2, AlertTriangle,
+  Eye, Star, Crown,
+  Lock, FileText, ScanFace, BadgeCheck,
+  ScanLine, RefreshCw,
+  ArrowRight, ArrowLeft, MapPin, Clock, Info, HelpCircle, Bell
 } from "lucide-react";
 
 /* ============================================================

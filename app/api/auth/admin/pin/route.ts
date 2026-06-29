@@ -14,7 +14,10 @@ async function hashPin(pin: string): Promise<string> {
     return bcrypt.hashSync(pin, 12);
   } catch {
     const crypto = await import("crypto");
-    return crypto.pbkdf2Sync(pin, process.env.SESSION_SECRET || "8th-ledger", 100000, 64, "sha512").toString("hex");
+    if (!process.env.SESSION_SECRET) throw new Error("SESSION_SECRET missing");
+    return crypto
+      .pbkdf2Sync(pin, process.env.SESSION_SECRET, 100000, 64, "sha512")
+      .toString("hex");
   }
 }
 
@@ -24,7 +27,10 @@ async function verifyPin(pin: string, hash: string): Promise<boolean> {
     return bcrypt.compareSync(pin, hash);
   } catch {
     const crypto = await import("crypto");
-    const testHash = crypto.pbkdf2Sync(pin, process.env.SESSION_SECRET || "8th-ledger", 100000, 64, "sha512").toString("hex");
+    if (!process.env.SESSION_SECRET) throw new Error("SESSION_SECRET missing");
+    const testHash = crypto
+      .pbkdf2Sync(pin, process.env.SESSION_SECRET, 100000, 64, "sha512")
+      .toString("hex");
     return testHash === hash;
   }
 }
@@ -38,15 +44,20 @@ function isLocked(lockedUntil: Date | null): boolean {
 export async function GET(req: NextRequest) {
   try {
     const user = await getSessionUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!user)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     if (user.role !== "admin") {
-      return NextResponse.json({ error: "Administrative access only" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Administrative access only" },
+        { status: 403 },
+      );
     }
 
     const locked = isLocked(user.adminLockedUntil);
-    const remaining = locked && user.adminLockedUntil
-      ? Math.ceil((user.adminLockedUntil.getTime() - Date.now()) / 60000)
-      : 0;
+    const remaining =
+      locked && user.adminLockedUntil
+        ? Math.ceil((user.adminLockedUntil.getTime() - Date.now()) / 60000)
+        : 0;
 
     return NextResponse.json({
       success: true,
@@ -65,9 +76,13 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = await getSessionUser();
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!user)
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     if (user.role !== "admin") {
-      return NextResponse.json({ error: "Administrative access only" }, { status: 403 });
+      return NextResponse.json(
+        { error: "Administrative access only" },
+        { status: 403 },
+      );
     }
 
     const body = await req.json();
@@ -77,13 +92,20 @@ export async function POST(req: NextRequest) {
     if (action === "set") {
       const { pin } = body;
       if (!pin || !/^\d{4}$/.test(pin)) {
-        return NextResponse.json({ error: "PIN must be exactly 4 digits" }, { status: 400 });
+        return NextResponse.json(
+          { error: "PIN must be exactly 4 digits" },
+          { status: 400 },
+        );
       }
 
       const hash = await hashPin(pin);
       await prisma.user.update({
         where: { id: user.id },
-        data: { adminPinHash: hash, adminPinAttempts: 0, adminLockedUntil: null },
+        data: {
+          adminPinHash: hash,
+          adminPinAttempts: 0,
+          adminLockedUntil: null,
+        },
       });
 
       return NextResponse.json({ success: true, message: "Admin PIN set" });
@@ -92,20 +114,31 @@ export async function POST(req: NextRequest) {
     /* ---- VERIFY ---- */
     if (action === "verify") {
       if (isLocked(user.adminLockedUntil)) {
-        const remaining = Math.ceil((user.adminLockedUntil!.getTime() - Date.now()) / 60000);
+        const remaining = Math.ceil(
+          (user.adminLockedUntil!.getTime() - Date.now()) / 60000,
+        );
         return NextResponse.json(
-          { error: `Account locked. Try again in ${remaining} minutes.`, locked: true },
-          { status: 429 }
+          {
+            error: `Account locked. Try again in ${remaining} minutes.`,
+            locked: true,
+          },
+          { status: 429 },
         );
       }
 
       const { pin } = body;
       if (!pin || !/^\d{4}$/.test(pin)) {
-        return NextResponse.json({ error: "PIN must be exactly 4 digits" }, { status: 400 });
+        return NextResponse.json(
+          { error: "PIN must be exactly 4 digits" },
+          { status: 400 },
+        );
       }
 
       if (!user.adminPinHash) {
-        return NextResponse.json({ error: "PIN not set. Set it first." }, { status: 400 });
+        return NextResponse.json(
+          { error: "PIN not set. Set it first." },
+          { status: 400 },
+        );
       }
 
       const isValid = await verifyPin(pin, user.adminPinHash);
@@ -124,7 +157,9 @@ export async function POST(req: NextRequest) {
           data: {
             ledgerId: user.ledgerId,
             action: "pin_fail",
-            ipAddress: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown",
+            ipAddress:
+              req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+              "unknown",
             userAgent: req.headers.get("user-agent") || "unknown",
             success: false,
             details: `Admin PIN fail. Attempt ${newAttempts}/3.`,
@@ -134,14 +169,17 @@ export async function POST(req: NextRequest) {
 
         if (newAttempts >= 3) {
           return NextResponse.json(
-            { error: "Too many failed attempts. Locked for 15 minutes.", locked: true },
-            { status: 429 }
+            {
+              error: "Too many failed attempts. Locked for 15 minutes.",
+              locked: true,
+            },
+            { status: 429 },
           );
         }
 
         return NextResponse.json(
           { error: `Invalid PIN. ${3 - newAttempts} attempts remaining.` },
-          { status: 401 }
+          { status: 401 },
         );
       }
 
@@ -155,9 +193,12 @@ export async function POST(req: NextRequest) {
         data: {
           ledgerId: user.ledgerId,
           action: "admin_login",
-          ipAddress: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown",
+          ipAddress:
+            req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+            "unknown",
           userAgent: req.headers.get("user-agent") || "unknown",
-          deviceFingerprint: req.headers.get("x-device-fingerprint") || "unknown",
+          deviceFingerprint:
+            req.headers.get("x-device-fingerprint") || "unknown",
           success: true,
           details: "Admin PIN verified. Session issued.",
           currentHash: crypto.randomUUID(),
@@ -186,7 +227,10 @@ export async function POST(req: NextRequest) {
         .setExpirationTime("2h")
         .sign(key);
 
-      const response = NextResponse.json({ success: true, message: "Admin PIN verified" });
+      const response = NextResponse.json({
+        success: true,
+        message: "Admin PIN verified",
+      });
       response.cookies.set("ledger_session", newToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
@@ -202,16 +246,25 @@ export async function POST(req: NextRequest) {
     if (action === "change") {
       const { oldPin, newPin } = body;
       if (!oldPin || !newPin || !/^\d{4}$/.test(newPin)) {
-        return NextResponse.json({ error: "Both old and new PIN required. New PIN must be 4 digits." }, { status: 400 });
+        return NextResponse.json(
+          { error: "Both old and new PIN required. New PIN must be 4 digits." },
+          { status: 400 },
+        );
       }
 
       if (!user.adminPinHash) {
-        return NextResponse.json({ error: "No existing PIN. Use 'set' instead." }, { status: 400 });
+        return NextResponse.json(
+          { error: "No existing PIN. Use 'set' instead." },
+          { status: 400 },
+        );
       }
 
       const isValid = await verifyPin(oldPin, user.adminPinHash);
       if (!isValid) {
-        return NextResponse.json({ error: "Current PIN incorrect" }, { status: 401 });
+        return NextResponse.json(
+          { error: "Current PIN incorrect" },
+          { status: 401 },
+        );
       }
 
       const hash = await hashPin(newPin);
@@ -223,9 +276,15 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, message: "Admin PIN changed" });
     }
 
-    return NextResponse.json({ error: "Invalid action. Use set, verify, or change" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid action. Use set, verify, or change" },
+      { status: 400 },
+    );
   } catch (err: any) {
     console.error("[ADMIN PIN]", err);
-    return NextResponse.json({ error: err.message || "Admin PIN failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: err.message || "Admin PIN failed" },
+      { status: 500 },
+    );
   }
 }

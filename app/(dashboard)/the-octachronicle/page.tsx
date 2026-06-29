@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, type Variants } from "framer-motion";
 import {
   Scroll,
   Crown,
@@ -24,8 +24,6 @@ import {
   Eye,
   Flame,
   Droplets,
-  Wind,
-  Sun,
   Zap,
   Building2,
   Car,
@@ -42,7 +40,7 @@ import {
   X,
 } from "lucide-react";
 
-/* ─── Types ─── */
+/*  Types  */
 interface Ledger {
   order: number;
   name: string;
@@ -64,7 +62,7 @@ interface Vertical {
   color: string;
 }
 
-/* ─── Data: The Seven Ages ─── */
+/*  Data: The Seven Ages  */
 const SEVEN_LEDGERS: Ledger[] = [
   {
     order: 1,
@@ -145,7 +143,7 @@ const SEVEN_LEDGERS: Ledger[] = [
   },
 ];
 
-/* ─── Data: The 11 Verticals (with SportLedger) ─── */
+/*  Data: The 11 Verticals (with SportLedger)  */
 const VERTICALS: Vertical[] = [
   {
     key: "prop",
@@ -248,7 +246,7 @@ const VERTICALS: Vertical[] = [
   },
 ];
 
-/* ─── Data: The Three Classes ─── */
+/*  Data: The Three Classes  */
 const HALL_CLASSES = [
   {
     class: "I",
@@ -282,8 +280,8 @@ const HALL_CLASSES = [
   },
 ];
 
-/* ─── Animation Variants ─── */
-const fadeIn = {
+/*  Animation Variants  */
+const fadeIn: Variants = {
   hidden: { opacity: 0, y: 24 },
   visible: (i: number) => ({
     opacity: 1,
@@ -305,7 +303,7 @@ const scaleIn = {
   visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
 };
 
-/* ─── Components ─── */
+/*  Components  */
 
 function SectionTitle({
   children,
@@ -418,7 +416,7 @@ function ClassCard({
           <span
             className={`w-10 h-10 rounded-lg flex items-center justify-center text-sm font-bold border ${cls.color.replace(
               "bg-",
-              "border-"
+              "border-",
             )} ${cls.accent}`}
           >
             {cls.class}
@@ -455,7 +453,7 @@ function ClassCard({
 
 function VerticalGrid() {
   const [activeFilter, setActiveFilter] = useState<"ALL" | "I" | "II" | "III">(
-    "ALL"
+    "ALL",
   );
 
   const filtered =
@@ -508,8 +506,8 @@ function VerticalGrid() {
                     v.class === "I"
                       ? "border-emerald-500/20 text-emerald-400 bg-emerald-950/20"
                       : v.class === "II"
-                      ? "border-blue-500/20 text-blue-400 bg-blue-950/20"
-                      : "border-amber-500/20 text-amber-400 bg-amber-950/20"
+                        ? "border-blue-500/20 text-blue-400 bg-blue-950/20"
+                        : "border-amber-500/20 text-amber-400 bg-amber-950/20"
                   }`}
                 >
                   C{v.class}
@@ -555,7 +553,7 @@ function StatPillar({
   );
 }
 
-/* ─── Main Page ─── */
+/*  Main Page  */
 export default function OctachroniclePage() {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200 selection:bg-cyan-500/20 selection:text-cyan-200">
@@ -570,7 +568,7 @@ export default function OctachroniclePage() {
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 md:px-8 py-12 md:py-20">
-        {/* ─── HERO ─── */}
+        {/*  HERO  */}
         <motion.section
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -589,9 +587,11 @@ export default function OctachroniclePage() {
           </h1>
 
           <p className="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed font-light">
-            <span className="text-cyan-400 font-medium">Codex of the Eight Ages.</span> A
-            complete history of how humanity recorded wealth — from the memory of
-            elders to the perpetual ownership protocol of the 8th Ledger.
+            <span className="text-cyan-400 font-medium">
+              Codex of the Eight Ages.
+            </span>{" "}
+            A complete history of how humanity recorded wealth — from the memory
+            of elders to the perpetual ownership protocol of the 8th Ledger.
           </p>
 
           <div className="mt-10 flex flex-wrap justify-center gap-4">
@@ -610,7 +610,7 @@ export default function OctachroniclePage() {
           </div>
         </motion.section>
 
-        {/* ─── THE PROBLEM ─── */}
+        {/*  THE PROBLEM  */}
         <section className="mb-24 md:mb-32">
           <SectionTitle subtitle="Why the 8th Age Had to Come">
             The Crisis of the Seven Ages
@@ -634,11 +634,11 @@ export default function OctachroniclePage() {
                 The Extraction Machine
               </h3>
               <p className="text-sm text-slate-400 leading-relaxed">
-                For 5,000 years, banks and intermediaries have inserted themselves
-                between people and productive assets. They create money from
-                nothing, lend it at interest, and keep the upside while you take
-                the risk. The 7th Ledger proved we could decentralize the record.
-                But it forgot to decentralize the{" "}
+                For 5,000 years, banks and intermediaries have inserted
+                themselves between people and productive assets. They create
+                money from nothing, lend it at interest, and keep the upside
+                while you take the risk. The 7th Ledger proved we could
+                decentralize the record. But it forgot to decentralize the{" "}
                 <span className="text-slate-200">asset</span>.
               </p>
             </motion.div>
@@ -676,15 +676,15 @@ export default function OctachroniclePage() {
                 Traditional systems trap owners in failing assets. Stocks go to
                 zero and you lose everything. Real estate decays and you pay to
                 maintain it. The 8th Ledger introduces the{" "}
-                <span className="text-slate-200">Closure Protocol</span> — if
-                an asset fails, it is liquidated cleanly, everyone is paid, and
+                <span className="text-slate-200">Closure Protocol</span> — if an
+                asset fails, it is liquidated cleanly, everyone is paid, and
                 capital is freed to flow into productive things again.
               </p>
             </motion.div>
           </motion.div>
         </section>
 
-        {/* ─── THE SEVEN LEDGERS ─── */}
+        {/*  THE SEVEN LEDGERS  */}
         <section className="mb-24 md:mb-32">
           <SectionTitle subtitle="A History Written in Stone, Papyrus, and Code">
             The Seven Ages That Came Before
@@ -697,7 +697,7 @@ export default function OctachroniclePage() {
           </div>
         </section>
 
-        {/* ─── THE EIGHTH LEDGER ─── */}
+        {/*  THE EIGHTH LEDGER  */}
         <section className="mb-24 md:mb-32 relative">
           <div className="absolute inset-0 bg-gradient-to-b from-cyan-950/10 via-transparent to-transparent rounded-3xl -z-10" />
 
@@ -737,10 +737,26 @@ export default function OctachroniclePage() {
             viewport={{ once: true }}
             className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mb-16"
           >
-            <StatPillar icon={<Wallet className="w-5 h-5" />} value="$1" label="Minimum Commitment" />
-            <StatPillar icon={<Vote className="w-5 h-5" />} value="51%" label="Democratic Threshold" />
-            <StatPillar icon={<Gem className="w-5 h-5" />} value="11" label="Verticals" />
-            <StatPillar icon={<Globe className="w-5 h-5" />} value="∞" label="Global Access" />
+            <StatPillar
+              icon={<Wallet className="w-5 h-5" />}
+              value="$1"
+              label="Minimum Commitment"
+            />
+            <StatPillar
+              icon={<Vote className="w-5 h-5" />}
+              value="51%"
+              label="Democratic Threshold"
+            />
+            <StatPillar
+              icon={<Gem className="w-5 h-5" />}
+              value="11"
+              label="Verticals"
+            />
+            <StatPillar
+              icon={<Globe className="w-5 h-5" />}
+              value="∞"
+              label="Global Access"
+            />
           </motion.div>
 
           <motion.div
@@ -791,7 +807,7 @@ export default function OctachroniclePage() {
           </motion.div>
         </section>
 
-        {/* ─── HALL CLASSES ─── */}
+        {/*  HALL CLASSES  */}
         <section className="mb-24 md:mb-32">
           <SectionTitle subtitle="The Three Orders of Sovereignty">
             The Hall Classes
@@ -816,17 +832,17 @@ export default function OctachroniclePage() {
               </p>
               <p className="text-sm text-slate-400 leading-relaxed">
                 SportLedger operates football clubs, basketball franchises,
-                tennis academies, esports teams, and racing teams. Owners vote on
-                player transfers, ticket pricing, sponsorship deals, and staffing.
-                Revenue flows from matchday tickets, media rights, merchandise,
-                and player transfers — all governed by the hall and executed by
-                the 8th Ledger.
+                tennis academies, esports teams, and racing teams. Owners vote
+                on player transfers, ticket pricing, sponsorship deals, and
+                staffing. Revenue flows from matchday tickets, media rights,
+                merchandise, and player transfers — all governed by the hall and
+                executed by the 8th Ledger.
               </p>
             </div>
           </motion.div>
         </section>
 
-        {/* ─── THE 11 VERTICALS ─── */}
+        {/*  THE 11 VERTICALS  */}
         <section className="mb-24 md:mb-32">
           <SectionTitle subtitle="The Eleven Pillars of the Empire">
             The Verticals
@@ -834,7 +850,7 @@ export default function OctachroniclePage() {
           <VerticalGrid />
         </section>
 
-        {/* ─── THE PROTOCOL INFRASTRUCTURE RESERVE ─── */}
+        {/*  THE PROTOCOL INFRASTRUCTURE RESERVE  */}
         <section className="mb-24 md:mb-32">
           <SectionTitle subtitle="The Vault of the Empire">
             The Protocol Infrastructure Reserve
@@ -848,9 +864,9 @@ export default function OctachroniclePage() {
           >
             <p className="text-slate-300 leading-relaxed mb-8 text-center max-w-3xl mx-auto">
               The PIR is the capital allocation that transforms raw acquisition
-              cost into a fully legal, insured, governed, income-producing asset.
-              It is not profit. It is infrastructure. The public knows it exists
-              and what it protects, but never sees its contents.
+              cost into a fully legal, insured, governed, income-producing
+              asset. It is not profit. It is infrastructure. The public knows it
+              exists and what it protects, but never sees its contents.
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -920,7 +936,7 @@ export default function OctachroniclePage() {
           </motion.div>
         </section>
 
-        {/* ─── THE COUNCIL ─── */}
+        {/*  THE COUNCIL  */}
         <section className="mb-24 md:mb-32">
           <SectionTitle subtitle="The Three Who Govern the Empire">
             The Council of the Eighth Ledger
@@ -999,7 +1015,7 @@ export default function OctachroniclePage() {
           </motion.div>
         </section>
 
-        {/* ─── THE ONE SENTENCE ─── */}
+        {/*  THE ONE SENTENCE  */}
         <section className="mb-24 md:mb-32">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
@@ -1016,12 +1032,13 @@ export default function OctachroniclePage() {
               "8th Ledger is a sovereign financial empire where you commit
               capital to own real-world assets across{" "}
               <span className="text-cyan-300">eleven verticals</span> — from
-              real estate to <span className="text-amber-300">sports teams</span>{" "}
-              — govern them through a digital parliament, hire workers through
-              the 8th Ledger to operate them, earn monthly dividends forever, and
-              sell your ownership at its true dynamic value anytime on the 8th
-              Ledger Exchange. If an asset fails, the 8th Ledger closes it
-              cleanly, pays everyone, and protects your capital."
+              real estate to{" "}
+              <span className="text-amber-300">sports teams</span> — govern them
+              through a digital parliament, hire workers through the 8th Ledger
+              to operate them, earn monthly dividends forever, and sell your
+              ownership at its true dynamic value anytime on the 8th Ledger
+              Exchange. If an asset fails, the 8th Ledger closes it cleanly,
+              pays everyone, and protects your capital."
             </p>
             <div className="mt-8 h-px w-32 mx-auto bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
             <p className="mt-6 text-sm text-slate-500 font-medium">
@@ -1031,7 +1048,7 @@ export default function OctachroniclePage() {
           </motion.div>
         </section>
 
-        {/* ─── FOOTER ─── */}
+        {/*  FOOTER  */}
         <footer className="text-center pb-12">
           <div className="inline-flex items-center gap-2 text-xs text-slate-600 uppercase tracking-[0.3em]">
             <Infinity className="w-3 h-3" />

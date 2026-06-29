@@ -15,13 +15,13 @@ export async function GET(
     if (!user) {
       return NextResponse.json(
         { success: false, error: "Authentication required" },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     const { id: hallId } = await params;
 
-    // ── 1. HALL EXISTS ───────────────────────────────────────
+    // ── 1. HALL EXISTS ─
     const hall = await prisma.hall.findUnique({
       where: { id: hallId },
       select: { id: true, name: true, poolId: true, status: true },
@@ -29,11 +29,11 @@ export async function GET(
     if (!hall) {
       return NextResponse.json(
         { success: false, error: "Hall not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
-    // ── 2. OWNERSHIP GATE ────────────────────────────────────
+    // ── 2. OWNERSHIP GATE ─
     const hasAccess = await verifyOwnership(user.id, undefined, hallId);
     if (!hasAccess) {
       return NextResponse.json(
@@ -42,98 +42,99 @@ export async function GET(
           error: "Sovereign access denied",
           detail: "Commit to this pool to view the member directory.",
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
-    // ── 3. FETCH MEMBERS ─────────────────────────────────────
-    const [ownerships, roles, banRecords, impeachments, executiveCabinet] = await prisma.$transaction([
-      // All active ownerships
-      prisma.ownership.findMany({
-        where: { hallId, status: { not: "forfeited" } },
-        include: {
-          user: {
-            select: {
-              id: true,
-              ledgerId: true,
-              displayName: true,
-              avatar: true,
-              kycTier: true,
-              country: true,
-              isBanned: true,
-              lastActivityAt: true,
-              createdAt: true,
+    // ── 3. FETCH MEMBERS
+    const [ownerships, roles, banRecords, impeachments, executiveCabinet] =
+      await prisma.$transaction([
+        // All active ownerships
+        prisma.ownership.findMany({
+          where: { hallId, status: { not: "forfeited" } },
+          include: {
+            user: {
+              select: {
+                id: true,
+                ledgerId: true,
+                displayName: true,
+                avatar: true,
+                kycTier: true,
+                country: true,
+                isBanned: true,
+                lastActivityAt: true,
+                createdAt: true,
+              },
             },
           },
-        },
-        orderBy: { ownershipPercent: "desc" },
-      }),
+          orderBy: { ownershipPercent: "desc" },
+        }),
 
-      // All active roles (legacy)
-      prisma.hallRole.findMany({
-        where: { hallId, isImpeached: false },
-        include: {
-          user: {
-            select: {
-              ledgerId: true,
-              displayName: true,
-              avatar: true,
+        // All active roles (legacy)
+        prisma.hallRole.findMany({
+          where: { hallId, isImpeached: false },
+          include: {
+            user: {
+              select: {
+                ledgerId: true,
+                displayName: true,
+                avatar: true,
+              },
             },
           },
-        },
-        orderBy: { electedAt: "desc" },
-      }),
+          orderBy: { electedAt: "desc" },
+        }),
 
-      // Ban records
-      prisma.banRecord.findMany({
-        where: { hallId },
-        include: {
-          user: {
-            select: {
-              ledgerId: true,
-              displayName: true,
+        // Ban records
+        prisma.banRecord.findMany({
+          where: { hallId },
+          include: {
+            user: {
+              select: {
+                ledgerId: true,
+                displayName: true,
+              },
+            },
+            bannedBy: {
+              select: {
+                ledgerId: true,
+                displayName: true,
+              },
             },
           },
-          bannedBy: {
-            select: {
-              ledgerId: true,
-              displayName: true,
+          orderBy: { createdAt: "desc" },
+        }),
+
+        // Impeachment history (impeached roles)
+        prisma.hallRole.findMany({
+          where: { hallId, isImpeached: true },
+          include: {
+            user: {
+              select: {
+                ledgerId: true,
+                displayName: true,
+              },
             },
           },
-        },
-        orderBy: { createdAt: "desc" },
-      }),
+          orderBy: { impeachedAt: "desc" },
+        }),
 
-      // Impeachment history (impeached roles)
-      prisma.hallRole.findMany({
-        where: { hallId, isImpeached: true },
-        include: {
-          user: {
-            select: {
-              ledgerId: true,
-              displayName: true,
-            },
+        // Executive Cabinet (8th Ledger)
+        prisma.executiveCabinet.findUnique({
+          where: { hallId },
+          select: {
+            speakerId: true,
+            treasurerId: true,
+            wardenId: true,
+            scribeId: true,
+            electedAt: true,
+            expiresAt: true,
+            isImpeached: true,
           },
-        },
-        orderBy: { impeachedAt: "desc" },
-      }),
+        }),
+      ]);
 
-      // Executive Cabinet (8th Ledger)
-      prisma.executiveCabinet.findUnique({
-        where: { hallId },
-        select: {
-          speakerId: true,
-          treasurerId: true,
-          wardenId: true,
-          scribeId: true,
-          electedAt: true,
-          expiresAt: true,
-          isImpeached: true,
-        },
-      }),
-    ]);
-
-    // ── 4. BUILD DIRECTORY ───────────────────────────────────
+    // ── 4. BUILD DIRECTORY
     const memberMap = new Map();
 
     // Seed from ownerships
@@ -225,14 +226,17 @@ export async function GET(
 
     const members = Array.from(memberMap.values());
 
-    // ── 5. HALL STATS ──────────────────────────────────────────
+    // ── 5. HALL STATS
     const totalOwnership = members.reduce((s, m) => s + m.ownershipPercent, 0);
-    const roleCounts = members.reduce((acc, m) => {
-      acc[m.role] = (acc[m.role] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const roleCounts = members.reduce(
+      (acc, m) => {
+        acc[m.role] = (acc[m.role] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
-    // ── 6. AUDIT ─────────────────────────────────────────────
+    // ── 6. AUDIT ─
     await prisma.auditLog.create({
       data: {
         eventType: "HALL_MEMBERS_VIEWED",
@@ -268,8 +272,11 @@ export async function GET(
         totalOwnershipPercent: totalOwnership,
         roleDistribution: roleCounts,
         bannedCount: members.filter((m) => m.isBanned).length,
-        activeCount: members.filter((m) => !m.isBanned && m.ownershipStatus === "active").length,
-        dormantCount: members.filter((m) => m.ownershipStatus === "dormant").length,
+        activeCount: members.filter(
+          (m) => !m.isBanned && m.ownershipStatus === "active",
+        ).length,
+        dormantCount: members.filter((m) => m.ownershipStatus === "dormant")
+          .length,
         executiveCount: members.filter((m) => m.isExecutive).length,
       },
     });

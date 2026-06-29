@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, requireHallAccess } from "@/lib/auth";
+import { requireAuth } from "@/lib/auth";
 
 // POST /api/halls/[id]/cabinet/elect
 // Call an Executive Cabinet election. Creates a capital-weighted proposal.
 // 48-hour vote window. 51% threshold. Only owners or admin can trigger.
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string }> | { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth(req);

@@ -4,13 +4,9 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageSquare,
-  ThumbsUp,
-  ThumbsDown,
-  Filter,
   Search,
   Plus,
   MapPin,
-  Tag,
   ChevronUp,
   ChevronDown,
   X,
@@ -18,13 +14,12 @@ import {
   Clock,
   AlertCircle,
   ArrowLeft,
-  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import useSWR, { mutate } from "swr";
 import { useAuth } from "@/hooks/use-auth";
 
-// ── Types ───────────────────────────────────────────────────
+// ── Types
 
 interface Suggestion {
   id: string;
@@ -45,7 +40,7 @@ interface Suggestion {
   };
 }
 
-// ── Constants ───────────────────────────────────────────────
+// ── Constants ─
 
 const CONTINENTS = [
   { value: "africa", label: "Africa", emoji: "🌍" },
@@ -76,11 +71,11 @@ const STATUS_STYLES = {
   rejected: { bg: "bg-rose-500/10", text: "text-rose-400", icon: X },
 };
 
-// ── Fetcher ─────────────────────────────────────────────────
+// ── Fetcher
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-// ── Components ──────────────────────────────────────────────
+// ── Components
 
 function StatusBadge({ status }: { status: string }) {
   const style = STATUS_STYLES[status as keyof typeof STATUS_STYLES] || STATUS_STYLES.pending;
@@ -157,12 +152,12 @@ function SuggestionCard({
               </span>
             )}
           </div>
-          
+
           <h3 className="text-base font-semibold text-white group-hover:text-cyan-300 transition-colors">
             {suggestion.title}
           </h3>
           <p className="mt-2 text-sm text-white/40 line-clamp-2">{suggestion.description}</p>
-          
+
           <div className="mt-4 flex items-center gap-3 text-xs text-white/30">
             <span className="font-mono text-white/20">{suggestion.author.ledgerId}</span>
             <span>·</span>
@@ -234,7 +229,7 @@ function CreateModal({
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to create");
-      
+
       mutate((key: string) => key.startsWith("/api/agora/suggestions"));
       onClose();
       setForm({ title: "", description: "", continent: "", vertical: "" });
@@ -367,7 +362,7 @@ function CreateModal({
   );
 }
 
-// ── Main Page ───────────────────────────────────────────────
+// ── Main Page ─
 
 export default function StoaPage() {
   const { user } = useAuth();
@@ -394,10 +389,10 @@ export default function StoaPage() {
 
   async function handleVote(suggestionId: string, direction: "up" | "down") {
     if (!user) return;
-    
+
     const currentVote = userVotes[suggestionId];
     let newDirection: "up" | "down" | null = direction;
-    
+
     if (currentVote === direction) {
       newDirection = null; // toggle off
     }
@@ -413,7 +408,7 @@ export default function StoaPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      
+
       // Refresh list
       mutate((key: string) => key.startsWith("/api/agora/suggestions"));
     } catch (err) {
@@ -428,15 +423,23 @@ export default function StoaPage() {
       <div className="border-b border-white/5">
         <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex items-center gap-2 mb-2">
-            <Link href="/agora" className="text-white/30 hover:text-white/60 transition-colors">
+            <Link
+              href="/agora"
+              className="text-white/30 hover:text-white/60 transition-colors"
+            >
               <ArrowLeft className="h-4 w-4" />
             </Link>
-            <span className="text-xs font-medium uppercase tracking-[0.2em] text-cyan-400/60">The Agora</span>
+            <span className="text-xs font-medium uppercase tracking-[0.2em] text-cyan-400/60">
+              The Agora
+            </span>
           </div>
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold text-white">The Stoa</h1>
-              <p className="mt-1 text-white/40">Suggest assets. Vote on ideas. Shape what the 8th Ledger forges next.</p>
+              <p className="mt-1 text-white/40">
+                Suggest assets. Vote on ideas. Shape what the 8th Ledger forges
+                next.
+              </p>
             </div>
             <button
               onClick={() => setCreateOpen(true)}
@@ -469,9 +472,15 @@ export default function StoaPage() {
               onChange={(e) => setSort(e.target.value as any)}
               className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-cyan-500/50 focus:outline-none"
             >
-              <option value="trending" className="bg-[#0f0f14]">Trending</option>
-              <option value="newest" className="bg-[#0f0f14]">Newest</option>
-              <option value="top" className="bg-[#0f0f14]">Top Rated</option>
+              <option value="trending" className="bg-[#0f0f14]">
+                Trending
+              </option>
+              <option value="newest" className="bg-[#0f0f14]">
+                Newest
+              </option>
+              <option value="top" className="bg-[#0f0f14]">
+                Top Rated
+              </option>
             </select>
 
             <select
@@ -479,11 +488,21 @@ export default function StoaPage() {
               onChange={(e) => setStatus(e.target.value)}
               className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-cyan-500/50 focus:outline-none"
             >
-              <option value="" className="bg-[#0f0f14]">All Status</option>
-              <option value="pending" className="bg-[#0f0f14]">Pending</option>
-              <option value="under_review" className="bg-[#0f0f14]">Under Review</option>
-              <option value="approved" className="bg-[#0f0f14]">Approved</option>
-              <option value="rejected" className="bg-[#0f0f14]">Rejected</option>
+              <option value="" className="bg-[#0f0f14]">
+                All Status
+              </option>
+              <option value="pending" className="bg-[#0f0f14]">
+                Pending
+              </option>
+              <option value="under_review" className="bg-[#0f0f14]">
+                Under Review
+              </option>
+              <option value="approved" className="bg-[#0f0f14]">
+                Approved
+              </option>
+              <option value="rejected" className="bg-[#0f0f14]">
+                Rejected
+              </option>
             </select>
 
             <select
@@ -491,9 +510,13 @@ export default function StoaPage() {
               onChange={(e) => setContinent(e.target.value)}
               className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-cyan-500/50 focus:outline-none"
             >
-              <option value="" className="bg-[#0f0f14]">All Continents</option>
+              <option value="" className="bg-[#0f0f14]">
+                All Continents
+              </option>
               {CONTINENTS.map((c) => (
-                <option key={c.value} value={c.value} className="bg-[#0f0f14]">{c.label}</option>
+                <option key={c.value} value={c.value} className="bg-[#0f0f14]">
+                  {c.label}
+                </option>
               ))}
             </select>
 
@@ -502,9 +525,13 @@ export default function StoaPage() {
               onChange={(e) => setVertical(e.target.value)}
               className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-sm text-white focus:border-cyan-500/50 focus:outline-none"
             >
-              <option value="" className="bg-[#0f0f14]">All Verticals</option>
+              <option value="" className="bg-[#0f0f14]">
+                All Verticals
+              </option>
               {VERTICALS.map((v) => (
-                <option key={v.value} value={v.value} className="bg-[#0f0f14]">{v.label}</option>
+                <option key={v.value} value={v.value} className="bg-[#0f0f14]">
+                  {v.label}
+                </option>
               ))}
             </select>
           </div>
@@ -516,7 +543,10 @@ export default function StoaPage() {
         {isLoading ? (
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="h-32 rounded-2xl bg-white/[0.02] animate-pulse" />
+              <div
+                key={i}
+                className="h-32 rounded-2xl bg-white/[0.02] animate-pulse"
+              />
             ))}
           </div>
         ) : error ? (
@@ -527,7 +557,9 @@ export default function StoaPage() {
         ) : data?.suggestions?.length === 0 ? (
           <div className="text-center py-20">
             <MessageSquare className="mx-auto h-12 w-12 text-white/10" />
-            <p className="mt-4 text-white/30">No suggestions yet. Be the first to shape the 8th Ledger.</p>
+            <p className="mt-4 text-white/30">
+              No suggestions yet. Be the first to shape the 8th Ledger.
+            </p>
           </div>
         ) : (
           <div className="space-y-4">

@@ -6,9 +6,7 @@ import {
   Shield,
   Building2,
   User,
-  Clock,
   CheckCircle2,
-  AlertCircle,
   Send,
   Lock,
 } from "lucide-react";

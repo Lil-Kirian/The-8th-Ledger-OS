@@ -11,7 +11,6 @@ import {
   Clock,
   AlertTriangle,
   Loader2,
-  Upload,
   ArrowLeft,
   DollarSign,
   Calendar,
@@ -30,7 +29,6 @@ import {
   Hammer,
   PiggyBank,
   Siren,
-  Wrench,
 } from "lucide-react";
 
 type ProposalStatus = "passed" | "executing" | "completed" | "cancelled";
@@ -186,14 +184,14 @@ export default function OperationDetailPage() {
   const [certificates, setCertificates] = useState<string[]>([]);
   const [uploading, setUploading] = useState<Record<string, boolean>>({});
 
-  /* ─── Fetch ─── */
+  /*  Fetch  */
   useEffect(() => {
     let cancelled = false;
     async function fetchDetail() {
       try {
         setLoading(true);
         const res = await fetch(
-          `/api/admin/operations?id=${proposalId}&limit=1`
+          `/api/admin/operations?id=${proposalId}&limit=1`,
         );
         const data = await res.json();
         if (!cancelled && data.success && data.proposals?.[0]) {
@@ -229,26 +227,26 @@ export default function OperationDetailPage() {
     };
   }, [proposalId]);
 
-  /* ─── Budget Calculations ─── */
+  /*  Budget Calculations  */
   const budgetAmount = proposal?.amount || 0;
   const actualCostNum = useMemo(() => Number(actualCost) || 0, [actualCost]);
   const variance = useMemo(
     () => actualCostNum - budgetAmount,
-    [actualCostNum, budgetAmount]
+    [actualCostNum, budgetAmount],
   );
   const variancePct = useMemo(
     () => (budgetAmount > 0 ? (variance / budgetAmount) * 100 : 0),
-    [variance, budgetAmount]
+    [variance, budgetAmount],
   );
   const overBudget = useMemo(
     () => variance > budgetAmount * 0.2,
-    [variance, budgetAmount]
+    [variance, budgetAmount],
   );
 
-  /* ─── Upload ─── */
+  /*  Upload  */
   const handleFileUpload = async (
     type: "before" | "after" | "invoice" | "certificate",
-    files: FileList | null
+    files: FileList | null,
   ) => {
     if (!files) return;
     setUploading((prev) => ({ ...prev, [type]: true }));
@@ -271,7 +269,7 @@ export default function OperationDetailPage() {
 
   const removePhoto = (
     type: "before" | "after" | "invoice" | "certificate",
-    index: number
+    index: number,
   ) => {
     const setter =
       type === "before"
@@ -284,7 +282,7 @@ export default function OperationDetailPage() {
     setter((prev) => prev.filter((_, i) => i !== index));
   };
 
-  /* ─── Actions ─── */
+  /*  Actions  */
   async function handleStart() {
     if (!proposal) return;
     setActionLoading(true);
@@ -346,7 +344,7 @@ export default function OperationDetailPage() {
                 executionResult: result,
                 executionCost: actualCost ? Number(actualCost) : null,
               }
-            : null
+            : null,
         );
       } else {
         setMessage(data.error || "Failed");
@@ -358,7 +356,7 @@ export default function OperationDetailPage() {
     }
   }
 
-  /* ─── Render ─── */
+  /*  Render  */
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
@@ -386,10 +384,15 @@ export default function OperationDetailPage() {
   const StatusIcon = statusCfg.icon;
 
   // PHASE 4: Operation type indicators
-  const isInventoryOp = proposal.type === "inventory_enable" || proposal.type === "inventory_list";
-  const isForgeOp = proposal.type === "forge_enable" || proposal.type === "hire" || proposal.type === "fire";
+  const isInventoryOp =
+    proposal.type === "inventory_enable" || proposal.type === "inventory_list";
+  const isForgeOp =
+    proposal.type === "forge_enable" ||
+    proposal.type === "hire" ||
+    proposal.type === "fire";
   const isIhcpOp = proposal.type === "ihcp_create";
-  const isClosureOp = proposal.type === "closure" || proposal.type === "liquidation";
+  const isClosureOp =
+    proposal.type === "closure" || proposal.type === "liquidation";
 
   // Gather all proof URLs for gallery
   const archivedProofs =
@@ -406,10 +409,7 @@ export default function OperationDetailPage() {
     <div className="relative min-h-full text-slate-100 overflow-x-hidden selection:bg-cyan-500/30 selection:text-white">
       {/* Breadcrumb */}
       <div className="mb-6 flex items-center gap-2 text-[11px] text-slate-500">
-        <Link
-          href="/admin"
-          className="hover:text-slate-300 transition-colors"
-        >
+        <Link href="/admin" className="hover:text-slate-300 transition-colors">
           Admin
         </Link>
         <ChevronRight className="h-3 w-3" />
@@ -518,9 +518,12 @@ export default function OperationDetailPage() {
           <div className="flex items-center gap-3">
             <PiggyBank className="h-5 w-5 text-emerald-400" />
             <div>
-              <h3 className="text-sm font-bold text-emerald-400">Internal Hall Contribution Pool</h3>
+              <h3 className="text-sm font-bold text-emerald-400">
+                Internal Hall Contribution Pool
+              </h3>
               <p className="text-[10px] text-slate-400 mt-0.5">
-                5% priority return. Repaid from revenue before dividends. Hall must vote 51% to create. Admin executes once passed.
+                5% priority return. Repaid from revenue before dividends. Hall
+                must vote 51% to create. Admin executes once passed.
               </p>
             </div>
           </div>
@@ -537,9 +540,13 @@ export default function OperationDetailPage() {
           <div className="flex items-center gap-3">
             <Siren className="h-5 w-5 text-rose-400" />
             <div>
-              <h3 className="text-sm font-bold text-rose-400">Closure Protocol Execution</h3>
+              <h3 className="text-sm font-bold text-rose-400">
+                Closure Protocol Execution
+              </h3>
               <p className="text-[10px] text-slate-400 mt-0.5">
-                This triggers asset liquidation, worker severance, and payout distribution. Irreversible. Ensure all PIR debts and payroll are settled first.
+                This triggers asset liquidation, worker severance, and payout
+                distribution. Irreversible. Ensure all PIR debts and payroll are
+                settled first.
               </p>
             </div>
           </div>
@@ -606,9 +613,7 @@ export default function OperationDetailPage() {
                 </p>
               </div>
               <div className="rounded-lg border border-white/5 bg-white/[0.02] p-3">
-                <p className="text-[9px] uppercase text-slate-500">
-                  Approval
-                </p>
+                <p className="text-[9px] uppercase text-slate-500">Approval</p>
                 <p className="mt-1 text-xs font-semibold text-emerald-300">
                   {proposal.yesPercent.toFixed(1)}%
                 </p>
@@ -633,8 +638,8 @@ export default function OperationDetailPage() {
               className="rounded-2xl border border-cyan-500/10 bg-gradient-to-br from-cyan-950/10 via-[#0a0a14]/60 to-transparent p-6 backdrop-blur-md"
             >
               <h3 className="mb-4 text-sm font-semibold text-white flex items-center gap-2">
-                <ClipboardCheck className="h-4 w-4 text-cyan-400" />{" "}
-                Execution Form
+                <ClipboardCheck className="h-4 w-4 text-cyan-400" /> Execution
+                Form
               </h3>
 
               {/* Result */}
@@ -739,10 +744,7 @@ export default function OperationDetailPage() {
                         multiple
                         accept="image/*"
                         onChange={(e) =>
-                          handleFileUpload(
-                            field.key as any,
-                            e.target.files
-                          )
+                          handleFileUpload(field.key as any, e.target.files)
                         }
                         className="absolute inset-0 cursor-pointer opacity-0"
                       />
@@ -767,9 +769,7 @@ export default function OperationDetailPage() {
                               className="h-full w-full object-cover"
                             />
                             <button
-                              onClick={() =>
-                                removePhoto(field.key as any, i)
-                              }
+                              onClick={() => removePhoto(field.key as any, i)}
                               className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100"
                             >
                               <X className="h-4 w-4 text-rose-400" />
@@ -839,8 +839,7 @@ export default function OperationDetailPage() {
               </p>
               {proposal.executedAt && (
                 <p className="mt-3 text-[10px] text-slate-500">
-                  Completed{" "}
-                  {new Date(proposal.executedAt).toLocaleString()}
+                  Completed {new Date(proposal.executedAt).toLocaleString()}
                 </p>
               )}
             </motion.div>
@@ -855,8 +854,7 @@ export default function OperationDetailPage() {
               className="rounded-2xl border border-white/5 bg-[#0a0a14]/80 p-6 backdrop-blur-md"
             >
               <h3 className="mb-4 text-sm font-semibold text-white flex items-center gap-2">
-                <ImageIcon className="h-4 w-4 text-amber-400" /> Proof
-                Gallery
+                <ImageIcon className="h-4 w-4 text-amber-400" /> Proof Gallery
               </h3>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                 {archivedProofs.map((url, i) => (
@@ -870,9 +868,7 @@ export default function OperationDetailPage() {
                       className="h-full w-full object-cover"
                     />
                     <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 flex items-end p-2">
-                      <span className="text-[9px] text-white/70">
-                        Archived
-                      </span>
+                      <span className="text-[9px] text-white/70">Archived</span>
                     </div>
                   </div>
                 ))}
@@ -967,22 +963,22 @@ export default function OperationDetailPage() {
                 {
                   stage: "Passed",
                   date: proposal.endsAt,
-                  completed: proposal.status !== "active",
+                  completed: true,
                 },
                 {
                   stage: "8th Ledger Review",
                   date: proposal.executionLogs?.[0]?.createdAt,
                   completed: ["executing", "completed", "cancelled"].includes(
-                    proposal.status
+                    proposal.status,
                   ),
                 },
                 {
                   stage: "In Progress",
                   date: proposal.executionLogs?.find(
-                    (l) => l.status === "in_progress"
+                    (l) => l.status === "in_progress",
                   )?.createdAt,
                   completed: ["executing", "completed"].includes(
-                    proposal.status
+                    proposal.status,
                   ),
                 },
                 {
@@ -1046,9 +1042,7 @@ export default function OperationDetailPage() {
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-[10px] text-slate-500">
-                  Actual Cost
-                </span>
+                <span className="text-[10px] text-slate-500">Actual Cost</span>
                 <span
                   className={`text-sm font-bold ${actualCostNum > budgetAmount ? "text-rose-400" : "text-emerald-400"}`}
                 >

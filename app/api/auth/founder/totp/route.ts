@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import crypto from "crypto";
 import { SignJWT } from "jose";
 import { getSessionUser } from "@/lib/auth";
 import prisma from "@/lib/prisma";
@@ -29,15 +30,14 @@ const devFallback = {
   generateSecret: () => {
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
     let secret = "";
-    for (let i = 0; i < 32; i++) secret += chars[Math.floor(Math.random() * 32)];
+    const bytes = crypto.randomBytes(32);
+    for (let i = 0; i < 32; i++) secret += chars[bytes[i] % chars.length];
     return { base32: secret };
   },
-  otpauthURL: (opts: any) => `otpauth://totp/8thLedger:${opts.encoding}?secret=${opts.secret}`,
+  otpauthURL: (opts: any) =>
+    `otpauth://totp/8thLedger:${opts.encoding}?secret=${opts.secret}`,
   totp: {
-    verify: ({ token, secret }: { token: string; secret: string }) => {
-      // DEV ONLY: Accept any 6-digit code
-      return token && token.length === 6 && /^\d+$/.test(token);
-    },
+    verify: () => false,
   },
 };
 
@@ -57,7 +57,7 @@ function verifyToken(token: string, secret: string) {
       window: 1,
     });
   }
-  return devFallback.totp.verify({ token, secret });
+  return devFallback.totp.verify();
 }
 
 async function generateQR(url: string): Promise<string | null> {
@@ -79,7 +79,10 @@ export async function GET(req: NextRequest) {
   try {
     const user = await getSessionUser();
     if (!user || user.role !== "admin" || !user.isPrimaryAdmin) {
-      return NextResponse.json({ error: "Architect authority required. Primary admin access only." }, { status: 403 });
+      return NextResponse.json(
+        { error: "Architect authority required. Primary admin access only." },
+        { status: 403 },
+      );
     }
 
     return NextResponse.json({
@@ -97,7 +100,10 @@ export async function POST(req: NextRequest) {
   try {
     const user = await getSessionUser();
     if (!user || user.role !== "admin" || !user.isPrimaryAdmin) {
-      return NextResponse.json({ error: "Architect authority required. Primary admin access only." }, { status: 403 });
+      return NextResponse.json(
+        { error: "Architect authority required. Primary admin access only." },
+        { status: 403 },
+      );
     }
 
     const body = await req.json();
@@ -139,7 +145,10 @@ export async function POST(req: NextRequest) {
     if (action === "verify" || action === "verify-login") {
       const { code } = body;
       if (!code || !user.founderTotpSecret) {
-        return NextResponse.json({ error: "Code required or setup incomplete" }, { status: 400 });
+        return NextResponse.json(
+          { error: "Code required or setup incomplete" },
+          { status: 400 },
+        );
       }
 
       const isValid = verifyToken(code, user.founderTotpSecret);
@@ -159,7 +168,9 @@ export async function POST(req: NextRequest) {
         where: { id: user.id },
         data: {
           lastFounderAccessAt: new Date(),
-          lastFounderIP: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown",
+          lastFounderIP:
+            req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+            "unknown",
           founderAccessCount: { increment: 1 },
         },
       });
@@ -169,9 +180,12 @@ export async function POST(req: NextRequest) {
         data: {
           ledgerId: user.ledgerId,
           action: "admin_login",
-          ipAddress: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown",
+          ipAddress:
+            req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+            "unknown",
           userAgent: req.headers.get("user-agent") || "unknown",
-          deviceFingerprint: req.headers.get("x-device-fingerprint") || "unknown",
+          deviceFingerprint:
+            req.headers.get("x-device-fingerprint") || "unknown",
           success: true,
           details: "Architect TOTP verified. Primary admin session issued.",
           currentHash: crypto.randomUUID(),
@@ -205,7 +219,10 @@ export async function POST(req: NextRequest) {
 
       const response = NextResponse.json({
         success: true,
-        message: action === "verify-login" ? "Architect access granted" : "TOTP enabled",
+        message:
+          action === "verify-login"
+            ? "Architect access granted"
+            : "TOTP enabled",
       });
 
       response.cookies.set("ledger_session", newToken, {
@@ -222,6 +239,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (err: any) {
     console.error("[PRIMARY ADMIN TOTP]", err);
-    return NextResponse.json({ error: err.message || "Failed" }, { status: 500 });
+    return NextResponse.json(
+      { error: err.message || "Failed" },
+      { status: 500 },
+    );
   }
 }

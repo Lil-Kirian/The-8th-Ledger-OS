@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Timer,
@@ -10,23 +10,14 @@ import {
   Loader2,
   ChevronDown,
   ChevronUp,
-  Clock,
   Zap,
-  Shield,
   Ban,
   UserX,
   Archive,
-  TrendingUp,
   Layers,
   Search,
-  Filter,
-  ArrowRight,
   X,
   CheckCircle2,
-  Calendar,
-  Hash,
-  Globe,
-  Percent,
   Activity,
 } from "lucide-react";
 
