@@ -1,6 +1,7 @@
 const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://web:3000";
 const cronSecret = process.env.CRON_SECRET;
 const intervalMs = Number(process.env.WORKER_INTERVAL_MS || 15 * 60 * 1000);
+const startupTimeoutMs = Number(process.env.WORKER_STARTUP_TIMEOUT_MS || 60_000);
 
 type Job = {
   name: string;
@@ -28,6 +29,37 @@ async function callCronEndpoint(path: string) {
   }
 }
 
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function waitForWeb() {
+  const deadline = Date.now() + startupTimeoutMs;
+  let lastError: unknown = null;
+
+  while (Date.now() < deadline) {
+    try {
+      const response = await fetch(`${appUrl}/api/health`, {
+        method: "GET",
+        cache: "no-store",
+      });
+
+      if (response.ok) {
+        console.log("[worker] web service is ready");
+        return;
+      }
+
+      lastError = new Error(`health returned ${response.status}`);
+    } catch (error) {
+      lastError = error;
+    }
+
+    await sleep(2_000);
+  }
+
+  throw new Error(`Web service did not become ready: ${String(lastError)}`);
+}
+
 const jobs: Job[] = [
   {
     name: "dormancy-check",
@@ -53,6 +85,7 @@ async function main() {
   console.log(
     `[worker] starting ${jobs.length} job(s), interval=${intervalMs}ms`,
   );
+  await waitForWeb();
   await runOnce();
   setInterval(runOnce, intervalMs);
 }

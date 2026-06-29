@@ -68,25 +68,27 @@ Then replace every placeholder with real local values.
 
 Required variables:
 
-| Variable | Purpose |
-| --- | --- |
-| `POSTGRES_USER` | PostgreSQL username used by Docker |
-| `POSTGRES_PASSWORD` | PostgreSQL password used by Docker |
-| `POSTGRES_DB` | PostgreSQL database name |
-| `POSTGRES_PORT` | Host port mapped to Postgres, usually `5432` |
-| `DATABASE_URL` | Prisma connection URL for host-run commands |
-| `SESSION_SECRET` | Cookie/JWT signing secret |
-| `TOTP_ENCRYPTION_KEY` | TOTP/temp-token signing secret |
-| `CRON_SECRET` | Bearer token for worker-triggered cron endpoints |
-| `NEXT_PUBLIC_APP_URL` | Public web app URL |
-| `WORKER_APP_URL` | Internal URL used by worker, usually `http://web:3000` in Docker |
+| Variable              | Purpose                                                                                                             |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `POSTGRES_USER`       | PostgreSQL username used by Docker                                                                                  |
+| `POSTGRES_PASSWORD`   | PostgreSQL password used by Docker                                                                                  |
+| `POSTGRES_DB`         | PostgreSQL database name                                                                                            |
+| `POSTGRES_PORT`       | Host port mapped to Postgres, usually `5432`                                                                        |
+| `WEB_PORT`            | Host port mapped to the web container, usually `3000`                                                               |
+| `DATABASE_URL`        | Prisma connection URL for host-run commands. Use `localhost` as the host.                                           |
+| `DOCKER_DATABASE_URL` | Prisma connection URL injected into Docker services. Use `postgres` as the host and URL-encode password characters. |
+| `SESSION_SECRET`      | Cookie/JWT signing secret                                                                                           |
+| `TOTP_ENCRYPTION_KEY` | TOTP/temp-token signing secret                                                                                      |
+| `CRON_SECRET`         | Bearer token for worker-triggered cron endpoints                                                                    |
+| `NEXT_PUBLIC_APP_URL` | Public web app URL                                                                                                  |
+| `WORKER_APP_URL`      | Internal URL used by worker, usually `http://web:3000` in Docker                                                    |
 
 Optional payment variables:
 
-| Variable | Purpose |
-| --- | --- |
-| `PAYSTACK_PUBLIC_KEY` | Paystack public key |
-| `PAYSTACK_SECRET_KEY` | Paystack secret key |
+| Variable               | Purpose                       |
+| ---------------------- | ----------------------------- |
+| `PAYSTACK_PUBLIC_KEY`  | Paystack public key           |
+| `PAYSTACK_SECRET_KEY`  | Paystack secret key           |
 | `PAYSTACK_WEBHOOK_IPS` | Optional webhook IP allowlist |
 
 ## Docker Setup
@@ -97,13 +99,17 @@ Start the full local stack:
 docker compose -f compose.yml up --build
 ```
 
+If `.env` still contains values from `.env.example` such as `replace-with-*`,
+the containers stop before Prisma starts and print the missing/placeholder
+variable names. Replace those placeholders with local secrets first.
+
 Services:
 
 - `postgres`: PostgreSQL 16 with a persistent Docker volume.
 - `web`: Next.js app and API routes.
 - `worker`: scheduled job runner.
 
-`compose.yml` reads Postgres credentials and application secrets from `.env`. It intentionally does not contain plaintext database passwords.
+`compose.yml` reads Postgres credentials, `DOCKER_DATABASE_URL`, and application secrets from `.env`. It intentionally does not contain plaintext database passwords. For Docker, set `DOCKER_DATABASE_URL` with the Compose service hostname, for example `postgresql://USER:URL_ENCODED_PASSWORD@postgres:5432/DB?schema=public`.
 
 Stop services:
 
@@ -245,5 +251,8 @@ openssl rand -base64 48
 
 ## Current Status
 
-The project has been moved toward a production structure, but some legacy pages still contain mock display data and lint/type issues. Before a production deployment, finish replacing page-level mock data with API-backed data and make `npm run build` pass cleanly.
-
+The project builds, lints, type-checks, validates the Prisma schema, and includes
+Docker services for the web app, PostgreSQL, and the worker. Before a live
+deployment, run the full stack against production-like environment variables and
+perform end-to-end testing for money movement, KYC, governance, marketplace, and
+scheduled worker flows.

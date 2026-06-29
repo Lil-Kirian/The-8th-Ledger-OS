@@ -3,7 +3,14 @@
 import React, { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Zap, Globe, CheckCircle2, AlertCircle } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Zap,
+  Globe,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -30,28 +37,200 @@ interface AuthInitiateResponse {
 }
 
 const COUNTRIES: string[] = [
-  "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia",
-  "Australia","Austria","Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium",
-  "Belize","Benin","Bhutan","Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria",
-  "Burkina Faso","Burundi","Cabo Verde","Cambodia","Cameroon","Canada","Central African Republic","Chad",
-  "Chile","China","Colombia","Comoros","Congo","Costa Rica","Croatia","Cuba","Cyprus","Czech Republic",
-  "Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt","El Salvador","Equatorial Guinea",
-  "Eritrea","Estonia","Eswatini","Ethiopia","Fiji","Finland","France","Gabon","Gambia","Georgia","Germany",
-  "Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana","Haiti","Honduras","Hungary",
-  "Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel","Italy","Jamaica","Japan","Jordan",
-  "Kazakhstan","Kenya","Kiribati","Kuwait","Kyrgyzstan","Laos","Latvia","Lebanon","Lesotho","Liberia",
-  "Libya","Liechtenstein","Lithuania","Luxembourg","Madagascar","Malawi","Malaysia","Maldives","Mali",
-  "Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova","Monaco","Mongolia",
-  "Montenegro","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Netherlands","New Zealand",
-  "Nicaragua","Niger","Nigeria","North Korea","North Macedonia","Norway","Oman","Pakistan","Palau",
-  "Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Qatar",
-  "Romania","Russia","Rwanda","Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines",
-  "Samoa","San Marino","Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone",
-  "Singapore","Slovakia","Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan",
-  "Spain","Sri Lanka","Sudan","Suriname","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania",
-  "Thailand","Timor-Leste","Togo","Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu",
-  "Uganda","Ukraine","United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan",
-  "Vanuatu","Vatican City","Venezuela","Vietnam","Yemen","Zambia","Zimbabwe",
+  "Afghanistan",
+  "Albania",
+  "Algeria",
+  "Andorra",
+  "Angola",
+  "Antigua and Barbuda",
+  "Argentina",
+  "Armenia",
+  "Australia",
+  "Austria",
+  "Azerbaijan",
+  "Bahamas",
+  "Bahrain",
+  "Bangladesh",
+  "Barbados",
+  "Belarus",
+  "Belgium",
+  "Belize",
+  "Benin",
+  "Bhutan",
+  "Bolivia",
+  "Bosnia and Herzegovina",
+  "Botswana",
+  "Brazil",
+  "Brunei",
+  "Bulgaria",
+  "Burkina Faso",
+  "Burundi",
+  "Cabo Verde",
+  "Cambodia",
+  "Cameroon",
+  "Canada",
+  "Central African Republic",
+  "Chad",
+  "Chile",
+  "China",
+  "Colombia",
+  "Comoros",
+  "Congo",
+  "Costa Rica",
+  "Croatia",
+  "Cuba",
+  "Cyprus",
+  "Czech Republic",
+  "Denmark",
+  "Djibouti",
+  "Dominica",
+  "Dominican Republic",
+  "Ecuador",
+  "Egypt",
+  "El Salvador",
+  "Equatorial Guinea",
+  "Eritrea",
+  "Estonia",
+  "Eswatini",
+  "Ethiopia",
+  "Fiji",
+  "Finland",
+  "France",
+  "Gabon",
+  "Gambia",
+  "Georgia",
+  "Germany",
+  "Ghana",
+  "Greece",
+  "Grenada",
+  "Guatemala",
+  "Guinea",
+  "Guinea-Bissau",
+  "Guyana",
+  "Haiti",
+  "Honduras",
+  "Hungary",
+  "Iceland",
+  "India",
+  "Indonesia",
+  "Iran",
+  "Iraq",
+  "Ireland",
+  "Israel",
+  "Italy",
+  "Jamaica",
+  "Japan",
+  "Jordan",
+  "Kazakhstan",
+  "Kenya",
+  "Kiribati",
+  "Kuwait",
+  "Kyrgyzstan",
+  "Laos",
+  "Latvia",
+  "Lebanon",
+  "Lesotho",
+  "Liberia",
+  "Libya",
+  "Liechtenstein",
+  "Lithuania",
+  "Luxembourg",
+  "Madagascar",
+  "Malawi",
+  "Malaysia",
+  "Maldives",
+  "Mali",
+  "Malta",
+  "Marshall Islands",
+  "Mauritania",
+  "Mauritius",
+  "Mexico",
+  "Micronesia",
+  "Moldova",
+  "Monaco",
+  "Mongolia",
+  "Montenegro",
+  "Morocco",
+  "Mozambique",
+  "Myanmar",
+  "Namibia",
+  "Nauru",
+  "Nepal",
+  "Netherlands",
+  "New Zealand",
+  "Nicaragua",
+  "Niger",
+  "Nigeria",
+  "North Korea",
+  "North Macedonia",
+  "Norway",
+  "Oman",
+  "Pakistan",
+  "Palau",
+  "Palestine",
+  "Panama",
+  "Papua New Guinea",
+  "Paraguay",
+  "Peru",
+  "Philippines",
+  "Poland",
+  "Portugal",
+  "Qatar",
+  "Romania",
+  "Russia",
+  "Rwanda",
+  "Saint Kitts and Nevis",
+  "Saint Lucia",
+  "Saint Vincent and the Grenadines",
+  "Samoa",
+  "San Marino",
+  "Sao Tome and Principe",
+  "Saudi Arabia",
+  "Senegal",
+  "Serbia",
+  "Seychelles",
+  "Sierra Leone",
+  "Singapore",
+  "Slovakia",
+  "Slovenia",
+  "Solomon Islands",
+  "Somalia",
+  "South Africa",
+  "South Korea",
+  "South Sudan",
+  "Spain",
+  "Sri Lanka",
+  "Sudan",
+  "Suriname",
+  "Sweden",
+  "Switzerland",
+  "Syria",
+  "Taiwan",
+  "Tajikistan",
+  "Tanzania",
+  "Thailand",
+  "Timor-Leste",
+  "Togo",
+  "Tonga",
+  "Trinidad and Tobago",
+  "Tunisia",
+  "Turkey",
+  "Turkmenistan",
+  "Tuvalu",
+  "Uganda",
+  "Ukraine",
+  "United Arab Emirates",
+  "United Kingdom",
+  "United States",
+  "Uruguay",
+  "Uzbekistan",
+  "Vanuatu",
+  "Vatican City",
+  "Venezuela",
+  "Vietnam",
+  "Yemen",
+  "Zambia",
+  "Zimbabwe",
 ];
 
 export default function CreatePage() {
@@ -74,14 +253,19 @@ export default function CreatePage() {
     agreePir: false,
   });
 
-  const updateForm = useCallback(<K extends keyof CreateFormState>(key: K, value: CreateFormState[K]) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  }, []);
+  const updateForm = useCallback(
+    <K extends keyof CreateFormState>(key: K, value: CreateFormState[K]) => {
+      setForm((prev) => ({ ...prev, [key]: value }));
+    },
+    [],
+  );
 
   const inputClasses =
     "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-white/20 outline-none transition-all focus:border-cyan-500/50 focus:bg-white/[0.07] focus:ring-1 focus:ring-cyan-500/30";
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>): Promise<void> {
+  async function handleSubmit(
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
@@ -121,9 +305,11 @@ export default function CreatePage() {
         const parsed = raw as Record<string, unknown>;
         result = {
           success: parsed.success === true,
-          ledgerId: typeof parsed.ledgerId === "string" ? parsed.ledgerId : undefined,
+          ledgerId:
+            typeof parsed.ledgerId === "string" ? parsed.ledgerId : undefined,
           error: typeof parsed.error === "string" ? parsed.error : undefined,
-          message: typeof parsed.message === "string" ? parsed.message : undefined,
+          message:
+            typeof parsed.message === "string" ? parsed.message : undefined,
         };
       } catch {
         result = { success: false, error: "Invalid server response" };
@@ -144,7 +330,10 @@ export default function CreatePage() {
       }, 1500);
     } catch (err) {
       setIsLoading(false);
-      const msg = err instanceof Error ? err.message : "Network error. The protocol cannot be reached.";
+      const msg =
+        err instanceof Error
+          ? err.message
+          : "Network error. The protocol cannot be reached.";
       setError(msg);
     }
   }
@@ -161,15 +350,23 @@ export default function CreatePage() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl border border-cyan-500/30 bg-cyan-950/30">
             <Zap className="h-6 w-6 text-cyan-400" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Create Identity</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-white">
+            Create Identity
+          </h1>
           <p className="mt-2 text-sm text-white/40">Join the 8th Ledger</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {step === 1 && (
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-4"
+            >
               <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/40">Display Name</label>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/40">
+                  Display Name
+                </label>
                 <input
                   required
                   value={form.displayName}
@@ -179,7 +376,9 @@ export default function CreatePage() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/40">Email</label>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/40">
+                  Email
+                </label>
                 <input
                   type="email"
                   required
@@ -190,7 +389,9 @@ export default function CreatePage() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/40">Country</label>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/40">
+                  Country
+                </label>
                 <div className="relative">
                   <Globe className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/30" />
                   <select
@@ -199,23 +400,38 @@ export default function CreatePage() {
                     onChange={(e) => updateForm("country", e.target.value)}
                     className={`${inputClasses} pl-10 appearance-none`}
                   >
-                    <option value="" disabled className="bg-surface-800">Select your country</option>
+                    <option value="" disabled className="bg-surface-800">
+                      Select your country
+                    </option>
                     {COUNTRIES.map((c) => (
-                      <option key={c} value={c} className="bg-surface-800">{c}</option>
+                      <option key={c} value={c} className="bg-surface-800">
+                        {c}
+                      </option>
                     ))}
                   </select>
                 </div>
               </div>
-              <Button type="button" onClick={() => setStep(2)} variant="cyan" className="w-full">
+              <Button
+                type="button"
+                onClick={() => setStep(2)}
+                variant="cyan"
+                className="w-full"
+              >
                 Continue
               </Button>
             </motion.div>
           )}
 
           {step === 2 && (
-            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="space-y-4">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="space-y-4"
+            >
               <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/40">Password</label>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/40">
+                  Password
+                </label>
                 <div className="relative">
                   <input
                     type={showPassword ? "text" : "password"}
@@ -230,27 +446,39 @@ export default function CreatePage() {
                     onClick={() => setShowPassword((p) => !p)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
                   </button>
                 </div>
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/40">Confirm Password</label>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/40">
+                  Confirm Password
+                </label>
                 <input
                   type="password"
                   required
                   value={form.confirmPassword}
-                  onChange={(e) => updateForm("confirmPassword", e.target.value)}
+                  onChange={(e) =>
+                    updateForm("confirmPassword", e.target.value)
+                  }
                   className={inputClasses}
                   placeholder="Re-enter passkey"
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/40">Invite Code <span className="text-white/20">(Optional)</span></label>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wider text-white/40">
+                  Invite Code <span className="text-white/20">(Optional)</span>
+                </label>
                 <input
                   type="text"
                   value={form.inviteCode}
-                  onChange={(e) => updateForm("inviteCode", e.target.value.toUpperCase())}
+                  onChange={(e) =>
+                    updateForm("inviteCode", e.target.value.toUpperCase())
+                  }
                   className={inputClasses}
                   placeholder="8L-XXXX-XXXX"
                 />
@@ -264,7 +492,10 @@ export default function CreatePage() {
                     className="mt-0.5 rounded border-white/10 bg-white/5 text-cyan-500 focus:ring-cyan-500/30"
                   />
                   <span className="text-[11px] leading-relaxed text-white/40">
-                    I accept the <a href="/terms" className="text-cyan-400 hover:underline">8th Ledger Protocol Terms</a>
+                    I accept the{" "}
+                    <a href="/terms" className="text-cyan-400 hover:underline">
+                      8th Ledger Protocol Terms
+                    </a>
                   </span>
                 </label>
                 <label className="flex items-start gap-2.5 cursor-pointer">
@@ -275,15 +506,30 @@ export default function CreatePage() {
                     className="mt-0.5 rounded border-white/10 bg-white/5 text-cyan-500 focus:ring-cyan-500/30"
                   />
                   <span className="text-[11px] leading-relaxed text-white/40">
-                    I understand that every pool is protected by the <span className="font-semibold text-emerald-300">Protocol Infrastructure Reserve</span> — insurance, legal, maintenance, and closure protection commanded by the 8th Ledger.
+                    I understand that every pool is protected by the{" "}
+                    <span className="font-semibold text-emerald-300">
+                      Protocol Infrastructure Reserve
+                    </span>{" "}
+                    — insurance, legal, maintenance, and closure protection
+                    commanded by the 8th Ledger.
                   </span>
                 </label>
               </div>
               <div className="flex gap-3">
-                <Button type="button" variant="secondary" onClick={() => setStep(1)} className="flex-1">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setStep(1)}
+                  className="flex-1"
+                >
                   Back
                 </Button>
-                <Button type="submit" variant="amber" isLoading={isLoading} className="flex-1">
+                <Button
+                  type="submit"
+                  variant="amber"
+                  isLoading={isLoading}
+                  className="flex-1"
+                >
                   Forge Identity
                 </Button>
               </div>
@@ -292,13 +538,21 @@ export default function CreatePage() {
         </form>
 
         {error && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 flex items-start gap-2 rounded-lg border border-crimson/20 bg-crimson/10 p-3 text-xs text-crimson">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mt-4 flex items-start gap-2 rounded-lg border border-crimson/20 bg-crimson/10 p-3 text-xs text-crimson"
+          >
             <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <span>{error}</span>
           </motion.div>
         )}
         {success && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-4 flex items-start gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs text-emerald-300">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mt-4 flex items-start gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-3 text-xs text-emerald-300"
+          >
             <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <span>{success}</span>
           </motion.div>
@@ -306,7 +560,12 @@ export default function CreatePage() {
 
         <p className="mt-6 text-center text-xs text-white/30">
           Already have an identity?{" "}
-          <a href="/enter" className="text-cyan-400 hover:text-cyan-300 transition-colors">Enter here</a>
+          <a
+            href="/enter"
+            className="text-cyan-400 hover:text-cyan-300 transition-colors"
+          >
+            Enter here
+          </a>
         </p>
       </motion.div>
     </div>
