@@ -99,23 +99,23 @@ function enrichPost(raw: Record<string, unknown>): StreamPost {
     authorId: String(raw.authorId || raw.author_id || ""),
     author: authorRaw
       ? {
-          ledgerId: String(
-            authorRaw.ledgerId || authorRaw.vinculumId || ""
-          ),
+          ledgerId: String(authorRaw.ledgerId || ""),
           displayName: String(
-            authorRaw.displayName || authorRaw.display_name || ""
+            authorRaw.displayName || authorRaw.display_name || "",
           ),
-          avatarUrl: (authorRaw.avatarUrl || authorRaw.avatar_url) as string | null,
+          avatarUrl: (authorRaw.avatarUrl || authorRaw.avatar_url) as
+            | string
+            | null,
         }
       : null,
     proposalId:
       (raw.proposalId as string) || (raw.proposal_id as string) || null,
     replyCount: Number(raw.replyCount || raw.reply_count || 0),
     createdAt: String(
-      raw.createdAt || raw.created_at || new Date().toISOString()
+      raw.createdAt || raw.created_at || new Date().toISOString(),
     ),
     updatedAt: String(
-      raw.updatedAt || raw.updated_at || new Date().toISOString()
+      raw.updatedAt || raw.updated_at || new Date().toISOString(),
     ),
     isSystem: Boolean(raw.isSystem || raw.is_system || false),
   };
@@ -130,17 +130,17 @@ function enrichReply(raw: Record<string, unknown>): StreamReply {
     content: String(raw.content || ""),
     author: authorRaw
       ? {
-          ledgerId: String(
-            authorRaw.ledgerId || authorRaw.vinculumId || ""
-          ),
+          ledgerId: String(authorRaw.ledgerId || ""),
           displayName: String(
-            authorRaw.displayName || authorRaw.display_name || ""
+            authorRaw.displayName || authorRaw.display_name || "",
           ),
-          avatarUrl: (authorRaw.avatarUrl || authorRaw.avatar_url) as string | null,
+          avatarUrl: (authorRaw.avatarUrl || authorRaw.avatar_url) as
+            | string
+            | null,
         }
       : null,
     createdAt: String(
-      raw.createdAt || raw.created_at || new Date().toISOString()
+      raw.createdAt || raw.created_at || new Date().toISOString(),
     ),
   };
 }

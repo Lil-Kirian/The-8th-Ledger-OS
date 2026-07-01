@@ -180,8 +180,10 @@ function enrichOwnershipListing(raw: Record<string, unknown>): OwnershipListing 
     sellerId: String(raw.sellerId || raw.seller_id),
     seller: sellerRaw
       ? {
-          ledgerId: String(sellerRaw.ledgerId || sellerRaw.vinculumId || ""),
-          displayName: String(sellerRaw.displayName || sellerRaw.display_name || ""),
+          ledgerId: String(sellerRaw.ledgerId || ""),
+          displayName: String(
+            sellerRaw.displayName || sellerRaw.display_name || "",
+          ),
           kycTier: String(sellerRaw.kycTier || sellerRaw.kyc_tier || "visitor"),
         }
       : { ledgerId: "", displayName: "", kycTier: "visitor" },
@@ -225,20 +227,30 @@ function enrichInventoryOrder(raw: Record<string, unknown>): InventoryOrder {
   return {
     id: String(raw.id),
     inventoryId: String(raw.inventoryId || raw.inventory_id),
-    item: raw.item ? enrichInventoryItem(raw.item as Record<string, unknown>) : (raw.item as InventoryItem),
+    item: raw.item
+      ? enrichInventoryItem(raw.item as Record<string, unknown>)
+      : (raw.item as InventoryItem),
     buyerId: String(raw.buyerId || raw.buyer_id),
     buyer: buyerRaw
       ? {
-          ledgerId: String(buyerRaw.ledgerId || buyerRaw.vinculumId || ""),
-          displayName: String(buyerRaw.displayName || buyerRaw.display_name || ""),
+          ledgerId: String(buyerRaw.ledgerId || buyerRaw.t8ledgerId || ""),
+          displayName: String(
+            buyerRaw.displayName || buyerRaw.display_name || "",
+          ),
         }
       : null,
     amount: Number(raw.amount || 0),
     quantity: Number(raw.quantity || 1),
     status: String(raw.status || "pending") as InventoryOrder["status"],
-    escrowReleasedAt: (raw.escrowReleasedAt as string) || (raw.escrow_released_at as string) || null,
-    createdAt: String(raw.createdAt || raw.created_at || new Date().toISOString()),
-    completedAt: (raw.completedAt as string) || (raw.completed_at as string) || null,
+    escrowReleasedAt:
+      (raw.escrowReleasedAt as string) ||
+      (raw.escrow_released_at as string) ||
+      null,
+    createdAt: String(
+      raw.createdAt || raw.created_at || new Date().toISOString(),
+    ),
+    completedAt:
+      (raw.completedAt as string) || (raw.completed_at as string) || null,
     platformFee: Number(raw.platformFee || raw.platform_fee || 0),
     fulfillmentCost: Number(raw.fulfillmentCost || raw.fulfillment_cost || 0),
     netToHall: Number(raw.netToHall || raw.net_to_hall || 0),

@@ -311,7 +311,7 @@ function enrichCabinet(raw: Record<string, unknown>): ExecutiveCabinet {
   ): CabinetMember | null => {
     if (!m) return null;
     return {
-      ledgerId: String(m.ledgerId || m.vinculumId || ""),
+      ledgerId: String(m.ledgerId || m.t8ledgerId || ""),
       displayName: String(m.displayName || m.display_name || ""),
       avatarUrl: (m.avatarUrl || m.avatar_url) as string | null,
     };

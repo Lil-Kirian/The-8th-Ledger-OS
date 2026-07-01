@@ -6,7 +6,7 @@ import { Globe, Flame, Crown, Medal } from "lucide-react";
 
 interface PredictionLeader {
   rank: number;
-  vinculumId: string;
+  ledgerId: string;
   displayName: string;
   country: string;
   correctPredictions: number;

@@ -188,7 +188,7 @@ export function useInventoryOrders(hallId: string | null | undefined) {
       buyerId: String(raw.buyerId || raw.buyer_id),
       buyerLedgerId: String(
         (raw.buyer as Record<string, unknown>)?.ledgerId ||
-          (raw.buyer as Record<string, unknown>)?.vinculumId ||
+          (raw.buyer as Record<string, unknown>)?.t8ledgerId ||
           "",
       ),
       amount: Number(raw.amount || 0),
