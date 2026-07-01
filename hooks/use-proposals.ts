@@ -78,7 +78,6 @@ export interface VoteResult {
    ============================================================ */
 interface RawCreator {
   ledgerId?: string;
-  vinculumId?: string;
   displayName?: string;
   display_name?: string;
 }
@@ -204,7 +203,7 @@ function enrichProposal(raw: RawProposal): Proposal {
   const noPct = totalWeight > 0 ? (noWeight / totalWeight) * 100 : 0;
 
   const creator = raw.creator;
-  const creatorLedgerId = creator?.ledgerId || creator?.vinculumId;
+  const creatorLedgerId = creator?.ledgerId;
 
   return {
     id: raw.id,

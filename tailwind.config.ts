@@ -46,7 +46,7 @@ const config: Config = {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        // Vinculum proprietary palette
+        // the-8th-ledger proprietary palette
         void: "#050505",
         surgical: "#F5F5F5",
         crimson: "#FF2A2A",
@@ -87,17 +87,17 @@ const config: Config = {
       },
       animation: {
         "pulse-slow": "pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-        "breathe": "breathe 6s ease-in-out infinite",
+        breathe: "breathe 6s ease-in-out infinite",
         "knot-tick": "tick 1s linear infinite",
-        "marquee": "marquee 30s linear infinite",
+        marquee: "marquee 30s linear infinite",
         "spin-slow": "spin 8s linear infinite",
         "ping-slow": "ping 3s cubic-bezier(0, 0, 0.2, 1) infinite",
-        "float": "float 6s ease-in-out infinite",
-        "glow": "glow 2s ease-in-out infinite alternate",
-        "shimmer": "shimmer 2s linear infinite",
-        "collapse": "collapse 2s ease-in forwards",
-        "converge": "converge 2s ease-in-out forwards",
-        "expand": "expand 0.5s ease-out forwards",
+        float: "float 6s ease-in-out infinite",
+        glow: "glow 2s ease-in-out infinite alternate",
+        shimmer: "shimmer 2s linear infinite",
+        collapse: "collapse 2s ease-in forwards",
+        converge: "converge 2s ease-in-out forwards",
+        expand: "expand 0.5s ease-out forwards",
       },
       keyframes: {
         breathe: {
@@ -119,7 +119,10 @@ const config: Config = {
         },
         glow: {
           "0%": { boxShadow: "0 0 5px rgba(255, 184, 0, 0.2)" },
-          "100%": { boxShadow: "0 0 20px rgba(255, 184, 0, 0.6), 0 0 40px rgba(255, 184, 0, 0.3)" },
+          "100%": {
+            boxShadow:
+              "0 0 20px rgba(255, 184, 0, 0.6), 0 0 40px rgba(255, 184, 0, 0.3)",
+          },
         },
         shimmer: {
           "0%": { backgroundPosition: "-200% 0" },
@@ -130,7 +133,11 @@ const config: Config = {
           "100%": { transform: "scale(0)", opacity: "0" },
         },
         converge: {
-          "0%": { transform: "translate(var(--tw-translate-x, 0), var(--tw-translate-y, 0)) scale(1)", opacity: "0.6" },
+          "0%": {
+            transform:
+              "translate(var(--tw-translate-x, 0), var(--tw-translate-y, 0)) scale(1)",
+            opacity: "0.6",
+          },
           "100%": { transform: "translate(0, 0) scale(0)", opacity: "0" },
         },
         expand: {
@@ -140,17 +147,20 @@ const config: Config = {
       },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
-        "gradient-conic": "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
-        "shimmer": "linear-gradient(90deg, transparent 0%, rgba(255, 184, 0, 0.1) 50%, transparent 100%)",
+        "gradient-conic":
+          "conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
+        shimmer:
+          "linear-gradient(90deg, transparent 0%, rgba(255, 184, 0, 0.1) 50%, transparent 100%)",
       },
       backgroundSize: {
-        "shimmer": "200% 100%",
+        shimmer: "200% 100%",
       },
       transitionTimingFunction: {
-        "knot": "cubic-bezier(0.4, 0, 0.2, 1)",
+        knot: "cubic-bezier(0.4, 0, 0.2, 1)",
       },
       boxShadow: {
-        "amber-glow": "0 0 20px rgba(255, 184, 0, 0.3), 0 0 40px rgba(255, 184, 0, 0.1)",
+        "amber-glow":
+          "0 0 20px rgba(255, 184, 0, 0.3), 0 0 40px rgba(255, 184, 0, 0.1)",
         "crimson-glow": "0 0 20px rgba(255, 42, 42, 0.3)",
         "surface-glow": "0 0 20px rgba(34, 34, 34, 0.5)",
         "cyan-glow": "0 0 20px rgba(34, 211, 238, 0.3)",

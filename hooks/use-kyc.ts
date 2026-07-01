@@ -162,28 +162,46 @@ function enrichKycRecord(raw: Record<string, unknown>): KycRecord {
   return {
     id: String(raw.id),
     userId: String(raw.userId || raw.user_id),
-    ledgerId: String(raw.ledgerId || raw.ledger_id || raw.vinculumId || raw.vinculum_id || ""),
+    ledgerId: String(
+      raw.ledgerId || raw.ledger_id || raw.t8ledgerId || raw.t8ledger_id || "",
+    ),
     idType: (raw.idType || raw.id_type || null) as KycRecord["idType"],
     idNumber: (raw.idNumber || raw.id_number || null) as string | null,
     idImageUrl: (raw.idImageUrl || raw.id_image_url || null) as string | null,
     idVerified: Boolean(raw.idVerified || raw.id_verified || false),
     selfieUrl: (raw.selfieUrl || raw.selfie_url || null) as string | null,
-    selfieMatchScore: (raw.selfieMatchScore || raw.selfie_match_score) as number | null,
+    selfieMatchScore: (raw.selfieMatchScore || raw.selfie_match_score) as
+      | number
+      | null,
     selfieVerified: Boolean(raw.selfieVerified || raw.selfie_verified || false),
-    livenessVideoUrl: (raw.livenessVideoUrl || raw.liveness_video_url || null) as string | null,
+    livenessVideoUrl: (raw.livenessVideoUrl ||
+      raw.liveness_video_url ||
+      null) as string | null,
     livenessPassed: Boolean(raw.livenessPassed || raw.liveness_passed || false),
-    addressProofUrl: (raw.addressProofUrl || raw.address_proof_url || null) as string | null,
-    addressVerified: Boolean(raw.addressVerified || raw.address_verified || false),
+    addressProofUrl: (raw.addressProofUrl || raw.address_proof_url || null) as
+      | string
+      | null,
+    addressVerified: Boolean(
+      raw.addressVerified || raw.address_verified || false,
+    ),
     legalName: (raw.legalName || raw.legal_name || null) as string | null,
-    dateOfBirth: (raw.dateOfBirth || raw.date_of_birth || null) as string | null,
+    dateOfBirth: (raw.dateOfBirth || raw.date_of_birth || null) as
+      | string
+      | null,
     address: (raw.address || null) as string | null,
     tier: String(raw.tier || "visitor") as KycTier,
     status: String(raw.status || "pending") as KycRecord["status"],
     reviewedBy: (raw.reviewedBy || raw.reviewed_by || null) as string | null,
     reviewedAt: (raw.reviewedAt || raw.reviewed_at || null) as string | null,
-    rejectionReason: (raw.rejectionReason || raw.rejection_reason || null) as string | null,
-    createdAt: String(raw.createdAt || raw.created_at || new Date().toISOString()),
-    updatedAt: String(raw.updatedAt || raw.updated_at || new Date().toISOString()),
+    rejectionReason: (raw.rejectionReason || raw.rejection_reason || null) as
+      | string
+      | null,
+    createdAt: String(
+      raw.createdAt || raw.created_at || new Date().toISOString(),
+    ),
+    updatedAt: String(
+      raw.updatedAt || raw.updated_at || new Date().toISOString(),
+    ),
   };
 }
 

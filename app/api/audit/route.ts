@@ -20,7 +20,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const eventType = searchParams.get("type");
     const poolId = searchParams.get("poolId");
     const ledgerId =
-      searchParams.get("ledgerId") || searchParams.get("vinculumId");
+      searchParams.get("ledgerId") || searchParams.get("t8ledgerId");
     const page = Math.max(1, Number(searchParams.get("page") || 1));
     const limit = Math.min(
       100,

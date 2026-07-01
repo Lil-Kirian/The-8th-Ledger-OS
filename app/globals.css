@@ -82,12 +82,12 @@
     @apply bg-clip-text text-transparent;
   }
 
-  /* Vinculum cyan gradient text */
+  /* the-8th-ledger cyan gradient text */
   .text-gradient-cyan {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-cyan-200;
   }
 
-  /* Vinculum amber gradient text */
+  /* the-8th-ledger amber gradient text */
   .text-gradient-amber {
     @apply bg-clip-text text-transparent bg-gradient-to-r from-amber-400 to-amber-200;
   }
@@ -160,7 +160,7 @@
     -moz-appearance: textfield;
   }
 
-  /* Focus ring override — cyan for Vinculum */
+  /* Focus ring override — cyan for the-8th-ledger */
   .focus-ring {
     @apply outline-none ring-2 ring-cyan-500/30 ring-offset-2 ring-offset-void;
   }
@@ -197,7 +197,7 @@
     @apply absolute left-0 top-1/2 h-6 w-0.5 -translate-y-1/2 rounded-full bg-cyan-400;
   }
 
-  /* Pool card hover glow — cyan for Vinculum */
+  /* Pool card hover glow — cyan for the-8th-ledger */
   .pool-card-glow {
     @apply transition-all duration-300;
   }
@@ -255,7 +255,7 @@
     @apply bg-black/70 backdrop-blur-sm;
   }
 
-  /* Input focus states — cyan for Vinculum */
+  /* Input focus states — cyan for the-8th-ledger */
   .input-sovereign {
     @apply w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm text-white placeholder-slate-500 outline-none transition-all;
   }
@@ -268,7 +268,7 @@
     @apply active:scale-[0.98] transition-transform;
   }
 
-  /* Gradient borders — cyan/amber for Vinculum */
+  /* Gradient borders — cyan/amber for the-8th-ledger */
   .gradient-border {
     position: relative;
   }
