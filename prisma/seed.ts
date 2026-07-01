@@ -9,8 +9,8 @@ async function main() {
     create: {
       key: "default",
       platformFee: 0,
-      minCommitment: 50,
-      maxCommitment: 50000,
+      minCommitment: 1,
+      maxCommitment: 1000000,
       consensusThreshold: 2,
       publicAudit: true,
     },

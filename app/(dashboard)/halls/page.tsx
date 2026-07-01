@@ -833,7 +833,6 @@ export default function HallsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showInfo, setShowInfo] = useState(true);
   const [page, setPage] = useState(1);
-  const [isSeeding, setIsSeeding] = useState(false);
 
   const ITEMS_PER_PAGE = 10;
 
@@ -859,29 +858,6 @@ export default function HallsPage() {
     }
     fetchHalls();
   }, [page]);
-
-  const handleSeedDemo = async () => {
-    setIsSeeding(true);
-    try {
-      const res = await fetch("/api/halls/seed", { method: "POST", credentials: "include" });
-      const data = await res.json();
-      if (data.success) {
-        setPage(1);
-        // Refetch
-        const refresh = await fetch(`/api/halls?page=1&limit=${ITEMS_PER_PAGE}`, { credentials: "include" });
-        const refreshData = await refresh.json();
-        if (refreshData.success && Array.isArray(refreshData.halls)) {
-          setHalls(refreshData.halls.map(mapApiHall));
-        }
-      } else {
-        setApiError(data.error || "Seed failed");
-      }
-    } catch (err) {
-      setApiError("Seed request failed");
-    } finally {
-      setIsSeeding(false);
-    }
-  };
 
   const joinedHalls = halls.filter((h) => h.joined);
   const totalMonthlyDividend = joinedHalls.reduce((a, h) => a + h.myDividendMonthly, 0);
@@ -958,19 +934,6 @@ export default function HallsPage() {
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <button
-                onClick={handleSeedDemo}
-                disabled={isSeeding}
-                className={cn(
-                  "flex items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold transition-all",
-                  isSeeding
-                    ? "border-amber-500/20 bg-amber-500/5 text-amber-400/50"
-                    : "border-violet-500/20 bg-violet-500/5 text-violet-400 hover:bg-violet-500/10"
-                )}
-              >
-                {isSeeding ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Wand2 className="h-3.5 w-3.5" />}
-                {isSeeding ? "Seeding..." : "Seed Demo Halls"}
-              </button>
               <FloatingNotifications proposals={PROPOSAL_ALERTS} dividends={RECENT_DIVIDENDS} />
               {user && (
                 <div className="hidden md:flex items-center gap-2 rounded-xl border border-white/[0.06] bg-white/[0.02] px-3 py-2">
@@ -1059,7 +1022,7 @@ export default function HallsPage() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="rounded-2xl border border-white/[0.04] bg-white/[0.015] p-16 text-center">
             <Search className="mx-auto h-10 w-10 text-white/8 mb-4" />
             <p className="text-sm text-white/25">No halls match your criteria.</p>
-            <p className="text-xs text-white/15 mt-2">{halls.length === 0 ? "No halls in the database yet. Click 'Seed Demo Halls' to generate all 11 verticals." : "Try adjusting your search or filter."}</p>
+            <p className="text-xs text-white/15 mt-2">{halls.length === 0 ? "No halls are available for this account yet. Commit to a pool or create one from the admin console." : "Try adjusting your search or filter."}</p>
           </motion.div>
         )}
 

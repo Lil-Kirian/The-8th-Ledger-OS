@@ -337,14 +337,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 /* ============================================================
    POST /api/halls — Disabled
-   Demo hall generation moved to prisma/seed.dev.ts.
+   Halls are created by pool lifecycle/admin workflows.
    ============================================================ */
 export async function POST(request: NextRequest): Promise<NextResponse> {
   return NextResponse.json(
     {
       success: false,
       error:
-        "Demo hall generation is disabled. Use npm run db:seed:dev locally.",
+        "Direct hall creation is disabled. Use the pool lifecycle or admin workflows.",
     },
     { status: 405 },
   );

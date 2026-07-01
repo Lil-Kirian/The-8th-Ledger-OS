@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import useSWR from "swr";
 import {
   Landmark, Zap, Crown, Lock, HeartPulse, TrendingUp, Hexagon, Plane,
   Sprout, Sun, ChevronLeft, Search, Users, Shield, Star, Award,
@@ -84,81 +85,32 @@ const STATUS_CONFIG: Record<MemberStatus, { color: string; bg: string; border: s
   appealing: { color: "text-amber-400", bg: "bg-amber-500/10", border: "border-amber-500/20", icon: Scale, label: "Appealing" },
 };
 
-/* ============================================================
-   MOCK MEMBERS
-   ============================================================ */
-const MEMBERS: Member[] = [
-  {
-    id: "1", name: "Sovereign Alpha", ledgerId: "LED-8X2P-9LQ3", tier: 5, avatar: "A",
-    role: "Manager", ownership: 8.5, status: "active", joinedAt: "2024-01-15", lastActive: "2m ago",
-    contributions: 45000, proposalsCreated: 12, votesCast: 89, dividendsEarned: 12400, referrals: 23,
-    location: "Lagos, Nigeria", isVerified: true, bio: "Real estate investor. 7th pool commitment. Long-term sovereign.",
-    impeachHistory: []
-  },
-  {
-    id: "2", name: "Archon Epsilon", ledgerId: "LED-4F6G-7H8I", tier: 4, avatar: "E",
-    role: "Liaison", ownership: 6.2, status: "active", joinedAt: "2024-02-20", lastActive: "5m ago",
-    contributions: 32000, proposalsCreated: 8, votesCast: 67, dividendsEarned: 8900, referrals: 15,
-    location: "Berlin, Germany", isVerified: true, bio: "Tech infrastructure specialist. Frankfurt DC liaison.",
-    impeachHistory: []
-  },
-  {
-    id: "3", name: "Vanguard Zeta", ledgerId: "LED-2C3D-4E5F", tier: 3, avatar: "Z",
-    role: "Scribe", ownership: 4.1, status: "active", joinedAt: "2024-03-10", lastActive: "12m ago",
-    contributions: 21000, proposalsCreated: 5, votesCast: 45, dividendsEarned: 5600, referrals: 8,
-    location: "Singapore", isVerified: true, bio: "Corporate governance expert. Records all hall proceedings.",
-    impeachHistory: []
-  },
-  {
-    id: "4", name: "Operant Beta", ledgerId: "LED-3X9K-2M7P", tier: 2, avatar: "B",
-    role: "Member", ownership: 2.5, status: "active", joinedAt: "2024-05-01", lastActive: "1h ago",
-    contributions: 12500, proposalsCreated: 1, votesCast: 23, dividendsEarned: 2100, referrals: 3,
-    location: "Dubai, UAE", isVerified: false, bio: "First pool commitment. Learning the protocol.",
-    impeachHistory: []
-  },
-  {
-    id: "5", name: "Initiate Delta", ledgerId: "LED-1A5B-3C4D", tier: 1, avatar: "D",
-    role: "Member", ownership: 0.8, status: "active", joinedAt: "2024-06-12", lastActive: "30m ago",
-    contributions: 4000, proposalsCreated: 0, votesCast: 8, dividendsEarned: 450, referrals: 1,
-    location: "London, UK", isVerified: false, bio: "New to 8th Ledger. Excited to grow.",
-    impeachHistory: []
-  },
-  {
-    id: "6", name: "Sovereign Gamma", ledgerId: "LED-9M3P-8K2L", tier: 5, avatar: "G",
-    role: "Member", ownership: 7.3, status: "active", joinedAt: "2024-01-20", lastActive: "3m ago",
-    contributions: 38000, proposalsCreated: 9, votesCast: 78, dividendsEarned: 10200, referrals: 19,
-    location: "New York, USA", isVerified: true, bio: "Serial pool participant. 9th commitment across 4 verticals.",
-    impeachHistory: []
-  },
-  {
-    id: "7", name: "Manager Theta", ledgerId: "LED-7T3P-5R8N", tier: 5, avatar: "T",
-    role: "Manager", ownership: 5.1, status: "active", joinedAt: "2024-01-10", lastActive: "1d ago",
-    contributions: 28000, proposalsCreated: 15, votesCast: 92, dividendsEarned: 7800, referrals: 12,
-    location: "Singapore", isVerified: true, bio: "Property manager with 15 years experience. Under impeachment review.",
-    impeachHistory: [{ date: "2026-05-20", result: "survived" }]
-  },
-  {
-    id: "8", name: "Initiate Kappa", ledgerId: "LED-0K9L-1M2N", tier: 1, avatar: "K",
-    role: "Member", ownership: 0.3, status: "banned", joinedAt: "2024-08-01", lastActive: "45d ago",
-    contributions: 1500, proposalsCreated: 0, votesCast: 2, dividendsEarned: 0, referrals: 0,
-    location: "Unknown", isVerified: false, bio: "Banned for fraud. Forfeited PACs redistributed.",
-    impeachHistory: [{ date: "2026-04-15", result: "removed" }]
-  },
-  {
-    id: "9", name: "Vanguard Lambda", ledgerId: "LED-5L6M-7N8O", tier: 3, avatar: "L",
-    role: "Member", ownership: 3.2, status: "dormant", joinedAt: "2024-04-05", lastActive: "8mo ago",
-    contributions: 18000, proposalsCreated: 3, votesCast: 34, dividendsEarned: 4200, referrals: 6,
-    location: "Toronto, Canada", isVerified: true, bio: "Dormant account. 12-month warning issued. 6 months to critical.",
-    impeachHistory: []
-  },
-  {
-    id: "10", name: "Operant Mu", ledgerId: "LED-3M4N-5O6P", tier: 2, avatar: "M",
-    role: "Member", ownership: 1.5, status: "appealing", joinedAt: "2024-07-12", lastActive: "2d ago",
-    contributions: 8000, proposalsCreated: 1, votesCast: 15, dividendsEarned: 1200, referrals: 2,
-    location: "Sydney, Australia", isVerified: false, bio: "Appealing ban for disputed marketplace transaction.",
-    impeachHistory: [{ date: "2026-05-10", result: "removed" }]
-  },
-];
+interface MembersResponse {
+  success: boolean;
+  hall?: { id: string; name: string; status: string };
+  members: Array<{
+    ledgerId: string;
+    displayName: string | null;
+    avatar: string | null;
+    kycTier: string | null;
+    country: string | null;
+    isBanned: boolean;
+    lastActivityAt: string | null;
+    joinedAt: string;
+    ownershipPercent: number;
+    amountCommitted?: number;
+    totalReturned?: number;
+    accumulatedDividends?: number;
+    role?: string | null;
+    executiveRole?: string | null;
+    isExecutive?: boolean;
+    ownershipStatus?: string;
+    impeachedAt?: string | null;
+    impeachReason?: string | null;
+    banRecords?: Array<{ isAppealed?: boolean; reason?: string }>;
+  }>;
+  stats?: { roleCounts?: Record<string, number> };
+}
 
 /* ============================================================
    UTILS
@@ -169,6 +121,89 @@ function cn(...classes: (string | false | null | undefined)[]) {
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+}
+
+async function fetchJson<T>(url: string): Promise<T> {
+  const res = await fetch(url, { credentials: "include" });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || json.success === false) {
+    throw new Error(json.error || `Request failed (${res.status})`);
+  }
+  return json as T;
+}
+
+function tierFromKyc(tier?: string | null): MemberTier {
+  const normalized = (tier || "").toLowerCase();
+  if (normalized === "admin") return 10;
+  if (normalized === "whale") return 5;
+  if (normalized === "verified") return 4;
+  if (normalized === "sovereign") return 3;
+  if (normalized === "visitor") return 1;
+  return 2;
+}
+
+function initials(name: string, ledgerId: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  return (parts[0]?.slice(0, 2) || ledgerId.slice(-2)).toUpperCase();
+}
+
+function timeAgo(value?: string | null) {
+  if (!value) return "No activity";
+  const ms = Date.now() - new Date(value).getTime();
+  if (!Number.isFinite(ms)) return "No activity";
+  const minutes = Math.floor(ms / 60000);
+  const hours = Math.floor(ms / 3600000);
+  const days = Math.floor(ms / 86400000);
+  const months = Math.floor(days / 30);
+  if (minutes < 1) return "now";
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 30) return `${days}d ago`;
+  return `${months}mo ago`;
+}
+
+function normalizeRole(role?: string | null): MemberRole {
+  const normalized = (role || "").toLowerCase();
+  if (normalized === "speaker" || normalized === "manager") return "Manager";
+  if (normalized === "treasurer" || normalized === "warden" || normalized === "liaison") return "Liaison";
+  if (normalized === "scribe") return "Scribe";
+  return "Member";
+}
+
+function normalizeStatus(member: MembersResponse["members"][number]): MemberStatus {
+  if (member.banRecords?.some((record) => record.isAppealed)) return "appealing";
+  if (member.isBanned) return "banned";
+  if (member.ownershipStatus === "dormant") return "dormant";
+  return "active";
+}
+
+function mapMember(member: MembersResponse["members"][number]): Member {
+  const name = member.displayName || member.ledgerId;
+  const role = normalizeRole(member.executiveRole || member.role);
+  return {
+    id: member.ledgerId,
+    name,
+    ledgerId: member.ledgerId,
+    tier: tierFromKyc(member.kycTier),
+    avatar: member.avatar && !member.avatar.startsWith("http") ? member.avatar : initials(name, member.ledgerId),
+    role,
+    ownership: Number(member.ownershipPercent || 0),
+    status: normalizeStatus(member),
+    joinedAt: member.joinedAt,
+    lastActive: timeAgo(member.lastActivityAt),
+    contributions: Number(member.amountCommitted || 0),
+    proposalsCreated: 0,
+    votesCast: 0,
+    dividendsEarned: Number(member.accumulatedDividends || member.totalReturned || 0),
+    referrals: 0,
+    location: member.country || "Undisclosed",
+    isVerified: ["sovereign", "verified", "whale", "admin"].includes((member.kycTier || "").toLowerCase()),
+    bio: member.banRecords?.[0]?.reason || member.impeachReason || undefined,
+    impeachHistory: member.impeachedAt
+      ? [{ date: member.impeachedAt, result: "removed" }]
+      : [],
+  };
 }
 
 /* ============================================================
@@ -227,7 +262,7 @@ function OwnershipDonut({ members }: { members: Member[] }) {
           <svg viewBox="0 0 100 100" className="h-full w-full -rotate-90">
             {data.reduce((acc, item, i) => {
               const prevOffset = acc.offset;
-              const slice = (item.ownership / totalOwnership) * 100;
+              const slice = totalOwnership > 0 ? (item.ownership / totalOwnership) * 100 : 0;
               const circumference = 2 * Math.PI * 40;
               const offset = circumference - (slice / 100) * circumference;
               const color = colors[i % colors.length];
@@ -609,11 +644,15 @@ function MemberRow({ member, index, onReport }: { member: Member; index: number;
    ============================================================ */
 export default function HallMembersPage() {
   const params = useParams();
-  const hallId = (params.id as VerticalId) || "ledgerprop";
-  const config = VERTICAL_CONFIG[hallId] || VERTICAL_CONFIG.ledgerprop;
+  const hallId = params.id as string;
+  const config = VERTICAL_CONFIG.ledgerprop;
   const HallIcon = config.icon;
 
-  const [members] = useState(MEMBERS);
+  const { data, error, isLoading } = useSWR<MembersResponse>(
+    hallId ? `/api/halls/${hallId}/members` : null,
+    fetchJson,
+  );
+  const members = useMemo(() => (data?.members || []).map(mapMember), [data]);
   const [searchQuery, setSearchQuery] = useState("");
   const [filterRole, setFilterRole] = useState<"all" | MemberRole>("all");
   const [filterStatus, setFilterStatus] = useState<"all" | MemberStatus>("all");
@@ -661,7 +700,7 @@ export default function HallMembersPage() {
               <HallIcon className={cn("h-5 w-5", config.color)} />
             </div>
             <div>
-              <h1 className={cn("text-xl font-bold", config.color)}>{config.name} Members</h1>
+              <h1 className={cn("text-xl font-bold", config.color)}>{data?.hall?.name || "Hall"} Members</h1>
               <p className="text-xs text-white/30">Sovereign directory • Roles • Ownership • Governance</p>
             </div>
           </div>
@@ -762,19 +801,31 @@ export default function HallMembersPage() {
 
             {/* Members */}
             <div className="space-y-3">
-              <AnimatePresence mode="popLayout">
-                {filtered.map((member, i) => (
-                  <MemberRow
-                    key={member.id}
-                    member={member}
-                    index={i}
-                    onReport={(m) => { setReportMember(m); setShowReport(true); }}
-                  />
-                ))}
-              </AnimatePresence>
+              {isLoading ? (
+                <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-16 text-center">
+                  <Users className="mx-auto h-10 w-10 text-white/10 mb-4 animate-pulse" />
+                  <p className="text-sm text-white/30">Loading sovereign directory...</p>
+                </div>
+              ) : error ? (
+                <div className="rounded-2xl border border-rose-500/10 bg-rose-950/5 p-16 text-center">
+                  <AlertTriangle className="mx-auto h-10 w-10 text-rose-400/40 mb-4" />
+                  <p className="text-sm text-rose-200/70">{error.message}</p>
+                </div>
+              ) : (
+                <AnimatePresence mode="popLayout">
+                  {filtered.map((member, i) => (
+                    <MemberRow
+                      key={member.id}
+                      member={member}
+                      index={i}
+                      onReport={(m) => { setReportMember(m); setShowReport(true); }}
+                    />
+                  ))}
+                </AnimatePresence>
+              )}
             </div>
 
-            {filtered.length === 0 && (
+            {!isLoading && !error && filtered.length === 0 && (
               <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-16 text-center">
                 <Users className="mx-auto h-10 w-10 text-white/10 mb-4" />
                 <p className="text-sm text-white/30">No members match your filters.</p>

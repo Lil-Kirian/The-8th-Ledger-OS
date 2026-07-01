@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import useSWR from "swr";
 import {
   Landmark, Zap, Crown, Lock, HeartPulse, TrendingUp, Hexagon, Plane,
   Sprout, Sun, Users, X,
@@ -59,6 +60,30 @@ interface VoteRecord {
   timestamp: string;
 }
 
+interface ProposalsResponse {
+  success: boolean;
+  proposals: Array<{
+    id: string;
+    title: string;
+    description: string;
+    type: string;
+    amount: number | null;
+    executionCost: number | null;
+    status: string;
+    voteWeightYes: number;
+    voteWeightNo: number;
+    voteCountYes: number;
+    voteCountNo: number;
+    thresholdPercent: number;
+    endsAt: string;
+    createdAt: string;
+    executionResult: string | null;
+    proposer: { displayName: string | null; ledgerId: string; avatar?: string | null };
+    totalVotes: number;
+    myVote: { choice: string; weight: number } | null;
+  }>;
+}
+
 /* ============================================================
    VERTICAL CONFIG
    ============================================================ */
@@ -106,93 +131,7 @@ const STATUS_CONFIG: Record<ProposalStatus, { label: string; color: string; bg: 
   declined: { label: "Declined", color: "text-rose-400", bg: "bg-rose-500/10", border: "border-rose-500/20", icon: XCircle },
 };
 
-/* ============================================================
-   MOCK PROPOSALS
-   ============================================================ */
-const PROPOSALS: Proposal[] = [
-  {
-    id: "pr1", title: "Marina Roof Waterproofing", type: "renovate",
-    description: "Replace membrane and repaint exterior. Critical before monsoon season. 8th Ledger-vetted contractor. 5-year warranty included.",
-    cost: 12000, proposer: "Sovereign Alpha", proposerTier: 5, proposerLedgerId: "LED-8X2P",
-    votesFor: 52, votesAgainst: 12, abstentions: 8, threshold: 51, status: "active",
-    endsAt: "12h 34m", createdAt: "2 days ago", totalCapital: 100,
-    budgetBreakdown: [
-      { item: "Membrane replacement", amount: 7000 },
-      { item: "Exterior painting", amount: 3000 },
-      { item: "Scaffolding & labor", amount: 2000 },
-    ]
-  },
-  {
-    id: "pr2", title: "Install Biometric Access", type: "renovate",
-    description: "Fingerprint + facial recognition entry for all unit owners. Cloud-managed by 8th Ledger security layer.",
-    cost: 8500, proposer: "Archon Epsilon", proposerTier: 4, proposerLedgerId: "LED-4F6G",
-    votesFor: 38, votesAgainst: 8, abstentions: 4, threshold: 51, status: "active",
-    endsAt: "3d 12h", createdAt: "1 day ago", totalCapital: 100,
-  },
-  {
-    id: "pr3", title: "Q3 Insurance Premium", type: "budget_approve",
-    description: "Annual property insurance renewal. Covers fire, flood, liability. 3% deductible. 8th Ledger Insurance co-pay.",
-    cost: 24000, proposer: "Manager Theta", proposerTier: 5, proposerLedgerId: "LED-7T3P",
-    votesFor: 89, votesAgainst: 2, abstentions: 0, threshold: 51, status: "passed",
-    endsAt: "Complete", createdAt: "5 days ago", totalCapital: 100,
-    executionStatus: "8th Ledger Review", executionCost: 24000,
-  },
-  {
-    id: "pr4", title: "Impeach Manager Theta", type: "impeach_manager",
-    description: "Failure to execute 3 passed proposals within 90 days. Evidence: execution logs show 67-day average delay vs 30-day SLA.",
-    cost: 0, proposer: "Sovereign Gamma", proposerTier: 5, proposerLedgerId: "LED-9M3P",
-    votesFor: 48, votesAgainst: 31, abstentions: 5, threshold: 51, status: "active",
-    endsAt: "6h 12m", createdAt: "3 days ago", totalCapital: 100,
-    banTarget: "Manager Theta",
-  },
-  {
-    id: "pr5", title: "Sell Penthouse Unit B-12", type: "sell",
-    description: "Market has peaked. Unit B-12 valued at $340K. Sale proceeds split 80/20 per protocol. Community treasury boost.",
-    cost: 0, proposer: "Vanguard Zeta", proposerTier: 3, proposerLedgerId: "LED-2C3D",
-    votesFor: 61, votesAgainst: 28, abstentions: 6, threshold: 51, status: "passed",
-    endsAt: "Complete", createdAt: "7 days ago", totalCapital: 100,
-    executionStatus: "In Progress", executionCost: 15000,
-    executionProofs: ["listing_contract.pdf", "valuation_report.pdf"],
-  },
-  {
-    id: "pr6", title: "Solar Array Expansion", type: "budget_approve",
-    description: "Add 50kW capacity to Marrakech farm. ROI 18 months. Carbon credit eligibility.",
-    cost: 45000, proposer: "Sovereign Alpha", proposerTier: 5, proposerLedgerId: "LED-8X2P",
-    votesFor: 72, votesAgainst: 18, abstentions: 5, threshold: 51, status: "completed",
-    endsAt: "Complete", createdAt: "14 days ago", totalCapital: 100,
-    executionStatus: "Completed", executionCost: 42300,
-    executionProofs: ["invoice_solar.pdf", "completion_cert.pdf", "before_after.jpg"],
-  },
-  {
-    id: "pr7", title: "New Liaison Appointment", type: "manager_change",
-    description: "Appoint Archon Epsilon as Liaison for 8th Ledger Operations coordination. 6-month term. Impeachable by 51%.",
-    cost: 0, proposer: "Admin", proposerTier: 10, proposerLedgerId: "LED-ADMIN",
-    votesFor: 82, votesAgainst: 4, abstentions: 3, threshold: 51, status: "completed",
-    endsAt: "Complete", createdAt: "21 days ago", totalCapital: 100,
-    executionStatus: "Completed", executionCost: 0,
-  },
-  {
-    id: "pr8", title: "Increase Fleet Rental Rate", type: "rent_change",
-    description: "Raise daily rental from $85 to $110. Market analysis shows 15% below comparable. Revenue +$4,200/month.",
-    cost: 0, proposer: "Manager Theta", proposerTier: 5, proposerLedgerId: "LED-7T3P",
-    votesFor: 34, votesAgainst: 42, abstentions: 8, threshold: 51, status: "declined",
-    endsAt: "Complete", createdAt: "4 days ago", totalCapital: 100,
-  },
-];
 
-/* ============================================================
-   MOCK VOTE RECORDS
-   ============================================================ */
-const VOTE_RECORDS: Record<string, VoteRecord[]> = {
-  pr1: [
-    { voter: "Sovereign Alpha", ledgerId: "LED-8X2P", tier: 5, weight: 8.5, choice: "Agreed", timestamp: "2h ago" },
-    { voter: "Archon Epsilon", ledgerId: "LED-4F6G", tier: 4, weight: 6.2, choice: "Agreed", timestamp: "1h ago" },
-    { voter: "Vanguard Zeta", ledgerId: "LED-2C3D", tier: 3, weight: 4.1, choice: "Declined", timestamp: "45m ago" },
-    { voter: "Operant Beta", ledgerId: "LED-3X9K", tier: 2, weight: 2.5, choice: "Agreed", timestamp: "30m ago" },
-    { voter: "Initiate Delta", ledgerId: "LED-1A5B", tier: 1, weight: 0.8, choice: "Agreed", timestamp: "20m ago" },
-    { voter: "Sovereign Gamma", ledgerId: "LED-9M3P", tier: 5, weight: 7.3, choice: "Agreed", timestamp: "15m ago" },
-  ],
-};
 
 /* ============================================================
    UTILS
@@ -203,6 +142,64 @@ function cn(...classes: (string | false | null | undefined)[]) {
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+}
+
+async function fetchJson<T>(url: string): Promise<T> {
+  const res = await fetch(url, { credentials: "include" });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || json.success === false) {
+    throw new Error(json.error || `Request failed (${res.status})`);
+  }
+  return json as T;
+}
+
+function normalizeProposalType(type: string): ProposalType {
+  return (TYPE_CONFIG[type as ProposalType] ? type : "budget_approve") as ProposalType;
+}
+
+function normalizeProposalStatus(status: string): ProposalStatus {
+  if (status === "pending") return "active";
+  if (status === "rejected") return "declined";
+  if (status === "passed" || status === "executing" || status === "completed") return status;
+  return "active";
+}
+
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function formatEndsAt(value: string, status: ProposalStatus) {
+  if (status !== "active") return "Complete";
+  const diff = new Date(value).getTime() - Date.now();
+  if (diff <= 0) return "Ended";
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(hours / 24);
+  if (days > 0) return `${days}d ${hours % 24}h`;
+  return `${hours}h ${Math.floor((diff % 3600000) / 60000)}m`;
+}
+
+function mapProposal(proposal: ProposalsResponse["proposals"][number]): Proposal {
+  const status = normalizeProposalStatus(proposal.status);
+  return {
+    id: proposal.id,
+    title: proposal.title,
+    type: normalizeProposalType(proposal.type),
+    description: proposal.description,
+    cost: Number(proposal.amount || proposal.executionCost || 0),
+    proposer: proposal.proposer?.displayName || proposal.proposer?.ledgerId || "Sovereign",
+    proposerTier: 1,
+    proposerLedgerId: proposal.proposer?.ledgerId || "",
+    votesFor: Number(proposal.voteWeightYes || 0),
+    votesAgainst: Number(proposal.voteWeightNo || 0),
+    abstentions: 0,
+    threshold: Number(proposal.thresholdPercent || 51),
+    status,
+    endsAt: formatEndsAt(proposal.endsAt, status),
+    createdAt: formatDate(proposal.createdAt),
+    totalCapital: Math.max(100, Number(proposal.voteWeightYes || 0) + Number(proposal.voteWeightNo || 0)),
+    executionCost: Number(proposal.executionCost || 0),
+    executionStatus: proposal.status === "executing" ? "In Progress" : proposal.status === "completed" ? "Completed" : undefined,
+  };
 }
 
 /* ============================================================
@@ -287,8 +284,7 @@ function ProposalCard({ proposal, config, onVote, expanded, onToggle }: {
   const forPercent = totalVotes > 0 ? (proposal.votesFor / totalVotes) * 100 : 0;
   const againstPercent = totalVotes > 0 ? (proposal.votesAgainst / totalVotes) * 100 : 0;
   const isPassing = forPercent >= proposal.threshold;
-  const hasVoted = false; // Would come from user state
-  const votes = VOTE_RECORDS[proposal.id] || [];
+  const hasVoted = false;
 
   return (
     <motion.div
@@ -464,30 +460,19 @@ function ProposalCard({ proposal, config, onVote, expanded, onToggle }: {
                   </div>
                 )}
 
-                {/* Vote Records */}
-                {votes.length > 0 && (
-                  <div>
-                    <h4 className="text-[10px] uppercase tracking-wider text-white/20 font-bold mb-2">Recent Votes</h4>
-                    <div className="space-y-1.5">
-                      {votes.map((vote, i) => (
-                        <div key={i} className="flex items-center justify-between rounded-lg bg-white/[0.02] px-3 py-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs text-white/60">{vote.voter}</span>
-                            <TierBadge tier={vote.tier} />
-                            <span className="text-[9px] text-white/20 font-mono">{vote.ledgerId}</span>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <span className="text-[10px] text-white/30">{vote.weight}% weight</span>
-                            <span className={cn("text-xs font-bold", vote.choice === "Agreed" ? "text-emerald-400" : "text-rose-400")}>
-                              {vote.choice}
-                            </span>
-                            <span className="text-[9px] text-white/15">{vote.timestamp}</span>
-                          </div>
-                        </div>
-                      ))}
+                <div>
+                  <h4 className="text-[10px] uppercase tracking-wider text-white/20 font-bold mb-2">Vote Weight</h4>
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="rounded-lg bg-emerald-500/5 border border-emerald-500/10 px-3 py-2">
+                      <p className="text-[10px] text-emerald-400/60">Agreed capital</p>
+                      <p className="text-sm font-bold text-emerald-300">{proposal.votesFor.toFixed(2)}%</p>
+                    </div>
+                    <div className="rounded-lg bg-rose-500/5 border border-rose-500/10 px-3 py-2">
+                      <p className="text-[10px] text-rose-400/60">Declined capital</p>
+                      <p className="text-sm font-bold text-rose-300">{proposal.votesAgainst.toFixed(2)}%</p>
                     </div>
                   </div>
-                )}
+                </div>
 
                 {/* Location Options */}
                 {proposal.locationOptions && (
@@ -750,11 +735,15 @@ function NewProposalModal({ open, onClose, config }: { open: boolean; onClose: (
    ============================================================ */
 export default function HallGovernancePage() {
   const params = useParams();
-  const hallId = (params.id as VerticalId) || "ledgerprop";
-  const config = VERTICAL_CONFIG[hallId] || VERTICAL_CONFIG.ledgerprop;
+  const hallId = params.id as string;
+  const config = VERTICAL_CONFIG.ledgerprop;
   const HallIcon = config.icon;
 
-  const [proposals, setProposals] = useState(PROPOSALS);
+  const { data, error, isLoading, mutate } = useSWR<ProposalsResponse>(
+    hallId ? `/api/halls/${hallId}/proposals?myVotes=true` : null,
+    fetchJson,
+  );
+  const proposals = useMemo(() => (data?.proposals || []).map(mapProposal), [data]);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<"all" | ProposalStatus>("all");
   const [filterType, setFilterType] = useState<"all" | ProposalType>("all");
@@ -774,16 +763,19 @@ export default function HallGovernancePage() {
   const passedCount = proposals.filter((p) => p.status === "passed" || p.status === "completed").length;
   const declinedCount = proposals.filter((p) => p.status === "declined").length;
 
-  function handleVote(id: string, choice: "Agreed" | "Declined") {
-    setProposals((prev) => prev.map((p) => {
-      if (p.id !== id) return p;
-      const weight = 2.5; // Mock user weight
-      return {
-        ...p,
-        votesFor: choice === "Agreed" ? p.votesFor + weight : p.votesFor,
-        votesAgainst: choice === "Declined" ? p.votesAgainst + weight : p.votesAgainst,
-      };
-    }));
+  async function handleVote(id: string, choice: "Agreed" | "Declined") {
+    const res = await fetch(`/api/halls/${hallId}/proposals/${id}/vote`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ choice: choice === "Agreed" ? "yes" : "no" }),
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || json.success === false) {
+      window.alert(json.error || "Vote failed");
+      return;
+    }
+    mutate();
   }
 
   return (
@@ -940,21 +932,33 @@ export default function HallGovernancePage() {
 
         {/* Proposals List */}
         <div className="space-y-4">
-          <AnimatePresence mode="popLayout">
-            {filteredProposals.map((proposal) => (
-              <ProposalCard
-                key={proposal.id}
-                proposal={proposal}
-                config={config}
-                onVote={handleVote}
-                expanded={expandedId === proposal.id}
-                onToggle={() => setExpandedId(expandedId === proposal.id ? null : proposal.id)}
-              />
-            ))}
-          </AnimatePresence>
+          {isLoading ? (
+            <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-16 text-center">
+              <Gavel className="mx-auto h-10 w-10 text-white/10 mb-4 animate-pulse" />
+              <p className="text-sm text-white/30">Loading governance proposals...</p>
+            </div>
+          ) : error ? (
+            <div className="rounded-2xl border border-rose-500/10 bg-rose-950/5 p-16 text-center">
+              <AlertTriangle className="mx-auto h-10 w-10 text-rose-400/40 mb-4" />
+              <p className="text-sm text-rose-200/70">{error.message}</p>
+            </div>
+          ) : (
+            <AnimatePresence mode="popLayout">
+              {filteredProposals.map((proposal) => (
+                <ProposalCard
+                  key={proposal.id}
+                  proposal={proposal}
+                  config={config}
+                  onVote={handleVote}
+                  expanded={expandedId === proposal.id}
+                  onToggle={() => setExpandedId(expandedId === proposal.id ? null : proposal.id)}
+                />
+              ))}
+            </AnimatePresence>
+          )}
         </div>
 
-        {filteredProposals.length === 0 && (
+        {!isLoading && !error && filteredProposals.length === 0 && (
           <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-16 text-center">
             <Gavel className="mx-auto h-10 w-10 text-white/10 mb-4" />
             <p className="text-sm text-white/30">No proposals match your filters.</p>

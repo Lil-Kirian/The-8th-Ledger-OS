@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import useSWR from "swr";
 import {
   Landmark, Zap, Crown, Lock, HeartPulse, TrendingUp, Hexagon, Plane,
   Sprout, Sun, ChevronLeft, Wallet, Coins, Clock, CheckCircle2, Percent, Target, BarChart3,
@@ -41,6 +42,30 @@ interface ROIScenario {
   roi: number;
 }
 
+interface HallDividendsResponse {
+  success: boolean;
+  dividends: Array<{
+    id: string;
+    grossAmount: number;
+    ownershipPercent: number;
+    entitlement: number;
+    status: "claimed" | "unclaimed";
+    claimedAt: string | null;
+    createdAt: string;
+    revenueDate: string;
+  }>;
+  summary: {
+    totalUnclaimed: number;
+    totalClaimed: number;
+    totalRecords: number;
+    unclaimedCount: number;
+    claimedCount: number;
+    ownershipPercent: number;
+    canClaim: boolean;
+    tier: string;
+  };
+}
+
 /* ============================================================
    VERTICAL CONFIG
    ============================================================ */
@@ -60,29 +85,7 @@ const VERTICAL_CONFIG: Record<VerticalId, {
   energyvin: { name: "EnergyVin", color: "text-yellow-400", bg: "bg-yellow-500/10", border: "border-yellow-500/20", gradient: "from-yellow-500/5 to-amber-500/5", icon: Sun },
 };
 
-/* ============================================================
-   MOCK DATA
-   ============================================================ */
-const DIVIDEND_HISTORY: DividendRecord[] = [
-  { id: "d1", date: "2025-12-01", month: "Dec 2025", grossRevenue: 11200, communityShare: 8960, yourShare: 450, vinFee: 2240, claimed: true, claimedAt: "2025-12-02", source: "Rental Income" },
-  { id: "d2", date: "2025-11-01", month: "Nov 2025", grossRevenue: 10500, communityShare: 8400, yourShare: 420, vinFee: 2100, claimed: true, claimedAt: "2025-11-02", source: "Rental Income" },
-  { id: "d3", date: "2025-10-01", month: "Oct 2025", grossRevenue: 9800, communityShare: 7840, yourShare: 390, vinFee: 1960, claimed: true, claimedAt: "2025-10-02", source: "Rental Income" },
-  { id: "d4", date: "2025-09-01", month: "Sep 2025", grossRevenue: 10200, communityShare: 8160, yourShare: 380, vinFee: 2040, claimed: false, source: "Rental Income" },
-  { id: "d5", date: "2025-08-01", month: "Aug 2025", grossRevenue: 9500, communityShare: 7600, yourShare: 410, vinFee: 1900, claimed: true, claimedAt: "2025-08-02", source: "Rental Income" },
-  { id: "d6", date: "2025-07-01", month: "Jul 2025", grossRevenue: 8800, communityShare: 7040, yourShare: 395, vinFee: 1760, claimed: true, claimedAt: "2025-07-02", source: "Rental Income" },
-  { id: "d7", date: "2025-06-01", month: "Jun 2025", grossRevenue: 9200, communityShare: 7360, yourShare: 368, vinFee: 1840, claimed: true, claimedAt: "2025-06-02", source: "Rental Income" },
-  { id: "d8", date: "2025-05-01", month: "May 2025", grossRevenue: 8500, communityShare: 6800, yourShare: 340, vinFee: 1700, claimed: true, claimedAt: "2025-05-02", source: "Rental Income" },
-  { id: "d9", date: "2025-04-01", month: "Apr 2025", grossRevenue: 7900, communityShare: 6320, yourShare: 316, vinFee: 1580, claimed: true, claimedAt: "2025-04-02", source: "Rental Income" },
-  { id: "d10", date: "2025-03-01", month: "Mar 2025", grossRevenue: 8100, communityShare: 6480, yourShare: 324, vinFee: 1620, claimed: true, claimedAt: "2025-03-02", source: "Rental Income" },
-  { id: "d11", date: "2025-02-01", month: "Feb 2025", grossRevenue: 6800, communityShare: 5440, yourShare: 272, vinFee: 1360, claimed: true, claimedAt: "2025-02-02", source: "Rental Income" },
-  { id: "d12", date: "2025-01-01", month: "Jan 2025", grossRevenue: 7200, communityShare: 5760, yourShare: 288, vinFee: 1440, claimed: true, claimedAt: "2025-01-02", source: "Rental Income" },
-];
 
-const ROI_SCENARIOS: ROIScenario[] = [
-  { label: "Current", rent: 8500, commitment: 5000, ownership: 2.5, monthlyReturn: 450, annualReturn: 5400, fiveYearReturn: 27000, roi: 108 },
-  { label: "Optimistic", rent: 12000, commitment: 5000, ownership: 2.5, monthlyReturn: 600, annualReturn: 7200, fiveYearReturn: 36000, roi: 144 },
-  { label: "Conservative", rent: 6000, commitment: 5000, ownership: 2.5, monthlyReturn: 300, annualReturn: 3600, fiveYearReturn: 18000, roi: 72 },
-];
 
 /* ============================================================
    UTILS
@@ -93,6 +96,40 @@ function cn(...classes: (string | false | null | undefined)[]) {
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n);
+}
+
+async function fetchJson<T>(url: string): Promise<T> {
+  const res = await fetch(url, { credentials: "include" });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || json.success === false) {
+    throw new Error(json.error || `Request failed (${res.status})`);
+  }
+  return json as T;
+}
+
+function monthLabel(value: string) {
+  return new Date(value).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+}
+
+function dateLabel(value: string) {
+  return new Date(value).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+}
+
+function mapDividend(entry: HallDividendsResponse["dividends"][number]): DividendRecord {
+  const grossRevenue = Number(entry.grossAmount || 0);
+  const communityShare = grossRevenue * 0.8;
+  return {
+    id: entry.id,
+    date: dateLabel(entry.revenueDate || entry.createdAt),
+    month: monthLabel(entry.revenueDate || entry.createdAt),
+    grossRevenue,
+    communityShare,
+    yourShare: Number(entry.entitlement || 0),
+    vinFee: grossRevenue - communityShare,
+    claimed: entry.status === "claimed",
+    claimedAt: entry.claimedAt ? dateLabel(entry.claimedAt) : undefined,
+    source: "Revenue distribution",
+  };
 }
 
 /* ============================================================
@@ -140,17 +177,17 @@ function AnimatedNumber({ value, prefix = "", suffix = "" }: { value: number; pr
 /* ============================================================
    COMPONENT — Dividend Claim Card
    ============================================================ */
-function ClaimCard({ record, onClaim }: { record: DividendRecord; onClaim: (id: string) => void }) {
+function ClaimCard({ record, onClaim }: { record: DividendRecord; onClaim: (id: string) => Promise<void> }) {
   const [claiming, setClaiming] = useState(false);
-  const [claimed, setClaimed] = useState(record.claimed);
+  const claimed = record.claimed;
 
-  function handleClaim() {
+  async function handleClaim() {
     setClaiming(true);
-    setTimeout(() => {
+    try {
+      await onClaim(record.id);
+    } finally {
       setClaiming(false);
-      setClaimed(true);
-      onClaim(record.id);
-    }, 1500);
+    }
   }
 
   return (
@@ -207,12 +244,12 @@ function ClaimCard({ record, onClaim }: { record: DividendRecord; onClaim: (id: 
           {claiming ? (
             <>
               <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              Minting VIN...
+              Claiming...
             </>
           ) : (
             <>
               <Coins className="h-4 w-4" />
-              Claim {formatCurrency(record.yourShare)} VIN
+              Claim {formatCurrency(record.yourShare)}
             </>
           )}
         </button>
@@ -374,7 +411,7 @@ function AnnualProjection({ records }: { records: DividendRecord[] }) {
       <div className="flex items-end gap-1 h-32 mb-4">
         {months.map((m, i) => {
           const max = Math.max(...months.map((r) => r.yourShare));
-          const height = (m.yourShare / max) * 100;
+          const height = max > 0 ? (m.yourShare / max) * 100 : 0;
           return (
             <div key={m.id} className="flex-1 flex flex-col items-center gap-1">
               <motion.div
@@ -413,11 +450,15 @@ function AnnualProjection({ records }: { records: DividendRecord[] }) {
    ============================================================ */
 export default function HallDividendsPage() {
   const params = useParams();
-  const hallId = (params.id as VerticalId) || "propvin";
-  const config = VERTICAL_CONFIG[hallId] || VERTICAL_CONFIG.propvin;
+  const hallId = params.id as string;
+  const config = VERTICAL_CONFIG.propvin;
   const HallIcon = config.icon;
 
-  const [records, setRecords] = useState(DIVIDEND_HISTORY);
+  const { data, error, isLoading, mutate } = useSWR<HallDividendsResponse>(
+    hallId ? `/api/halls/${hallId}/dividends` : null,
+    fetchJson,
+  );
+  const records = useMemo(() => (data?.dividends || []).map(mapDividend), [data]);
   const [filter, setFilter] = useState<"all" | "claimed" | "unclaimed">("all");
 
   const filtered = useMemo(() => {
@@ -426,12 +467,28 @@ export default function HallDividendsPage() {
     return records;
   }, [records, filter]);
 
-  const totalClaimed = records.filter((r) => r.claimed).reduce((a, r) => a + r.yourShare, 0);
-  const totalUnclaimed = records.filter((r) => !r.claimed).reduce((a, r) => a + r.yourShare, 0);
+  const totalClaimed = data?.summary.totalClaimed ?? records.filter((r) => r.claimed).reduce((a, r) => a + r.yourShare, 0);
+  const totalUnclaimed = data?.summary.totalUnclaimed ?? records.filter((r) => !r.claimed).reduce((a, r) => a + r.yourShare, 0);
   const totalAll = records.reduce((a, r) => a + r.yourShare, 0);
+  const avgDividend = records.length ? totalAll / records.length : 0;
+  const ownershipPct = data?.summary.ownershipPercent || 0;
+  const roiScenarios: ROIScenario[] = [
+    { label: "Current", rent: avgDividend, commitment: totalAll, ownership: ownershipPct, monthlyReturn: avgDividend, annualReturn: avgDividend * 12, fiveYearReturn: avgDividend * 60, roi: totalAll > 0 ? Math.round(((avgDividend * 12) / totalAll) * 100) : 0 },
+    { label: "Optimistic", rent: avgDividend * 1.25, commitment: totalAll, ownership: ownershipPct, monthlyReturn: avgDividend * 1.25, annualReturn: avgDividend * 15, fiveYearReturn: avgDividend * 75, roi: totalAll > 0 ? Math.round(((avgDividend * 15) / totalAll) * 100) : 0 },
+    { label: "Conservative", rent: avgDividend * 0.75, commitment: totalAll, ownership: ownershipPct, monthlyReturn: avgDividend * 0.75, annualReturn: avgDividend * 9, fiveYearReturn: avgDividend * 45, roi: totalAll > 0 ? Math.round(((avgDividend * 9) / totalAll) * 100) : 0 },
+  ];
 
-  function handleClaim(id: string) {
-    setRecords((prev) => prev.map((r) => r.id === id ? { ...r, claimed: true, claimedAt: new Date().toISOString().split("T")[0] } : r));
+  async function handleClaim(_id: string) {
+    const res = await fetch(`/api/halls/${hallId}/dividends`, {
+      method: "POST",
+      credentials: "include",
+    });
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok || json.success === false) {
+      window.alert(json.error || "Dividend claim failed");
+      return;
+    }
+    await mutate();
   }
 
   return (
@@ -575,11 +632,11 @@ export default function HallDividendsPage() {
                   </div>
                   <div>
                     <p className="text-sm font-bold text-white">{records.filter((r) => !r.claimed).length} unclaimed dividends</p>
-                    <p className="text-xs text-amber-400/50">Total: {formatCurrency(totalUnclaimed)} VIN waiting</p>
+                    <p className="text-xs text-amber-400/50">Total: {formatCurrency(totalUnclaimed)} waiting</p>
                   </div>
                 </div>
                 <button
-                  onClick={() => records.filter((r) => !r.claimed).forEach((r) => handleClaim(r.id))}
+                  onClick={() => handleClaim(records.find((r) => !r.claimed)?.id || "")}
                   className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-600 px-6 py-2.5 text-xs font-bold text-white shadow-lg shadow-amber-500/20 transition-all hover:shadow-amber-500/30"
                 >
                   Claim All
@@ -589,14 +646,26 @@ export default function HallDividendsPage() {
 
             {/* Dividend Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <AnimatePresence mode="popLayout">
-                {filtered.map((record) => (
-                  <ClaimCard key={record.id} record={record} onClaim={handleClaim} />
-                ))}
-              </AnimatePresence>
+              {isLoading ? (
+                <div className="md:col-span-2 rounded-2xl border border-white/5 bg-white/[0.02] p-16 text-center">
+                  <Coins className="mx-auto h-10 w-10 text-white/10 mb-4 animate-pulse" />
+                  <p className="text-sm text-white/30">Loading dividend history...</p>
+                </div>
+              ) : error ? (
+                <div className="md:col-span-2 rounded-2xl border border-rose-500/10 bg-rose-950/5 p-16 text-center">
+                  <Receipt className="mx-auto h-10 w-10 text-rose-400/40 mb-4" />
+                  <p className="text-sm text-rose-200/70">{error.message}</p>
+                </div>
+              ) : (
+                <AnimatePresence mode="popLayout">
+                  {filtered.map((record) => (
+                    <ClaimCard key={record.id} record={record} onClaim={handleClaim} />
+                  ))}
+                </AnimatePresence>
+              )}
             </div>
 
-            {filtered.length === 0 && (
+            {!isLoading && !error && filtered.length === 0 && (
               <div className="rounded-2xl border border-white/5 bg-white/[0.02] p-16 text-center">
                 <Coins className="mx-auto h-10 w-10 text-white/10 mb-4" />
                 <p className="text-sm text-white/30">No dividends match your filter.</p>
@@ -618,11 +687,11 @@ export default function HallDividendsPage() {
               </h3>
               <div className="space-y-2 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="text-white/30">Gross Dividends (2025)</span>
+                  <span className="text-white/30">Gross Dividends</span>
                   <span className="text-white">{formatCurrency(totalAll)}</span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-white/30">VIN Protocol Fee (20%)</span>
+                  <span className="text-white/30">8th Ledger Fee (20%)</span>
                   <span className="text-cyan-400/60">-{formatCurrency(records.reduce((a, r) => a + r.vinFee, 0))}</span>
                 </div>
                 <div className="flex items-center justify-between">
@@ -630,12 +699,12 @@ export default function HallDividendsPage() {
                   <span className="text-emerald-400/60">{formatCurrency(records.reduce((a, r) => a + r.communityShare, 0))}</span>
                 </div>
                 <div className="border-t border-white/5 pt-2 flex items-center justify-between">
-                  <span className="text-white/40">Your Net (2.5%)</span>
+                  <span className="text-white/40">Your Net ({ownershipPct.toFixed(2)}%)</span>
                   <span className="text-white font-bold">{formatCurrency(totalAll)}</span>
                 </div>
               </div>
               <p className="text-[9px] text-white/10 mt-3">
-                * Tax obligations vary by jurisdiction. Consult your local advisor. VIN provides transaction logs for audit.
+                * Tax obligations vary by jurisdiction. Consult your local advisor. 8th Ledger provides transaction logs for audit.
               </p>
             </div>
 
@@ -646,7 +715,7 @@ export default function HallDividendsPage() {
                 Scenario Comparison
               </h3>
               <div className="space-y-2">
-                {ROI_SCENARIOS.map((s, i) => (
+                {roiScenarios.map((s, i) => (
                   <div
                     key={i}
                     className={cn(
@@ -676,12 +745,12 @@ export default function HallDividendsPage() {
               <div className="rounded-xl border border-emerald-500/10 bg-emerald-950/10 p-3">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-white/40">Estimated</span>
-                  <span className="text-xs font-bold text-emerald-400">{formatCurrency(465)}</span>
+                  <span className="text-xs font-bold text-emerald-400">{formatCurrency(avgDividend)}</span>
                 </div>
                 <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
                   <div className="h-full bg-emerald-500/50 rounded-full" style={{ width: "78%" }} />
                 </div>
-                <p className="text-[9px] text-white/15 mt-1">Jan 1, 2026 • 3 days remaining</p>
+                <p className="text-[9px] text-white/15 mt-1">Calculated from current dividend history</p>
               </div>
             </div>
           </div>

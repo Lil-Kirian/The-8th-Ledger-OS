@@ -3,9 +3,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import useSWR from "swr";
+import { useSovereignStream, StreamPost } from "@/hooks/use-sovereign-stream";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Lock, ChevronRight, Eye,
+  Lock, ChevronRight,
   BarChart3, Users, MessageSquare,
   Vote, Gavel, FileText, Send, Pin, Loader2, Search,
   CircleDollarSign, Receipt, Reply, CornerDownRight,
@@ -13,7 +14,14 @@ import {
   ShieldCheck, ScrollText, Banknote, Megaphone, ThumbsUp, PanelLeftClose, Bot, UserCheck
 } from "lucide-react";
 
-const fetcher = (url: string) => fetch(url).then((r) => r.json());
+const fetcher = async (url: string) => {
+  const res = await fetch(url, { credentials: "include" });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || json.success === false) {
+    throw new Error(json.error || `Request failed (${res.status})`);
+  }
+  return json;
+};
 
 function cn(...classes: (string | false | null | undefined)[]) {
   return classes.filter(Boolean).join(" ");
@@ -77,148 +85,51 @@ interface StreamMessage {
   };
 }
 
-/* ============================================================
-   DEMO DATA — INSTITUTIONAL HALL #001
-   ============================================================ */
-const DEMO_MEMBERS: Member[] = [
-  { id: "m1", name: "Aisha Patel", ledgerId: "LED-203", role: "speaker", avatar: "AP", stake: 15.0, status: "online", isExecutive: true },
-  { id: "m2", name: "Marcus Webb", ledgerId: "LED-891", role: "treasurer", avatar: "MW", stake: 12.5, status: "online", isExecutive: true },
-  { id: "m3", name: "Sarah Chen", ledgerId: "LED-442", role: "warden", avatar: "SC", stake: 10.2, status: "away", lastSeen: "2m ago", isExecutive: true },
-  { id: "m4", name: "Elena Rossi", ledgerId: "LED-104", role: "scribe", avatar: "ER", stake: 8.3, status: "online", isExecutive: true },
-  { id: "m5", name: "James Okafor", ledgerId: "LED-567", role: "owner", avatar: "JO", stake: 6.7, status: "offline", lastSeen: "3h ago", isExecutive: false },
-  { id: "m6", name: "David Kim", ledgerId: "LED-778", role: "owner", avatar: "DK", stake: 4.1, status: "offline", lastSeen: "1d ago", isExecutive: false },
-  { id: "m7", name: "Priya Nair", ledgerId: "LED-312", role: "owner", avatar: "PN", stake: 3.8, status: "online", isExecutive: false },
-  { id: "m8", name: "Tom Brennan", ledgerId: "LED-445", role: "owner", avatar: "TB", stake: 2.5, status: "away", lastSeen: "15m ago", isExecutive: false },
-  { id: "m9", name: "Yuki Tanaka", ledgerId: "LED-667", role: "owner", avatar: "YT", stake: 1.2, status: "online", isExecutive: false },
-];
+interface HallStreamData {
+  name: string;
+  class: string;
+  id: string;
+  assetValue: number;
+  treasury: number;
+  pir: number;
+  lastDividend: number;
+  dividendYield: string;
+  sri: number;
+  sriTier: string;
+  totalOwners: number;
+  activeProposals: number;
+  nextDividend: string;
+  location: string;
+  assetType: string;
+}
 
-const DEMO_MESSAGES: StreamMessage[] = [
-  {
-    id: "msg1", type: "system", priority: "high",
-    authorId: "system", authorName: "8th Ledger Protocol", authorLedgerId: "LED-SYSTEM", authorRole: "system", authorAvatar: "◈",
-    content: "Dividend distribution complete for May 2026 cycle. $14,400 distributed to 12 PAC holders. Transaction hash: 0x8f2a...9c1d. Ledger Wallets credited.",
-    timestamp: "2026-06-23T14:30:00Z", likes: 45, replies: [], replyCount: 0,
-    tags: ["dividend", "payment", "ledger"], pinned: true, readBy: ["m1","m2","m3","m4","m5","m6","m7","m8","m9"],
-    metadata: { dividendAmount: 14400, systemCode: "DIV-2026-05" }
-  },
-  {
-    id: "msg2", type: "milestone", priority: "high",
-    authorId: "m4", authorName: "Elena Rossi", authorLedgerId: "LED-104", authorRole: "scribe", authorAvatar: "ER",
-    content: "Meridian Cycle Closed — PAC Distribution Complete. All 12 participants issued Perpetual Asset Contracts. PIR reserve activated at $240,000. First dividend scheduled: 14-JUL-2026.",
-    timestamp: "2026-06-23T14:25:00Z", likes: 24, replies: [
-      { id: "r1", authorId: "m1", authorName: "Aisha Patel", authorLedgerId: "LED-203", authorRole: "speaker", authorAvatar: "AP", content: "Confirmed. All PACs verified on-chain. Registry updated.", timestamp: "2026-06-23T14:27:00Z", likes: 3 },
-      { id: "r2", authorId: "m5", authorName: "James Okafor", authorLedgerId: "LED-567", authorRole: "owner", authorAvatar: "JO", content: "Received my contract. Looking forward to first revenue cycle.", timestamp: "2026-06-23T14:32:00Z", likes: 2 },
-    ], replyCount: 2,
-    tags: ["milestone", "pac", "dividend"], pinned: true, readBy: ["m1","m2","m3","m4","m5"],
-  },
-  {
-    id: "msg3", type: "proposal", priority: "high",
-    authorId: "m1", authorName: "Aisha Patel", authorLedgerId: "LED-203", authorRole: "speaker", authorAvatar: "AP",
-    content: "EV Infrastructure Expansion — 4-Port Charging Array. Capital expenditure: $28,000. Revenue model: $0.35/kWh + session fee. Projected ROI: 18 months. PIR coverage: 100%. Vote required within 48 hours.",
-    timestamp: "2026-06-23T11:00:00Z", likes: 31, replies: [
-      { id: "r3", authorId: "m2", authorName: "Marcus Webb", authorLedgerId: "LED-891", authorRole: "treasurer", authorAvatar: "MW", content: "Treasury can absorb this without PIR advance. Cash flow positive by month 8.", timestamp: "2026-06-23T11:15:00Z", likes: 5 },
-      { id: "r4", authorId: "m7", authorName: "Priya Nair", authorLedgerId: "LED-312", authorRole: "owner", authorAvatar: "PN", content: "What is the projected utilization rate? 40%? 60%?", timestamp: "2026-06-23T11:22:00Z", likes: 2 },
-      { id: "r5", authorId: "m1", authorName: "Aisha Patel", authorLedgerId: "LED-203", authorRole: "speaker", authorAvatar: "AP", content: "Conservative estimate 55% utilization. Optimistic 72%. Break-even at 38%.", timestamp: "2026-06-23T11:25:00Z", likes: 4 },
-    ], replyCount: 3,
-    tags: ["capex", "revenue", "ev"], pinned: false, readBy: ["m1","m2","m3","m4","m5","m7"],
-    metadata: { proposalTitle: "EV Infrastructure Expansion", voteFor: 8, voteAgainst: 2, voteThreshold: 51 }
-  },
-  {
-    id: "msg4", type: "chat", priority: "low",
-    authorId: "m3", authorName: "Sarah Chen", authorLedgerId: "LED-442", authorRole: "warden", authorAvatar: "SC",
-    content: "Insurance renewal docs are ready for review. Lloyd\'s policy #2847 extended 12 months. No premium increase. Files uploaded to vault.",
-    timestamp: "2026-06-23T10:45:00Z", likes: 12, replies: [], replyCount: 0,
-    tags: ["insurance", "compliance"], pinned: false, readBy: ["m1","m2","m3","m4"],
-  },
-  {
-    id: "msg5", type: "poll", priority: "medium",
-    authorId: "m6", authorName: "David Kim", authorLedgerId: "LED-778", authorRole: "owner", authorAvatar: "DK",
-    content: "HVAC System Upgrade — Pre-Winter Maintenance. Upgrade cost: $45,000. Energy savings: $8,000/year. Should we proceed before Q4?",
-    timestamp: "2026-06-23T09:15:00Z", likes: 12, replies: [
-      { id: "r6", authorId: "m4", authorName: "Elena Rossi", authorLedgerId: "LED-104", authorRole: "scribe", authorAvatar: "ER", content: "Warranty on current system expires Nov 2026. Deferring risks emergency repair costs.", timestamp: "2026-06-23T09:30:00Z", likes: 6 },
-    ], replyCount: 1,
-    tags: ["maintenance", "vote"], pinned: false, readBy: ["m1","m2","m3","m4","m5","m6"],
-    metadata: { pollOptions: [
-      { label: "Execute Upgrade", votes: 7, pct: 58.3 },
-      { label: "Defer 12 Months", votes: 4, pct: 33.3 },
-      { label: "Abstain", votes: 1, pct: 8.4 },
-    ]}
-  },
-  {
-    id: "msg6", type: "chat", priority: "low",
-    authorId: "m2", authorName: "Marcus Webb", authorLedgerId: "LED-891", authorRole: "treasurer", authorAvatar: "MW",
-    content: "Monthly occupancy report is live. June closed at 94.2% (↑3.1% MoM). Average lease: $2,850/unit. Three renewals pending. SRI holding at 87 Platinum.",
-    timestamp: "2026-06-21T09:00:00Z", likes: 18, replies: [
-      { id: "r7", authorId: "m8", authorName: "Tom Brennan", authorLedgerId: "LED-445", authorRole: "owner", authorAvatar: "TB", content: "Are the pending renewals at higher rates or flat?", timestamp: "2026-06-21T09:45:00Z", likes: 1 },
-      { id: "r8", authorId: "m2", authorName: "Marcus Webb", authorLedgerId: "LED-891", authorRole: "treasurer", authorAvatar: "MW", content: "Two at +4.5%, one at +2.0%. Market rate is +5.2% so we\'re slightly under but retention is priority.", timestamp: "2026-06-21T10:00:00Z", likes: 3 },
-    ], replyCount: 2,
-    tags: ["report", "occupancy", "sri"], pinned: false, readBy: ["m1","m2","m3","m4","m5","m6","m7","m8"],
-  },
-  {
-    id: "msg7", type: "alert", priority: "critical",
-    authorId: "system", authorName: "8th Ledger Protocol", authorLedgerId: "LED-SYSTEM", authorRole: "system", authorAvatar: "◈",
-    content: "AHGI Alert: Roof inspection flagged water damage in Section B. Estimated repair: $3,200. Insurance: NOT COVERED (routine wear). PIR advance available. Vote required for Forge allocation.",
-    timestamp: "2026-06-20T16:20:00Z", likes: 9, replies: [
-      { id: "r9", authorId: "m3", authorName: "Sarah Chen", authorLedgerId: "LED-442", authorRole: "warden", authorAvatar: "SC", content: "I have the inspection photos. Damage is localized. Can we patch instead of full section replacement?", timestamp: "2026-06-20T16:35:00Z", likes: 4 },
-      { id: "r10", authorId: "m1", authorName: "Aisha Patel", authorLedgerId: "LED-203", authorRole: "speaker", authorAvatar: "AP", content: "Patch is $1,400 vs $3,200. I propose we patch now and budget full replacement in 2027.", timestamp: "2026-06-20T17:00:00Z", likes: 7 },
-    ], replyCount: 2,
-    tags: ["maintenance", "alert", "pir"], pinned: false, readBy: ["m1","m2","m3","m4"],
-    metadata: { alertLevel: "structural", systemCode: "ALT-ROOF-001" }
-  },
-  {
-    id: "msg8", type: "chat", priority: "low",
-    authorId: "m5", authorName: "James Okafor", authorLedgerId: "LED-567", authorRole: "owner", authorAvatar: "JO",
-    content: "Has anyone reviewed the new tenant application for Unit 4B? Corporate lease, 36-month term, $3,200/month. Above current market.",
-    timestamp: "2026-06-20T11:00:00Z", likes: 6, replies: [
-      { id: "r11", authorId: "m2", authorName: "Marcus Webb", authorLedgerId: "LED-891", authorRole: "treasurer", authorAvatar: "MW", content: "Credit check passed. Background clear. I recommend approval. Adds 12% to monthly revenue.", timestamp: "2026-06-20T11:30:00Z", likes: 5 },
-      { id: "r12", authorId: "m7", authorName: "Priya Nair", authorLedgerId: "LED-312", authorRole: "owner", authorAvatar: "PN", content: "Corporate tenant is a fintech subsidiary. Stable. I second the approval.", timestamp: "2026-06-20T12:00:00Z", likes: 3 },
-      { id: "r13", authorId: "m1", authorName: "Aisha Patel", authorLedgerId: "LED-203", authorRole: "speaker", authorAvatar: "AP", content: "Approved. Marcus, execute lease. 8th Ledger will handle onboarding.", timestamp: "2026-06-20T12:15:00Z", likes: 8 },
-    ], replyCount: 3,
-    tags: ["tenant", "lease"], pinned: false, readBy: ["m1","m2","m3","m4","m5","m6","m7"],
-  },
-  {
-    id: "msg9", type: "system", priority: "medium",
-    authorId: "system", authorName: "8th Ledger Protocol", authorLedgerId: "LED-SYSTEM", authorRole: "system", authorAvatar: "◈",
-    content: "Dynamic Valuation Update: Asset book value increased 8% this quarter. 5% PAC now valued at $11,340 (was $10,500). Drivers: rent increase (+5%), property appreciation (+3%).",
-    timestamp: "2026-06-19T00:00:00Z", likes: 32, replies: [], replyCount: 0,
-    tags: ["valuation", "appreciation"], pinned: false, readBy: ["m1","m2","m3","m4","m5","m6","m7","m8","m9"],
-  },
-  {
-    id: "msg10", type: "chat", priority: "low",
-    authorId: "m9", authorName: "Yuki Tanaka", authorLedgerId: "LED-667", authorRole: "owner", authorAvatar: "YT",
-    content: "First-time owner here. How do I read the Forge Ledger? I see payroll numbers but not sure what the performance metrics mean.",
-    timestamp: "2026-06-18T14:00:00Z", likes: 4, replies: [
-      { id: "r14", authorId: "m4", authorName: "Elena Rossi", authorLedgerId: "LED-104", authorRole: "scribe", authorAvatar: "ER", content: "Welcome Yuki. The Forge Ledger shows worker performance against targets. Green = on target. Amber = review. Red = underperformance. Hover over any metric for the benchmark.", timestamp: "2026-06-18T14:10:00Z", likes: 6 },
-      { id: "r15", authorId: "m3", authorName: "Sarah Chen", authorLedgerId: "LED-442", authorRole: "warden", authorAvatar: "SC", content: "Also check the 8th Ledger Ledger tab for maintenance updates. Those affect AHGI which drives valuation.", timestamp: "2026-06-18T14:15:00Z", likes: 4 },
-      { id: "r16", authorId: "m9", authorName: "Yuki Tanaka", authorLedgerId: "LED-667", authorRole: "owner", authorAvatar: "YT", content: "Thank you both. The documentation is excellent. This system is remarkable.", timestamp: "2026-06-18T14:20:00Z", likes: 5 },
-    ], replyCount: 3,
-    tags: ["onboarding", "help"], pinned: false, readBy: ["m1","m2","m3","m4","m5","m6","m7","m8","m9"],
-  },
-];
-
-const HALL_DATA = {
-  name: "LedgerProp — Meridian Tower",
-  class: "I",
-  id: "LED-PROP-001",
-  assetValue: 2400000,
-  treasury: 2840000,
-  pir: 240000,
-  lastDividend: 14400,
-  dividendYield: "8.4%",
-  occupancy: 94.2,
-  sri: 87,
-  sriTier: "Platinum",
-  totalOwners: 12,
-  activeProposals: 2,
-  pendingVotes: 3,
-  thisMonthPosts: 24,
-  nextDividend: "2026-07-14",
-  location: "London, UK",
-  assetType: "Commercial Real Estate",
-  trueCost: 2000000,
-  listedPrice: 2400000,
-  surplus: 400000,
-};
+interface HallResponse {
+  success: boolean;
+  hall: { id: string; name: string; hallClass: string | null; sriScore: number; poolId: string };
+  assetTracker?: {
+    name?: string;
+    verticalId?: string;
+    assetValue?: number;
+    selectedLocation?: string | null;
+    assetBookValue?: number;
+    pirAllocation?: number;
+  } | null;
+  treasury?: {
+    balance: number;
+    totalDistributed: number;
+    lastDistribution?: string | null;
+    pirDebt?: number;
+  } | null;
+  proposals?: Array<{ status: string }>;
+  members?: Array<{
+    ledgerId: string;
+    displayName: string | null;
+    avatar: string | null;
+    ownershipPercent: number;
+    role: string | null;
+    lastActivityAt: string | null;
+  }>;
+}
 
 /* ============================================================
    UTILS
@@ -247,6 +158,107 @@ function formatCompact(n: number) {
   if (n >= 1e6) return `$${(n / 1e6).toFixed(2)}M`;
   if (n >= 1e3) return `$${(n / 1e3).toFixed(1)}K`;
   return `$${n}`;
+}
+
+function sriTier(score: number) {
+  if (score >= 85) return "Platinum";
+  if (score >= 70) return "Gold";
+  if (score >= 55) return "Silver";
+  return "Bronze";
+}
+
+function initials(name: string, ledgerId: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  return (parts[0]?.slice(0, 2) || ledgerId.slice(-2)).toUpperCase();
+}
+
+function streamRole(role?: string | null): Member["role"] {
+  const normalized = (role || "owner").toLowerCase();
+  if (["speaker", "treasurer", "warden", "scribe"].includes(normalized)) return normalized as Member["role"];
+  return "owner";
+}
+
+function memberStatus(lastActivityAt?: string | null): Member["status"] {
+  if (!lastActivityAt) return "offline";
+  const minutes = (Date.now() - new Date(lastActivityAt).getTime()) / 60000;
+  if (minutes < 15) return "online";
+  if (minutes < 120) return "away";
+  return "offline";
+}
+
+function buildHallData(data?: HallResponse): HallStreamData {
+  const sri = Number(data?.hall?.sriScore || 0);
+  const assetValue = Number(data?.assetTracker?.assetBookValue || data?.assetTracker?.assetValue || 0);
+  const distributed = Number(data?.treasury?.totalDistributed || 0);
+  const yieldPct = assetValue > 0 ? `${((distributed / assetValue) * 100).toFixed(1)}%` : "0%";
+  return {
+    name: data?.hall?.name || "Sovereign Hall",
+    class: data?.hall?.hallClass || "I",
+    id: data?.hall?.id || "",
+    assetValue,
+    treasury: Number(data?.treasury?.balance || 0),
+    pir: Number(data?.treasury?.pirDebt || data?.assetTracker?.pirAllocation || 0),
+    lastDividend: distributed,
+    dividendYield: yieldPct,
+    sri,
+    sriTier: sriTier(sri),
+    totalOwners: data?.members?.length || 0,
+    activeProposals: data?.proposals?.filter((p) => p.status === "active" || p.status === "pending").length || 0,
+    nextDividend: data?.treasury?.lastDistribution
+      ? new Date(data.treasury.lastDistribution).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+      : "Pending",
+    location: data?.assetTracker?.selectedLocation || "Location pending",
+    assetType: data?.assetTracker?.verticalId || "Asset",
+  };
+}
+
+function mapHallMembers(data?: HallResponse): Member[] {
+  return (data?.members || []).map((member) => {
+    const name = member.displayName || member.ledgerId;
+    const role = streamRole(member.role);
+    return {
+      id: member.ledgerId,
+      name,
+      ledgerId: member.ledgerId,
+      role,
+      avatar: member.avatar && !member.avatar.startsWith("http") ? member.avatar : initials(name, member.ledgerId),
+      stake: Number(member.ownershipPercent || 0),
+      status: memberStatus(member.lastActivityAt),
+      lastSeen: member.lastActivityAt ? timeAgo(member.lastActivityAt) : undefined,
+      isExecutive: role !== "owner",
+    };
+  });
+}
+
+function postType(type: StreamPost["type"]): StreamMessage["type"] {
+  if (type === "PROPOSAL") return "proposal";
+  if (type === "REPORT") return "alert";
+  if (type === "APPEAL") return "thread_parent";
+  return "system";
+}
+
+function mapStreamPost(post: StreamPost): StreamMessage {
+  const authorName = post.author?.displayName || post.author?.ledgerId || "8th Ledger Protocol";
+  return {
+    id: post.id,
+    type: post.isSystem ? "system" : postType(post.type),
+    priority: post.type === "REPORT" ? "high" : "medium",
+    authorId: post.authorId || "system",
+    authorName,
+    authorLedgerId: post.author?.ledgerId || "LED-SYSTEM",
+    authorRole: post.isSystem ? "system" : "owner",
+    authorAvatar: initials(authorName, post.author?.ledgerId || "SYS"),
+    content: post.content,
+    timestamp: post.createdAt,
+    likes: 0,
+    replies: [],
+    replyCount: post.replyCount || 0,
+    tags: [post.type.toLowerCase()],
+    pinned: post.isSystem || false,
+    readBy: [],
+    metadata: post.type === "PROPOSAL" ? { proposalTitle: post.title, voteThreshold: 51 } : undefined,
+  };
 }
 
 /* ============================================================
@@ -285,7 +297,7 @@ function StatusDot({ status }: { status: string }) {
 /* ============================================================
    COMPACT HEADER — Banking Ticker
    ============================================================ */
-function CompactHeader() {
+function CompactHeader({ hallData }: { hallData: HallStreamData }) {
   return (
     <div className="shrink-0 border-b border-slate-800/40 bg-[#0a0a0f]/95 backdrop-blur-xl">
       <div className="flex items-center justify-between px-4 py-2">
@@ -293,27 +305,27 @@ function CompactHeader() {
           <div className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h1 className="text-sm font-bold text-white truncate">{HALL_DATA.name}</h1>
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 shrink-0">Class {HALL_DATA.class}</span>
-              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">{HALL_DATA.sriTier}</span>
+              <h1 className="text-sm font-bold text-white truncate">{hallData.name}</h1>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/20 shrink-0">Class {hallData.class}</span>
+              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/10 text-amber-400 border border-amber-500/20 shrink-0">{hallData.sriTier}</span>
             </div>
-            <p className="text-[10px] text-slate-600 font-mono truncate">{HALL_DATA.id} • {HALL_DATA.location} • {HALL_DATA.assetType}</p>
+            <p className="text-[10px] text-slate-600 font-mono truncate">{hallData.id} • {hallData.location} • {hallData.assetType}</p>
           </div>
         </div>
         <div className="hidden md:flex items-center gap-4 shrink-0">
           <div className="text-right">
             <p className="text-[9px] text-slate-600 uppercase tracking-wider font-bold">Treasury</p>
-            <p className="text-xs font-bold text-white font-mono">{formatCompact(HALL_DATA.treasury)}</p>
+            <p className="text-xs font-bold text-white font-mono">{formatCompact(hallData.treasury)}</p>
           </div>
           <div className="h-6 w-px bg-slate-800" />
           <div className="text-right">
             <p className="text-[9px] text-slate-600 uppercase tracking-wider font-bold">Yield</p>
-            <p className="text-xs font-bold text-emerald-400 font-mono">{HALL_DATA.dividendYield}</p>
+            <p className="text-xs font-bold text-emerald-400 font-mono">{hallData.dividendYield}</p>
           </div>
           <div className="h-6 w-px bg-slate-800" />
           <div className="text-right">
             <p className="text-[9px] text-slate-600 uppercase tracking-wider font-bold">SRI</p>
-            <p className="text-xs font-bold text-amber-400 font-mono">{HALL_DATA.sri}</p>
+            <p className="text-xs font-bold text-amber-400 font-mono">{hallData.sri}</p>
           </div>
         </div>
       </div>
@@ -324,10 +336,10 @@ function CompactHeader() {
 /* ============================================================
    MEMBER SIDEBAR
    ============================================================ */
-function MemberSidebar({ open, onToggle }: { open: boolean; onToggle: () => void }) {
+function MemberSidebar({ open, onToggle, members, hallData }: { open: boolean; onToggle: () => void; members: Member[]; hallData: HallStreamData }) {
   const [filter, setFilter] = useState("");
-  const filtered = DEMO_MEMBERS.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()) || m.ledgerId.toLowerCase().includes(filter.toLowerCase()));
-  const onlineCount = DEMO_MEMBERS.filter(m => m.status === "online").length;
+  const filtered = members.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()) || m.ledgerId.toLowerCase().includes(filter.toLowerCase()));
+  const onlineCount = members.filter(m => m.status === "online").length;
 
   return (
     <>
@@ -353,7 +365,7 @@ function MemberSidebar({ open, onToggle }: { open: boolean; onToggle: () => void
               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Sovereigns</span>
               <div className="flex items-center gap-1.5">
                 <StatusDot status="online" />
-                <span className="text-[10px] font-mono text-slate-500">{onlineCount}/{DEMO_MEMBERS.length}</span>
+                <span className="text-[10px] font-mono text-slate-500">{onlineCount}/{members.length}</span>
               </div>
             </div>
 
@@ -414,15 +426,15 @@ function MemberSidebar({ open, onToggle }: { open: boolean; onToggle: () => void
             <div className="border-t border-slate-800/30 p-3 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[9px] text-slate-600">Total Stake</span>
-                <span className="text-[10px] font-bold text-white font-mono">100%</span>
+                <span className="text-[10px] font-bold text-white font-mono">{members.reduce((sum, m) => sum + m.stake, 0).toFixed(1)}%</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[9px] text-slate-600">Active Proposals</span>
-                <span className="text-[10px] font-bold text-violet-400 font-mono">{HALL_DATA.activeProposals}</span>
+                <span className="text-[10px] font-bold text-violet-400 font-mono">{hallData.activeProposals}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[9px] text-slate-600">Next Dividend</span>
-                <span className="text-[10px] font-bold text-emerald-400 font-mono">{HALL_DATA.nextDividend}</span>
+                <span className="text-[10px] font-bold text-emerald-400 font-mono">{hallData.nextDividend}</span>
               </div>
             </div>
           </motion.div>
@@ -704,7 +716,7 @@ function ChatStream({ messages, replyTo, onReply }: { messages: StreamMessage[];
 /* ============================================================
    RIGHT PANEL — Treasury & Activity
    ============================================================ */
-function RightPanel({ open, onToggle }: { open: boolean; onToggle: () => void }) {
+function RightPanel({ open, onToggle, hallData, activity }: { open: boolean; onToggle: () => void; hallData: HallStreamData; activity: StreamMessage[] }) {
   return (
     <>
       <button
@@ -732,24 +744,24 @@ function RightPanel({ open, onToggle }: { open: boolean; onToggle: () => void })
               <div className="px-3 pb-3 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-slate-500">Balance</span>
-                  <span className="text-xs font-bold text-white font-mono">{formatCompact(HALL_DATA.treasury)}</span>
+                  <span className="text-xs font-bold text-white font-mono">{formatCompact(hallData.treasury)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-slate-500">Asset Value</span>
-                  <span className="text-[11px] font-bold text-slate-300 font-mono">{formatCompact(HALL_DATA.assetValue)}</span>
+                  <span className="text-[11px] font-bold text-slate-300 font-mono">{formatCompact(hallData.assetValue)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-slate-500">PIR Reserve</span>
-                  <span className="text-[11px] font-bold text-amber-400 font-mono">{formatCompact(HALL_DATA.pir)}</span>
+                  <span className="text-[11px] font-bold text-amber-400 font-mono">{formatCompact(hallData.pir)}</span>
                 </div>
                 <div className="h-px bg-slate-800/30" />
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-slate-500">Last Dividend</span>
-                  <span className="text-[11px] font-bold text-emerald-400 font-mono">{formatCompact(HALL_DATA.lastDividend)}</span>
+                  <span className="text-[11px] font-bold text-emerald-400 font-mono">{formatCompact(hallData.lastDividend)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-[10px] text-slate-500">Yield</span>
-                  <span className="text-[11px] font-bold text-amber-400 font-mono">{HALL_DATA.dividendYield}</span>
+                  <span className="text-[11px] font-bold text-amber-400 font-mono">{hallData.dividendYield}</span>
                 </div>
               </div>
             </div>
@@ -760,24 +772,18 @@ function RightPanel({ open, onToggle }: { open: boolean; onToggle: () => void })
                 <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Activity Log</span>
               </div>
               <div className="flex-1 overflow-y-auto px-3 py-2 space-y-2">
-                {[
-                  { time: "14:30", text: "Dividend distributed", type: "credit" },
-                  { time: "14:25", text: "PAC registry updated", type: "neutral" },
-                  { time: "11:00", text: "Proposal #4 submitted", type: "neutral" },
-                  { time: "10:45", text: "Insurance docs uploaded", type: "neutral" },
-                  { time: "09:15", text: "Poll #3 opened", type: "neutral" },
-                  { time: "00:00", text: "Monthly cycle closed", type: "credit" },
-                  { time: "Jun 20", text: "Roof inspection alert", type: "debit" },
-                  { time: "Jun 19", text: "Valuation updated +8%", type: "credit" },
-                ].map((a, i) => (
+                {activity.slice(0, 8).map((a, i) => (
                   <div key={i} className="flex items-start gap-2">
-                    <span className="text-[9px] font-mono text-slate-700 shrink-0 pt-0.5">{a.time}</span>
+                    <span className="text-[9px] font-mono text-slate-700 shrink-0 pt-0.5">{timeAgo(a.timestamp)}</span>
                     <div className={cn("h-1.5 w-1.5 rounded-full mt-1.5 shrink-0",
-                      a.type === "credit" ? "bg-emerald-400" : a.type === "debit" ? "bg-rose-400" : "bg-slate-600"
+                      a.type === "dividend" ? "bg-emerald-400" : a.type === "alert" ? "bg-rose-400" : "bg-slate-600"
                     )} />
-                    <span className="text-[10px] text-slate-400">{a.text}</span>
+                    <span className="text-[10px] text-slate-400">{a.content}</span>
                   </div>
                 ))}
+                {activity.length === 0 && (
+                  <p className="text-[10px] text-slate-600">No hall activity has been posted yet.</p>
+                )}
               </div>
             </div>
 
@@ -813,10 +819,11 @@ function ActionBtn({ icon: Icon, label, color }: { icon: React.ElementType; labe
 /* ============================================================
    MESSAGE INPUT
    ============================================================ */
-function MessageInput({ replyTo, onCancelReply }: { replyTo: string | null; onCancelReply: () => void }) {
+function MessageInput({ replyTo, onCancelReply, onSend }: { replyTo: string | null; onCancelReply: () => void; onSend: (type: "PROPOSAL" | "REPORT" | "8TH_LEDGER_UPDATE", content: string) => Promise<boolean> }) {
   const [text, setText] = useState("");
   const [msgType, setMsgType] = useState<"chat" | "proposal" | "poll" | "announcement">("chat");
   const [showTypeMenu, setShowTypeMenu] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const typeConfig = {
     chat: { label: "Message", icon: MessageSquare, color: "text-slate-400" },
@@ -824,6 +831,18 @@ function MessageInput({ replyTo, onCancelReply }: { replyTo: string | null; onCa
     poll: { label: "Poll", icon: Vote, color: "text-amber-400" },
     announcement: { label: "Announce", icon: Megaphone, color: "text-cyan-400" },
   };
+
+  async function submit() {
+    if (!text.trim() || sending) return;
+    setSending(true);
+    const type = msgType === "proposal" ? "PROPOSAL" : msgType === "poll" ? "REPORT" : "8TH_LEDGER_UPDATE";
+    const ok = await onSend(type, text.trim());
+    setSending(false);
+    if (ok) {
+      setText("");
+      onCancelReply();
+    }
+  }
 
   return (
     <div className="shrink-0 border-t border-slate-800/40 bg-[#0a0a0f]/95 backdrop-blur-xl px-4 py-3">
@@ -883,7 +902,7 @@ function MessageInput({ replyTo, onCancelReply }: { replyTo: string | null; onCa
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                setText("");
+                submit();
               }
             }}
             className="w-full bg-slate-900/50 border border-slate-800/50 rounded-xl px-3 py-2 text-[12px] text-slate-200 placeholder:text-slate-700 focus:outline-none focus:border-slate-600 resize-none max-h-32"
@@ -900,29 +919,19 @@ function MessageInput({ replyTo, onCancelReply }: { replyTo: string | null; onCa
             <AtSign className="h-3.5 w-3.5" />
           </button>
           <button
-            onClick={() => setText("")}
+            onClick={submit}
             className={cn(
               "h-9 px-3 rounded-lg border flex items-center gap-1.5 text-[11px] font-bold transition-all shrink-0",
-              text.trim()
+              text.trim() && !sending
                 ? "bg-cyan-600 border-cyan-500 text-white hover:bg-cyan-500"
                 : "bg-slate-900 border-slate-800 text-slate-600 cursor-not-allowed"
             )}
-            disabled={!text.trim()}
+            disabled={!text.trim() || sending}
           >
-            <Send className="h-3.5 w-3.5" />
+            {sending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
             <span className="hidden sm:inline">Send</span>
           </button>
         </div>
-      </div>
-
-      {/* Typing indicator */}
-      <div className="flex items-center gap-1.5 mt-1.5 px-1 h-3">
-        <span className="text-[9px] text-slate-700 font-mono">Sarah Chen is typing</span>
-        <span className="flex gap-0.5">
-          <span className="h-1 w-1 rounded-full bg-slate-700 animate-bounce" style={{ animationDelay: "0ms" }} />
-          <span className="h-1 w-1 rounded-full bg-slate-700 animate-bounce" style={{ animationDelay: "150ms" }} />
-          <span className="h-1 w-1 rounded-full bg-slate-700 animate-bounce" style={{ animationDelay: "300ms" }} />
-        </span>
       </div>
     </div>
   );
@@ -931,7 +940,7 @@ function MessageInput({ replyTo, onCancelReply }: { replyTo: string | null; onCa
 /* ============================================================
    SEALED GATE
    ============================================================ */
-function SealedGate({ onPreview }: { onPreview: () => void }) {
+function SealedGate({ onBrowse }: { onBrowse: () => void }) {
   return (
     <div className="flex-1 flex items-center justify-center overflow-hidden">
       <motion.div
@@ -952,11 +961,11 @@ function SealedGate({ onPreview }: { onPreview: () => void }) {
             </p>
             <div className="space-y-2">
               <button
-                onClick={onPreview}
+                onClick={onBrowse}
                 className="w-full flex items-center justify-center gap-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 py-3 text-xs font-bold text-cyan-400 hover:bg-cyan-500/20 transition-all"
               >
-                <Eye className="h-4 w-4" />
-                Preview Stream
+                <ChevronRight className="h-4 w-4" />
+                Browse Pools
               </button>
               <button
                 onClick={() => window.location.href = "/pools"}
@@ -986,19 +995,21 @@ function SealedGate({ onPreview }: { onPreview: () => void }) {
 export default function SovereignStreamPage() {
   const params = useParams();
   const hallId = params?.id as string;
-  const [isPreview, setIsPreview] = useState(false);
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
 
-  const { data: accessData, isLoading } = useSWR(
-    hallId ? `/api/halls/${hallId}/access` : null,
+  const { data: hallDataRaw, error: hallError, isLoading } = useSWR<HallResponse>(
+    hallId ? `/api/halls/${hallId}` : null,
     fetcher,
     { shouldRetryOnError: false }
   );
+  const { posts, createPost, isLoading: streamLoading } = useSovereignStream(hallId);
 
-  const isOwner = accessData?.isOwner || false;
-  const canView = isOwner || isPreview;
+  const hallData = buildHallData(hallDataRaw);
+  const members = mapHallMembers(hallDataRaw);
+  const messages = posts.map(mapStreamPost);
+  const canView = !hallError;
 
   if (isLoading) {
     return (
@@ -1015,8 +1026,8 @@ export default function SovereignStreamPage() {
           <div className="absolute top-[-10%] left-[-5%] w-[40%] h-[40%] bg-cyan-500/[0.02] rounded-full blur-[150px]" />
         </div>
         <div className="relative z-10 flex-1 flex flex-col">
-          <CompactHeader />
-          <SealedGate onPreview={() => setIsPreview(true)} />
+          <CompactHeader hallData={hallData} />
+          <SealedGate onBrowse={() => window.location.href = "/pools"} />
         </div>
       </div>
     );
@@ -1033,48 +1044,43 @@ export default function SovereignStreamPage() {
 
       <div className="relative z-10 flex flex-col h-full">
         {/* Header */}
-        <CompactHeader />
-
-        {/* Demo banner */}
-        {isPreview && (
-          <div className="shrink-0 border-b border-amber-500/20 bg-amber-950/10 px-4 py-1.5 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Eye className="h-3 w-3 text-amber-400" />
-              <span className="text-[9px] font-bold text-amber-400 uppercase tracking-wider">Demo Preview</span>
-              <span className="text-[9px] text-slate-600">Simulated data. Commit to participate.</span>
-            </div>
-            <button onClick={() => window.location.reload()} className="text-[9px] text-slate-500 hover:text-slate-300 transition-colors">Exit</button>
-          </div>
-        )}
+        <CompactHeader hallData={hallData} />
 
         {/* Main layout */}
         <div className="flex-1 flex overflow-hidden">
           {/* Left sidebar — Member Roster */}
           <div className="hidden lg:block">
-            <MemberSidebar open={leftOpen} onToggle={() => setLeftOpen(!leftOpen)} />
+            <MemberSidebar open={leftOpen} onToggle={() => setLeftOpen(!leftOpen)} members={members} hallData={hallData} />
           </div>
           <div className="lg:hidden">
-            <MemberSidebar open={leftOpen} onToggle={() => setLeftOpen(!leftOpen)} />
+            <MemberSidebar open={leftOpen} onToggle={() => setLeftOpen(!leftOpen)} members={members} hallData={hallData} />
           </div>
 
           {/* Center — Chat Stream */}
           <ChatStream
-            messages={DEMO_MESSAGES}
+            messages={streamLoading ? [] : messages}
             replyTo={replyTo}
             onReply={(id) => setReplyTo(replyTo === id ? null : id)}
           />
 
           {/* Right sidebar — Treasury & Activity */}
           <div className="hidden lg:block">
-            <RightPanel open={rightOpen} onToggle={() => setRightOpen(!rightOpen)} />
+            <RightPanel open={rightOpen} onToggle={() => setRightOpen(!rightOpen)} hallData={hallData} activity={messages} />
           </div>
           <div className="lg:hidden">
-            <RightPanel open={rightOpen} onToggle={() => setRightOpen(!rightOpen)} />
+            <RightPanel open={rightOpen} onToggle={() => setRightOpen(!rightOpen)} hallData={hallData} activity={messages} />
           </div>
         </div>
 
         {/* Message Input */}
-        <MessageInput replyTo={replyTo} onCancelReply={() => setReplyTo(null)} />
+        <MessageInput
+          replyTo={replyTo}
+          onCancelReply={() => setReplyTo(null)}
+          onSend={async (type, content) => {
+            const result = await createPost({ type, title: content.slice(0, 80), content });
+            return !!result;
+          }}
+        />
       </div>
     </div>
   );

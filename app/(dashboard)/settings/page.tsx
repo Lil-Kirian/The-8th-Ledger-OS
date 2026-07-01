@@ -180,26 +180,6 @@ const NetworkBadge = ({ network }: { network: string }) => {
   );
 };
 
-//  MOCK DATA
-const MOCK_KYC_DOCS: KycDoc[] = [
-  { id: "k1", type: "id", status: "verified", uploadedAt: "2025-01-15", filename: "national_id_front.pdf", fileSize: "2.4 MB", reviewedBy: "8th Ledger KYC", reviewedAt: "2025-01-16" },
-  { id: "k2", type: "selfie", status: "verified", uploadedAt: "2025-01-15", filename: "selfie_verification.jpg", fileSize: "1.1 MB", reviewedBy: "AI Liveness Engine", reviewedAt: "2025-01-15" },
-  { id: "k3", type: "address", status: "pending", uploadedAt: "2025-06-20", filename: "utility_bill_june.pdf", fileSize: "3.2 MB" },
-  { id: "k4", type: "liveness", status: "verified", uploadedAt: "2025-01-15", filename: "liveness_check.mp4", fileSize: "8.7 MB", reviewedBy: "AI Liveness Engine", reviewedAt: "2025-01-15" },
-];
-
-const MOCK_SESSIONS: SecuritySession[] = [
-  { id: "s1", device: "MacBook Air — Safari", location: "Lagos, NG", ip: "102.88.**.***", lastActive: "Active now", current: true },
-  { id: "s2", device: "iPhone 15 — Chrome", location: "Lagos, NG", ip: "102.88.**.***", lastActive: "2 hours ago", current: false },
-  { id: "s3", device: "Windows — Edge", location: "London, UK", ip: "185.22.**.***", lastActive: "3 days ago", current: false },
-];
-
-const MOCK_ADDRESSES: WithdrawalAddress[] = [
-  { id: "a1", label: "Primary Bank", address: "0123456789 • Wema Bank", network: "Naira", verified: true, addedAt: "2025-01-20", lastUsed: "2025-06-22" },
-  { id: "a2", label: "USDC Reserve", address: "0x71C...9A3F", network: "ERC-20", verified: true, addedAt: "2025-03-10", lastUsed: "2025-06-15" },
-  { id: "a3", label: "Binance Bridge", address: "0x4B2...7E1D", network: "BEP-20", verified: false, addedAt: "2025-06-23" },
-];
-
 export default function SettingsPage() {
   const { user } = useAuth();
   const [activeSection, setActiveSection] = useState<SectionKey>("identity");
@@ -219,9 +199,9 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [kycDocs, setKycDocs] = useState<KycDoc[]>(MOCK_KYC_DOCS);
-  const [withdrawalAddrs, setWithdrawalAddrs] = useState<WithdrawalAddress[]>(MOCK_ADDRESSES);
-  const [sessions, setSessions] = useState<SecuritySession[]>(MOCK_SESSIONS);
+  const [kycDocs, setKycDocs] = useState<KycDoc[]>([]);
+  const [withdrawalAddrs, setWithdrawalAddrs] = useState<WithdrawalAddress[]>([]);
+  const [sessions, setSessions] = useState<SecuritySession[]>([]);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [copiedAddr, setCopiedAddr] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -236,6 +216,69 @@ export default function SettingsPage() {
       setTwoFactor(user.totpEnabled || false);
     }
   }, [user]);
+
+  useEffect(() => {
+    async function loadKycDocs() {
+      try {
+        const res = await fetch("/api/kyc", { credentials: "include" });
+        const data = await res.json();
+        if (!data.success || !data.kyc) return;
+
+        const reviewedAt = data.kyc.reviewedAt
+          ? new Date(data.kyc.reviewedAt).toLocaleDateString()
+          : undefined;
+        const uploadedAt = reviewedAt || new Date().toLocaleDateString();
+        const docs: KycDoc[] = [
+          data.kyc.idImageUrl && {
+            id: "id",
+            type: "id",
+            status: data.kyc.progress?.id ? "verified" : data.kyc.status || "pending",
+            uploadedAt,
+            filename: data.kyc.idType ? `${data.kyc.idType} document` : "Identity document",
+            fileSize: "Stored",
+            reviewedBy: data.kyc.reviewedBy || undefined,
+            reviewedAt,
+          },
+          data.kyc.selfieUrl && {
+            id: "selfie",
+            type: "selfie",
+            status: data.kyc.progress?.selfie ? "verified" : data.kyc.status || "pending",
+            uploadedAt,
+            filename: "Selfie verification",
+            fileSize: "Stored",
+            reviewedBy: data.kyc.reviewedBy || undefined,
+            reviewedAt,
+          },
+          data.kyc.addressProofUrl && {
+            id: "address",
+            type: "address",
+            status: data.kyc.progress?.address ? "verified" : data.kyc.status || "pending",
+            uploadedAt,
+            filename: "Address proof",
+            fileSize: "Stored",
+            reviewedBy: data.kyc.reviewedBy || undefined,
+            reviewedAt,
+          },
+          data.kyc.livenessVideoUrl && {
+            id: "liveness",
+            type: "liveness",
+            status: data.kyc.progress?.liveness ? "verified" : data.kyc.status || "pending",
+            uploadedAt,
+            filename: "Liveness check",
+            fileSize: "Stored",
+            reviewedBy: data.kyc.reviewedBy || undefined,
+            reviewedAt,
+          },
+        ].filter(Boolean) as KycDoc[];
+
+        setKycDocs(docs);
+      } catch {
+        setKycDocs([]);
+      }
+    }
+
+    loadKycDocs();
+  }, []);
 
   useEffect(() => {
     const d = displayName.toLowerCase().replace(/\s+/g, " ").trim();

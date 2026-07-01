@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import useSWR from "swr";
 import {
   Crown, Shield, ShieldCheck, ShieldAlert, Zap, Eye, TrendingUp, Landmark, Globe,
   Hexagon, Activity, ChevronRight, Lock, Unlock, Flame,
@@ -11,6 +12,15 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { formatCurrency } from "@/lib/utils";
+
+const fetcher = async (url: string) => {
+  const res = await fetch(url, { credentials: "include" });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok || json.success === false) {
+    throw new Error(json.error || `Request failed (${res.status})`);
+  }
+  return json;
+};
 
 /* ============================================================
    TYPES — Aligned to 8th Ledger Schema
@@ -53,42 +63,68 @@ interface SovereignProfile {
   halls: HallOwnership[];
 }
 
-/* ============================================================
-   MOCK DATA — Replace with API call to /api/forge or /api/user
-   ============================================================ */
-const MOCK_DATA: SovereignProfile = {
-  ledgerId: "LED-8X2P-9LQ3",
-  displayName: "The Architect",
-  kycTier: "verified",
-  avatar: undefined,
-  walletBalance: 48250,
-  totalCommitted: 127500,
-  totalDividendsEarned: 18420,
-  activeHalls: 4,
-  totalGovernanceWeight: 12.4,
-  proposalsVoted: 23,
-  oracle: {
-    tier: "oracle",
-    totalPoints: 847,
-    correctCount: 63,
-    totalPredictions: 89,
-    streak: 7,
-    nextTierProgress: 72,
-  },
-  recentDividends: [
-    { date: "2026-06-23", amount: 340, hallName: "Nairobi Solar Farm" },
-    { date: "2026-06-23", amount: 125, hallName: "Kigali Biz Hub" },
-    { date: "2026-06-22", amount: 890, hallName: "Lagos LedgerProp" },
-    { date: "2026-06-21", amount: 210, hallName: "Nairobi Solar Farm" },
-    { date: "2026-06-20", amount: 445, hallName: "Accra Travel Fleet" },
-  ],
-  halls: [
-    { id: "1", hallName: "Nairobi Solar Farm", vertical: "LedgerEnergy", ownershipPercent: 5.0, accumulatedDividends: 4200, amountCommitted: 25000, sriScore: 87, ahgiScore: 72, hallClass: "I", status: "active" },
-    { id: "2", hallName: "Kigali Biz Hub", vertical: "LedgerBiz", ownershipPercent: 2.5, accumulatedDividends: 1800, amountCommitted: 15000, sriScore: 74, ahgiScore: 68, hallClass: "III", status: "active" },
-    { id: "3", hallName: "Lagos LedgerProp", vertical: "LedgerProp", ownershipPercent: 8.0, accumulatedDividends: 8900, amountCommitted: 60000, sriScore: 91, ahgiScore: 85, hallClass: "I", status: "active" },
-    { id: "4", hallName: "Accra Travel Fleet", vertical: "LedgerTravel", ownershipPercent: 1.2, accumulatedDividends: 3520, amountCommitted: 27500, sriScore: 45, ahgiScore: 38, hallClass: "II", status: "warning" },
-  ],
-};
+function verticalLabel(verticalId?: string) {
+  if (!verticalId) return "LedgerProp";
+  return verticalId
+    .replace(/^ledger/, "Ledger")
+    .replace("prop", "Prop")
+    .replace("auto", "Auto")
+    .replace("edu", "Edu")
+    .replace("access", "Access")
+    .replace("health", "Health")
+    .replace("biz", "Biz")
+    .replace("tech", "Tech")
+    .replace("travel", "Travel")
+    .replace("agri", "Agri")
+    .replace("energy", "Energy");
+}
+
+function mapDashboardProfile(raw: any, authUser: any): SovereignProfile {
+  const sovereign = raw?.sovereign || authUser || {};
+  const halls = (raw?.halls || []).map((hall: any, index: number): HallOwnership => ({
+    id: hall.hallId || hall.poolId || String(index),
+    hallName: hall.name || "Sovereign Hall",
+    vertical: verticalLabel(hall.verticalId),
+    ownershipPercent: Number(hall.ownershipPercent || 0),
+    accumulatedDividends: Number(hall.totalReturned || 0),
+    amountCommitted: Number(raw?.pools?.active?.[index]?.committed || 0),
+    sriScore: 0,
+    ahgiScore: 0,
+    hallClass: "I",
+    status: hall.status === "dormant" ? "warning" : "active",
+  }));
+  const totalDividendsEarned = halls.reduce((sum: number, hall: HallOwnership) => sum + hall.accumulatedDividends, 0);
+
+  return {
+    ledgerId: sovereign.ledgerId || "",
+    displayName: sovereign.displayName || "Sovereign",
+    kycTier: sovereign.kycTier || "visitor",
+    avatar: sovereign.avatar,
+    walletBalance: Number(sovereign.ledgerBalance || 0),
+    totalCommitted: Number(sovereign.totalCommitted || raw?.tierProgress?.totalCommitted || 0),
+    totalDividendsEarned,
+    activeHalls: halls.length,
+    totalGovernanceWeight: halls.reduce((sum: number, hall: HallOwnership) => sum + hall.ownershipPercent, 0),
+    proposalsVoted: (raw?.oracle || []).length,
+    oracle: {
+      tier: "novice",
+      totalPoints: 0,
+      correctCount: 0,
+      totalPredictions: (raw?.oracle || []).length,
+      streak: 0,
+      nextTierProgress: 0,
+    },
+    recentDividends: halls
+      .filter((hall: HallOwnership) => hall.accumulatedDividends > 0)
+      .slice(0, 5)
+      .map((hall: HallOwnership) => ({
+        date: new Date().toISOString(),
+        amount: hall.accumulatedDividends,
+        hallName: hall.hallName,
+      })),
+    halls,
+  };
+}
 
 /* ============================================================
    UTILITY
@@ -408,7 +444,7 @@ function MetricPill({ label, value, accent }: { label: string; value: string; ac
 }
 
 /** Power Gauge — Capital Deployment */
-function PowerGauge({ committed, target }: { committed: number; target: number }) {
+function PowerGauge({ committed, target, activeHalls }: { committed: number; target: number; activeHalls: number }) {
   const progress = Math.min((committed / target) * 100, 100);
   const springProgress = useSpring(progress, { stiffness: 50, damping: 20 });
 
@@ -442,7 +478,7 @@ function PowerGauge({ committed, target }: { committed: number; target: number }
       <div className="flex items-end justify-between">
         <div>
           <p className="text-3xl font-bold text-white">{formatCurrency(committed)}</p>
-          <p className="text-[10px] text-white/30 mt-0.5">Deployed across {MOCK_DATA.activeHalls} halls</p>
+          <p className="text-[10px] text-white/30 mt-0.5">Deployed across {activeHalls} halls</p>
         </div>
         <div className="text-right">
           <p className="text-lg font-semibold text-cyan-300">{progress.toFixed(1)}%</p>
@@ -710,7 +746,8 @@ function GovernanceCard({ proposalsVoted, weight }: { proposalsVoted: number; we
    ============================================================ */
 export default function ForgePage() {
   const { user } = useAuth();
-  const [data] = useState<SovereignProfile>(MOCK_DATA);
+  const { data: dashboardData, isLoading } = useSWR("/api/dashboard", fetcher);
+  const data = mapDashboardProfile(dashboardData, user);
   const { scrollYProgress } = useScroll();
   const headerOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
   const headerY = useTransform(scrollYProgress, [0, 0.05], [0, -20]);
@@ -748,7 +785,7 @@ export default function ForgePage() {
           <div className="lg:col-span-2">
             <IdentityCard data={data} />
           </div>
-          <PowerGauge committed={data.totalCommitted} target={250000} />
+          <PowerGauge committed={data.totalCommitted} target={250000} activeHalls={data.activeHalls} />
         </div>
 
         <div className="grid gap-4 lg:grid-cols-3 mb-4">
