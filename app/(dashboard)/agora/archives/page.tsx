@@ -44,11 +44,12 @@ interface QA {
 // ── Fetcher
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const ADMIN_ROLES = ["architech", "scribe", "warden", "admin", "founder"];
 
 // ── Components
 
 function HeraldBadge({ role, kycTier }: { role: string; kycTier: string }) {
-  if (role === "admin") {
+  if (ADMIN_ROLES.includes(role)) {
     return (
       <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/10 px-2 py-0.5 text-[10px] font-medium text-cyan-400 uppercase tracking-wider">
         <Crown className="h-3 w-3" />
@@ -190,7 +191,7 @@ export default function ArchivesPage() {
     user &&
     (user.kycTier === "verified" ||
       user.kycTier === "whale" ||
-      user.role === "admin");
+      ADMIN_ROLES.includes(user.role || ""));
 
   const queryParams = new URLSearchParams();
   queryParams.set("limit", "50");

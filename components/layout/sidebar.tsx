@@ -243,7 +243,7 @@ export function Sidebar() {
           <div className="flex items-center gap-3">
             <div className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-cyan-500/20 bg-cyan-500/10 text-cyan-400 text-sm font-bold">
               {user.displayName?.charAt(0).toUpperCase()}
-              {user.role === "admin" && user.isPrimaryAdmin && (
+              {["architech", "scribe", "warden"].includes(user.role || "") && user.isPrimaryAdmin && (
                 <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-amber-400 border border-[#07070c] flex items-center justify-center">
                   <Crown className="h-2 w-2 text-black" />
                 </div>
@@ -298,7 +298,7 @@ export function Sidebar() {
           </div>
 
           {/* Primary Admin Hint (only for primary admin, subtle) */}
-          {user.role === "admin" && user.isPrimaryAdmin && (
+              {["architech", "scribe", "warden"].includes(user.role || "") && user.isPrimaryAdmin && (
             <div className="rounded-lg border border-amber-500/10 bg-amber-500/5 px-3 py-2">
               <div className="flex items-center gap-2">
                 <Crown className="h-3 w-3 text-amber-400" />

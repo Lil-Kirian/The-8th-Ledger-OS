@@ -1,7 +1,7 @@
 // app/api/halls/[id]/ihcp/repay/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth, isAdminRole } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
@@ -44,7 +44,7 @@ export async function POST(
     }
 
     // Only admin/founder or hall owners can trigger repayment
-    const isAdmin = user.role === "admin" || user.isPrimaryAdmin;
+    const isAdmin = isAdminRole(user.role) || user.isPrimaryAdmin;
     const isOwner = hall.ownerships.length > 0;
 
     if (!isAdmin && !isOwner) {

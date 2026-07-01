@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isAdminRole } from "@/lib/auth";
 import { sendRelayMessage, getRelayHistory } from "@/lib/forge";
 
 /* ============================================================
@@ -39,7 +39,7 @@ export async function POST(
     if (direction === "hall_to_worker") {
       // Must be hall owner or admin
       const hasAccess =
-        user.role === "admin" ||
+        isAdminRole(user.role) ||
         (await prisma.ownership.findFirst({
           where: { hallId, ledgerId: user.ledgerId, status: "active" },
         }));
@@ -62,7 +62,7 @@ export async function POST(
 
       // In a real Worker Portal, we'd verify worker identity separately.
       // For now, only admin can simulate worker replies.
-      if (user.role !== "admin") {
+      if (!isAdminRole(user.role)) {
         return NextResponse.json(
           { error: "Worker replies sent through Worker Portal only" },
           { status: 403 }
@@ -115,7 +115,7 @@ export async function GET(
 
     // Hall access check
     const hasAccess =
-      user.role === "admin" ||
+      isAdminRole(user.role) ||
       (await prisma.ownership.findFirst({
         where: { hallId, ledgerId: user.ledgerId, status: "active" },
       }));

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser, verifyOwnership, isPrimaryAdmin } from "@/lib/auth";
+import { getSessionUser, verifyOwnership, isPrimaryAdmin, isAdminRole } from "@/lib/auth";
 
 const IMPEACHMENT_DURATION_HOURS = 48;
 
@@ -428,7 +428,7 @@ export async function GET(
     if (
       !isOwner &&
       !(await isPrimaryAdmin(user.ledgerId)) &&
-      user.role !== "admin"
+      !isAdminRole(user.role)
     ) {
       return NextResponse.json(
         { success: false, error: "Sovereign access denied" },

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, requireHallAccess, requireAdmin } from "@/lib/auth";
+import { requireAuth, requireHallAccess, requireAdmin, isAdminRole } from "@/lib/auth";
 import {
   calculateAhgi,
   getLatestAhgiSnapshot,
@@ -30,7 +30,7 @@ export async function GET(
     }
 
     const access = await requireHallAccess(request, hallId);
-    if (!access.success && auth.role !== "admin") {
+    if (!access.success && !isAdminRole(auth.role)) {
       return NextResponse.json({ error: "Hall access denied" }, { status: 403 });
     }
 

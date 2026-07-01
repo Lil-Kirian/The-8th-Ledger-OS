@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser, verifyOwnership, isFounder } from "@/lib/auth";
+import { getSessionUser, verifyOwnership, isFounder, isAdminRole } from "@/lib/auth";
 
 export async function GET(
   request: NextRequest,
@@ -31,7 +31,7 @@ export async function GET(
     }
 
     const isOwner = await verifyOwnership(user.id, undefined, hallId);
-    if (!isOwner && !(await isFounder(user)) && user.role !== "admin") {
+    if (!isOwner && !(await isFounder(user)) && !isAdminRole(user.role)) {
       return NextResponse.json(
         { success: false, error: "Sovereign access denied" },
         { status: 403 },

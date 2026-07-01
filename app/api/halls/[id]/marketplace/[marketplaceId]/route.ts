@@ -1,7 +1,7 @@
 // app/api/halls/[id]/marketplace/[marketplaceId]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, isFounderSync, getSessionClaims } from "@/lib/auth";
+import { requireAuth, isFounderSync, getSessionClaims, isAdminRole } from "@/lib/auth";
 
 const PLATFORM_FEE_PCT = 0.05;
 const KYC_THRESHOLD = 500;
@@ -161,7 +161,7 @@ export async function POST(
         where: { userId: user.id },
         select: { tier: true, legalName: true, status: true },
       });
-      if (!kyc || kyc.tier === "visitor" || kyc.status !== "verified") {
+      if (!kyc || kyc.tier === "visitor" || kyc.status !== "approved") {
         return NextResponse.json(
           {
             success: false,
@@ -319,7 +319,7 @@ export async function PATCH(
     const claims = await getSessionClaims(request);
     const isFounder = isFounderSync(claims);
 
-    if (!isFounder && user.role !== "admin") {
+    if (!isFounder && !isAdminRole(user.role)) {
       return NextResponse.json(
         { success: false, error: "8th Ledger authority required" },
         { status: 403 },

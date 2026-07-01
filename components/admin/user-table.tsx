@@ -34,10 +34,10 @@ interface UserRow {
   displayName: string;
   email: string;
   country: string;
-  role: "user" | "admin";
+  role: "user" | "architech" | "scribe" | "warden";
   isPrimaryAdmin: boolean;
   kycTier: "visitor" | "sovereign" | "verified" | "whale";
-  kycStatus: "pending" | "verified" | "unverified" | "rejected";
+  kycStatus: "pending" | "approved" | "unverified" | "rejected";
   trustScore: number;
   tier: number;
   ledgerBalance: number;
@@ -94,7 +94,9 @@ const kycTierConfig = {
 //  Role Config
 const roleConfig = {
   user: { label: "User", color: "text-slate-400", bg: "bg-slate-800/30" },
-  admin: { label: "Admin", color: "text-cyan-400", bg: "bg-cyan-950/20" },
+  architech: { label: "Architech", color: "text-amber-400", bg: "bg-amber-950/20" },
+  scribe: { label: "Scribe", color: "text-cyan-400", bg: "bg-cyan-950/20" },
+  warden: { label: "Warden", color: "text-violet-400", bg: "bg-violet-950/20" },
 };
 
 //  Stats
@@ -104,7 +106,7 @@ function UserStats({ users }: { users: UserRow[] }) {
     const banned = users.filter((u) => u.isBanned).length;
     const verified = users.filter((u) => u.kycTier === "verified" || u.kycTier === "whale").length;
     const whales = users.filter((u) => u.kycTier === "whale").length;
-    const admins = users.filter((u) => u.role === "admin").length;
+    const admins = users.filter((u) => ["architech", "scribe", "warden"].includes(u.role)).length;
     const primaryAdmins = users.filter((u) => u.isPrimaryAdmin).length;
     const totalCommitted = users.reduce((sum, u) => sum + u.totalCommitted, 0);
     return { total, banned, verified, whales, admins, primaryAdmins, totalCommitted };

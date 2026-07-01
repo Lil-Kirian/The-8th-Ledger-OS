@@ -1,7 +1,7 @@
 // app/api/marketplace/ownership/[id]/refund/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, isFounderSync, getSessionClaims } from "@/lib/auth";
+import { requireAuth, isFounderSync, getSessionClaims, isPrimaryAdminRole } from "@/lib/auth";
 import { generateTxHash } from "@/lib/utils";
 
 /* ============================================================
@@ -16,7 +16,7 @@ export async function POST(
     const { id } = await params;
     const user = await requireAuth(req);
     const claims = await getSessionClaims(req);
-    const isFounder = isFounderSync(claims) || user.role === "founder";
+    const isFounder = isFounderSync(claims) || isPrimaryAdminRole(user.role);
 
     const listing = await prisma.ownershipListing.findUnique({
       where: { id },

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser, isPrimaryAdmin } from "@/lib/auth";
+import { getSessionUser, isPrimaryAdmin, isAdminRole } from "@/lib/auth";
 
 const COMMUNITY_PCT = 0.80;
 const LEDGER_TITHE_PCT = 0.20;
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // ── Per-hall treasury breakdown (admin) ──
-    if ((type === "all" || type === "halls") && (isPrimaryAdmin(user.ledgerId) || user.role === "admin")) {
+    if ((type === "all" || type === "halls") && (isPrimaryAdmin(user.ledgerId) || isAdminRole(user.role))) {
       const halls = await prisma.hall.findMany({
         where: { status: { in: ["live", "mature", "ghost"] } },
         include: {
@@ -136,7 +136,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     }
 
     // ── Admin-only: transactions, withdrawals ──
-    if (isPrimaryAdmin(user.ledgerId) || user.role === "admin") {
+    if (isPrimaryAdmin(user.ledgerId) || isAdminRole(user.role)) {
       if (type === "all" || type === "transactions") {
         response.transactions = await prisma.treasuryTransaction.findMany({
           orderBy: { timestamp: "desc" },
@@ -184,7 +184,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
     /* ===== RECORD REVENUE — 80/20 SPLIT (Admin) ===== */
     if (action === "record_revenue") {
-      if (!isPrimaryAdmin(user.ledgerId) && user.role !== "admin") {
+      if (!isPrimaryAdmin(user.ledgerId) && !isAdminRole(user.role)) {
         return NextResponse.json<TreasuryResponse>(
           { success: false, error: "8th Ledger Operations authority required" },
           { status: 403 }

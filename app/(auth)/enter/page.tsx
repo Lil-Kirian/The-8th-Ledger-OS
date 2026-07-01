@@ -411,8 +411,10 @@ async function apiAccessIdentity(data: AccessFormData): Promise<ApiResponse> {
   return parseApiResponse(await res.json());
 }
 
+const ADMIN_ROLES = ["architech", "scribe", "warden", "admin", "founder"];
+
 function getRoleRedirect(role: string, isPrimaryAdmin: boolean): string {
-  if (role === "admin") {
+  if (ADMIN_ROLES.includes(role)) {
     if (isPrimaryAdmin) return "/architect/verify?redirect=/architect";
     return "/admin/verify?redirect=/admin";
   }

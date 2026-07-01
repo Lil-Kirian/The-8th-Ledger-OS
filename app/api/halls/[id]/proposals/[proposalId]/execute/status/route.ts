@@ -1,7 +1,7 @@
 // app/api/halls/[id]/proposals/[proposalId]/execute/status/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isAdminRole } from "@/lib/auth";
 
 /* ============================================================
    GET /api/halls/[id]/proposals/[proposalId]/execute/status
@@ -33,7 +33,7 @@ export async function GET(
       },
     });
 
-    const isAdmin = user.role === "admin";
+    const isAdmin = isAdminRole(user.role);
 
     if (!ownership && !isAdmin) {
       return NextResponse.json(

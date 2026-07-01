@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth, isAdminRole } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
 //
@@ -359,7 +359,7 @@ export async function PATCH(req: NextRequest) {
     const isHerald =
       user.kycTier === "verified" ||
       user.kycTier === "whale" ||
-      user.role === "admin";
+      isAdminRole(user.role);
     if (!isHerald) {
       return NextResponse.json(
         {
@@ -448,7 +448,7 @@ export async function PATCH(req: NextRequest) {
         prisma.auditLog.create({
           data: {
             eventType: "agora_qa_answered",
-            description: `Question answered by ${user.role === "admin" ? "The Architect" : "Herald"} ${user.ledgerId}`,
+            description: `Question answered by ${isAdminRole(user.role) ? "The Architect" : "Herald"} ${user.ledgerId}`,
             ledgerId: user.ledgerId,
             metadata: JSON.stringify({
               questionId: id,
@@ -503,7 +503,7 @@ export async function PATCH(req: NextRequest) {
       prisma.auditLog.create({
         data: {
           eventType: "agora_qa_rejected",
-          description: `Question rejected by ${user.role === "admin" ? "The Architect" : "Herald"} ${user.ledgerId}`,
+          description: `Question rejected by ${isAdminRole(user.role) ? "The Architect" : "Herald"} ${user.ledgerId}`,
           ledgerId: user.ledgerId,
           metadata: JSON.stringify({ questionId: id }),
           txHash: `AUD-${randomUUID()}`,

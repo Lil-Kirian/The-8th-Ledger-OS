@@ -176,9 +176,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       LEDGER_WEBHOOK_SECRET && apiKey === LEDGER_WEBHOOK_SECRET;
 
     if (!isWebhookAuth) {
-      const { getSessionUser } = await import("@/lib/auth");
+      const { getSessionUser, isAdminRole } = await import("@/lib/auth");
       const user = await getSessionUser();
-      if (!user || user.role !== "admin") {
+      if (!user || !isAdminRole(user.role)) {
         return NextResponse.json(
           { success: false, error: "Webhook key or admin auth required" },
           { status: 401 },

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isAdminRole } from "@/lib/auth";
 
 /* ============================================================
    GET /api/admin/operations/[id]
@@ -13,7 +13,7 @@ export async function GET(
 ): Promise<NextResponse> {
   try {
     const user = await getSessionUser();
-    if (!user || user.role !== "admin") {
+    if (!user || !isAdminRole(user.role)) {
       return NextResponse.json(
         { success: false, error: "Admin access required" },
         { status: 403 }

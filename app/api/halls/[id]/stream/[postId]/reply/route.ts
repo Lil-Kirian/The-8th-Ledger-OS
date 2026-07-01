@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isAdminRole } from "@/lib/auth";
 
 //
 // POST  /api/halls/[id]/stream/[postId]/reply
@@ -22,7 +22,7 @@ export async function POST(
     const ownership = await prisma.ownership.findFirst({
       where: { hallId, ledgerId: user.ledgerId },
     });
-    if (!ownership && user.role !== "admin" && !user.isPrimaryAdmin) {
+    if (!ownership && !isAdminRole(user.role) && !user.isPrimaryAdmin) {
       return NextResponse.json(
         { error: "Hall ownership required to reply in the Stream." },
         { status: 403 }

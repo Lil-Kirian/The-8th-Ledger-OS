@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth, isAdminRole } from "@/lib/auth";
 
 // POST /api/halls/[id]/cabinet/elect
 // Call an Executive Cabinet election. Creates a capital-weighted proposal.
@@ -32,7 +32,7 @@ export async function POST(
 
     // Only owners or admin can call election
     const ownership = hall.ownerships.find((o) => o.userId === user.id);
-    const isAdmin = user.role === "admin";
+    const isAdmin = isAdminRole(user.role);
     const isPrimaryAdmin = user.isPrimaryAdmin === true;
 
     if (!ownership && !isAdmin) {

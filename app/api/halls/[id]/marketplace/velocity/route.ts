@@ -1,7 +1,7 @@
 // app/api/halls/[id]/marketplace/velocity/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, isFounderSync, getSessionClaims } from "@/lib/auth";
+import { requireAuth, isFounderSync, getSessionClaims, isAdminRole, isPrimaryAdminRole } from "@/lib/auth";
 
 const THRESHOLDS = {
   warning: 3, // 3 months no sales = warning
@@ -19,7 +19,7 @@ export async function GET(
   try {
     const user = await requireAuth(request);
     const claims = await getSessionClaims(request);
-    const isFounder = isFounderSync(claims) || user.role === "founder";
+    const isFounder = isFounderSync(claims) || isPrimaryAdminRole(user.role);
 
     const { id: hallId } = await params;
 
@@ -241,9 +241,9 @@ export async function POST(
   try {
     const user = await requireAuth(request);
     const claims = await getSessionClaims(request);
-    const isFounder = isFounderSync(claims) || user.role === "founder";
+    const isFounder = isFounderSync(claims) || isPrimaryAdminRole(user.role);
 
-    if (!isFounder && user.role !== "admin") {
+    if (!isFounder && !isAdminRole(user.role)) {
       return NextResponse.json(
         { success: false, error: "8th Ledger authority required" },
         { status: 403 },

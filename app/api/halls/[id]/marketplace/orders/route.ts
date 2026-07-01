@@ -1,7 +1,7 @@
 // app/api/halls/[id]/marketplace/orders/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, isFounderSync, getSessionClaims } from "@/lib/auth";
+import { requireAuth, isFounderSync, getSessionClaims, isPrimaryAdminRole } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 
 /* ============================================================
@@ -26,7 +26,7 @@ export async function GET(
   try {
     const user = await requireAuth(request);
     const claims = await getSessionClaims(request);
-    const isFounder = isFounderSync(claims) || user.role === "founder";
+    const isFounder = isFounderSync(claims) || isPrimaryAdminRole(user.role);
 
     const { id: hallId } = await params;
     const { searchParams } = new URL(request.url);
@@ -154,7 +154,7 @@ export async function POST(
   try {
     const user = await requireAuth(request);
     const claims = await getSessionClaims(request);
-    const isFounder = isFounderSync(claims) || user.role === "founder";
+    const isFounder = isFounderSync(claims) || isPrimaryAdminRole(user.role);
 
     const { id: hallId } = await params;
     const body = await request.json();

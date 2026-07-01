@@ -81,6 +81,17 @@ export interface SessionClaims {
   exp: number;
 }
 
+export const ADMIN_ROLES = ["architech", "scribe", "warden", "admin", "founder"] as const;
+export const PRIMARY_ADMIN_ROLES = ["architech", "admin", "founder"] as const;
+
+export function isAdminRole(role?: string | null): boolean {
+  return !!role && (ADMIN_ROLES as readonly string[]).includes(role);
+}
+
+export function isPrimaryAdminRole(role?: string | null): boolean {
+  return !!role && (PRIMARY_ADMIN_ROLES as readonly string[]).includes(role);
+}
+
 /* ============================================================
    SERVER UTILITIES — JWT & PASSWORD
    Safe for API routes only.
@@ -223,7 +234,7 @@ export async function isPrimaryAdmin(
     where: { ledgerId: id },
     select: { role: true, isPrimaryAdmin: true },
   });
-  return user?.role === "admin" && user?.isPrimaryAdmin === true;
+  return isPrimaryAdminRole(user?.role) && user?.isPrimaryAdmin === true;
 }
 
 export async function isAdmin(
@@ -235,7 +246,7 @@ export async function isAdmin(
     where: { ledgerId: id },
     select: { role: true },
   });
-  return user?.role === "admin";
+  return isAdminRole(user?.role);
 }
 
 export async function isFounder(
@@ -247,7 +258,7 @@ export async function isFounder(
     where: { ledgerId: id },
     select: { role: true },
   });
-  return user?.role === "founder";
+  return isPrimaryAdminRole(user?.role);
 }
 
 export function isPrimaryAdminSync(
@@ -260,9 +271,9 @@ export function isPrimaryAdminSync(
   isPrimaryAdmin?: boolean,
 ): boolean {
   if (ledgerId && typeof ledgerId === "object") {
-    return ledgerId.role === "admin" && ledgerId.isPrimaryAdmin === true;
+    return isPrimaryAdminRole(ledgerId.role) && ledgerId.isPrimaryAdmin === true;
   }
-  if (userRole === "admin" && isPrimaryAdmin === true) return true;
+  if (isPrimaryAdminRole(userRole) && isPrimaryAdmin === true) return true;
   return false;
 }
 
@@ -270,14 +281,14 @@ export function isAdminSync(
   userRole?: string | { role?: string } | null,
 ): boolean {
   const role = typeof userRole === "object" ? userRole?.role : userRole;
-  return role === "admin";
+  return isAdminRole(role);
 }
 
 export function isFounderSync(
   userRole?: string | { role?: string } | null,
 ): boolean {
   const role = typeof userRole === "object" ? userRole?.role : userRole;
-  return role === "founder";
+  return isPrimaryAdminRole(role);
 }
 
 export async function requirePrimaryAdmin(
@@ -314,7 +325,7 @@ export async function requireAdmin(
       : null;
 
   if (user) {
-    const allowed = user.role === "admin" || user.role === "founder";
+    const allowed = isAdminRole(user.role);
     return allowed
       ? {
           success: true,
@@ -413,7 +424,7 @@ export async function requireHallAccess(
 
   const user = await getSessionUser(first);
   if (!user) return { success: false, error: "Authentication required" };
-  if (user.role === "admin" || user.role === "founder") {
+  if (isAdminRole(user.role)) {
     return { success: true };
   }
   const ownership = await prisma.ownership.findFirst({

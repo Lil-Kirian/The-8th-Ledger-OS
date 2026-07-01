@@ -356,7 +356,7 @@ export default function UserActionMenu({
                 <span className="text-amber-500/70 flex items-center justify-center gap-1">
                   <Crown size={10} /> Primary Admin — 6-Factor Auth Required
                 </span>
-              ) : user.role === "admin" ? (
+              ) : ["architech", "scribe", "warden"].includes(user.role) ? (
                 <span className="text-cyan-500/70">Admin — 3-Factor Auth Required</span>
               ) : (
                 <span className="text-slate-600">Standard User</span>

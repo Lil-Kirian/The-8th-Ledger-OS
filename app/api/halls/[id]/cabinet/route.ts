@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import {  requireAuth } from "@/lib/auth";
+import {  requireAuth, isAdminRole } from "@/lib/auth";
 
 // GET /api/halls/[id]/cabinet
 // Returns current Executive Cabinet with enriched member profiles
@@ -23,7 +23,7 @@ export async function GET(
       select: { id: true, ownershipPercent: true },
     });
 
-    const isAdmin = user.role === "admin";
+    const isAdmin = isAdminRole(user.role);
     const isPrimaryAdmin = user.isPrimaryAdmin === true;
 
     if (!ownership && !isAdmin) {

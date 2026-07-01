@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth, isAdminRole } from "@/lib/auth";
 
 // POST /api/halls/[id]/cabinet/impeach
 // Impeach an Executive Cabinet member. Creates a 51% capital-weighted proposal.
@@ -32,7 +32,7 @@ export async function POST(
 
     // Verify caller is an active owner or admin
     const ownership = hall.ownerships.find((o) => o.userId === user.id);
-    const isAdmin = user.role === "admin";
+    const isAdmin = isAdminRole(user.role);
 
     if (!ownership && !isAdmin) {
       return NextResponse.json(

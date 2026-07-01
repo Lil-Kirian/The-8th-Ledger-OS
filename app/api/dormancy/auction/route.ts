@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import {  getSessionUser } from "@/lib/auth";
+import {  getSessionUser, isAdminRole } from "@/lib/auth";
 import { logSecurityAudit } from "@/lib/audit";
 
 const MIN_BID_INCREMENT = 0.05; // 5%
@@ -114,7 +114,7 @@ export async function POST(request: NextRequest) {
 
     // ── Admin: force complete expired auction ──
     if (action === "complete" && auctionId) {
-      if (user.role !== "admin" || !user.isPrimaryAdmin) {
+      if (!isAdminRole(user.role) || !user.isPrimaryAdmin) {
         return NextResponse.json(
           { success: false, error: "Primary admin authority required" },
           { status: 403 }

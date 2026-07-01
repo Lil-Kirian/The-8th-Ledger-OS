@@ -70,6 +70,9 @@ const fetcher = async (url: string): Promise<{ user: AuthUser | null }> => {
   return { user: data.user || null };
 };
 
+const ADMIN_ROLES = new Set(["architech", "scribe", "warden", "admin", "founder"]);
+const PRIMARY_ADMIN_ROLES = new Set(["architech", "admin", "founder"]);
+
 /* ============================================================
    HOOK — useAuth
    ============================================================ */
@@ -102,8 +105,8 @@ export function useAuth(): AuthState & {
     isLoading,
     isError: error ?? null,
     isAuthenticated: !!user,
-    isAdmin: user?.role === "admin",
-    isPrimaryAdmin: user?.role === "admin" && user?.isPrimaryAdmin === true,
+    isAdmin: !!user?.role && ADMIN_ROLES.has(user.role),
+    isPrimaryAdmin: !!user?.role && PRIMARY_ADMIN_ROLES.has(user.role) && user?.isPrimaryAdmin === true,
     mutate: () => mutate(),
     logout,
   };

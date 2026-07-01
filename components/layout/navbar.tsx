@@ -333,7 +333,7 @@ export function Navbar() {
                 >
                   <div className="relative flex h-7 w-7 items-center justify-center rounded-full bg-cyan-500/15 text-cyan-400 text-xs font-bold border border-cyan-500/20">
                     {user.displayName?.charAt(0).toUpperCase()}
-                    {user.role === "admin" && user.isPrimaryAdmin && (
+                    {["architech", "scribe", "warden"].includes(user.role || "") && user.isPrimaryAdmin && (
                       <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-amber-400 border border-[#07070c] flex items-center justify-center">
                         <Crown className="h-2 w-2 text-black" />
                       </div>

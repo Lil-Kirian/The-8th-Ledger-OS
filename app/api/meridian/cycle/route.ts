@@ -5,7 +5,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth, isAdminRole } from "@/lib/auth";
 import { randomUUID } from "crypto";
 
 //
@@ -336,7 +336,7 @@ export async function POST(req: NextRequest) {
   try {
     // 1. Auth gate — admin only (6-factor verified by middleware)
     const user = await requireAuth(req);
-    if (user.role !== "admin") {
+    if (!isAdminRole(user.role)) {
       return NextResponse.json(
         {
           error: "The Architect only. Admin role required.",

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isAdminRole } from "@/lib/auth";
 import { getHallClassWorkerRules } from "@/lib/forge";
 
 /* ============================================================
@@ -22,7 +22,7 @@ export async function GET(
 
     // Verify hall access
     const hasAccess =
-      user.role === "admin" ||
+      isAdminRole(user.role) ||
       (await prisma.ownership.findFirst({
         where: { hallId, ledgerId: user.ledgerId, status: "active" },
       }));
@@ -58,7 +58,7 @@ export async function GET(
     }
 
     const rules = getHallClassWorkerRules(hall.hallClass);
-    const isAdmin = user.role === "admin";
+    const isAdmin = isAdminRole(user.role);
 
     // Build response — salary redacted unless admin or Class III with showIndividualSalaries
     const response: Record<string, unknown> = {

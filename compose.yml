@@ -32,6 +32,12 @@ services:
       PAYSTACK_PUBLIC_KEY: ${PAYSTACK_PUBLIC_KEY:-}
       PAYSTACK_SECRET_KEY: ${PAYSTACK_SECRET_KEY:-}
       PAYSTACK_WEBHOOK_IPS: ${PAYSTACK_WEBHOOK_IPS:-}
+      SEED_ARCHITECH_EMAIL: ${SEED_ARCHITECH_EMAIL:-}
+      SEED_ARCHITECH_PASSWORD: ${SEED_ARCHITECH_PASSWORD:-}
+      SEED_ARCHITECH_LEDGER_ID: ${SEED_ARCHITECH_LEDGER_ID:-}
+      SEED_ARCHITECH_DISPLAY_NAME: ${SEED_ARCHITECH_DISPLAY_NAME:-}
+      SEED_ARCHITECH_LEGAL_NAME: ${SEED_ARCHITECH_LEGAL_NAME:-}
+      SEED_ARCHITECH_COUNTRY: ${SEED_ARCHITECH_COUNTRY:-}
     ports:
       - "${WEB_PORT:-3000}:3000"
     healthcheck:
@@ -44,7 +50,6 @@ services:
       timeout: 5s
       retries: 12
       start_period: 20s
-    command: sh -c "node scripts/check-runtime-env.mjs && npx prisma migrate deploy && npm run start"
 
   worker:
     build: .

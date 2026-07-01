@@ -1,7 +1,7 @@
 // app/api/halls/[id]/proposals/[proposalId]/execute/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isAdminRole } from "@/lib/auth";
 
 /* ============================================================
    POST /api/halls/[id]/proposals/[proposalId]/execute
@@ -24,7 +24,7 @@ export async function POST(
     const { id: hallId, proposalId } = await params;
 
     // Verify user is admin
-    if (user.role !== "admin") {
+    if (!isAdminRole(user.role)) {
       return NextResponse.json(
         { success: false, error: "Admin only" },
         { status: 403 },

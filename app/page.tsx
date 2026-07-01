@@ -381,7 +381,7 @@ function TheActions() {
   const getPath = () => {
     if (!user) return "/enter";
     if (user.isPrimaryAdmin) return "/architect";
-    if (user.role === "admin") return "/admin";
+    if (["architech", "scribe", "warden"].includes(user.role || "")) return "/admin";
     return "/dashboard";
   };
 

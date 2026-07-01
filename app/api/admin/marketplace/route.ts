@@ -1,7 +1,7 @@
 // app/api/admin/marketplace/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isAdminRole, isPrimaryAdminRole } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 
 /* ============================================================
@@ -29,7 +29,7 @@ function requireAdminOrFounder(user: { role: string } | null): NextResponse | nu
   if (!user) {
     return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
   }
-  if (user.role !== "admin" && user.role !== "founder") {
+  if (!isAdminRole(user.role) && !isPrimaryAdminRole(user.role)) {
     return NextResponse.json(
       { success: false, error: "Admin or founder authority required" },
       { status: 403 }

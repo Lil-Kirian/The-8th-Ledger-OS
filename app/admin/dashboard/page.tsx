@@ -1,6 +1,6 @@
 // app/admin/dashboard/page.tsx
 import { prisma } from "@/lib/prisma";
-import { requireAdmin, isPrimaryAdmin } from "@/lib/auth";
+import { requireAdmin, isPrimaryAdmin, isAdminRole } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/auth";
@@ -267,7 +267,7 @@ async function getDashboardData(): Promise<DashboardStats> {
     oracleNovices,
   ] = await Promise.all([
     prisma.user.count(),
-    prisma.user.count({ where: { role: "admin" } }),
+    prisma.user.count({ where: { role: { in: ["architech", "scribe", "warden"] } } }),
     prisma.pool.count(),
     prisma.pool.count({ where: { status: { in: ["filling", "active"] } } }),
     prisma.pool.count({ where: { status: "filled" } }),
@@ -429,7 +429,7 @@ export default async function AdminDashboardPage() {
   if (!token) redirect("/enter?redirect=/admin/dashboard");
 
   const session = await verifyToken(token);
-  if (!session || session.role !== "admin")
+  if (!session || !isAdminRole(String(session.role || "")))
     redirect("/enter?redirect=/admin/dashboard");
 
   const primary = isPrimaryAdmin(session);

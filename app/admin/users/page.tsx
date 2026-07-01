@@ -120,14 +120,14 @@ function UserActionMenu({
       key: "make-primary-admin",
       label: "Make Primary Admin",
       icon: Crown,
-      show: user.role === "user" || (user.role === "admin" && !user.isPrimaryAdmin),
+      show: user.role === "user" || (["architech", "scribe", "warden"].includes(user.role) && !user.isPrimaryAdmin),
       danger: true,
     },
     {
       key: "make-user",
       label: "Remove Admin",
       icon: UserX,
-      show: user.role === "admin",
+      show: ["architech", "scribe", "warden"].includes(user.role),
       danger: true,
     },
     { key: "ban", label: "Ban Sovereign", icon: Ban, show: user.status !== "banned", danger: true },
@@ -578,7 +578,7 @@ export default function UsersPage() {
                     className={`inline-flex rounded-md px-1.5 py-0.5 text-[9px] font-semibold ${
                       u.isPrimaryAdmin
                         ? "bg-amber-500/10 text-amber-400"
-                        : u.role === "admin"
+                        : ["architech", "scribe", "warden"].includes(u.role)
                         ? "bg-violet-500/10 text-violet-400"
                         : "bg-white/5 text-white/30"
                     }`}

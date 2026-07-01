@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, requireAdmin, getSessionUser } from "@/lib/auth";
+import { requireAuth, requireAdmin, getSessionUser, isAdminRole } from "@/lib/auth";
 import {
   getHallClassWorkerRules,
   getForgeLedgerHistory,
@@ -30,7 +30,7 @@ export async function GET(
       where: { hallId, ledgerId: user.ledgerId, status: "active" },
     });
 
-    if (!ownership && user.role !== "admin") {
+    if (!ownership && !isAdminRole(user.role)) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
@@ -75,7 +75,7 @@ export async function GET(
       canProposeHire: workerRules.canProposeHire,
       canProposeFire: workerRules.canProposeFire,
       showSalaries: workerRules.showIndividualSalaries,
-      isAdmin: user.role === "admin" && user.isPrimaryAdmin,
+      isAdmin: isAdminRole(user.role) && user.isPrimaryAdmin,
     });
   } catch (err) {
     console.error("[8th Ledger] Forge GET error:", err);

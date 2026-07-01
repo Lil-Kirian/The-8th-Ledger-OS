@@ -13,7 +13,7 @@
     "db:studio": "prisma studio",
     "db:generate": "prisma generate",
     "db:seed": "tsx prisma/seed.ts",
-    "db:seed:dev": "tsx prisma/seed.dev.ts",
+    "db:bootstrap": "node scripts/entrypoint.mjs",
     "worker": "tsx server/jobs/worker.ts",
     "check:runtime-env": "node scripts/check-runtime-env.mjs"
   },

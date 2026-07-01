@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser, isFounder } from "@/lib/auth";
+import { getSessionUser, isFounder, isAdminRole } from "@/lib/auth";
 import { Prisma } from "@prisma/client";
 
 /* ============================================================
@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
 
     // Only admin/founder or system webhooks can trigger bulk notifications
     const founder = await isFounder(user.ledgerId);
-    if (!founder && user.role !== "admin") {
+    if (!founder && !isAdminRole(user.role)) {
       return NextResponse.json(
         { success: false, error: "Admin or Founder authority required" },
         { status: 403 },

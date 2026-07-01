@@ -121,6 +121,8 @@ const ROLE_BADGES = {
 // HELPERS
 //
 
+const ADMIN_ROLES = ["architech", "scribe", "warden", "admin", "founder"];
+
 function timeAgo(date: string): string {
   const diff = Date.now() - new Date(date).getTime();
   const mins = Math.floor(diff / 60000);
@@ -135,7 +137,7 @@ function timeAgo(date: string): string {
 
 function getRoleBadge(answerer: QAItem["answerer"]) {
   if (!answerer) return null;
-  if (answerer.role === "admin") return ROLE_BADGES.admin;
+  if (ADMIN_ROLES.includes(answerer.role)) return ROLE_BADGES.admin;
   if (answerer.kycTier === "verified" || answerer.kycTier === "whale") return ROLE_BADGES.herald;
   return ROLE_BADGES.user;
 }

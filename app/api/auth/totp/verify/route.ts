@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { SignJWT } from "jose";
 import * as otplib from "otplib";
 import prisma from "@/lib/prisma";
+import { isAdminRole } from "@/lib/auth";
 
 /* ============================================================
    PRIMARY ADMIN TOTP VERIFICATION + SESSION REFRESH
@@ -54,7 +55,7 @@ export async function POST(req: Request) {
       },
     });
 
-    if (!user || user.role !== "admin" || !user.isPrimaryAdmin) {
+    if (!user || !isAdminRole(user.role) || !user.isPrimaryAdmin) {
       return NextResponse.json(
         { error: "Architect authority required. Primary admin access only." },
         { status: 403 },

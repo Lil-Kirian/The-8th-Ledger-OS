@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SignJWT } from "jose";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isAdminRole } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 /* ============================================================
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
     const user = await getSessionUser();
     if (!user)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    if (user.role !== "admin") {
+    if (!isAdminRole(user.role)) {
       return NextResponse.json(
         { error: "Administrative access only" },
         { status: 403 },
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
     const user = await getSessionUser();
     if (!user)
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    if (user.role !== "admin") {
+    if (!isAdminRole(user.role)) {
       return NextResponse.json(
         { error: "Administrative access only" },
         { status: 403 },

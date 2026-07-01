@@ -488,7 +488,7 @@ export default function AdminLayout({
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { user } = useAuth();
-  const isPrimary = user?.role === "admin" && user?.isPrimaryAdmin;
+  const isPrimary = ["architech", "scribe", "warden"].includes(user?.role || "") && user?.isPrimaryAdmin;
 
   return (
     <AuthGuard>

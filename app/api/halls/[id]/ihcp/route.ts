@@ -1,7 +1,7 @@
 // app/api/halls/[id]/ihcp/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { requireAuth } from "@/lib/auth";
+import { requireAuth, isAdminRole } from "@/lib/auth";
 
 const prisma = new PrismaClient();
 
@@ -51,7 +51,7 @@ export async function GET(
 
     // Only owners can see IHCP details
     const isOwner = hall.ownerships.length > 0;
-    const isAdmin = user.role === "admin" || user.isPrimaryAdmin;
+    const isAdmin = isAdminRole(user.role) || user.isPrimaryAdmin;
 
     if (!isOwner && !isAdmin) {
       return NextResponse.json(

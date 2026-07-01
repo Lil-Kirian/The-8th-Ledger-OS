@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 
+const ADMIN_ROLES = ["architech", "scribe", "warden", "admin", "founder"];
+
 //
 // TYPES
 //
@@ -304,7 +306,7 @@ export function SuggestionForm({ onSubmit, onClose }: SuggestionFormProps) {
       user?.kycTier === "sovereign" ||
       user?.kycTier === "verified" ||
       user?.kycTier === "whale" ||
-      user?.role === "admin",
+      ADMIN_ROLES.includes(user?.role || ""),
     [user]
   );
 

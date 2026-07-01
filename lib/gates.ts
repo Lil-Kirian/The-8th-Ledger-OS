@@ -322,7 +322,7 @@ export async function isPrimaryAdmin(userId: string): Promise<boolean> {
     where: { id: userId },
     select: { role: true, isPrimaryAdmin: true },
   });
-  return user?.role === "admin" && user?.isPrimaryAdmin === true;
+  return ["architech", "admin", "founder"].includes(user?.role || "") && user?.isPrimaryAdmin === true;
 }
 
 export async function requirePrimaryAdmin(userId: string): Promise<void> {

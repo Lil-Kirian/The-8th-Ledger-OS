@@ -74,6 +74,7 @@ const STATUS_STYLES = {
 // ── Fetcher
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const ADMIN_ROLES = ["architech", "scribe", "warden", "admin", "founder"];
 
 // ── Components
 
@@ -210,7 +211,7 @@ function CreateModal({
     vertical: "",
   });
 
-  const canSubmit = user && (user.kycTier === "sovereign" || user.kycTier === "verified" || user.kycTier === "whale" || user.role === "admin");
+  const canSubmit = user && (user.kycTier === "sovereign" || user.kycTier === "verified" || user.kycTier === "whale" || ADMIN_ROLES.includes(user.role || ""));
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

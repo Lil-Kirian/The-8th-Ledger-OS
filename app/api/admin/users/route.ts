@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isAdminRole } from "@/lib/auth";
 import { generateTxHash } from "@/lib/utils";
 
 /* ============================================================
@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
       { success: false, error: "Unauthorized" },
       { status: 401 },
     );
-  if (user.role !== "admin")
+  if (!isAdminRole(user.role))
     return NextResponse.json(
       { success: false, error: "Admin access only" },
       { status: 403 },
@@ -132,7 +132,7 @@ export async function PATCH(req: NextRequest) {
       { success: false, error: "Unauthorized" },
       { status: 401 },
     );
-  if (user.role !== "admin")
+  if (!isAdminRole(user.role))
     return NextResponse.json(
       { success: false, error: "Admin access only" },
       { status: 403 },
@@ -186,7 +186,7 @@ export async function PATCH(req: NextRequest) {
         break;
       case "verify-kyc":
         updateData = {
-          kycStatus: "verified",
+          kycStatus: "approved",
           kycTier: "verified",
           kycVerifiedAt: new Date(),
         };
@@ -211,8 +211,8 @@ export async function PATCH(req: NextRequest) {
         message = `Sovereign ${ledgerId} demoted to Tier ${updateData.tier}.`;
         break;
       case "make-admin":
-        updateData = { role: "admin", isPrimaryAdmin: false };
-        message = `Sovereign ${ledgerId} granted Admin privileges.`;
+        updateData = { role: "scribe", isPrimaryAdmin: false };
+        message = `Sovereign ${ledgerId} granted Scribe admin privileges.`;
         break;
       case "make-primary-admin":
         if (!user.isPrimaryAdmin) {
@@ -221,8 +221,8 @@ export async function PATCH(req: NextRequest) {
             { status: 403 },
           );
         }
-        updateData = { role: "admin", isPrimaryAdmin: true };
-        message = `Sovereign ${ledgerId} granted Primary Admin privileges.`;
+        updateData = { role: "architech", isPrimaryAdmin: true };
+        message = `Sovereign ${ledgerId} granted Architech privileges.`;
         break;
       case "make-user":
         updateData = { role: "user", isPrimaryAdmin: false };

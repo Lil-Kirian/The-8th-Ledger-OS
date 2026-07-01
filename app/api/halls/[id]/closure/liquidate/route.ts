@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import {  getSessionUser } from "@/lib/auth";
+import {  getSessionUser, isAdminRole } from "@/lib/auth";
 import { logSecurityAudit } from "@/lib/audit";
 
 // POST /api/halls/[id]/closure/liquidate
@@ -15,7 +15,7 @@ export async function POST(
     const user = await getSessionUser(req);
 
     // Primary admin only — this is irreversible
-    if (!user || user.role !== "admin" || !user.isPrimaryAdmin) {
+    if (!user || !isAdminRole(user.role) || !user.isPrimaryAdmin) {
       return NextResponse.json(
         { error: "Primary admin required. Liquidation is irreversible." },
         { status: 403 }

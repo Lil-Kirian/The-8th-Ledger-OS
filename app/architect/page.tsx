@@ -84,7 +84,7 @@ export default function ArchitectCommandCenter() {
 
   const council = [
     {
-      role: "architect" as const,
+      role: "architech" as const,
       name: displayName,
       ledgerId,
       status: "active" as const,
@@ -572,18 +572,18 @@ export default function ArchitectCommandCenter() {
                 {council.map((member) => (
                   <div
                     key={member.role}
-                    className={`relative overflow-hidden rounded-2xl border p-6 ${member.role === "architect" ? "border-cyan-500/30 bg-cyan-500/5" : "border-slate-800 bg-slate-900/30"}`}
+                    className={`relative overflow-hidden rounded-2xl border p-6 ${member.role === "architech" ? "border-cyan-500/30 bg-cyan-500/5" : "border-slate-800 bg-slate-900/30"}`}
                   >
-                    {member.role === "architect" && (
+                    {member.role === "architech" && (
                       <div className="absolute top-4 right-4">
                         <Crown className="w-5 h-5 text-cyan-400" />
                       </div>
                     )}
                     <div className="flex items-center gap-3 mb-4">
                       <div
-                        className={`w-12 h-12 rounded-xl flex items-center justify-center ${member.role === "architect" ? "bg-cyan-500/10" : member.role === "warden" ? "bg-emerald-500/10" : "bg-purple-500/10"}`}
+                        className={`w-12 h-12 rounded-xl flex items-center justify-center ${member.role === "architech" ? "bg-cyan-500/10" : member.role === "warden" ? "bg-emerald-500/10" : "bg-purple-500/10"}`}
                       >
-                        {member.role === "architect" ? (
+                        {member.role === "architech" ? (
                           <Landmark className="w-6 h-6 text-cyan-400" />
                         ) : member.role === "warden" ? (
                           <ShieldCheck className="w-6 h-6 text-emerald-400" />

@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser, isPrimaryAdmin } from "@/lib/auth";
-import { Prisma } from "@prisma/client";
+import { KycStatus, KycTier, Prisma } from "@prisma/client";
 
 /* ============================================================
    TIER DEFINITIONS
    ============================================================ */
 const TIERS = ["visitor", "sovereign", "verified", "whale"] as const;
 type Tier = (typeof TIERS)[number];
+const STATUSES = ["unverified", "pending", "approved", "rejected"] as const;
+type Status = (typeof STATUSES)[number];
 
 const TIER_LIMITS: Record<Tier, { dailyWithdraw: number; label: string }> = {
   visitor: { dailyWithdraw: 0, label: "Visitor" },
@@ -15,6 +17,10 @@ const TIER_LIMITS: Record<Tier, { dailyWithdraw: number; label: string }> = {
   verified: { dailyWithdraw: 5000, label: "Verified" },
   whale: { dailyWithdraw: Number.MAX_SAFE_INTEGER, label: "Whale" },
 };
+
+function decisionStatus(decision: "approve" | "reject"): KycStatus {
+  return decision === "approve" ? "approved" : "rejected";
+}
 
 /* ============================================================
    HELPERS
@@ -147,8 +153,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const limit = Math.min(50, Math.max(1, parseInt(searchParams.get("limit") || "20", 10)));
 
     const where: Prisma.KycRecordWhereInput = {};
-    if (status !== "all") where.status = status;
-    if (tier && TIERS.includes(tier as Tier)) where.tier = tier;
+    if (status !== "all" && STATUSES.includes(status as Status)) where.status = status as KycStatus;
+    if (tier && TIERS.includes(tier as Tier)) where.tier = tier as KycTier;
 
     if (search) {
       where.OR = [
@@ -394,7 +400,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         await tx.kycRecord.update({
           where: { id: record.id },
           data: {
-            status: decision,
+            status: decisionStatus(decision),
             reviewedBy: user.ledgerId,
             reviewedAt: new Date(),
             rejectionReason: decision === "reject" ? (notes || "No reason provided") : null,
@@ -408,7 +414,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
             where: { id: record.userId },
             data: {
               kycTier: newTier,
-              kycStatus: "verified",
+              kycStatus: "approved",
               kycVerifiedAt: new Date(),
             },
           });
@@ -533,7 +539,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           await tx.kycRecord.update({
             where: { id: record.id },
             data: {
-              status: decision,
+              status: decisionStatus(decision),
               reviewedBy: user.ledgerId,
               reviewedAt: new Date(),
               rejectionReason: decision === "reject" ? (reason || "Bulk rejection") : null,
@@ -546,7 +552,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
               where: { id: record.userId },
               data: {
                 kycTier: newTier,
-                kycStatus: "verified",
+                kycStatus: "approved",
                 kycVerifiedAt: new Date(),
               },
             });

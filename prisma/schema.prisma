@@ -8,6 +8,37 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  user
+  architech
+  scribe
+  warden
+}
+
+enum KycStatus {
+  unverified
+  pending
+  approved
+  rejected
+}
+
+enum KycTier {
+  visitor
+  sovereign
+  verified
+  whale
+}
+
+enum HallRoleType {
+  manager
+  liaison
+  speaker
+  treasurer
+  warden
+  scribe
+  member
+}
+
 // ============================================================
 // 1. SOVEREIGN IDENTITY
 // ============================================================
@@ -44,9 +75,9 @@ model User {
   reportsSubmitted Int     @default(0)
 
   identityScore  Int       @default(0)
-  kycStatus      String    @default("unverified")
+  kycStatus      KycStatus @default(unverified)
   kycVerifiedAt  DateTime?
-  role           String    @default("user")
+  role           UserRole  @default(user)
   isPrimaryAdmin Boolean   @default(false)
 
   legalName         String?
@@ -55,7 +86,7 @@ model User {
   addressProofUrl   String?
   selfieUrl         String?
   livenessVerified  Boolean  @default(false)
-  kycTier           String   @default("visitor")
+  kycTier           KycTier  @default(visitor)
   lastActivityAt    DateTime @default(now())
   deviceFingerprint String?
   isBanned          Boolean  @default(false)
@@ -658,7 +689,7 @@ model VerticalConfig {
 model UserIdentity {
   id                String    @id @default(cuid())
   ledgerId          String    @unique
-  kycStatus         String    @default("unverified")
+  kycStatus         KycStatus @default(unverified)
   verificationTier  Int       @default(0)
   idDocumentUrl     String?
   selfieUrl         String?
@@ -926,7 +957,7 @@ model Ownership {
   totalFromMarket  Int     @default(0)
   status           String  @default("active")
 
-  role          String?
+  role          HallRoleType?
   roleExpiresAt DateTime?
 
   isWinner             Boolean @default(false)
@@ -1135,7 +1166,7 @@ model HallRole {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  role          String
+  role          HallRoleType
   electedAt     DateTime  @default(now())
   expiresAt     DateTime
   votesReceived Int       @default(0)
@@ -1171,11 +1202,11 @@ model KycRecord {
   dateOfBirth DateTime?
   address     String?
 
-  tier            String    @default("visitor")
+  tier            KycTier   @default(visitor)
   reviewedBy      String?
   reviewedAt      DateTime?
   rejectionReason String?
-  status          String    @default("pending")
+  status          KycStatus @default(pending)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

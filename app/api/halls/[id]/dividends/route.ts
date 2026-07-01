@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser, isPrimaryAdmin, isFounder } from "@/lib/auth";
+import { getSessionUser, isPrimaryAdmin, isFounder, isAdminRole } from "@/lib/auth";
 
 const CLAIMABLE_KYC_TIERS = new Set(["sovereign", "verified", "admin"]);
 
@@ -50,7 +50,7 @@ export async function GET(
         { status: 404 },
       );
     }
-    if (ownerships.length === 0 && !canAdminView && user.role !== "admin") {
+    if (ownerships.length === 0 && !canAdminView && !isAdminRole(user.role)) {
       return NextResponse.json(
         { success: false, error: "Sovereign access denied" },
         { status: 403 },

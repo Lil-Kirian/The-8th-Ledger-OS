@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isAdminRole } from "@/lib/auth";
 
 //
 // GET  /api/halls/[id]/stream
@@ -22,7 +22,7 @@ export async function GET(
     const hasAccess = await prisma.ownership.findFirst({
       where: { hallId, ledgerId: user.ledgerId },
     });
-    if (!hasAccess && user.role !== "admin" && !user.isPrimaryAdmin) {
+    if (!hasAccess && !isAdminRole(user.role) && !user.isPrimaryAdmin) {
       return NextResponse.json(
         { error: "Sovereign Stream is sealed. Ownership required." },
         { status: 403 }
@@ -152,7 +152,7 @@ export async function POST(
     const ownership = await prisma.ownership.findFirst({
       where: { hallId, ledgerId: user.ledgerId },
     });
-    if (!ownership && user.role !== "admin" && !user.isPrimaryAdmin) {
+    if (!ownership && !isAdminRole(user.role) && !user.isPrimaryAdmin) {
       return NextResponse.json(
         { error: "Hall ownership required to speak in the Stream." },
         { status: 403 }
@@ -201,7 +201,7 @@ export async function POST(
     }
 
     // 8TH_LEDGER_UPDATE is admin-only
-    if (type === "8TH_LEDGER_UPDATE" && user.role !== "admin" && !user.isPrimaryAdmin) {
+    if (type === "8TH_LEDGER_UPDATE" && !isAdminRole(user.role) && !user.isPrimaryAdmin) {
       return NextResponse.json(
         { error: "Only the 8th Ledger may post system updates." },
         { status: 403 }

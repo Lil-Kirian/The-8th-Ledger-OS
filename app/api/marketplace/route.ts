@@ -1,7 +1,7 @@
 // app/api/marketplace/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, isFounderSync, getSessionClaims } from "@/lib/auth";
+import { requireAuth, isFounderSync, getSessionClaims, isAdminRole } from "@/lib/auth";
 
 const PLATFORMS = [
   "tiktok",
@@ -199,7 +199,7 @@ export async function PATCH(request: NextRequest): Promise<NextResponse> {
     const claims = await getSessionClaims(request);
     const isFounder = isFounderSync(claims);
 
-    if (!isFounder && user.role !== "admin") {
+    if (!isFounder && !isAdminRole(user.role)) {
       return NextResponse.json(
         { success: false, error: "8th Ledger authority required" },
         { status: 403 },

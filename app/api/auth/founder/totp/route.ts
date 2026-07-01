@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { SignJWT } from "jose";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isAdminRole } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 /* ============================================================
@@ -78,7 +78,7 @@ async function generateQR(url: string): Promise<string | null> {
 export async function GET(req: NextRequest) {
   try {
     const user = await getSessionUser();
-    if (!user || user.role !== "admin" || !user.isPrimaryAdmin) {
+    if (!user || !isAdminRole(user.role) || !user.isPrimaryAdmin) {
       return NextResponse.json(
         { error: "Architect authority required. Primary admin access only." },
         { status: 403 },
@@ -99,7 +99,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const user = await getSessionUser();
-    if (!user || user.role !== "admin" || !user.isPrimaryAdmin) {
+    if (!user || !isAdminRole(user.role) || !user.isPrimaryAdmin) {
       return NextResponse.json(
         { error: "Architect authority required. Primary admin access only." },
         { status: 403 },

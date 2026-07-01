@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
       const usersToWarn = await tx.user.findMany({
         where: {
           lastActivityAt: { lt: warningCutoff },
-          role: { not: "admin" },
+          role: { notIn: ["architech", "scribe", "warden"] },
           isPrimaryAdmin: false,
           dormancyVaults: { none: { status: { in: ["vaulted", "auctioned"] } } },
         },
@@ -113,7 +113,7 @@ export async function GET(request: NextRequest) {
       const usersToVault = await tx.user.findMany({
         where: {
           lastActivityAt: { lt: vaultCutoff },
-          role: { not: "admin" },
+          role: { notIn: ["architech", "scribe", "warden"] },
           isPrimaryAdmin: false,
           ownerships: { some: { status: "dormant" } },
           dormancyVaults: { none: { status: { in: ["vaulted", "auctioned"] } } },

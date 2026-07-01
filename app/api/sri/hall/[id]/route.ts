@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAuth, requireHallAccess, requireAdmin } from "@/lib/auth";
+import { requireAuth, requireHallAccess, requireAdmin, isAdminRole } from "@/lib/auth";
 
 /* ============================================================
    SRI CALCULATION HELPERS (inline until lib/sri.ts is built)
@@ -235,7 +235,7 @@ export async function GET(
     }
 
     const access = await requireHallAccess(request, hallId);
-    if (!access.success && !auth.isPrimaryAdmin && auth.role !== "admin") {
+    if (!access.success && !auth.isPrimaryAdmin && !isAdminRole(auth.role)) {
       return NextResponse.json(
         { error: "Hall access denied" },
         { status: 403 },

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isAdminRole } from "@/lib/auth";
 import { calculatePerformanceScore } from "@/lib/forge";
 
 /* ============================================================
@@ -22,7 +22,7 @@ export async function POST(
     }
 
     // Check if user is Warden or admin
-    const isAdmin = user.role === "admin";
+    const isAdmin = isAdminRole(user.role);
     const cabinet = await prisma.executiveCabinet.findUnique({
       where: { hallId },
       select: { wardenId: true },
@@ -182,7 +182,7 @@ export async function GET(
     }
 
     const hasAccess =
-      user.role === "admin" ||
+      isAdminRole(user.role) ||
       (await prisma.ownership.findFirst({
         where: { hallId, ledgerId: user.ledgerId, status: "active" },
       }));

@@ -5,6 +5,7 @@ import {
   verifyOwnership,
   getUserHallRole,
   isPrimaryAdmin,
+  isAdminRole,
 } from "@/lib/auth";
 
 /* ============================================================
@@ -70,7 +71,7 @@ export async function GET(
     const myVotes = searchParams.get("myVotes") === "true";
 
     const isOwner = await verifyOwnership(hallId, user.id);
-    if (!isOwner && user.role !== "admin") {
+    if (!isOwner && !isAdminRole(user.role)) {
       return NextResponse.json(
         { success: false, error: "Sovereign access denied" },
         { status: 403 },
@@ -227,7 +228,7 @@ export async function POST(
 
     // ── Ownership gate ──
     const isOwner = await verifyOwnership(hallId, user.id);
-    if (!isOwner && user.role !== "admin") {
+    if (!isOwner && !isAdminRole(user.role)) {
       return NextResponse.json(
         { success: false, error: "Sovereign access denied" },
         { status: 403 },

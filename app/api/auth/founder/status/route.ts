@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isPrimaryAdminRole } from "@/lib/auth";
 
 export async function GET(request: NextRequest) {
   try {
@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Only founder can check founder status
-    if (user.role !== "founder") {
+    if (!isPrimaryAdminRole(user.role)) {
       return NextResponse.json({ success: false, error: "Founder only" }, { status: 403 });
     }
 

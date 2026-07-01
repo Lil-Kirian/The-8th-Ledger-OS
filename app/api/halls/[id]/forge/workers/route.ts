@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isAdminRole, isPrimaryAdminRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import {
   getHallClassWorkerRules,
@@ -20,8 +20,8 @@ export async function GET(
     }
 
     const hasAccess =
-      user.role === "admin" ||
-      user.role === "founder" ||
+      isAdminRole(user.role) ||
+      isPrimaryAdminRole(user.role) ||
       (await prisma.ownership.findFirst({
         where: { hallId, ledgerId: user.ledgerId, status: "active" },
       }));
@@ -41,7 +41,7 @@ export async function GET(
 
     const rules = getHallClassWorkerRules(hall.hallClass);
     const workers = await getWorkerRoster(hallId);
-    const showSalaries = user.role === "admin" || rules.showIndividualSalaries;
+    const showSalaries = isAdminRole(user.role) || rules.showIndividualSalaries;
 
     return NextResponse.json({
       workers: workers.map((worker) => ({
@@ -76,7 +76,7 @@ export async function POST(
       where: { hallId, ledgerId: user.ledgerId, status: "active" },
     });
 
-    if (!ownership && user.role !== "admin" && user.role !== "founder") {
+    if (!ownership && !isAdminRole(user.role) && !isPrimaryAdminRole(user.role)) {
       return NextResponse.json({ error: "Active hall ownership required" }, { status: 403 });
     }
 

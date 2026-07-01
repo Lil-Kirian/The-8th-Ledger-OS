@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { getSessionUser } from "@/lib/auth";
+import { getSessionUser, isAdminRole } from "@/lib/auth";
 
 /* ============================================================
    GET /api/admin/operations
@@ -19,7 +19,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       );
     }
 
-    if (user.role !== "admin") {
+    if (!isAdminRole(user.role)) {
       return NextResponse.json(
         { success: false, error: "Forbidden — 8th Ledger Operations access only" },
         { status: 403 }
